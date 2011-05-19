@@ -1,0 +1,8 @@
+tck.iml
+tck.ipr
+tck.iws
+.idea
+target
+/.settings
+/.project
+/.classpath
