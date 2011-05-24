@@ -6,9 +6,13 @@
     <artifactId>tck</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-
     <name>tck</name>
     <url>http://maven.apache.org</url>
+    <description>The Technology Compatibility Kit for JSR107. You should be able to test an inplementation by:
+
+        1. Adding the dependency
+        2. Configuring the JUnit test fixtures
+    </description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -26,8 +30,11 @@
             <artifactId>jsr107-api</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
-
         <!--Insert JSR107 implementation as a dependency here-->
-
+        <dependency>
+            <groupId>javax.cache.implementation</groupId>
+            <artifactId>ri</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>
