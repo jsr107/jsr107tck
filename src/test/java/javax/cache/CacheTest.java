@@ -12,8 +12,10 @@ public class CacheTest {
 
     @Test
     public void testCreateCache() {
-        Cache cache = new RICache();
+        Cache<String,Integer> cache = new RICache<String,Integer>();
     }
 
-
+    protected <K,V> Cache<K,V> createCache() {
+        return new RICache<K,V>();
+    }
 }
