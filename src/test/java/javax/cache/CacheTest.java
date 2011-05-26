@@ -12,15 +12,9 @@ import java.util.Date;
  * These are very basic tests
  */
 public class CacheTest {
-
-    @Test
-    public void testCreateCache() {
-        Cache<String, Integer> cache = createCache();
-    }
-
     @Test
     public void testGetWithNullKey() {
-        Cache<String, Integer> cache = createCache();
+        final Cache<String, Integer> cache = createCache();
         try {
             cache.get(null);
             fail("should have thrown an exception - null key not allowed");
@@ -31,7 +25,7 @@ public class CacheTest {
 
     @Test
     public void testGetNotExisting() {
-        Cache<String, Integer> cache = createCache();
+        final Cache<String, Integer> cache = createCache();
         final String existingKey = "key1";
         final Integer existingValue = 1;
         cache.put(existingKey, existingValue);
@@ -42,7 +36,7 @@ public class CacheTest {
 
     @Test
     public void testGetExisting() {
-        Cache<String, Integer> cache = createCache();
+        final Cache<String, Integer> cache = createCache();
         final String existingKey = "key1";
         final Integer existingValue = 1;
         cache.put(existingKey, existingValue);
@@ -51,8 +45,8 @@ public class CacheTest {
     }
 
     @Test
-    public void testGetExistingWithNonSameButEqualKey() {
-        Cache<Date, Integer> cache = createCache();
+    public void testGetExistingWithEqualButNonSameKey() {
+        final Cache<Date, Integer> cache = createCache();
         final long now = System.currentTimeMillis();
         final Date existingKey = new Date(now);
         final Integer existingValue = 1;
@@ -65,7 +59,7 @@ public class CacheTest {
 
     @Test
     public void testPutNullKey() {
-        Cache<String, Integer> cache = createCache();
+        final Cache<String, Integer> cache = createCache();
         try {
             cache.put(null, 1);
             fail("should have thrown an exception - null key not allowed");
@@ -76,13 +70,68 @@ public class CacheTest {
 
     @Test
     public void testPutNullValue() {
-        Cache<String, Integer> cache = createCache();
+        final Cache<String, Integer> cache = createCache();
         try {
             cache.put("key", null);
+            fail("should have thrown an exception - null value not allowed");
+        } catch (IllegalArgumentException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void testPutExistingWithEqualButNonSameKey() {
+        final Cache<Date, Integer> cache = createCache();
+        final long now = System.currentTimeMillis();
+        final Date key1 = new Date(now);
+        final Integer value1 = 1;
+        cache.put(key1, value1);
+        final Date key2 = new Date(now);
+        final Integer value2 = value1 + 1;
+        cache.put(key2, value2);
+        //TODO: at some point we will not (only) store by reference
+        assertSame(value2, cache.get(key2));
+    }
+
+    @Test
+    public void testRemoveNullKey() {
+        final Cache<String, Integer> cache = createCache();
+        try {
+            cache.remove(null);
             fail("should have thrown an exception - null key not allowed");
         } catch (IllegalArgumentException e) {
             //good
         }
+    }
+
+    @Test
+    public void testRemoveNotExistent() {
+        final Cache<String, Integer> cache = createCache();
+        final String existingKey = "key1";
+        final Integer existingValue = 1;
+        cache.put(existingKey, existingValue);
+
+        final String keyNotExisting = existingKey + "XXX";
+        assertFalse(cache.remove(keyNotExisting));
+        assertEquals(existingValue, cache.get(existingKey));
+    }
+
+    @Test
+    public void testRemoveEqualButNotSameKey() {
+        final Cache<Date, Integer> cache = createCache();
+        final long now = System.currentTimeMillis();
+
+        final Date key1 = new Date(now);
+        final Integer value1 = 1;
+        cache.put(key1, value1);
+
+        final Date key2 = new Date(now + 1);
+        final Integer value2 = value1 + 1;
+        cache.put(key2, value2);
+
+        assertTrue(cache.remove(key1.clone()));
+        assertNull(cache.get(key1));
+        assertEquals(value2, cache.get(key2));
     }
 
     protected <K,V> Cache<K,V> createCache() {
