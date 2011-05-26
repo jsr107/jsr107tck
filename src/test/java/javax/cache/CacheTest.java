@@ -203,35 +203,68 @@ public class CacheTest {
         assertEquals(new Long(now), cache.get(new Date(now)));
     }
 
-//    @Test
-//    public void test_load() {
-//        final Cache<Date, Integer> cache = createCache();
-//        cache.load(null, null, null);
-//    }
-//
-//    @Test
-//    public void test_loadAll() {
-//        final Cache<Date, Integer> cache = createCache();
-//        cache.load(null, null, null);
-//    }
-//
-//    @Test
-//    public void test_getCacheEntry() {
-//        final Cache<Date, Integer> cache = createCache();
-//        cache.getCacheEntry(null);
-//    }
-//
-//    @Test
-//    public void test_addListener() {
-//        final Cache<Date, Integer> cache = createCache();
-//        cache.addListener(null);
-//    }
-//
-//    @Test
-//    public void test_removeListener() {
-//        final Cache<Date, Integer> cache = createCache();
-//        cache.removeListener(null);
-//    }
+    @Test
+    public void test_load() {
+        final Cache<Date, Integer> cache = createCache();
+        cache.load(null, null, null);
+    }
+
+    @Test
+    public void test_loadAll() {
+        final Cache<Date, Integer> cache = createCache();
+        cache.load(null, null, null);
+    }
+
+    @Test
+    public void test_getCacheEntry_Null() {
+        final Cache<Date, Integer> cache = createCache();
+        try {
+            cache.getCacheEntry(null);
+            fail("should have thrown an exception - null key not allowed");
+        } catch (NullPointerException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void test_getCacheEntry_Missing() {
+        final Cache<Date, Long> cache = createCache();
+        long now = System.currentTimeMillis();
+        cache.put(new Date(now), now);
+        assertNull(cache.getCacheEntry(new Date(now + 1)));
+    }
+
+    @Test
+    public void test_getCacheEntry() {
+        final Cache<Date, Long> cache = createCache();
+        long now = System.currentTimeMillis();
+        Date key = new Date(now);
+        Long value = now;
+        cache.put(key, value);
+        Cache.Entry entry = cache.getCacheEntry(new Date(now));
+        assertEquals(key, entry.getKey());
+        assertEquals(value, entry.getValue());
+    }
+
+    @Test
+    public void test_getCacheStatistics() {
+        final Cache<Date, Integer> cache = createCache();
+        //TODO: we may need more at some point
+        assertNull(cache.getCacheStatistics());
+    }
+
+
+    @Test
+    public void test_addListener() {
+        final Cache<Date, Integer> cache = createCache();
+        cache.addListener(null);
+    }
+
+    @Test
+    public void test_removeListener() {
+        final Cache<Date, Integer> cache = createCache();
+        cache.removeListener(null);
+    }
 
     @Test
     public void test_putAll_Null() {
@@ -294,41 +327,41 @@ public class CacheTest {
         }
     }
 
-//    @Test
-//    public void test_putIfAbsent() {
-//        final Cache<Date, Integer> cache = createCache();
-//        cache.putIfAbsent(null, null);
-//    }
-//
-//    @Test
-//    public void test_replace_3arg() {
-//        final Cache<Date, Integer> cache = createCache();
-//        cache.replace(null, null, null);
-//    }
-//
-//    @Test
-//    public void test_replace_2arg() {
-//        final Cache<Date, Integer> cache = createCache();
-//        cache.replace(null, null);
-//    }
-//
-//    @Test
-//    public void test_getAndReplace() {
-//        final Cache<Date, Integer> cache = createCache();
-//        cache.getAndReplace(null, null);
-//    }
-//
-//    @Test
-//    public void test_removeAll_1arg() {
-//        final Cache<Date, Integer> cache = createCache();
-//        cache.removeAll(null);
-//    }
-//
-//    @Test
-//    public void test_removeAll() {
-//        final Cache<Date, Integer> cache = createCache();
-//        cache.removeAll();
-//    }
+    @Test
+    public void test_putIfAbsent() {
+        final Cache<Date, Integer> cache = createCache();
+        cache.putIfAbsent(null, null);
+    }
+
+    @Test
+    public void test_replace_3arg() {
+        final Cache<Date, Integer> cache = createCache();
+        cache.replace(null, null, null);
+    }
+
+    @Test
+    public void test_replace_2arg() {
+        final Cache<Date, Integer> cache = createCache();
+        cache.replace(null, null);
+    }
+
+    @Test
+    public void test_getAndReplace() {
+        final Cache<Date, Integer> cache = createCache();
+        cache.getAndReplace(null, null);
+    }
+
+    @Test
+    public void test_removeAll_1arg() {
+        final Cache<Date, Integer> cache = createCache();
+        cache.removeAll(null);
+    }
+
+    @Test
+    public void test_removeAll() {
+        final Cache<Date, Integer> cache = createCache();
+        cache.removeAll();
+    }
 
     @Test
     public void test_getConfiguration_Default() {
