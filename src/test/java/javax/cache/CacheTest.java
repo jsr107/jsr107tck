@@ -356,12 +356,14 @@ public class CacheTest {
         final Cache<Date, Integer> cache = createCache();
         cache.removeAll(null);
     }
-
-    @Test
-    public void test_removeAll() {
-        final Cache<Date, Integer> cache = createCache();
-        cache.removeAll();
-    }
+//
+//    @Test
+//    public void test_removeAll() {
+//        final Cache<Date, Integer> cache = createCache();
+//        Map<Date, Integer> data = createData(3);
+//        cache.putAll(data);
+//        cache.removeAll();
+//    }
 
     @Test
     public void test_getConfiguration_Default() {
