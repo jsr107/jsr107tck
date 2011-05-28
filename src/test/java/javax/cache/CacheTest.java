@@ -1,6 +1,8 @@
 package javax.cache;
 
 import static org.junit.Assert.*;
+
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.cache.implementation.RICache;
@@ -13,14 +15,29 @@ import java.util.*;
  * These are very basic tests
  */
 public class CacheTest {
+    private boolean ignoreNullKeyOnRead;
+    private boolean allowNullValue;
+    private static final boolean DEFAULT_IGNORE_NULL_KEY_ON_READ = true;
+    private static final boolean DEFAULT_ALLOW_NULL_VALUE = true;
+
+    @Before
+    public void setUp() {
+        ignoreNullKeyOnRead = isIgnoreNullKeyOnRead();
+        allowNullValue = isAllowNullValue();
+    }
+
     @Test
     public void test_get_NullKey() {
         final Cache<String, Integer> cache = createCache();
         try {
-            cache.get(null);
-            fail("should have thrown an exception - null key not allowed");
+            assertNull(cache.get(null));
+            if (!ignoreNullKeyOnRead) {
+                fail("should have thrown an exception - null key not allowed");
+            }
         } catch(NullPointerException e) {
-            // good
+            if (ignoreNullKeyOnRead) {
+                fail("should not have thrown an exception - null key allowed");
+            }
         }
     }
 
@@ -72,9 +89,13 @@ public class CacheTest {
         final Cache<String, Integer> cache = createCache();
         try {
             cache.put("key", null);
-            fail("should have thrown an exception - null value not allowed");
+            if (!allowNullValue) {
+                fail("should have thrown an exception - null value not allowed");
+            }
         } catch (NullPointerException e) {
-            //good
+            if (allowNullValue) {
+                fail("should not have thrown an exception - null value allowed");
+            }
         }
     }
 
@@ -95,10 +116,14 @@ public class CacheTest {
     public void test_remove_NullKey() {
         final Cache<String, Integer> cache = createCache();
         try {
-            cache.remove(null);
-            fail("should have thrown an exception - null key not allowed");
+            assertFalse(cache.remove(null));
+            if (!ignoreNullKeyOnRead) {
+                fail("should have thrown an exception - null key not allowed");
+            }
         } catch (NullPointerException e) {
-            //good
+            if (ignoreNullKeyOnRead) {
+                fail("should not have thrown an exception - null key allowed");
+            }
         }
     }
 
@@ -152,9 +177,13 @@ public class CacheTest {
         keys.add(2);
         try {
             cache.getAll(keys);
-            fail("should have thrown an exception - null key in keys not allowed");
+            if (!ignoreNullKeyOnRead) {
+                fail("should have thrown an exception - null key in keys not allowed");
+            }
         } catch (NullPointerException e) {
-            //good
+            if (ignoreNullKeyOnRead) {
+                fail("should not have thrown an exception - null key in keys allowed");
+            }
         }
     }
 
@@ -186,21 +215,29 @@ public class CacheTest {
     public void test_containsKey_Null() {
         final Cache<Date, Integer> cache = createCache();
         try {
-            cache.containsKey(null);
-            fail("should have thrown an exception - null key not allowed");
+            assertFalse(cache.containsKey(null));
+            if (!ignoreNullKeyOnRead) {
+                fail("should have thrown an exception - null key not allowed");
+            }
         } catch (NullPointerException e) {
-            //good
+            if (ignoreNullKeyOnRead) {
+                fail("should not have thrown an exception - null key allowed");
+            }
         }
     }
 
     @Test
     public void test_containsKey() {
-        final Cache<Date, Long> cache = createCache();
-        final long now = System.currentTimeMillis();
-        cache.put(new Date(now), now);
-        assertTrue(cache.containsKey(new Date(now)));
-        assertFalse(cache.containsKey(new Date(now+1)));
-        assertEquals(new Long(now), cache.get(new Date(now)));
+        final Cache<Date, Integer> cache = createCache();
+        Map<Date, Integer> data = createData(3);
+        for (Map.Entry<Date,Integer> entry : data.entrySet()) {
+            assertFalse(cache.containsKey(entry.getKey()));
+            cache.put(entry.getKey(), entry.getValue());
+            assertTrue(cache.containsKey(entry.getKey().clone()));
+        }
+        for (Date key : data.keySet()) {
+            assertTrue(cache.containsKey(key.clone()));
+        }
     }
 
     @Test
@@ -213,37 +250,6 @@ public class CacheTest {
     public void test_loadAll() {
         final Cache<Date, Integer> cache = createCache();
         cache.load(null, null, null);
-    }
-
-    @Test
-    public void test_getCacheEntry_Null() {
-        final Cache<Date, Integer> cache = createCache();
-        try {
-            cache.getCacheEntry(null);
-            fail("should have thrown an exception - null key not allowed");
-        } catch (NullPointerException e) {
-            //good
-        }
-    }
-
-    @Test
-    public void test_getCacheEntry_Missing() {
-        final Cache<Date, Long> cache = createCache();
-        long now = System.currentTimeMillis();
-        cache.put(new Date(now), now);
-        assertNull(cache.getCacheEntry(new Date(now + 1)));
-    }
-
-    @Test
-    public void test_getCacheEntry() {
-        final Cache<Date, Long> cache = createCache();
-        long now = System.currentTimeMillis();
-        Date key = new Date(now);
-        Long value = now;
-        cache.put(key, value);
-        Cache.Entry entry = cache.getCacheEntry(new Date(now));
-        assertEquals(key, entry.getKey());
-        assertEquals(value, entry.getValue());
     }
 
     @Test
@@ -286,13 +292,21 @@ public class CacheTest {
         data.put(null, Integer.MAX_VALUE);
         try {
             cache.putAll(data);
-            fail("should have thrown an exception - null key not allowed");
+            if (!ignoreNullKeyOnRead) {
+                fail("should have thrown an exception - null key not allowed");
+            }
         } catch (NullPointerException e) {
-            //good
+            if (ignoreNullKeyOnRead) {
+                fail("should not have thrown an exception - null key allowed");
+            }
         }
         for (Map.Entry<Date,Integer> entry : data.entrySet()) {
             if (entry.getKey() != null) {
-                assertNull(cache.get(entry.getKey()));
+                if (!ignoreNullKeyOnRead) {
+                    assertNull(cache.get(entry.getKey()));
+                } else {
+                    checkGetExpectation(entry.getValue(), cache, entry.getKey());
+                }
             }
         }
     }
@@ -306,13 +320,21 @@ public class CacheTest {
         data.put(new Date(), null);
         try {
             cache.putAll(data);
-            fail("should have thrown an exception - null key not allowed");
+            if (!allowNullValue) {
+                fail("should have thrown an exception - null value not allowed");
+            }
         } catch (NullPointerException e) {
-            //good
+            if (allowNullValue) {
+                fail("should not have thrown an exception - null value allowed");
+            }
         }
         for (Map.Entry<Date,Integer> entry : data.entrySet()) {
             if (entry.getValue() != null) {
-                assertNull(cache.get(entry.getKey()));
+                if (!allowNullValue) {
+                    assertNull(cache.get(entry.getKey()));
+                } else {
+                    checkGetExpectation(entry.getValue(), cache, entry.getKey());
+                }
             }
         }
     }
@@ -328,42 +350,266 @@ public class CacheTest {
     }
 
     @Test
-    public void test_putIfAbsent() {
+    public void test_putIfAbsent_NullKey() {
         final Cache<Date, Integer> cache = createCache();
-        cache.putIfAbsent(null, null);
+        try {
+            assertFalse(cache.putIfAbsent(null, 1));
+            if (!ignoreNullKeyOnRead) {
+                fail("should have thrown an exception - null key not allowed");
+            }
+        } catch (NullPointerException e) {
+            if (ignoreNullKeyOnRead) {
+                fail("should not have thrown an exception - null key allowed");
+            }
+        }
     }
 
     @Test
-    public void test_replace_3arg() {
+    public void test_putIfAbsent_NullValue() {
         final Cache<Date, Integer> cache = createCache();
-        cache.replace(null, null, null);
+        try {
+            assertTrue(cache.putIfAbsent(new Date(), null));
+            if (!allowNullValue) {
+                fail("should have thrown an exception - null value not allowed");
+            }
+        } catch (NullPointerException e) {
+            if (allowNullValue) {
+                fail("should not have thrown an exception - null value allowed");
+            }
+        }
     }
 
     @Test
-    public void test_replace_2arg() {
-        final Cache<Date, Integer> cache = createCache();
-        cache.replace(null, null);
+    public void test_putIfAbsent_Missing() {
+        final Cache<Date, Long> cache = createCache();
+        Date key = new Date();
+        Long value = key.getTime();
+        assertTrue(cache.putIfAbsent(key, value));
+        checkGetExpectation(value, cache, key);
     }
 
     @Test
-    public void test_getAndReplace() {
+    public void test_putIfAbsent_There() {
+        final Cache<Date, Long> cache = createCache();
+        Date key = new Date();
+        Long value = key.getTime();
+        Long oldValue = value+1;
+        cache.put(key, oldValue);
+        assertFalse(cache.putIfAbsent(key, value));
+        checkGetExpectation(oldValue, cache, key);
+    }
+
+    @Test
+    public void test_replace_3arg_NullKey() {
         final Cache<Date, Integer> cache = createCache();
-        cache.getAndReplace(null, null);
+        try {
+            assertFalse(cache.replace(null, 1, 2));
+            fail("should have thrown an exception - null key not allowed");
+        } catch (NullPointerException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void test_replace_3arg_NullValue1() {
+        final Cache<Date, Integer> cache = createCache();
+        try {
+            assertFalse(cache.replace(new Date(), null, 2));
+            if (!allowNullValue) {
+                fail("should have thrown an exception - null value not allowed");
+            }
+        } catch (NullPointerException e) {
+            if (allowNullValue) {
+                fail("should not have thrown an exception - null value allowed");
+            }
+        }
+    }
+
+    @Test
+    public void test_replace_3arg_NullValue2() {
+        final Cache<Date, Integer> cache = createCache();
+        try {
+            assertFalse(cache.replace(new Date(), 1, null));
+            if (!allowNullValue) {
+                fail("should have thrown an exception - null value not allowed");
+            }
+        } catch (NullPointerException e) {
+            if (allowNullValue) {
+                fail("should not have thrown an exception - null value allowed");
+            }
+        }
+    }
+
+    @Test
+    public void test_replace_3arg_Missing(){
+        final Cache<Date, Integer> cache = createCache();
+        assertFalse(cache.replace(new Date(), 1, 2));
+    }
+
+    @Test
+    public void test_replace_3arg_Different(){
+        final Cache<Date, Long> cache = createCache();
+        Date key = new Date();
+        Long value = key.getTime();
+        cache.put(key, value);
+        Long nextValue = value + 1;
+        Long desiredOldValue = value - 1;
+        assertFalse(cache.replace(key, desiredOldValue, nextValue));
+        assertEquals(value, cache.get(key));
+    }
+
+    @Test
+    public void test_replace_3arg(){
+        final Cache<Date, Long> cache = createCache();
+        Date key = new Date();
+        Long value = key.getTime();
+        cache.put(key, value);
+        Long nextValue = value + 1;
+        assertTrue(cache.replace(key, value, nextValue));
+        assertEquals(nextValue, cache.get(key));
+    }
+
+    @Test
+    public void test_replace_2arg_NullKey() {
+        final Cache<Date, Integer> cache = createCache();
+        try {
+            assertFalse(cache.replace(null, 1));
+            fail("should have thrown an exception - null key not allowed");
+        } catch (NullPointerException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void test_replace_2arg_NullValue() {
+        final Cache<Date, Integer> cache = createCache();
+        try {
+            assertFalse(cache.replace(new Date(), null));
+            if (!allowNullValue) {
+                fail("should have thrown an exception - null value not allowed");
+            }
+        } catch (NullPointerException e) {
+            if (allowNullValue) {
+                fail("should not have thrown an exception - null value allowed");
+            }
+        }
+    }
+
+    @Test
+    public void test_replace_2arg_Missing(){
+        final Cache<Date, Integer> cache = createCache();
+        assertFalse(cache.replace(new Date(), 1));
+    }
+
+    @Test
+    public void test_replace_2arg(){
+        final Cache<Date, Long> cache = createCache();
+        Date key = new Date();
+        Long value = key.getTime();
+        cache.put(key, value);
+        Long nextValue = value + 1;
+        assertTrue(cache.replace(key, nextValue));
+        assertEquals(nextValue, cache.get(key));
+    }
+
+    @Test
+    public void test_getAndReplace_NullKey() {
+        final Cache<Date, Integer> cache = createCache();
+        try {
+            assertNull(cache.getAndReplace(null, 1));
+            fail("should have thrown an exception - null key not allowed");
+        } catch (NullPointerException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void test_getAndReplace_NullValue() {
+        final Cache<Date, Integer> cache = createCache();
+        try {
+            assertNull(cache.getAndReplace(new Date(), null));
+            if (!allowNullValue) {
+                fail("should have thrown an exception - null value not allowed");
+            }
+        } catch (NullPointerException e) {
+            if (allowNullValue) {
+                fail("should not have thrown an exception - null value allowed");
+            }
+        }
+    }
+
+    @Test
+    public void test_getAndReplace_Missing(){
+        final Cache<Date, Integer> cache = createCache();
+        assertNull(cache.getAndReplace(new Date(), 1));
+    }
+
+    @Test
+    public void test_getAndReplace(){
+        final Cache<Date, Long> cache = createCache();
+        Date key = new Date();
+        Long value = key.getTime();
+        cache.put(key, value);
+        Long nextValue = value + 1;
+        assertEquals(value, cache.getAndReplace(key, nextValue));
+        assertEquals(nextValue, cache.get(key));
+    }
+
+    @Test
+    public void test_removeAll_1arg_Null() {
+        final Cache<Date, Integer> cache = createCache();
+        try {
+            cache.removeAll(null);
+            fail("expected NPE");
+        } catch (NullPointerException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void test_removeAll_1arg_NullKey() {
+        final Cache<Date, Integer> cache = createCache();
+        ArrayList<Date> keys = new ArrayList<Date>();
+        keys.add(null);
+
+        try {
+            cache.removeAll(keys);
+            if (!ignoreNullKeyOnRead) {
+                fail("null key");
+            }
+        } catch (NullPointerException e) {
+            if (ignoreNullKeyOnRead) {
+                fail("null key");
+            }
+        }
     }
 
     @Test
     public void test_removeAll_1arg() {
-        final Cache<Date, Integer> cache = createCache();
-        cache.removeAll(null);
+        final Cache<Integer, Integer> cache = createCache();
+        Map<Integer, Integer> data = new HashMap<Integer, Integer>();
+        data.put(1,1);
+        data.put(2,2);
+        data.put(3,3);
+        cache.putAll(data);
+
+        data.remove(2);
+        cache.removeAll(data.keySet());
+        assertFalse(cache.containsKey(1));
+        assertEquals(new Integer(2), cache.get(2));
+        assertFalse(cache.containsKey(3));
     }
-//
-//    @Test
-//    public void test_removeAll() {
-//        final Cache<Date, Integer> cache = createCache();
-//        Map<Date, Integer> data = createData(3);
-//        cache.putAll(data);
-//        cache.removeAll();
-//    }
+
+    @Test
+    public void test_removeAll() {
+        final Cache<Date, Integer> cache = createCache();
+        Map<Date, Integer> data = createData(3);
+        cache.putAll(data);
+        cache.removeAll();
+        for (Date key : data.keySet()) {
+            assertFalse(cache.containsKey(key));
+        }
+    }
 
     @Test
     public void test_getConfiguration_Default() {
@@ -432,8 +678,29 @@ public class CacheTest {
 
     // ---------- utilities ----------
 
-    private LinkedHashMap<Date, Integer> createData(int count) {
-        return createData(count, System.currentTimeMillis());
+    protected boolean isIgnoreNullKeyOnRead() {
+        return DEFAULT_IGNORE_NULL_KEY_ON_READ;
+    }
+
+    protected boolean isAllowNullValue() {
+        return DEFAULT_ALLOW_NULL_VALUE;
+    }
+
+    protected <K,V> Cache<K,V> createCache() {
+        return createCache(null);
+    }
+
+    // ---------- utilities ----------
+
+    private <K,V> Cache<K,V> createCache(CacheConfiguration config) {
+        RICache.Builder<K,V> builder = new RICache.Builder<K,V>();
+        if (config != null) {
+            builder.setCacheConfiguration(config);
+        }
+        return builder.
+                setIgnoreNullKeyOnRead(ignoreNullKeyOnRead).
+                setAllowNullValue(allowNullValue).
+                build();
     }
 
     private LinkedHashMap<Date, Integer> createData(int count, long now) {
@@ -449,11 +716,7 @@ public class CacheTest {
         assertSame(expected, cache.get(key));
     }
 
-    protected <K,V> Cache<K,V> createCache() {
-        return new RICache.Builder<K,V>().build();
-    }
-
-    private <K,V> Cache<K,V> createCache(CacheConfiguration config) {
-        return new RICache.Builder<K,V>().setCacheConfiguration(config).build();
+    private LinkedHashMap<Date, Integer> createData(int count) {
+        return createData(count, System.currentTimeMillis());
     }
 }
