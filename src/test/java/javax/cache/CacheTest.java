@@ -676,6 +676,54 @@ public class CacheTest {
         }
     }
 
+    @Test
+    public void test_iterator() {
+        final Cache<Date, Integer> cache = createCache();
+        cache.iterator();
+    }
+
+    @Test
+    public void test_initialise() {
+        final Cache<Date, Integer> cache = createCache();
+        fail();
+    }
+
+    @Test
+    public void test_stopAndDispose() {
+        final Cache<Date, Integer> cache = createCache();
+        fail();
+    }
+
+    @Test
+    public void test_getStatus() {
+        fail();
+    }
+
+    @Test
+    public void test_isReadThrough() {
+        fail();
+    }
+
+    @Test
+    public void test_setReadThrough() {
+        fail();
+    }
+
+    @Test
+    public void test_isWriteThrough() {
+        fail();
+    }
+
+    @Test
+    public void test_isStoreByValue() {
+        fail();
+    }
+
+    @Test
+    public void test_setStoreByValue() {
+        fail();
+    }
+
     // ---------- utilities ----------
 
     protected boolean isIgnoreNullKeyOnRead() {
