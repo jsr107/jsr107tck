@@ -192,6 +192,7 @@ public class CacheTest {
         assertEquals(value2, cache.get(key2));
     }
 
+    @Test
     public void test_getAndRemove_NotStarted() {
         final Cache<String, Integer> cache = createCache();
         try {
@@ -805,7 +806,7 @@ public class CacheTest {
                 setStoreByValue(!defaultConfig.isStoreByValue()).
                 build();
 
-        final Cache<Date, Integer> cache = createCache(expectedConfig);
+        final Cache<Date, Integer> cache = createCache(expectedConfig, null);
         CacheConfiguration config = cache.getConfiguration();
         // defaults
         assertEquals(expectedConfig.isReadThrough(), config.isReadThrough());
@@ -897,31 +898,6 @@ public class CacheTest {
 //    public void test_getStatus() {
 //    }
 
-    @Test
-    public void test_isReadThrough() {
-        fail();
-    }
-
-    @Test
-    public void test_setReadThrough() {
-        fail();
-    }
-
-    @Test
-    public void test_isWriteThrough() {
-        fail();
-    }
-
-    @Test
-    public void test_isStoreByValue() {
-        fail();
-    }
-
-    @Test
-    public void test_setStoreByValue() {
-        fail();
-    }
-
     // ---------- utilities ----------
 
     protected boolean isIgnoreNullKeyOnRead() {
@@ -933,21 +909,24 @@ public class CacheTest {
     }
 
     protected <K,V> Cache<K,V> createAndStartCache() {
-        Cache<K,V> cache = createCache(null);
+        Cache<K,V> cache = createCache(null, null);
         cache.initialise();
         return cache;
     }
 
     protected <K,V> Cache<K,V> createCache() {
-        return createCache(null);
+        return createCache(null, null);
     }
 
     // ---------- utilities ----------
 
-    private <K,V> Cache<K,V> createCache(CacheConfiguration config) {
+    private <K,V> Cache<K,V> createCache(CacheConfiguration config, CacheLoader cacheLoader) {
         RICache.Builder<K,V> builder = new RICache.Builder<K,V>();
         if (config != null) {
             builder.setCacheConfiguration(config);
+        }
+        if (cacheLoader != null) {
+            builder.setCacheLoader(cacheLoader);
         }
         return builder.
                 setIgnoreNullKeyOnRead(ignoreNullKeyOnRead).
