@@ -2,7 +2,6 @@ package javax.cache;
 
 import static org.junit.Assert.*;
 
-import com.sun.org.apache.xpath.internal.compiler.Keywords;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -191,6 +190,16 @@ public class CacheTest {
         assertTrue(cache.remove(key1.clone()));
         assertNull(cache.get(key1));
         assertEquals(value2, cache.get(key2));
+    }
+
+    public void test_getAndRemove_NotStarted() {
+        final Cache<String, Integer> cache = createCache();
+        try {
+            cache.getAndRemove(null);
+            fail("should have thrown an exception - cache not started");
+        } catch (IllegalStateException e) {
+            //good
+        }
     }
 
     @Test
