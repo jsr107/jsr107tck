@@ -261,15 +261,15 @@ public class CacheTest {
 
 
     @Test
-    public void test_addListener() {
+    public void test_registerCacheEntryListener() {
         final Cache<Date, Integer> cache = createCache();
-        cache.addListener(null);
+        cache.registerCacheEntryListener(null, null);
     }
 
     @Test
-    public void test_removeListener() {
+    public void test_unregisterCacheEntryListener() {
         final Cache<Date, Integer> cache = createCache();
-        cache.removeListener(null);
+        cache.unregisterCacheEntryListener(null);
     }
 
     @Test
