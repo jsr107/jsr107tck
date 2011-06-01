@@ -7,7 +7,9 @@ import org.junit.Test;
 
 import javax.cache.implementation.RICache;
 import javax.cache.implementation.RICacheConfiguration;
+import java.security.PrivateKey;
 import java.util.*;
+import java.util.concurrent.Future;
 
 /**
  * Unit test for simple App.
@@ -19,8 +21,6 @@ import java.util.*;
 public class CacheTest {
     private boolean ignoreNullKeyOnRead;
     private boolean allowNullValue;
-    private static final boolean DEFAULT_IGNORE_NULL_KEY_ON_READ = true;
-    private static final boolean DEFAULT_ALLOW_NULL_VALUE = true;
 
     @Before
     public void setUp() {
@@ -320,8 +320,49 @@ public class CacheTest {
     }
 
     @Test
-    public void test_load() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+    public void test_load_NullKey() {
+        final Cache<Integer, Long> cache = createAndStartCache();
+        CacheLoader<Integer, Long> cl = new MockCacheLoader<Integer, Long>();
+        try {
+            assertNull(cache.load(null, cl, null));
+            if (!ignoreNullKeyOnRead) {
+                fail("should have thrown an exception - null key not allowed");
+            }
+        } catch (NullPointerException e) {
+            if (ignoreNullKeyOnRead) {
+                fail("should not have thrown an exception - null key allowed");
+            }
+        }
+    }
+
+    @Test
+    public void test_load_NoCacheLoader() {
+        final Cache<Integer, Long> cache = createAndStartCache();
+        try {
+            assertNull(cache.load(1, null, null));
+        } catch (NullPointerException e) {
+            fail("should not have thrown an exception - with no cache loader should return null");
+        }
+    }
+
+    @Test
+    public void test_load_Found() {
+        final Cache<Integer, Long> cache = createAndStartCache();
+        CacheLoader<Integer, Long> cl = new MockCacheLoader<Integer, Long>();
+        Integer key = 1;
+        cache.put(key, key.longValue());
+        try {
+            assertNull(cache.load(key, cl, null));
+        } catch (NullPointerException e) {
+            fail("should not have thrown an exception - if key in store should return null");
+        }
+    }
+
+    @Test
+    public void test_load_DefaultCacheLoader() {
+        final Cache<Integer, Long> cache = createAndStartCache(null, null);
+        Integer key = 1;
+        cache.put(key, key.longValue());
         cache.load(null, null, null);
     }
 
@@ -901,26 +942,22 @@ public class CacheTest {
     // ---------- utilities ----------
 
     protected boolean isIgnoreNullKeyOnRead() {
-        return DEFAULT_IGNORE_NULL_KEY_ON_READ;
+        return RICache.DEFAULT_IGNORE_NULL_KEY_ON_READ;
     }
 
     protected boolean isAllowNullValue() {
-        return DEFAULT_ALLOW_NULL_VALUE;
+        return RICache.DEFAULT_ALLOW_NULL_VALUE;
     }
 
-    protected <K,V> Cache<K,V> createAndStartCache() {
-        Cache<K,V> cache = createCache(null, null);
-        cache.start();
-        return cache;
-    }
-
-    protected <K,V> Cache<K,V> createCache() {
-        return createCache(null, null);
-    }
-
-    // ---------- utilities ----------
-
-    private <K,V> Cache<K,V> createCache(CacheConfiguration config, CacheLoader cacheLoader) {
+    /**
+     * Creates a cache. Sub classes may override this to create the cache differently.
+     * @param config the cache configuration
+     * @param cacheLoader the default cache loader
+     * @param <K> the key type
+     * @param <V> the value type
+     * @return
+     */
+    protected <K,V> Cache<K,V> createCache(CacheConfiguration config, CacheLoader cacheLoader) {
         RICache.Builder<K,V> builder = new RICache.Builder<K,V>();
         if (config != null) {
             builder.setCacheConfiguration(config);
@@ -932,6 +969,22 @@ public class CacheTest {
                 setIgnoreNullKeyOnRead(ignoreNullKeyOnRead).
                 setAllowNullValue(allowNullValue).
                 build();
+    }
+
+    // ---------- utilities ----------
+
+    private <K,V> Cache<K,V> createCache() {
+        return createCache(null, null);
+    }
+
+    private <K,V> Cache<K,V> createAndStartCache() {
+        return createAndStartCache(null, null);
+    }
+
+    private <K,V> Cache<K,V> createAndStartCache(CacheConfiguration config, CacheLoader cacheLoader) {
+        Cache<K,V> cache = createCache(config, cacheLoader);
+        cache.start();
+        return cache;
     }
 
     private LinkedHashMap<Date, Integer> createData(int count, long now) {
@@ -949,5 +1002,15 @@ public class CacheTest {
 
     private LinkedHashMap<Date, Integer> createData(int count) {
         return createData(count, System.currentTimeMillis());
+    }
+
+    private static class MockCacheLoader<K, V> implements CacheLoader<K, V> {
+        public V load(K key, Object arg) {
+            throw new UnsupportedOperationException();
+        }
+
+        public Map<K, V> loadAll(Collection<? extends K> keys, Object arg) {
+            throw new UnsupportedOperationException();
+        }
     }
 }
