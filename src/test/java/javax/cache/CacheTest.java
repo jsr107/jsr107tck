@@ -882,14 +882,14 @@ public class CacheTest {
     public void test_initialise() {
         final Cache<Date, Integer> cache = createCache();
         assertEquals(Status.UNITIALISED, cache.getStatus());
-        cache.initialise();
+        cache.start();
         assertEquals(Status.STARTED, cache.getStatus());
     }
 
     @Test
     public void test_stopAndDispose() {
         final Cache<Date, Integer> cache = createAndStartCache();
-        cache.stopAndDispose();
+        cache.stop();
         assertEquals(Status.STOPPED, cache.getStatus());
     }
 
@@ -910,7 +910,7 @@ public class CacheTest {
 
     protected <K,V> Cache<K,V> createAndStartCache() {
         Cache<K,V> cache = createCache(null, null);
-        cache.initialise();
+        cache.start();
         return cache;
     }
 
