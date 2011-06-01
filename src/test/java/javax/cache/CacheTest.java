@@ -326,7 +326,7 @@ public class CacheTest {
 
     @Test
     public void test_load_NotStarted() {
-        Cache<Integer, Long> cache = createCache();
+        Cache<Integer, Integer> cache = createCache();
         try {
             cache.load(null, null, null);
             fail("should have thrown an exception - cache not started");
@@ -337,8 +337,8 @@ public class CacheTest {
 
     @Test
     public void test_load_NullKey() {
-        Cache<Integer, Long> cache = createAndStartCache();
-        CacheLoader<Integer, Long> cl = new MockCacheLoader<Integer, Long>();
+        Cache<Integer, Integer> cache = createAndStartCache();
+        CacheLoader<Integer, Integer> cl = new MockCacheLoader<Integer, Integer>();
         try {
             assertNull(cache.load(null, cl, null));
             if (!ignoreNullKeyOnRead) {
@@ -353,10 +353,10 @@ public class CacheTest {
 
     @Test
     public void test_load_Found() {
-        Cache<Integer, Long> cache = createAndStartCache();
-        CacheLoader<Integer, Long> cl = new MockCacheLoader<Integer, Long>();
+        Cache<Integer, Integer> cache = createAndStartCache();
+        CacheLoader<Integer, Integer> cl = new MockCacheLoader<Integer, Integer>();
         Integer key = 1;
-        cache.put(key, key.longValue());
+        cache.put(key, key);
         try {
             assertNull(cache.load(key, cl, null));
         } catch (NullPointerException e) {
@@ -366,7 +366,7 @@ public class CacheTest {
 
     @Test
     public void test_load_NoCacheLoader() {
-        Cache<Integer, Long> cache = createAndStartCache();
+        Cache<Integer, Integer> cache = createAndStartCache();
         Integer key = 1;
         try {
             assertNull(cache.load(key, null, null));
@@ -377,14 +377,14 @@ public class CacheTest {
 
     @Test
     public void test_load_DefaultCacheLoader() throws Exception{
-        final Long valueDefault = 123L;
-        CacheLoader<Integer, Long> clDefault = new MockCacheLoader<Integer, Long>() {
+        final Integer valueDefault = 123;
+        CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>() {
             @Override
-            public Long load(Integer key, Object arg) { return valueDefault; }
+            public Integer load(Integer key, Object arg) { return valueDefault; }
         };
-        Cache<Integer, Long> cache = createAndStartCache(null, clDefault);
+        Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
         Integer key = 1;
-        Future<Long> future = cache.load(key, null, null);
+        Future<Integer> future = cache.load(key, null, null);
         assertNotNull(future);
         assertEquals(valueDefault, future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS));
         assertTrue(cache.containsKey(key));
@@ -393,19 +393,15 @@ public class CacheTest {
 
     @Test
     public void test_load_BothCacheLoader() throws Exception{
-        final Long valueDefault = 123L;
-        CacheLoader<Integer, Long> clDefault = new MockCacheLoader<Integer, Long>() {
+        CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>();
+        final Integer valueSpecific = 123;
+        CacheLoader<Integer, Integer> clSpecific = new MockCacheLoader<Integer, Integer>() {
             @Override
-            public Long load(Integer key, Object arg) { return valueDefault; }
+            public Integer load(Integer key, Object arg) { return valueSpecific; }
         };
-        final Long valueSpecific = valueDefault + 5;
-        CacheLoader<Integer, Long> clSpecific = new MockCacheLoader<Integer, Long>() {
-            @Override
-            public Long load(Integer key, Object arg) { return valueSpecific; }
-        };
-        Cache<Integer, Long> cache = createAndStartCache(null, clDefault);
+        Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
         Integer key = 1;
-        Future<Long> future = cache.load(key, clSpecific, null);
+        Future<Integer> future = cache.load(key, clSpecific, null);
         assertNotNull(future);
         assertEquals(valueSpecific, future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS));
         assertTrue(cache.containsKey(key));
@@ -413,15 +409,15 @@ public class CacheTest {
     }
 
     @Test
-    public void test_ExceptionPropagation() throws Exception {
+    public void test_load_ExceptionPropagation() throws Exception {
         final RuntimeException expectedException = new RuntimeException("expected");
-        CacheLoader<Integer, Long> clDefault = new MockCacheLoader<Integer, Long>() {
+        CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>() {
             @Override
-            public Long load(Integer key, Object arg) { throw expectedException; }
+            public Integer load(Integer key, Object arg) { throw expectedException; }
         };
-        Cache<Integer, Long> cache = createAndStartCache(null, clDefault);
+        Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
         Integer key = 1;
-        Future<Long> future = cache.load(key, null, null);
+        Future<Integer> future = cache.load(key, null, null);
         assertNotNull(future);
         try {
             future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
@@ -511,7 +507,7 @@ public class CacheTest {
     }
 
     @Test
-    public void test_loadAll() throws Exception {
+    public void test_loadAll_1Found1Not() throws Exception {
         Cache<Integer, Integer> cache = createAndStartCache();
         CacheLoader<Integer, Integer> cl = new SimpleCacheLoader<Integer>();
         Integer keyThere = 1;
@@ -523,6 +519,74 @@ public class CacheTest {
         Future<Map<Integer, Integer>> future = cache.loadAll(keys, cl, null);
         Map<Integer, Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
         assertEquals(1, map.size());
+        assertEquals(keyNotThere, map.get(keyNotThere));
+        assertEquals(keyThere, cache.get(keyThere));
+        assertEquals(keyNotThere, cache.get(keyNotThere));
+    }
+
+    @Test
+    public void test_loadAll_NoCacheLoader() throws Exception {
+        Cache<Integer, Integer> cache = createAndStartCache();
+        ArrayList<Integer> keys = new ArrayList<Integer>();
+        keys.add(1);
+        try {
+            assertNull(cache.loadAll(keys, null, null));
+        } catch (NullPointerException e) {
+            fail("should not have thrown an exception - with no cache loader should return null");
+        }
+    }
+
+    @Test
+    public void test_loadAll_DefaultCacheLoader() throws Exception{
+        ArrayList<Integer> keys = new ArrayList<Integer>();
+        keys.add(1);
+        keys.add(2);
+        CacheLoader<Integer, Integer> clDefault = new SimpleCacheLoader<Integer>();
+        Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
+        Future<Map<Integer, Integer>> future = cache.loadAll(keys, null, null);
+        Map<Integer, Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+        assertEquals(keys.size(), map.size());
+        for (Integer key : keys) {
+            assertEquals(key, map.get(key));
+            assertEquals(key, cache.get(key));
+        }
+    }
+
+    @Test
+    public void test_loadAll_BothCacheLoader() throws Exception{
+        CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>();
+        CacheLoader<Integer, Integer> clSpecific = new SimpleCacheLoader<Integer>();
+        Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
+        ArrayList<Integer> keys = new ArrayList<Integer>();
+        keys.add(1);
+        keys.add(2);
+        Future<Map<Integer, Integer>> future = cache.loadAll(keys, clSpecific, null);
+        Map<Integer, Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+        assertEquals(keys.size(), map.size());
+        for (Integer key : keys) {
+            assertEquals(key, map.get(key));
+            assertEquals(key, cache.get(key));
+        }
+    }
+
+    @Test
+    public void test_loadAll_ExceptionPropagation() throws Exception {
+        final RuntimeException expectedException = new RuntimeException("expected");
+        CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>() {
+            @Override
+            public Map<Integer, Integer> loadAll(Collection<? extends Integer> keys, Object arg) { throw expectedException; }
+        };
+        Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
+        ArrayList<Integer> keys = new ArrayList<Integer>();
+        keys.add(1);
+        Future<Map<Integer, Integer>> future = cache.loadAll(keys, null, null);
+        assertNotNull(future);
+        try {
+            future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+            fail("expected exception: ");
+        } catch (ExecutionException e) {
+            assertEquals(expectedException, e.getCause());
+        }
     }
 
     @Test
