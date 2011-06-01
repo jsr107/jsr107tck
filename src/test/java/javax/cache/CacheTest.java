@@ -1,15 +1,30 @@
 package javax.cache;
 
-import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.cache.implementation.RICache;
 import javax.cache.implementation.RICacheConfiguration;
-import java.security.PrivateKey;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Unit test for simple App.
@@ -21,6 +36,7 @@ import java.util.concurrent.Future;
 public class CacheTest {
     private boolean ignoreNullKeyOnRead;
     private boolean allowNullValue;
+    private static long FUTURE_WAIT_MILLIS = 100;
 
     @Before
     public void setUp() {
@@ -30,7 +46,7 @@ public class CacheTest {
 
     @Test
     public void test_get_NotStarted() {
-        final Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = createCache();
         try {
             cache.get(null);
             fail("should have thrown an exception - cache not started");
@@ -41,7 +57,7 @@ public class CacheTest {
 
     @Test
     public void test_get_NullKey() {
-        final Cache<String, Integer> cache = createAndStartCache();
+        Cache<String, Integer> cache = createAndStartCache();
         try {
             assertNull(cache.get(null));
             if (!ignoreNullKeyOnRead) {
@@ -56,39 +72,39 @@ public class CacheTest {
 
     @Test
     public void test_get_NotExisting() {
-        final Cache<String, Integer> cache = createAndStartCache();
-        final String existingKey = "key1";
-        final Integer existingValue = 1;
+        Cache<String, Integer> cache = createAndStartCache();
+        String existingKey = "key1";
+        Integer existingValue = 1;
         cache.put(existingKey, existingValue);
 
-        final String key1 = existingKey + "XXX";
+        String key1 = existingKey + "XXX";
         assertNull(cache.get(key1));
     }
 
     @Test
     public void test_get_Existing() {
-        final Cache<String, Integer> cache = createAndStartCache();
-        final String existingKey = "key1";
-        final Integer existingValue = 1;
+        Cache<String, Integer> cache = createAndStartCache();
+        String existingKey = "key1";
+        Integer existingValue = 1;
         cache.put(existingKey, existingValue);
         checkGetExpectation(existingValue, cache, existingKey);
     }
 
     @Test
     public void test_get_ExistingWithEqualButNonSameKey() {
-        final Cache<Date, Integer> cache = createAndStartCache();
-        final long now = System.currentTimeMillis();
-        final Date existingKey = new Date(now);
-        final Integer existingValue = 1;
+        Cache<Date, Integer> cache = createAndStartCache();
+        long now = System.currentTimeMillis();
+        Date existingKey = new Date(now);
+        Integer existingValue = 1;
         cache.put(existingKey, existingValue);
-        final Date newKey = new Date(now);
+        Date newKey = new Date(now);
         assertNotSame(existingKey, newKey);
         checkGetExpectation(existingValue, cache, newKey);
     }
 
     @Test
     public void test_put_NotStarted() {
-        final Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = createCache();
         try {
             cache.put(null, null);
             fail("should have thrown an exception - cache not started");
@@ -99,7 +115,7 @@ public class CacheTest {
 
     @Test
     public void test_put_NullKey() throws  Exception{
-        final Cache<String, Integer> cache = createAndStartCache();
+        Cache<String, Integer> cache = createAndStartCache();
         try {
             cache.put(null, 1);
             fail("should have thrown an exception - null key not allowed");
@@ -110,7 +126,7 @@ public class CacheTest {
 
     @Test
     public void test_put_NullValue() throws Exception{
-        final Cache<String, Integer> cache = createAndStartCache();
+        Cache<String, Integer> cache = createAndStartCache();
         try {
             cache.put("key", null);
             if (!allowNullValue) {
@@ -125,20 +141,20 @@ public class CacheTest {
 
     @Test
     public void test_put_ExistingWithEqualButNonSameKey() throws Exception{
-        final Cache<Date, Integer> cache = createAndStartCache();
-        final long now = System.currentTimeMillis();
-        final Date key1 = new Date(now);
-        final Integer value1 = 1;
+        Cache<Date, Integer> cache = createAndStartCache();
+        long now = System.currentTimeMillis();
+        Date key1 = new Date(now);
+        Integer value1 = 1;
         cache.put(key1, value1);
-        final Date key2 = new Date(now);
-        final Integer value2 = value1 + 1;
+        Date key2 = new Date(now);
+        Integer value2 = value1 + 1;
         cache.put(key2, value2);
         checkGetExpectation(value2, cache, key2);
     }
 
     @Test
     public void test_remove_NotStarted() {
-        final Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = createCache();
         try {
             cache.remove(null);
             fail("should have thrown an exception - cache not started");
@@ -149,7 +165,7 @@ public class CacheTest {
 
     @Test
     public void test_remove_NullKey() throws Exception{
-        final Cache<String, Integer> cache = createAndStartCache();
+        Cache<String, Integer> cache = createAndStartCache();
         try {
             assertFalse(cache.remove(null));
             if (!ignoreNullKeyOnRead) {
@@ -164,27 +180,27 @@ public class CacheTest {
 
     @Test
     public void test_remove_NotExistent() throws Exception{
-        final Cache<String, Integer> cache = createAndStartCache();
-        final String existingKey = "key1";
-        final Integer existingValue = 1;
+        Cache<String, Integer> cache = createAndStartCache();
+        String existingKey = "key1";
+        Integer existingValue = 1;
         cache.put(existingKey, existingValue);
 
-        final String keyNotExisting = existingKey + "XXX";
+        String keyNotExisting = existingKey + "XXX";
         assertFalse(cache.remove(keyNotExisting));
         assertEquals(existingValue, cache.get(existingKey));
     }
 
     @Test
     public void test_remove_EqualButNotSameKey() {
-        final Cache<Date, Integer> cache = createAndStartCache();
-        final long now = System.currentTimeMillis();
+        Cache<Date, Integer> cache = createAndStartCache();
+        long now = System.currentTimeMillis();
 
-        final Date key1 = new Date(now);
-        final Integer value1 = 1;
+        Date key1 = new Date(now);
+        Integer value1 = 1;
         cache.put(key1, value1);
 
-        final Date key2 = new Date(now + 1);
-        final Integer value2 = value1 + 1;
+        Date key2 = new Date(now + 1);
+        Integer value2 = value1 + 1;
         cache.put(key2, value2);
 
         assertTrue(cache.remove(key1.clone()));
@@ -194,7 +210,7 @@ public class CacheTest {
 
     @Test
     public void test_getAndRemove_NotStarted() {
-        final Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = createCache();
         try {
             cache.getAndRemove(null);
             fail("should have thrown an exception - cache not started");
@@ -205,7 +221,7 @@ public class CacheTest {
 
     @Test
     public void test_getAll_NotStarted() {
-        final Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = createCache();
         try {
             cache.getAll(null);
             fail("should have thrown an exception - cache not started");
@@ -216,7 +232,7 @@ public class CacheTest {
 
     @Test
     public void test_getAll_Null() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         try {
             cache.getAll(null);
             fail("should have thrown an exception - null keys not allowed");
@@ -227,7 +243,7 @@ public class CacheTest {
 
     @Test
     public void test_getAll_NullKey() {
-        final Cache<Integer, String> cache = createAndStartCache();
+        Cache<Integer, String> cache = createAndStartCache();
         ArrayList<Integer> keys = new ArrayList<Integer>();
         keys.add(1);
         keys.add(null);
@@ -246,7 +262,7 @@ public class CacheTest {
 
     @Test
     public void test_getAll() {
-        final Cache<Integer, Integer> cache = createAndStartCache();
+        Cache<Integer, Integer> cache = createAndStartCache();
 
         ArrayList<Integer> keysInMap = new ArrayList<Integer>();
         keysInMap.add(1);
@@ -270,7 +286,7 @@ public class CacheTest {
 
     @Test
     public void test_containsKey_NotStarted() {
-        final Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = createCache();
         try {
             cache.containsKey(null);
             fail("should have thrown an exception - cache not started");
@@ -281,7 +297,7 @@ public class CacheTest {
 
     @Test
     public void test_containsKey_Null() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         try {
             assertFalse(cache.containsKey(null));
             if (!ignoreNullKeyOnRead) {
@@ -296,7 +312,7 @@ public class CacheTest {
 
     @Test
     public void test_containsKey() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         Map<Date, Integer> data = createData(3);
         for (Map.Entry<Date,Integer> entry : data.entrySet()) {
             assertFalse(cache.containsKey(entry.getKey()));
@@ -310,7 +326,7 @@ public class CacheTest {
 
     @Test
     public void test_load_NotStarted() {
-        final Cache<String, Integer> cache = createCache();
+        Cache<Integer, Long> cache = createCache();
         try {
             cache.load(null, null, null);
             fail("should have thrown an exception - cache not started");
@@ -321,7 +337,7 @@ public class CacheTest {
 
     @Test
     public void test_load_NullKey() {
-        final Cache<Integer, Long> cache = createAndStartCache();
+        Cache<Integer, Long> cache = createAndStartCache();
         CacheLoader<Integer, Long> cl = new MockCacheLoader<Integer, Long>();
         try {
             assertNull(cache.load(null, cl, null));
@@ -336,18 +352,8 @@ public class CacheTest {
     }
 
     @Test
-    public void test_load_NoCacheLoader() {
-        final Cache<Integer, Long> cache = createAndStartCache();
-        try {
-            assertNull(cache.load(1, null, null));
-        } catch (NullPointerException e) {
-            fail("should not have thrown an exception - with no cache loader should return null");
-        }
-    }
-
-    @Test
     public void test_load_Found() {
-        final Cache<Integer, Long> cache = createAndStartCache();
+        Cache<Integer, Long> cache = createAndStartCache();
         CacheLoader<Integer, Long> cl = new MockCacheLoader<Integer, Long>();
         Integer key = 1;
         cache.put(key, key.longValue());
@@ -359,16 +365,75 @@ public class CacheTest {
     }
 
     @Test
-    public void test_load_DefaultCacheLoader() {
-        final Cache<Integer, Long> cache = createAndStartCache(null, null);
+    public void test_load_NoCacheLoader() {
+        Cache<Integer, Long> cache = createAndStartCache();
         Integer key = 1;
-        cache.put(key, key.longValue());
-        cache.load(null, null, null);
+        try {
+            assertNull(cache.load(key, null, null));
+        } catch (NullPointerException e) {
+            fail("should not have thrown an exception - with no cache loader should return null");
+        }
+    }
+
+    @Test
+    public void test_load_DefaultCacheLoader() throws Exception{
+        final Long valueDefault = 123L;
+        CacheLoader<Integer, Long> clDefault = new MockCacheLoader<Integer, Long>() {
+            @Override
+            public Long load(Integer key, Object arg) { return valueDefault; }
+        };
+        Cache<Integer, Long> cache = createAndStartCache(null, clDefault);
+        Integer key = 1;
+        Future<Long> future = cache.load(key, null, null);
+        assertNotNull(future);
+        assertEquals(valueDefault, future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS));
+        assertTrue(cache.containsKey(key));
+        assertEquals(valueDefault, cache.get(key));
+    }
+
+    @Test
+    public void test_load_BothCacheLoader() throws Exception{
+        final Long valueDefault = 123L;
+        CacheLoader<Integer, Long> clDefault = new MockCacheLoader<Integer, Long>() {
+            @Override
+            public Long load(Integer key, Object arg) { return valueDefault; }
+        };
+        final Long valueSpecific = valueDefault + 5;
+        CacheLoader<Integer, Long> clSpecific = new MockCacheLoader<Integer, Long>() {
+            @Override
+            public Long load(Integer key, Object arg) { return valueSpecific; }
+        };
+        Cache<Integer, Long> cache = createAndStartCache(null, clDefault);
+        Integer key = 1;
+        Future<Long> future = cache.load(key, clSpecific, null);
+        assertNotNull(future);
+        assertEquals(valueSpecific, future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS));
+        assertTrue(cache.containsKey(key));
+        assertEquals(valueSpecific, cache.get(key));
+    }
+
+    @Test
+    public void test_ExceptionPropagation() throws Exception {
+        final RuntimeException expectedException = new RuntimeException("expected");
+        CacheLoader<Integer, Long> clDefault = new MockCacheLoader<Integer, Long>() {
+            @Override
+            public Long load(Integer key, Object arg) { throw expectedException; }
+        };
+        Cache<Integer, Long> cache = createAndStartCache(null, clDefault);
+        Integer key = 1;
+        Future<Long> future = cache.load(key, null, null);
+        assertNotNull(future);
+        try {
+            future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+            fail("expected exception: ");
+        } catch (ExecutionException e) {
+            assertEquals(expectedException, e.getCause());
+        }
     }
 
     @Test
     public void test_loadAll_NotStarted() {
-        final Cache<String, Integer> cache = createCache();
+        Cache<Integer, Integer> cache = createCache();
         try {
             cache.loadAll(null, null, null);
             fail("should have thrown an exception - cache not started");
@@ -378,35 +443,112 @@ public class CacheTest {
     }
 
     @Test
-    public void test_loadAll() {
-        final Cache<Date, Integer> cache = createAndStartCache();
-        cache.loadAll(null, null, null);
+    public void test_loadAll_NullKeys() {
+        Cache<Integer, Integer> cache = createAndStartCache();
+        try {
+            cache.loadAll(null, null, null);
+            fail("should have thrown an exception - keys null");
+        } catch (NullPointerException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void test_loadAll_NullKey() throws Exception {
+        final Cache<Integer, Integer> cache = createAndStartCache();
+        CacheLoader<Integer, Integer> cl = new SimpleCacheLoader<Integer>();
+        ArrayList<Integer> keys = new ArrayList<Integer>();
+        keys.add(null);
+        try {
+            Future<Map<Integer, Integer>> future = cache.loadAll(keys, cl, null);
+            assertNotNull(future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS));
+            assertFalse(cache.containsKey(null));
+            if (!ignoreNullKeyOnRead) {
+                fail("should have thrown an exception - keys contains null");
+            }
+        } catch (NullPointerException e) {
+            if (ignoreNullKeyOnRead) {
+                fail("should not have thrown an exception - keys contains null");
+            }
+        }
+    }
+
+    @Test
+    public void test_loadAll_NullValue() throws Exception {
+        final Cache<Integer, Integer> cache = createAndStartCache();
+        CacheLoader<Integer, Integer> cl = new MockCacheLoader<Integer, Integer>() {
+            @Override
+            public Map<Integer, Integer> loadAll(Collection<? extends Integer> keys, Object arg) {
+                Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+                for (Integer key : keys) {
+                    map.put(key, null);
+                }
+                return map;
+            }
+        };
+        ArrayList<Integer> keys = new ArrayList<Integer>();
+        keys.add(1);
+        keys.add(2);
+        Future<Map<Integer, Integer>> future = cache.loadAll(keys, cl, null);
+        try {
+            Map<Integer, Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+            assertEquals(keys.size(), map.size());
+            if (!allowNullValue) {
+                fail("should have thrown an exception - keys contains null");
+            } else {
+                for (Integer key : keys) {
+                     assertTrue(cache.containsKey(key));
+                     assertNull(cache.get(key));
+                }
+            }
+        } catch (ExecutionException e) {
+            if (allowNullValue) {
+                fail("should not have thrown an exception - keys contains null");
+            } else {
+                assertTrue(e.getCause() instanceof NullPointerException);
+            }
+        }
+    }
+
+    @Test
+    public void test_loadAll() throws Exception {
+        Cache<Integer, Integer> cache = createAndStartCache();
+        CacheLoader<Integer, Integer> cl = new SimpleCacheLoader<Integer>();
+        Integer keyThere = 1;
+        cache.put(keyThere, keyThere);
+        Integer keyNotThere = keyThere + 1;
+        ArrayList<Integer> keys = new ArrayList<Integer>();
+        keys.add(keyThere);
+        keys.add(keyNotThere);
+        Future<Map<Integer, Integer>> future = cache.loadAll(keys, cl, null);
+        Map<Integer, Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+        assertEquals(1, map.size());
     }
 
     @Test
     public void test_getCacheStatistics() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         //TODO: we may need more at some point
         assertNull(cache.getCacheStatistics());
     }
 
     @Test
     public void test_registerCacheEntryListener() {
-        final Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = createCache();
         cache.registerCacheEntryListener(null, null);
         //TODO: more
     }
 
     @Test
     public void test_unregisterCacheEntryListener() {
-        final Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = createCache();
         cache.unregisterCacheEntryListener(null);
         //TODO: more
     }
 
     @Test
     public void test_putAll_NotStarted() {
-        final Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = createCache();
         try {
             cache.putAll(null);
             fail("should have thrown an exception - cache not started");
@@ -417,7 +559,7 @@ public class CacheTest {
 
     @Test
     public void test_putAll_Null() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         try {
             cache.putAll(null);
             fail("should have thrown an exception - null map not allowed");
@@ -456,7 +598,7 @@ public class CacheTest {
 
     @Test
     public void test_putAll_NullValue() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         Map<Date, Integer> data = createData(3);
         // note: using LinkedHashMap, we have made an effort to ensure the null
         // be added after other "good" values.
@@ -484,7 +626,7 @@ public class CacheTest {
 
     @Test
     public void test_putAll() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         Map<Date, Integer> data = createData(3);
         cache.putAll(data);
         for (Map.Entry<Date,Integer> entry : data.entrySet()) {
@@ -494,7 +636,7 @@ public class CacheTest {
 
     @Test
     public void test_putIfAbsent_NotStarted() {
-        final Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = createCache();
         try {
             cache.putIfAbsent(null, null);
             fail("should have thrown an exception - cache not started");
@@ -505,7 +647,7 @@ public class CacheTest {
 
     @Test
     public void test_putIfAbsent_NullKey() throws Exception{
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         try {
             assertFalse(cache.putIfAbsent(null, 1));
             if (!ignoreNullKeyOnRead) {
@@ -520,7 +662,7 @@ public class CacheTest {
 
     @Test
     public void test_putIfAbsent_NullValue() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         try {
             assertTrue(cache.putIfAbsent(new Date(), null));
             if (!allowNullValue) {
@@ -535,7 +677,7 @@ public class CacheTest {
 
     @Test
     public void test_putIfAbsent_Missing() {
-        final Cache<Date, Long> cache = createAndStartCache();
+        Cache<Date, Long> cache = createAndStartCache();
         Date key = new Date();
         Long value = key.getTime();
         assertTrue(cache.putIfAbsent(key, value));
@@ -544,7 +686,7 @@ public class CacheTest {
 
     @Test
     public void test_putIfAbsent_There() {
-        final Cache<Date, Long> cache = createAndStartCache();
+        Cache<Date, Long> cache = createAndStartCache();
         Date key = new Date();
         Long value = key.getTime();
         Long oldValue = value+1;
@@ -555,7 +697,7 @@ public class CacheTest {
 
     @Test
     public void test_replace_3arg_NotStarted() {
-        final Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = createCache();
         try {
             cache.replace(null, null, null);
             fail("should have thrown an exception - cache not started");
@@ -566,7 +708,7 @@ public class CacheTest {
 
     @Test
     public void test_replace_3arg_NullKey() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         try {
             assertFalse(cache.replace(null, 1, 2));
             fail("should have thrown an exception - null key not allowed");
@@ -577,7 +719,7 @@ public class CacheTest {
 
     @Test
     public void test_replace_3arg_NullValue1() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         try {
             assertFalse(cache.replace(new Date(), null, 2));
             if (!allowNullValue) {
@@ -592,7 +734,7 @@ public class CacheTest {
 
     @Test
     public void test_replace_3arg_NullValue2() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         try {
             assertFalse(cache.replace(new Date(), 1, null));
             if (!allowNullValue) {
@@ -607,13 +749,13 @@ public class CacheTest {
 
     @Test
     public void test_replace_3arg_Missing() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         assertFalse(cache.replace(new Date(), 1, 2));
     }
 
     @Test
     public void test_replace_3arg_Different() {
-        final Cache<Date, Long> cache = createAndStartCache();
+        Cache<Date, Long> cache = createAndStartCache();
         Date key = new Date();
         Long value = key.getTime();
         cache.put(key, value);
@@ -625,7 +767,7 @@ public class CacheTest {
 
     @Test
     public void test_replace_3arg() throws Exception{
-        final Cache<Date, Long> cache = createAndStartCache();
+        Cache<Date, Long> cache = createAndStartCache();
         Date key = new Date();
         Long value = key.getTime();
         cache.put(key, value);
@@ -636,7 +778,7 @@ public class CacheTest {
 
     @Test
     public void test_replace_2arg_NotStarted() {
-        final Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = createCache();
         try {
             cache.replace(null, null);
             fail("should have thrown an exception - cache not started");
@@ -647,7 +789,7 @@ public class CacheTest {
 
     @Test
     public void test_replace_2arg_NullKey() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         try {
             assertFalse(cache.replace(null, 1));
             fail("should have thrown an exception - null key not allowed");
@@ -658,7 +800,7 @@ public class CacheTest {
 
     @Test
     public void test_replace_2arg_NullValue() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         try {
             assertFalse(cache.replace(new Date(), null));
             if (!allowNullValue) {
@@ -673,13 +815,13 @@ public class CacheTest {
 
     @Test
     public void test_replace_2arg_Missing() throws Exception{
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         assertFalse(cache.replace(new Date(), 1));
     }
 
     @Test
     public void test_replace_2arg() {
-        final Cache<Date, Long> cache = createAndStartCache();
+        Cache<Date, Long> cache = createAndStartCache();
         Date key = new Date();
         Long value = key.getTime();
         cache.put(key, value);
@@ -690,7 +832,7 @@ public class CacheTest {
 
     @Test
     public void test_getAndReplace_NotStarted() {
-        final Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = createCache();
         try {
             cache.getAndReplace(null, null);
             fail("should have thrown an exception - cache not started");
@@ -701,7 +843,7 @@ public class CacheTest {
 
     @Test
     public void test_getAndReplace_NullKey() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         try {
             assertNull(cache.getAndReplace(null, 1));
             fail("should have thrown an exception - null key not allowed");
@@ -712,7 +854,7 @@ public class CacheTest {
 
     @Test
     public void test_getAndReplace_NullValue() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         try {
             assertNull(cache.getAndReplace(new Date(), null));
             if (!allowNullValue) {
@@ -727,13 +869,13 @@ public class CacheTest {
 
     @Test
     public void test_getAndReplace_Missing() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         assertNull(cache.getAndReplace(new Date(), 1));
     }
 
     @Test
     public void test_getAndReplace() {
-        final Cache<Date, Long> cache = createAndStartCache();
+        Cache<Date, Long> cache = createAndStartCache();
         Date key = new Date();
         Long value = key.getTime();
         cache.put(key, value);
@@ -744,7 +886,7 @@ public class CacheTest {
 
     @Test
     public void test_removeAll_NotStarted() {
-        final Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = createCache();
         try {
             cache.removeAll(null);
             fail("should have thrown an exception - cache not started");
@@ -755,7 +897,7 @@ public class CacheTest {
 
     @Test
     public void test_removeAll_1arg_Null() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         try {
             cache.removeAll(null);
             fail("expected NPE");
@@ -766,7 +908,7 @@ public class CacheTest {
 
     @Test
     public void test_removeAll_1arg_NullKey() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         ArrayList<Date> keys = new ArrayList<Date>();
         keys.add(null);
 
@@ -784,7 +926,7 @@ public class CacheTest {
 
     @Test
     public void test_removeAll_1arg() {
-        final Cache<Integer, Integer> cache = createAndStartCache();
+        Cache<Integer, Integer> cache = createAndStartCache();
         Map<Integer, Integer> data = new HashMap<Integer, Integer>();
         data.put(1, 1);
         data.put(2, 2);
@@ -800,7 +942,7 @@ public class CacheTest {
 
     @Test
     public void test_removeAll() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         Map<Date, Integer> data = createData(3);
         cache.putAll(data);
         cache.removeAll();
@@ -811,7 +953,7 @@ public class CacheTest {
 
     @Test
     public void test_getConfiguration_Default() {
-        final Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = createCache();
         CacheConfiguration config = cache.getConfiguration();
         // defaults
         assertFalse(config.isReadThrough());
@@ -840,14 +982,14 @@ public class CacheTest {
 
     @Test
     public void test_getConfiguration() {
-        final CacheConfiguration defaultConfig = createCache().getConfiguration();
+        CacheConfiguration defaultConfig = createCache().getConfiguration();
         CacheConfiguration expectedConfig = new RICacheConfiguration.Builder().
                 setReadThrough(!defaultConfig.isReadThrough()).
                 setWriteThrough(!defaultConfig.isWriteThrough()).
                 setStoreByValue(!defaultConfig.isStoreByValue()).
                 build();
 
-        final Cache<Date, Integer> cache = createCache(expectedConfig, null);
+        Cache<Date, Integer> cache = createCache(expectedConfig, null);
         CacheConfiguration config = cache.getConfiguration();
         // defaults
         assertEquals(expectedConfig.isReadThrough(), config.isReadThrough());
@@ -876,7 +1018,7 @@ public class CacheTest {
 
     @Test
     public void test_iterator_NotStarted() {
-        final Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = createCache();
         try {
             cache.iterator();
             fail("should have thrown an exception - cache not started");
@@ -887,7 +1029,7 @@ public class CacheTest {
 
     @Test
     public void test_iterator_Empty() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         Iterator<Cache.Entry<Date, Integer>> iterator = cache.iterator();
         assertFalse(iterator.hasNext());
         try {
@@ -906,7 +1048,7 @@ public class CacheTest {
 
     @Test
     public void test_iterator() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         LinkedHashMap<Date, Integer> data = createData(3);
         cache.putAll(data);
         Iterator<Cache.Entry<Date, Integer>> iterator = cache.iterator();
@@ -921,7 +1063,7 @@ public class CacheTest {
 
     @Test
     public void test_initialise() {
-        final Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = createCache();
         assertEquals(Status.UNITIALISED, cache.getStatus());
         cache.start();
         assertEquals(Status.STARTED, cache.getStatus());
@@ -929,7 +1071,7 @@ public class CacheTest {
 
     @Test
     public void test_stopAndDispose() {
-        final Cache<Date, Integer> cache = createAndStartCache();
+        Cache<Date, Integer> cache = createAndStartCache();
         cache.stop();
         assertEquals(Status.STOPPED, cache.getStatus());
     }
@@ -955,7 +1097,7 @@ public class CacheTest {
      * @param cacheLoader the default cache loader
      * @param <K> the key type
      * @param <V> the value type
-     * @return
+     * @return a new cache
      */
     protected <K,V> Cache<K,V> createCache(CacheConfiguration config, CacheLoader cacheLoader) {
         RICache.Builder<K,V> builder = new RICache.Builder<K,V>();
@@ -1002,6 +1144,20 @@ public class CacheTest {
 
     private LinkedHashMap<Date, Integer> createData(int count) {
         return createData(count, System.currentTimeMillis());
+    }
+
+    private static class SimpleCacheLoader<K> implements CacheLoader<K, K> {
+        public K load(K key, Object arg) {
+            return key;
+        }
+
+        public Map<K, K> loadAll(Collection<? extends K> keys, Object arg) {
+            Map<K, K> map = new HashMap<K, K>();
+            for (K key : keys) {
+                map.put(key, key);
+            }
+            return map;
+        }
     }
 
     private static class MockCacheLoader<K, V> implements CacheLoader<K, V> {
