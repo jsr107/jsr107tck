@@ -192,6 +192,7 @@ public class CacheTest {
         assertEquals(value2, cache.get(key2));
     }
 
+    @Test
     public void test_getAndRemove_NotStarted() {
         final Cache<String, Integer> cache = createCache();
         try {
@@ -200,6 +201,51 @@ public class CacheTest {
         } catch (IllegalStateException e) {
             //good
         }
+    }
+
+    @Test
+    public void test_getAndRemove_NullKey() throws Exception{
+        final Cache<String, Integer> cache = createAndStartCache();
+        try {
+            assertNull(cache.getAndRemove(null));
+            if (!ignoreNullKeyOnRead) {
+                fail("should have thrown an exception - null key not allowed");
+            }
+        } catch (NullPointerException e) {
+            if (ignoreNullKeyOnRead) {
+                fail("should not have thrown an exception - null key allowed");
+            }
+        }
+    }
+
+    @Test
+    public void test_getAndRemove_NotExistent() throws Exception{
+        final Cache<String, Integer> cache = createAndStartCache();
+        final String existingKey = "key1";
+        final Integer existingValue = 1;
+        cache.put(existingKey, existingValue);
+
+        final String keyNotExisting = existingKey + "XXX";
+        assertNull(cache.getAndRemove(keyNotExisting));
+        assertEquals(existingValue, cache.get(existingKey));
+    }
+
+    @Test
+    public void test_getAndRemove_EqualButNotSameKey() {
+        final Cache<Date, Integer> cache = createAndStartCache();
+        final long now = System.currentTimeMillis();
+
+        final Date key1 = new Date(now);
+        final Integer value1 = 1;
+        cache.put(key1, value1);
+
+        final Date key2 = new Date(now + 1);
+        final Integer value2 = value1 + 1;
+        cache.put(key2, value2);
+
+        assertEquals(value1, cache.getAndRemove(key1.clone()));
+        assertNull(cache.get(key1));
+        assertEquals(value2, cache.get(key2));
     }
 
     @Test
