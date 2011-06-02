@@ -1236,7 +1236,7 @@ public class CacheTest {
      * @param <V> the value type
      * @return a new cache
      */
-    protected <K,V> Cache<K,V> createCache(CacheConfiguration config, CacheLoader cacheLoader) {
+    protected <K,V> Cache<K,V> createCache(CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
         RICache.Builder<K,V> builder = new RICache.Builder<K,V>();
         if (config != null) {
             builder.setCacheConfiguration(config);
@@ -1260,7 +1260,7 @@ public class CacheTest {
         return createAndStartCache(null, null);
     }
 
-    private <K,V> Cache<K,V> createAndStartCache(CacheConfiguration config, CacheLoader cacheLoader) {
+    private <K,V> Cache<K,V> createAndStartCache(CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
         Cache<K,V> cache = createCache(config, cacheLoader);
         cache.start();
         return cache;
