@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+    "-//Puppy Crawl//DTD Suppressions 1.1//EN" "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
+
+<suppressions>
+    <!-- Suppress duplicate checking of copyright notice -->
+    <suppress checks="StrictDuplicateCode" files=".java" lines="1-15"/>
+    <!--Have some duplication until we get rid of Old Lru-->
+    <suppress checks="StrictDuplicateCode" files="LruMemoryStore.java" />
+    <suppress checks="StrictDuplicateCode" files="MemoryStore.java" />
+    <suppress checks="StrictDuplicateCode" files="NoOpOnTimeoutStore.java" />
+
+    <suppress checks="StrictDuplicateCode" files="ReadOnlyEhcacheEntityRegionAccessStrategy"/>
+    <suppress checks="StrictDuplicateCode" files="ReadOnlyEhcacheCollectionRegionAccessStrategy.java"/>
+    <suppress checks="StrictDuplicateCode" files="TransactionalEhcacheCollectionRegionAccessStrategy.java"/>
+    <suppress checks="StrictDuplicateCode" files="TransactionalEhcacheEntityRegionAccessStrategy.java"/>
+    <suppress checks="StrictDuplicateCode" files="NonStrictReadWriteEhcacheEntityRegionAccessStrategy.java"/>
+    <suppress checks="StrictDuplicateCode" files="NonStrictReadWriteEhcacheCollectionRegionAccessStrategy.java"/>
+    <suppress checks="StrictDuplicateCode" files="HibernateStats.java"/>
+    <suppress checks="StrictDuplicateCode" files="EhcacheStats.java"/>
+
+    <!-- tree walking is neater with parameter assignment - imho -->
+    <suppress checks="ParameterAssignment" files="AATreeSet.java" />
+
+    <!-- I think the multiple assignments make perfect sense here - imho as well -->
+    <suppress checks="MultipleVariableDeclarations" files="Timestamper.java" />
+
+    <!-- the DynamicMBean interface defines the exception set here -->
+    <suppress checks="ThrowsCount" files="Store.java"/>
+
+    <!-- Candidates for refactoring. Cyclomatic complexity is blown out mostly
+     because of the LOG guards (if (LOG.isDebugEnabled) { ...) which are there for
+     runtime performance.-->
+    <suppress checks="CyclomaticComplexity" files="Cache.java"/>
+    <suppress checks="CyclomaticComplexity" files="CacheManager.java"/>
+    <suppress checks="FileLength" files="CacheManager.java"/>
+    <suppress checks="NPathComplexity" files="Cache.java"/>
+    <suppress checks="NPathComplexity" files="CacheManager.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="CacheManager.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="DiskStore.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="Cache.java"/>
+    <suppress checks="ClassFanOutComplexity" files="DiskStore.java"/>
+    <suppress checks="FileLength" files="DiskStore.java"/>
+    <suppress checks="FileLength" files="CacheConfiguration.java"/>
+    <suppress checks="ClassFanOutComplexity" files="Cache.java"/>
+    <suppress checks="ClassFanOutComplexity" files="CacheManager.java"/>
+    <suppress checks="ParameterNumber" files="Cache.java"/>
+    <suppress checks="FileLength" files="Cache.java"/>
+    <suppress checks="ExecutableStatementCount" files="Cache.java"/>
+    <suppress checks="AnonInnerLengthCheck" files="Cache.java"/>
+    <suppress checks="ParameterNumber" files="Statistics.java"/>
+    <suppress checks="CyclomaticComplexity" files="WriteBehindQueue.java"/>
+    <suppress checks="NPathComplexity" files="WriteBehindQueue.java"/>
+    <suppress checks="CyclomaticComplexity" files="CacheWriterConfiguration.java"/>
+    <suppress checks="NPathComplexity" files="CacheWriterConfiguration.java"/>
+    <suppress checks="CyclomaticComplexity" files="FactoryConfiguration.java"/>
+    <suppress checks="NPathComplexity" files="FactoryConfiguration.java"/>
+    <suppress checks="NPathComplexity" files="CacheConfigurationElement.java"/>
+    <suppress checks="NPathComplexity" files="ConfigurationElement.java"/>
+    <suppress checks="FinalClass" files="TerracottaClusteredInstanceHelper.java"/>
+    <suppress checks="NPathComplexity" files="BeanHandler.java"/>
+    <suppress checks="UnusedImports" files="Ehcache.java"/>
+
+    <suppress checks="DeclarationOrder" files="TimeoutBehaviorConfiguration.java"/>
+    <suppress checks="DeclarationOrder" files="TerracottaClusteredInstanceHelper.java"/>
+
+    <suppress checks="StrictDuplicateCode" files="NonstopAwareEntityRegionAccessStrategy.java" />
+    <suppress checks="StrictDuplicateCode" files="NonstopAwareCollectionRegionAccessStrategy.java" />
+
+    <!-- Candidates for refactoring -->
+    <suppress checks="CyclomaticComplexity" files="LocalTransactionStore.java"/>
+    <suppress checks="NPathComplexity" files="LocalTransactionStore.java"/>
+    <suppress checks="NestedIfDepth" files="LocalTransactionStore.java"/>
+    <suppress checks="NPathComplexity" files="JavaBeanAttributeExtractor.java"/>
+    <suppress checks="NPathComplexity" files="MemoryOnlyStore.java"/>
+    <suppress checks="CyclomaticComplexity" files="MemoryOnlyStore.java"/>
+    <suppress checks="NPathComplexity" files="AbstractTransactionStore.java"/>
+    <suppress checks="CyclomaticComplexity" files="AbstractTransactionStore.java"/>
+    <suppress checks="NPathComplexity" files="EhcacheXAResourceImpl.java"/>
+    <suppress checks="CyclomaticComplexity" files="EhcacheXAResourceImpl.java"/>
+    <suppress checks="ExecutableStatementCount" files="SampledCacheStatisticsImpl.java"/>
+
+    <!-- Contributed code -->
+    <suppress checks="" files="ConcurrentHashMap.java"/>
+
+    <!-- Contains a thread therefore cannot.  -->
+    <suppress checks="SuperClone" files="RMIBootstrapCacheLoader.java"/>
+</suppressions>
