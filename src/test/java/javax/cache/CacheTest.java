@@ -421,6 +421,34 @@ public class CacheTest {
     }
 
     @Test
+    public void test_load_NullValue() throws Exception{
+        final Integer valueDefault = null;
+        CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>() {
+            @Override
+            public Integer load(Integer key, Object arg) { return valueDefault; }
+        };
+        Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
+        Integer key = 1;
+        Future<Integer> future = cache.load(key, null, null);
+        assertNotNull(future);
+        try {
+            assertEquals(valueDefault, future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS));
+            if (allowNullValue) {
+                assertTrue(cache.containsKey(key));
+                assertEquals(valueDefault, cache.get(key));
+            } else {
+                fail("should have thrown an exception - null value not allowed");
+            }
+        } catch (ExecutionException e) {
+            if (allowNullValue) {
+                fail("should not have thrown an exception - null value allowed");
+            } else {
+                assertFalse(cache.containsKey(key));
+            }
+        }
+    }
+
+    @Test
     public void test_load_DefaultCacheLoader() throws Exception{
         final Integer valueDefault = 123;
         CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>() {
@@ -535,7 +563,7 @@ public class CacheTest {
             Map<Integer, Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
             assertEquals(keys.size(), map.size());
             if (!allowNullValue) {
-                fail("should have thrown an exception - keys contains null");
+                fail("should have thrown an exception - null value");
             } else {
                 for (Integer key : keys) {
                      assertTrue(cache.containsKey(key));
@@ -544,7 +572,7 @@ public class CacheTest {
             }
         } catch (ExecutionException e) {
             if (allowNullValue) {
-                fail("should not have thrown an exception - keys contains null");
+                fail("should not have thrown an exception - null value");
             } else {
                 assertTrue(e.getCause() instanceof NullPointerException);
             }
