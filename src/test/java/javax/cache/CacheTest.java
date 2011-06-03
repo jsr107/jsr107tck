@@ -53,7 +53,7 @@ import static org.junit.Assert.fail;
 public class CacheTest {
     private boolean ignoreNullKeyOnRead;
     private boolean allowNullValue;
-    private static long FUTURE_WAIT_MILLIS = 100;
+    private static final long FUTURE_WAIT_MILLIS = 100;
 
     @Before
     public void setUp() {
@@ -1311,6 +1311,10 @@ public class CacheTest {
         return createData(count, System.currentTimeMillis());
     }
 
+    /**
+     * A simple example of a Cache Loader which simply adds the key as the value.
+     * @param <K>
+     */
     private static class SimpleCacheLoader<K> implements CacheLoader<K, K> {
         public K load(K key, Object arg) {
             return key;
@@ -1325,6 +1329,11 @@ public class CacheTest {
         }
     }
 
+    /**
+     * A mock CacheLoader which simply throws UnsupportedOperationException on all methods.
+     * @param <K>
+     * @param <V>
+     */
     private static class MockCacheLoader<K, V> implements CacheLoader<K, V> {
         public V load(K key, Object arg) {
             throw new UnsupportedOperationException();

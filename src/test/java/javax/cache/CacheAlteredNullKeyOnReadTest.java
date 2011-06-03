@@ -17,7 +17,6 @@
 
 package javax.cache;
 
-import javax.cache.implementation.RICache;
 
 /**
  * Test Cache using Altered Null Key On Read strategy.
