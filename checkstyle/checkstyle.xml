@@ -179,7 +179,7 @@
             <property name="option" value="same"/>
         </module>
         <module name="LeftCurly"/>
-        <module name="NeedBraces"/>
+        <!--<module name="NeedBraces"/>-->
         <module name="AvoidNestedBlocks">
             <property name="allowInSwitchCase" value="true"/>
         </module>

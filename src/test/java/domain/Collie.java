@@ -18,18 +18,16 @@
 package domain;
 
 /**
- *  A hound which is a dog most characterised by it's sound, a cross between a howl and a bark.
+ *  A Collie which is can be characterised by it's herding instinct.
  *
  *  @author Greg Luck
  */
-public interface Hound {
+public interface Collie {
 
     /**
      * Tells the hound to bay
-     * @param loudness 0 for mute, 1 is the softest and 255 is the loudest
-     * @param duration the duraction of the bay in seconds
      */
-    void bay(int loudness, int duration);
+    void herd();
 
 
 }

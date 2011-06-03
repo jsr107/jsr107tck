@@ -18,18 +18,21 @@
 package domain;
 
 /**
- *  A hound which is a dog most characterised by it's sound, a cross between a howl and a bark.
- *
- *  @author Greg Luck
+ * A Beagle is a Dog and a type of hound.
+ * @author Greg Luck
  */
-public interface Hound {
+public class Beagle extends Dog implements Hound {
 
     /**
      * Tells the hound to bay
+     *
      * @param loudness 0 for mute, 1 is the softest and 255 is the loudest
      * @param duration the duraction of the bay in seconds
      */
-    void bay(int loudness, int duration);
+    public void bay(int loudness, int duration) {
+
+    }
+
 
 
 }

@@ -18,18 +18,24 @@
 package domain;
 
 /**
- *  A hound which is a dog most characterised by it's sound, a cross between a howl and a bark.
- *
- *  @author Greg Luck
+ * Created by IntelliJ IDEA.
+ * User: gluck
+ * Date: 3/06/11
+ * Time: 11:09 AM
+ * To change this template use File | Settings | File Templates.
  */
-public interface Hound {
+public enum Sex {
 
     /**
-     * Tells the hound to bay
-     * @param loudness 0 for mute, 1 is the softest and 255 is the loudest
-     * @param duration the duraction of the bay in seconds
+     * A dog
      */
-    void bay(int loudness, int duration);
+    MALE,
+
+
+    /**
+     * A bitch
+     */
+    FEMALE
 
 
 }
