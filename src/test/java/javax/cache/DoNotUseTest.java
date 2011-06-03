@@ -146,7 +146,11 @@ public class DoNotUseTest {
     }
 
     /**
-     * An attempt to put using a null value stores the null
+     * An attempt to put using a null value stores the null.
+     *
+     * This solution changes get to return Cache.Entry<K, V> rather than K.
+     * For this test I use a private method {@link #get(Object, Cache)} which
+     * stands in for a Cache.get returning Entry.
      */
     @Test
     public void testPutNullValueV3(){
