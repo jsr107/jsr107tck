@@ -1,3 +1,20 @@
+/**
+ *  Copyright 2011 Terracotta, Inc.
+ *  Copyright 2011 Oracle, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package javax.cache;
 
 import org.junit.Before;
@@ -28,7 +45,7 @@ import static org.junit.Assert.fail;
 
 /**
  * Unit test for simple App.
- *
+ * <p/>
  * These are very basic tests
  *
  * @author Yannis Cosmadopoulos
@@ -50,7 +67,7 @@ public class CacheTest {
         try {
             cache.get(null);
             fail("should have thrown an exception - cache not started");
-        } catch(IllegalStateException e) {
+        } catch (IllegalStateException e) {
             //good
         }
     }
@@ -63,7 +80,7 @@ public class CacheTest {
             if (!ignoreNullKeyOnRead) {
                 fail("should have thrown an exception - null key not allowed");
             }
-        } catch(NullPointerException e) {
+        } catch (NullPointerException e) {
             if (ignoreNullKeyOnRead) {
                 fail("should not have thrown an exception - null key allowed");
             }
@@ -114,7 +131,7 @@ public class CacheTest {
     }
 
     @Test
-    public void test_put_NullKey() throws  Exception{
+    public void test_put_NullKey() throws Exception {
         Cache<String, Integer> cache = createAndStartCache();
         try {
             cache.put(null, 1);
@@ -125,7 +142,7 @@ public class CacheTest {
     }
 
     @Test
-    public void test_put_NullValue() throws Exception{
+    public void test_put_NullValue() throws Exception {
         Cache<String, Integer> cache = createAndStartCache();
         try {
             cache.put("key", null);
@@ -140,7 +157,7 @@ public class CacheTest {
     }
 
     @Test
-    public void test_put_ExistingWithEqualButNonSameKey() throws Exception{
+    public void test_put_ExistingWithEqualButNonSameKey() throws Exception {
         Cache<Date, Integer> cache = createAndStartCache();
         long now = System.currentTimeMillis();
         Date key1 = new Date(now);
@@ -164,7 +181,7 @@ public class CacheTest {
     }
 
     @Test
-    public void test_remove_NullKey() throws Exception{
+    public void test_remove_NullKey() throws Exception {
         Cache<String, Integer> cache = createAndStartCache();
         try {
             assertFalse(cache.remove(null));
@@ -179,7 +196,7 @@ public class CacheTest {
     }
 
     @Test
-    public void test_remove_NotExistent() throws Exception{
+    public void test_remove_NotExistent() throws Exception {
         Cache<String, Integer> cache = createAndStartCache();
         String existingKey = "key1";
         Integer existingValue = 1;
@@ -220,7 +237,7 @@ public class CacheTest {
     }
 
     @Test
-    public void test_getAndRemove_NullKey() throws Exception{
+    public void test_getAndRemove_NullKey() throws Exception {
         final Cache<String, Integer> cache = createAndStartCache();
         try {
             assertNull(cache.getAndRemove(null));
@@ -235,7 +252,7 @@ public class CacheTest {
     }
 
     @Test
-    public void test_getAndRemove_NotExistent() throws Exception{
+    public void test_getAndRemove_NotExistent() throws Exception {
         final Cache<String, Integer> cache = createAndStartCache();
         final String existingKey = "key1";
         final Integer existingValue = 1;
@@ -359,7 +376,7 @@ public class CacheTest {
     public void test_containsKey() {
         Cache<Date, Integer> cache = createAndStartCache();
         Map<Date, Integer> data = createData(3);
-        for (Map.Entry<Date,Integer> entry : data.entrySet()) {
+        for (Map.Entry<Date, Integer> entry : data.entrySet()) {
             assertFalse(cache.containsKey(entry.getKey()));
             cache.put(entry.getKey(), entry.getValue());
             assertTrue(cache.containsKey(entry.getKey().clone()));
@@ -421,11 +438,13 @@ public class CacheTest {
     }
 
     @Test
-    public void test_load_NullValue() throws Exception{
+    public void test_load_NullValue() throws Exception {
         final Integer valueDefault = null;
         CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>() {
             @Override
-            public Integer load(Integer key, Object arg) { return valueDefault; }
+            public Integer load(Integer key, Object arg) {
+                return valueDefault;
+            }
         };
         Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
         Integer key = 1;
@@ -449,11 +468,13 @@ public class CacheTest {
     }
 
     @Test
-    public void test_load_DefaultCacheLoader() throws Exception{
+    public void test_load_DefaultCacheLoader() throws Exception {
         final Integer valueDefault = 123;
         CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>() {
             @Override
-            public Integer load(Integer key, Object arg) { return valueDefault; }
+            public Integer load(Integer key, Object arg) {
+                return valueDefault;
+            }
         };
         Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
         Integer key = 1;
@@ -465,12 +486,14 @@ public class CacheTest {
     }
 
     @Test
-    public void test_load_BothCacheLoader() throws Exception{
+    public void test_load_BothCacheLoader() throws Exception {
         CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>();
         final Integer valueSpecific = 123;
         CacheLoader<Integer, Integer> clSpecific = new MockCacheLoader<Integer, Integer>() {
             @Override
-            public Integer load(Integer key, Object arg) { return valueSpecific; }
+            public Integer load(Integer key, Object arg) {
+                return valueSpecific;
+            }
         };
         Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
         Integer key = 1;
@@ -486,7 +509,9 @@ public class CacheTest {
         final RuntimeException expectedException = new RuntimeException("expected");
         CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>() {
             @Override
-            public Integer load(Integer key, Object arg) { throw expectedException; }
+            public Integer load(Integer key, Object arg) {
+                throw expectedException;
+            }
         };
         Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
         Integer key = 1;
@@ -566,8 +591,8 @@ public class CacheTest {
                 fail("should have thrown an exception - null value");
             } else {
                 for (Integer key : keys) {
-                     assertTrue(cache.containsKey(key));
-                     assertNull(cache.get(key));
+                    assertTrue(cache.containsKey(key));
+                    assertNull(cache.get(key));
                 }
             }
         } catch (ExecutionException e) {
@@ -610,7 +635,7 @@ public class CacheTest {
     }
 
     @Test
-    public void test_loadAll_DefaultCacheLoader() throws Exception{
+    public void test_loadAll_DefaultCacheLoader() throws Exception {
         ArrayList<Integer> keys = new ArrayList<Integer>();
         keys.add(1);
         keys.add(2);
@@ -626,7 +651,7 @@ public class CacheTest {
     }
 
     @Test
-    public void test_loadAll_BothCacheLoader() throws Exception{
+    public void test_loadAll_BothCacheLoader() throws Exception {
         CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>();
         CacheLoader<Integer, Integer> clSpecific = new SimpleCacheLoader<Integer>();
         Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
@@ -647,7 +672,9 @@ public class CacheTest {
         final RuntimeException expectedException = new RuntimeException("expected");
         CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>() {
             @Override
-            public Map<Integer, Integer> loadAll(Collection<? extends Integer> keys, Object arg) { throw expectedException; }
+            public Map<Integer, Integer> loadAll(Collection<? extends Integer> keys, Object arg) {
+                throw expectedException;
+            }
         };
         Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
         ArrayList<Integer> keys = new ArrayList<Integer>();
@@ -722,7 +749,7 @@ public class CacheTest {
                 fail("should not have thrown an exception - null key allowed");
             }
         }
-        for (Map.Entry<Date,Integer> entry : data.entrySet()) {
+        for (Map.Entry<Date, Integer> entry : data.entrySet()) {
             if (entry.getKey() != null) {
                 if (!ignoreNullKeyOnRead) {
                     assertNull(cache.get(entry.getKey()));
@@ -750,7 +777,7 @@ public class CacheTest {
                 fail("should not have thrown an exception - null value allowed");
             }
         }
-        for (Map.Entry<Date,Integer> entry : data.entrySet()) {
+        for (Map.Entry<Date, Integer> entry : data.entrySet()) {
             if (entry.getValue() != null) {
                 if (!allowNullValue) {
                     assertNull(cache.get(entry.getKey()));
@@ -766,7 +793,7 @@ public class CacheTest {
         Cache<Date, Integer> cache = createAndStartCache();
         Map<Date, Integer> data = createData(3);
         cache.putAll(data);
-        for (Map.Entry<Date,Integer> entry : data.entrySet()) {
+        for (Map.Entry<Date, Integer> entry : data.entrySet()) {
             checkGetExpectation(entry.getValue(), cache, entry.getKey());
         }
     }
@@ -783,7 +810,7 @@ public class CacheTest {
     }
 
     @Test
-    public void test_putIfAbsent_NullKey() throws Exception{
+    public void test_putIfAbsent_NullKey() throws Exception {
         Cache<Date, Integer> cache = createAndStartCache();
         try {
             assertFalse(cache.putIfAbsent(null, 1));
@@ -826,7 +853,7 @@ public class CacheTest {
         Cache<Date, Long> cache = createAndStartCache();
         Date key = new Date();
         Long value = key.getTime();
-        Long oldValue = value+1;
+        Long oldValue = value + 1;
         cache.put(key, oldValue);
         assertFalse(cache.putIfAbsent(key, value));
         checkGetExpectation(oldValue, cache, key);
@@ -903,7 +930,7 @@ public class CacheTest {
     }
 
     @Test
-    public void test_replace_3arg() throws Exception{
+    public void test_replace_3arg() throws Exception {
         Cache<Date, Long> cache = createAndStartCache();
         Date key = new Date();
         Long value = key.getTime();
@@ -951,7 +978,7 @@ public class CacheTest {
     }
 
     @Test
-    public void test_replace_2arg_Missing() throws Exception{
+    public void test_replace_2arg_Missing() throws Exception {
         Cache<Date, Integer> cache = createAndStartCache();
         assertFalse(cache.replace(new Date(), 1));
     }
@@ -1067,7 +1094,7 @@ public class CacheTest {
         Map<Integer, Integer> data = new HashMap<Integer, Integer>();
         data.put(1, 1);
         data.put(2, 2);
-        data.put(3,3);
+        data.put(3, 3);
         cache.putAll(data);
 
         data.remove(2);
@@ -1172,13 +1199,13 @@ public class CacheTest {
         try {
             iterator.remove();
             fail();
-        } catch(IllegalStateException e) {
+        } catch (IllegalStateException e) {
             //good
         }
         try {
             iterator.next();
             fail();
-        } catch(NoSuchElementException e) {
+        } catch (NoSuchElementException e) {
             //good
         }
     }
@@ -1213,7 +1240,7 @@ public class CacheTest {
         assertEquals(Status.STOPPED, cache.getStatus());
     }
 
-   //TODO: we already have basic tests
+    //TODO: we already have basic tests
 //    @Test
 //    public void test_getStatus() {
 //    }
@@ -1230,14 +1257,15 @@ public class CacheTest {
 
     /**
      * Creates a cache. Sub classes may override this to create the cache differently.
-     * @param config the cache configuration
+     *
+     * @param config      the cache configuration
      * @param cacheLoader the default cache loader
-     * @param <K> the key type
-     * @param <V> the value type
+     * @param <K>         the key type
+     * @param <V>         the value type
      * @return a new cache
      */
-    protected <K,V> Cache<K,V> createCache(CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
-        RICache.Builder<K,V> builder = new RICache.Builder<K,V>();
+    protected <K, V> Cache<K, V> createCache(CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
+        RICache.Builder<K, V> builder = new RICache.Builder<K, V>();
         if (config != null) {
             builder.setCacheConfiguration(config);
         }
@@ -1252,29 +1280,29 @@ public class CacheTest {
 
     // ---------- utilities ----------
 
-    private <K,V> Cache<K,V> createCache() {
+    private <K, V> Cache<K, V> createCache() {
         return createCache(null, null);
     }
 
-    private <K,V> Cache<K,V> createAndStartCache() {
+    private <K, V> Cache<K, V> createAndStartCache() {
         return createAndStartCache(null, null);
     }
 
-    private <K,V> Cache<K,V> createAndStartCache(CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
-        Cache<K,V> cache = createCache(config, cacheLoader);
+    private <K, V> Cache<K, V> createAndStartCache(CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
+        Cache<K, V> cache = createCache(config, cacheLoader);
         cache.start();
         return cache;
     }
 
     private LinkedHashMap<Date, Integer> createData(int count, long now) {
         LinkedHashMap<Date, Integer> map = new LinkedHashMap<Date, Integer>(count);
-        for (int i=0; i<count; i++) {
+        for (int i = 0; i < count; i++) {
             map.put(new Date(now + i), i);
         }
         return map;
     }
 
-    private <K,V> void checkGetExpectation(V expected, Cache<K,V> cache, K key) {
+    private <K, V> void checkGetExpectation(V expected, Cache<K, V> cache, K key) {
         //TODO: at some point we will not (only) store by reference
         assertSame(expected, cache.get(key));
     }

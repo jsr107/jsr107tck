@@ -100,13 +100,13 @@
                     </suppressionsLocation>
                     <headerLocation>${basedir}/checkstyle/ClassHeader.txt
                     </headerLocation>
+                    <sourceDirectory>src/test/java</sourceDirectory>
                     <skip>${skipCheckstyle}</skip>
                     <enableRSS>false</enableRSS>
                     <linkXRef>true</linkXRef>
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
                     <failOnViolation>true</failOnViolation>
-                    <includeTestSourceDirectory>false</includeTestSourceDirectory>
                     <enableRulesSummary>true</enableRulesSummary>
                 </configuration>
             </plugin>

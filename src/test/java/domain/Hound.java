@@ -15,16 +15,21 @@
  *  limitations under the License.
  */
 
-package javax.cache;
+package domain;
 
 /**
- * Test Cache using Altered Null Value strategy.
- * TODO: This test must be deleted once we commit to a design
+ *  A hound which is dog most characterised by it's sound, a cross between a howl and a bark.
  *
- * @see javax.cache.implementation.RICache#DEFAULT_ALLOW_NULL_VALUE
+ *  @author Greg Luck
  */
-public class CacheAlteredAllowNullValueTest extends CacheTest {
-    protected boolean isAllowNullValue() {
-        return !super.isAllowNullValue();
-    }
+public interface Hound {
+
+    /**
+     * Tells the hound to bay
+     * @param loudness 0 for mute, 1 is the softest and 255 is the loudest
+     * @param duration the duraction of the bay in seconds
+     */
+    void bay(int loudness, int duration);
+
+
 }
