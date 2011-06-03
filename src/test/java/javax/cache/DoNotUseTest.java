@@ -111,7 +111,7 @@ public class DoNotUseTest {
         Integer key = 1;
         try {
             cache.put(key, null);
-            Assert.fail("get with value==null should throw NPE");
+            Assert.fail("put with value==null should throw NPE");
         } catch (NullPointerException e) {
             // NPE as expected
         }
