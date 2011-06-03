@@ -402,14 +402,10 @@ public class CacheTest {
         Cache<Integer, Integer> cache = createAndStartCache();
         CacheLoader<Integer, Integer> cl = new MockCacheLoader<Integer, Integer>();
         try {
-            assertNull(cache.load(null, cl, null));
-            if (!ignoreNullKeyOnRead) {
-                fail("should have thrown an exception - null key not allowed");
-            }
+            cache.load(null, cl, null);
+            fail("should have thrown an exception - null key not allowed");
         } catch (NullPointerException e) {
-            if (ignoreNullKeyOnRead) {
-                fail("should not have thrown an exception - null key allowed");
-            }
+            //good
         }
     }
 
@@ -554,16 +550,10 @@ public class CacheTest {
         ArrayList<Integer> keys = new ArrayList<Integer>();
         keys.add(null);
         try {
-            Future<Map<Integer, Integer>> future = cache.loadAll(keys, cl, null);
-            assertNotNull(future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS));
-            assertFalse(cache.containsKey(null));
-            if (!ignoreNullKeyOnRead) {
-                fail("should have thrown an exception - keys contains null");
-            }
+            cache.loadAll(keys, cl, null);
+            fail("should have thrown an exception - keys contains null");
         } catch (NullPointerException e) {
-            if (ignoreNullKeyOnRead) {
-                fail("should not have thrown an exception - keys contains null");
-            }
+            //good
         }
     }
 
