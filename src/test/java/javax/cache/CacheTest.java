@@ -51,13 +51,11 @@ import static org.junit.Assert.fail;
  * @author Yannis Cosmadopoulos
  */
 public class CacheTest {
-    private boolean ignoreNullKeyOnRead;
     private boolean allowNullValue;
     private static final long FUTURE_WAIT_MILLIS = 100;
 
     @Before
     public void setUp() {
-        ignoreNullKeyOnRead = isIgnoreNullKeyOnRead();
         allowNullValue = isAllowNullValue();
     }
 
@@ -77,13 +75,9 @@ public class CacheTest {
         Cache<String, Integer> cache = createAndStartCache();
         try {
             assertNull(cache.get(null));
-            if (!ignoreNullKeyOnRead) {
-                fail("should have thrown an exception - null key not allowed");
-            }
+            fail("should have thrown an exception - null key not allowed");
         } catch (NullPointerException e) {
-            if (ignoreNullKeyOnRead) {
-                fail("should not have thrown an exception - null key allowed");
-            }
+            //expected
         }
     }
 
@@ -185,13 +179,9 @@ public class CacheTest {
         Cache<String, Integer> cache = createAndStartCache();
         try {
             assertFalse(cache.remove(null));
-            if (!ignoreNullKeyOnRead) {
-                fail("should have thrown an exception - null key not allowed");
-            }
+            fail("should have thrown an exception - null key not allowed");
         } catch (NullPointerException e) {
-            if (ignoreNullKeyOnRead) {
-                fail("should not have thrown an exception - null key allowed");
-            }
+            //expected
         }
     }
 
@@ -241,13 +231,9 @@ public class CacheTest {
         final Cache<String, Integer> cache = createAndStartCache();
         try {
             assertNull(cache.getAndRemove(null));
-            if (!ignoreNullKeyOnRead) {
-                fail("should have thrown an exception - null key not allowed");
-            }
+            fail("should have thrown an exception - null key not allowed");
         } catch (NullPointerException e) {
-            if (ignoreNullKeyOnRead) {
-                fail("should not have thrown an exception - null key allowed");
-            }
+            //expected
         }
     }
 
@@ -312,13 +298,9 @@ public class CacheTest {
         keys.add(2);
         try {
             cache.getAll(keys);
-            if (!ignoreNullKeyOnRead) {
-                fail("should have thrown an exception - null key in keys not allowed");
-            }
+            fail("should have thrown an exception - null key in keys not allowed");
         } catch (NullPointerException e) {
-            if (ignoreNullKeyOnRead) {
-                fail("should not have thrown an exception - null key in keys allowed");
-            }
+            //expected
         }
     }
 
@@ -362,13 +344,9 @@ public class CacheTest {
         Cache<Date, Integer> cache = createAndStartCache();
         try {
             assertFalse(cache.containsKey(null));
-            if (!ignoreNullKeyOnRead) {
-                fail("should have thrown an exception - null key not allowed");
-            }
+            fail("should have thrown an exception - null key not allowed");
         } catch (NullPointerException e) {
-            if (ignoreNullKeyOnRead) {
-                fail("should not have thrown an exception - null key allowed");
-            }
+            //expected
         }
     }
 
@@ -731,21 +709,13 @@ public class CacheTest {
         data.put(null, Integer.MAX_VALUE);
         try {
             cache.putAll(data);
-            if (!ignoreNullKeyOnRead) {
-                fail("should have thrown an exception - null key not allowed");
-            }
+            fail("should have thrown an exception - null key not allowed");
         } catch (NullPointerException e) {
-            if (ignoreNullKeyOnRead) {
-                fail("should not have thrown an exception - null key allowed");
-            }
+            //expected
         }
         for (Map.Entry<Date, Integer> entry : data.entrySet()) {
             if (entry.getKey() != null) {
-                if (!ignoreNullKeyOnRead) {
-                    assertNull(cache.get(entry.getKey()));
-                } else {
-                    checkGetExpectation(entry.getValue(), cache, entry.getKey());
-                }
+                assertNull(cache.get(entry.getKey()));
             }
         }
     }
@@ -804,13 +774,9 @@ public class CacheTest {
         Cache<Date, Integer> cache = createAndStartCache();
         try {
             assertFalse(cache.putIfAbsent(null, 1));
-            if (!ignoreNullKeyOnRead) {
-                fail("should have thrown an exception - null key not allowed");
-            }
+            fail("should have thrown an exception - null key not allowed");
         } catch (NullPointerException e) {
-            if (ignoreNullKeyOnRead) {
-                fail("should not have thrown an exception - null key allowed");
-            }
+            //expected
         }
     }
 
@@ -1054,7 +1020,7 @@ public class CacheTest {
         Cache<Date, Integer> cache = createAndStartCache();
         try {
             cache.removeAll(null);
-            fail("expected NPE");
+            fail("should have thrown an exception - null keys not allowed");
         } catch (NullPointerException e) {
             //good
         }
@@ -1068,13 +1034,9 @@ public class CacheTest {
 
         try {
             cache.removeAll(keys);
-            if (!ignoreNullKeyOnRead) {
-                fail("null key");
-            }
+            fail("should have thrown an exception - null key not allowed");
         } catch (NullPointerException e) {
-            if (ignoreNullKeyOnRead) {
-                fail("null key");
-            }
+            //expected
         }
     }
 
@@ -1237,10 +1199,6 @@ public class CacheTest {
 
     // ---------- utilities ----------
 
-    protected boolean isIgnoreNullKeyOnRead() {
-        return RICache.DEFAULT_IGNORE_NULL_KEY_ON_READ;
-    }
-
     protected boolean isAllowNullValue() {
         return RICache.DEFAULT_ALLOW_NULL_VALUE;
     }
@@ -1263,7 +1221,6 @@ public class CacheTest {
             builder.setCacheLoader(cacheLoader);
         }
         return builder.
-                setIgnoreNullKeyOnRead(ignoreNullKeyOnRead).
                 setAllowNullValue(allowNullValue).
                 build();
     }

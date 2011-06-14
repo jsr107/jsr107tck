@@ -45,7 +45,6 @@ public class DoNotUseTest {
     public void testGetNullKeyV1(){
         Cache<Integer, String> cache =
                 new RICache.Builder<Integer, String>().
-                        setIgnoreNullKeyOnRead(false).
                         build();
         cache.start();
 
@@ -59,21 +58,6 @@ public class DoNotUseTest {
     }
 
     /**
-     * An attempt to get a value with key null returns null.
-     */
-    @Test
-    public void testGetNullKeyV2(){
-        Cache<Integer, String> cache =
-                new RICache.Builder<Integer, String>().
-                        setIgnoreNullKeyOnRead(true).
-                        build();
-        cache.start();
-
-        Integer key = null;
-        Assert.assertNull(cache.get(key));
-    }
-
-    /**
      * An attempt to put using a null key causes a
      * NullPointerException
      */
@@ -81,7 +65,6 @@ public class DoNotUseTest {
     public void testPutNullKeyV1(){
         Cache<Integer, String> cache =
                 new RICache.Builder<Integer, String>().
-                        setIgnoreNullKeyOnRead(true).
                         build();
         cache.start();
 
