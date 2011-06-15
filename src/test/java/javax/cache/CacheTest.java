@@ -17,7 +17,6 @@
 
 package javax.cache;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import javax.cache.implementation.RICache;
@@ -51,13 +50,7 @@ import static org.junit.Assert.fail;
  * @author Yannis Cosmadopoulos
  */
 public class CacheTest {
-    private boolean allowNullValue;
     private static final long FUTURE_WAIT_MILLIS = 100;
-
-    @Before
-    public void setUp() {
-        allowNullValue = isAllowNullValue();
-    }
 
     @Test
     public void get_NotStarted() {
@@ -140,13 +133,9 @@ public class CacheTest {
         Cache<String, Integer> cache = createAndStartCache();
         try {
             cache.put("key", null);
-            if (!allowNullValue) {
-                fail("should have thrown an exception - null value not allowed");
-            }
+            fail("should have thrown an exception - null value not allowed");
         } catch (NullPointerException e) {
-            if (allowNullValue) {
-                fail("should not have thrown an exception - null value allowed");
-            }
+            //good
         }
     }
 
@@ -426,18 +415,10 @@ public class CacheTest {
         assertNotNull(future);
         try {
             assertEquals(valueDefault, future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS));
-            if (allowNullValue) {
-                assertTrue(cache.containsKey(key));
-                assertEquals(valueDefault, cache.get(key));
-            } else {
-                fail("should have thrown an exception - null value not allowed");
-            }
+            fail("should have thrown an exception - null value not allowed");
         } catch (ExecutionException e) {
-            if (allowNullValue) {
-                fail("should not have thrown an exception - null value allowed");
-            } else {
-                assertFalse(cache.containsKey(key));
-            }
+            assertTrue(e.getCause() instanceof NullPointerException);
+            assertFalse(cache.containsKey(key));
         }
     }
 
@@ -493,7 +474,7 @@ public class CacheTest {
         assertNotNull(future);
         try {
             future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
-            fail("expected exception: ");
+            fail("expected exception");
         } catch (ExecutionException e) {
             assertEquals(expectedException, e.getCause());
         }
@@ -555,20 +536,9 @@ public class CacheTest {
         try {
             Map<Integer, Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
             assertEquals(keys.size(), map.size());
-            if (!allowNullValue) {
-                fail("should have thrown an exception - null value");
-            } else {
-                for (Integer key : keys) {
-                    assertTrue(cache.containsKey(key));
-                    assertNull(cache.get(key));
-                }
-            }
+            fail("should have thrown an exception - null value");
         } catch (ExecutionException e) {
-            if (allowNullValue) {
-                fail("should not have thrown an exception - null value");
-            } else {
-                assertTrue(e.getCause() instanceof NullPointerException);
-            }
+            assertTrue(e.getCause() instanceof NullPointerException);
         }
     }
 
@@ -651,7 +621,7 @@ public class CacheTest {
         assertNotNull(future);
         try {
             future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
-            fail("expected exception: ");
+            fail("expected exception");
         } catch (ExecutionException e) {
             assertEquals(expectedException, e.getCause());
         }
@@ -729,21 +699,13 @@ public class CacheTest {
         data.put(new Date(), null);
         try {
             cache.putAll(data);
-            if (!allowNullValue) {
-                fail("should have thrown an exception - null value not allowed");
-            }
+            fail("should have thrown an exception - null value not allowed");
         } catch (NullPointerException e) {
-            if (allowNullValue) {
-                fail("should not have thrown an exception - null value allowed");
-            }
+            //good
         }
         for (Map.Entry<Date, Integer> entry : data.entrySet()) {
             if (entry.getValue() != null) {
-                if (!allowNullValue) {
-                    assertNull(cache.get(entry.getKey()));
-                } else {
-                    checkGetExpectation(entry.getValue(), cache, entry.getKey());
-                }
+                assertNull(cache.get(entry.getKey()));
             }
         }
     }
@@ -784,14 +746,10 @@ public class CacheTest {
     public void putIfAbsent_NullValue() {
         Cache<Date, Integer> cache = createAndStartCache();
         try {
-            assertTrue(cache.putIfAbsent(new Date(), null));
-            if (!allowNullValue) {
-                fail("should have thrown an exception - null value not allowed");
-            }
+            cache.putIfAbsent(new Date(), null);
+            fail("should have thrown an exception - null value not allowed");
         } catch (NullPointerException e) {
-            if (allowNullValue) {
-                fail("should not have thrown an exception - null value allowed");
-            }
+            //good
         }
     }
 
@@ -842,13 +800,9 @@ public class CacheTest {
         Cache<Date, Integer> cache = createAndStartCache();
         try {
             assertFalse(cache.replace(new Date(), null, 2));
-            if (!allowNullValue) {
-                fail("should have thrown an exception - null value not allowed");
-            }
+            fail("should have thrown an exception - null value not allowed");
         } catch (NullPointerException e) {
-            if (allowNullValue) {
-                fail("should not have thrown an exception - null value allowed");
-            }
+            //good
         }
     }
 
@@ -857,13 +811,9 @@ public class CacheTest {
         Cache<Date, Integer> cache = createAndStartCache();
         try {
             assertFalse(cache.replace(new Date(), 1, null));
-            if (!allowNullValue) {
-                fail("should have thrown an exception - null value not allowed");
-            }
+            fail("should have thrown an exception - null value not allowed");
         } catch (NullPointerException e) {
-            if (allowNullValue) {
-                fail("should not have thrown an exception - null value allowed");
-            }
+            //good
         }
     }
 
@@ -923,13 +873,9 @@ public class CacheTest {
         Cache<Date, Integer> cache = createAndStartCache();
         try {
             assertFalse(cache.replace(new Date(), null));
-            if (!allowNullValue) {
-                fail("should have thrown an exception - null value not allowed");
-            }
+            fail("should have thrown an exception - null value not allowed");
         } catch (NullPointerException e) {
-            if (allowNullValue) {
-                fail("should not have thrown an exception - null value allowed");
-            }
+            //good
         }
     }
 
@@ -977,13 +923,9 @@ public class CacheTest {
         Cache<Date, Integer> cache = createAndStartCache();
         try {
             assertNull(cache.getAndReplace(new Date(), null));
-            if (!allowNullValue) {
-                fail("should have thrown an exception - null value not allowed");
-            }
+            fail("should have thrown an exception - null value not allowed");
         } catch (NullPointerException e) {
-            if (allowNullValue) {
-                fail("should not have thrown an exception - null value allowed");
-            }
+            //good
         }
     }
 
@@ -1199,10 +1141,6 @@ public class CacheTest {
 
     // ---------- utilities ----------
 
-    protected boolean isAllowNullValue() {
-        return RICache.DEFAULT_ALLOW_NULL_VALUE;
-    }
-
     /**
      * Creates a cache. Sub classes may override this to create the cache differently.
      *
@@ -1220,9 +1158,7 @@ public class CacheTest {
         if (cacheLoader != null) {
             builder.setCacheLoader(cacheLoader);
         }
-        return builder.
-                setAllowNullValue(allowNullValue).
-                build();
+        return builder.build();
     }
 
     // ---------- utilities ----------

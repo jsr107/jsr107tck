@@ -86,7 +86,6 @@ public class DoNotUseTest {
     public void testPutNullValueV1(){
         Cache<Integer, String> cache =
                 new RICache.Builder<Integer, String>().
-                        setAllowNullValue(false).
                         build();
         cache.start();
 
@@ -100,79 +99,5 @@ public class DoNotUseTest {
         }
         Assert.assertFalse(cache.containsKey(key));
         Assert.assertNull(cache.get(key));
-    }
-
-    /**
-     * An attempt to put using a null value stores the null
-     */
-    @Test
-    public void testPutNullValueV2(){
-        Cache<Integer, String> cache =
-                new RICache.Builder<Integer, String>().
-                        setAllowNullValue(true).
-                        build();
-        cache.start();
-
-        // We allow null in value
-        Integer key = 1;
-        cache.put(key, null);
-        Assert.assertTrue(cache.containsKey(key));
-        Assert.assertNull(cache.get(key));
-        cache.remove(key);
-        Assert.assertFalse(cache.containsKey(key));
-        Assert.assertNull(cache.get(key));
-        /*
-         note: cache.get(key) == null can mean
-         1) there is no entry with key
-         2) there is an entry with key with value==null
-        */
-    }
-
-    /**
-     * An attempt to put using a null value stores the null.
-     *
-     * This solution changes get to return Cache.Entry<K, V> rather than K.
-     * For this test I use a private method {@link #get(Object, Cache)} which
-     * stands in for a Cache.get returning Entry.
-     */
-    @Test
-    public void testPutNullValueV3(){
-        Cache<Integer, String> cache =
-                new RICache.Builder<Integer, String>().
-                        setAllowNullValue(true).
-                        build();
-        cache.start();
-
-        // We allow null in value, but get returns an entry
-        Integer key = 1;
-        cache.put(key, null);
-        Assert.assertTrue(cache.containsKey(key));
-        Cache.Entry<Integer, String> entry = get(key, cache);
-        Assert.assertEquals(key, entry.getKey());
-        Assert.assertNull(entry.getValue());
-        cache.remove(key);
-        Assert.assertFalse(cache.containsKey(key));
-        Assert.assertNull(get(key, cache));
-        /*
-         note: cache.get(key) == null can only mean
-         1) there is no entry with key
-        */
-    }
-
-    private <K,V> Cache.Entry<K, V> get(final K key, Cache<K, V> cache) {
-        if (!cache.containsKey(key)) {
-            return null;
-        } else {
-            final V value = cache.get(key);
-            return new Cache.Entry<K, V>() {
-                public K getKey() {
-                    return key;
-                }
-
-                public V getValue() {
-                    return value;
-                }
-            };
-        }
     }
 }
