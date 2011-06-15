@@ -20,6 +20,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>mockit</groupId>
+            <artifactId>jmockit</artifactId>
+            <version>0.999.9</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.8.2</version>
@@ -116,8 +122,8 @@
         </plugins>
     </build>
 
-    <!--Required for CloudBees CI. Local builds will still work if you mvn install jsr107api first-->
     <repositories>
+        <!--Required for CloudBees CI. Local builds will still work if you mvn install jsr107api first-->
         <repository>
             <id>cloudbees-snapshots</id>
             <url>https://repository-jsr107.forge.cloudbees.com/snapshot</url>
@@ -127,6 +133,11 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
+        </repository>
+        <repository>
+           <id>jmockit-svn</id>
+           <url>http://jmockit.googlecode.com/svn/maven-repo</url>
+           <releases><checksumPolicy>ignore</checksumPolicy></releases>
         </repository>
     </repositories>
 

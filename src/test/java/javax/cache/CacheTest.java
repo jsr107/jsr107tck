@@ -43,9 +43,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
- * Unit test for simple App.
+ * Unit test for Cache.
  * <p/>
- * These are very basic tests
+ * Implementers of Cache should subclass this test, overriding {@link #createCache(CacheConfiguration, CacheLoader)}
  *
  * @author Yannis Cosmadopoulos
  */
@@ -1142,7 +1142,7 @@ public class CacheTest {
     // ---------- utilities ----------
 
     /**
-     * Creates a cache. Sub classes may override this to create the cache differently.
+     * Creates a cache. Sub classes should override this to create the cache differently.
      *
      * @param config      the cache configuration
      * @param cacheLoader the default cache loader
