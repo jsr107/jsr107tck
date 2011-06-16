@@ -17,7 +17,6 @@
 
 package javax.cache;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import javax.cache.implementation.RICache;
@@ -44,19 +43,26 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
- * Unit test for simple App.
+ * Unit test for Cache.
  * <p/>
- * These are very basic tests
+ * Implementers of Cache should subclass this test, overriding {@link #createCache(String, CacheConfiguration, CacheLoader)}
  *
  * @author Yannis Cosmadopoulos
  */
 public class CacheTest {
-    private boolean allowNullValue;
-    private static final long FUTURE_WAIT_MILLIS = 100;
+    /**
+     * the time to wait for a future
+     */
+    protected static final long FUTURE_WAIT_MILLIS = 100;
+    /**
+     * the default test cache name
+     */
+    protected static final String CACHE_NAME = "testCache";
 
-    @Before
-    public void setUp() {
-        allowNullValue = isAllowNullValue();
+    @Test
+    public void getCacheName() {
+        Cache<String, Integer> cache = createCache();
+        assertEquals(CACHE_NAME, cache.getCacheName());
     }
 
     @Test
@@ -140,13 +146,9 @@ public class CacheTest {
         Cache<String, Integer> cache = createAndStartCache();
         try {
             cache.put("key", null);
-            if (!allowNullValue) {
-                fail("should have thrown an exception - null value not allowed");
-            }
+            fail("should have thrown an exception - null value not allowed");
         } catch (NullPointerException e) {
-            if (allowNullValue) {
-                fail("should not have thrown an exception - null value allowed");
-            }
+            //good
         }
     }
 
@@ -420,24 +422,16 @@ public class CacheTest {
                 return valueDefault;
             }
         };
-        Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
+        Cache<Integer, Integer> cache = createAndStartCache(clDefault);
         Integer key = 1;
         Future<Integer> future = cache.load(key, null, null);
         assertNotNull(future);
         try {
             assertEquals(valueDefault, future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS));
-            if (allowNullValue) {
-                assertTrue(cache.containsKey(key));
-                assertEquals(valueDefault, cache.get(key));
-            } else {
-                fail("should have thrown an exception - null value not allowed");
-            }
+            fail("should have thrown an exception - null value not allowed");
         } catch (ExecutionException e) {
-            if (allowNullValue) {
-                fail("should not have thrown an exception - null value allowed");
-            } else {
-                assertFalse(cache.containsKey(key));
-            }
+            assertTrue(e.getCause() instanceof NullPointerException);
+            assertFalse(cache.containsKey(key));
         }
     }
 
@@ -450,7 +444,7 @@ public class CacheTest {
                 return valueDefault;
             }
         };
-        Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
+        Cache<Integer, Integer> cache = createAndStartCache(clDefault);
         Integer key = 1;
         Future<Integer> future = cache.load(key, null, null);
         assertNotNull(future);
@@ -469,7 +463,7 @@ public class CacheTest {
                 return valueSpecific;
             }
         };
-        Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
+        Cache<Integer, Integer> cache = createAndStartCache(clDefault);
         Integer key = 1;
         Future<Integer> future = cache.load(key, clSpecific, null);
         assertNotNull(future);
@@ -487,13 +481,13 @@ public class CacheTest {
                 throw expectedException;
             }
         };
-        Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
+        Cache<Integer, Integer> cache = createAndStartCache(clDefault);
         Integer key = 1;
         Future<Integer> future = cache.load(key, null, null);
         assertNotNull(future);
         try {
             future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
-            fail("expected exception: ");
+            fail("expected exception");
         } catch (ExecutionException e) {
             assertEquals(expectedException, e.getCause());
         }
@@ -555,20 +549,9 @@ public class CacheTest {
         try {
             Map<Integer, Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
             assertEquals(keys.size(), map.size());
-            if (!allowNullValue) {
-                fail("should have thrown an exception - null value");
-            } else {
-                for (Integer key : keys) {
-                    assertTrue(cache.containsKey(key));
-                    assertNull(cache.get(key));
-                }
-            }
+            fail("should have thrown an exception - null value");
         } catch (ExecutionException e) {
-            if (allowNullValue) {
-                fail("should not have thrown an exception - null value");
-            } else {
-                assertTrue(e.getCause() instanceof NullPointerException);
-            }
+            assertTrue(e.getCause() instanceof NullPointerException);
         }
     }
 
@@ -608,7 +591,7 @@ public class CacheTest {
         keys.add(1);
         keys.add(2);
         CacheLoader<Integer, Integer> clDefault = new SimpleCacheLoader<Integer>();
-        Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
+        Cache<Integer, Integer> cache = createAndStartCache(clDefault);
         Future<Map<Integer, Integer>> future = cache.loadAll(keys, null, null);
         Map<Integer, Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
         assertEquals(keys.size(), map.size());
@@ -622,7 +605,7 @@ public class CacheTest {
     public void loadAll_BothCacheLoader() throws Exception {
         CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>();
         CacheLoader<Integer, Integer> clSpecific = new SimpleCacheLoader<Integer>();
-        Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
+        Cache<Integer, Integer> cache = createAndStartCache(clDefault);
         ArrayList<Integer> keys = new ArrayList<Integer>();
         keys.add(1);
         keys.add(2);
@@ -644,14 +627,14 @@ public class CacheTest {
                 throw expectedException;
             }
         };
-        Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
+        Cache<Integer, Integer> cache = createAndStartCache(clDefault);
         ArrayList<Integer> keys = new ArrayList<Integer>();
         keys.add(1);
         Future<Map<Integer, Integer>> future = cache.loadAll(keys, null, null);
         assertNotNull(future);
         try {
             future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
-            fail("expected exception: ");
+            fail("expected exception");
         } catch (ExecutionException e) {
             assertEquals(expectedException, e.getCause());
         }
@@ -729,21 +712,13 @@ public class CacheTest {
         data.put(new Date(), null);
         try {
             cache.putAll(data);
-            if (!allowNullValue) {
-                fail("should have thrown an exception - null value not allowed");
-            }
+            fail("should have thrown an exception - null value not allowed");
         } catch (NullPointerException e) {
-            if (allowNullValue) {
-                fail("should not have thrown an exception - null value allowed");
-            }
+            //good
         }
         for (Map.Entry<Date, Integer> entry : data.entrySet()) {
             if (entry.getValue() != null) {
-                if (!allowNullValue) {
-                    assertNull(cache.get(entry.getKey()));
-                } else {
-                    checkGetExpectation(entry.getValue(), cache, entry.getKey());
-                }
+                assertNull(cache.get(entry.getKey()));
             }
         }
     }
@@ -784,14 +759,10 @@ public class CacheTest {
     public void putIfAbsent_NullValue() {
         Cache<Date, Integer> cache = createAndStartCache();
         try {
-            assertTrue(cache.putIfAbsent(new Date(), null));
-            if (!allowNullValue) {
-                fail("should have thrown an exception - null value not allowed");
-            }
+            cache.putIfAbsent(new Date(), null);
+            fail("should have thrown an exception - null value not allowed");
         } catch (NullPointerException e) {
-            if (allowNullValue) {
-                fail("should not have thrown an exception - null value allowed");
-            }
+            //good
         }
     }
 
@@ -842,13 +813,9 @@ public class CacheTest {
         Cache<Date, Integer> cache = createAndStartCache();
         try {
             assertFalse(cache.replace(new Date(), null, 2));
-            if (!allowNullValue) {
-                fail("should have thrown an exception - null value not allowed");
-            }
+            fail("should have thrown an exception - null value not allowed");
         } catch (NullPointerException e) {
-            if (allowNullValue) {
-                fail("should not have thrown an exception - null value allowed");
-            }
+            //good
         }
     }
 
@@ -857,13 +824,9 @@ public class CacheTest {
         Cache<Date, Integer> cache = createAndStartCache();
         try {
             assertFalse(cache.replace(new Date(), 1, null));
-            if (!allowNullValue) {
-                fail("should have thrown an exception - null value not allowed");
-            }
+            fail("should have thrown an exception - null value not allowed");
         } catch (NullPointerException e) {
-            if (allowNullValue) {
-                fail("should not have thrown an exception - null value allowed");
-            }
+            //good
         }
     }
 
@@ -923,13 +886,9 @@ public class CacheTest {
         Cache<Date, Integer> cache = createAndStartCache();
         try {
             assertFalse(cache.replace(new Date(), null));
-            if (!allowNullValue) {
-                fail("should have thrown an exception - null value not allowed");
-            }
+            fail("should have thrown an exception - null value not allowed");
         } catch (NullPointerException e) {
-            if (allowNullValue) {
-                fail("should not have thrown an exception - null value allowed");
-            }
+            //good
         }
     }
 
@@ -977,13 +936,9 @@ public class CacheTest {
         Cache<Date, Integer> cache = createAndStartCache();
         try {
             assertNull(cache.getAndReplace(new Date(), null));
-            if (!allowNullValue) {
-                fail("should have thrown an exception - null value not allowed");
-            }
+            fail("should have thrown an exception - null value not allowed");
         } catch (NullPointerException e) {
-            if (allowNullValue) {
-                fail("should not have thrown an exception - null value allowed");
-            }
+            //good
         }
     }
 
@@ -1075,6 +1030,7 @@ public class CacheTest {
         assertFalse(config.isReadThrough());
         assertFalse(config.isWriteThrough());
         assertFalse(config.isStoreByValue());
+        assertEquals(CACHE_NAME, config.getCacheName());
         // is immutable
         try {
             config.setReadThrough(!config.isReadThrough());
@@ -1098,19 +1054,23 @@ public class CacheTest {
 
     @Test
     public void getConfiguration() {
+        String cacheName = CACHE_NAME + "XXX";
         CacheConfiguration defaultConfig = createCache().getConfiguration();
         CacheConfiguration expectedConfig = new RICacheConfiguration.Builder().
                 setReadThrough(!defaultConfig.isReadThrough()).
                 setWriteThrough(!defaultConfig.isWriteThrough()).
                 setStoreByValue(!defaultConfig.isStoreByValue()).
+                setCacheName(cacheName).
                 build();
 
-        Cache<Date, Integer> cache = createCache(expectedConfig, null);
+        Cache<Date, Integer> cache = createCache(null, expectedConfig, null);
         CacheConfiguration config = cache.getConfiguration();
         // defaults
         assertEquals(expectedConfig.isReadThrough(), config.isReadThrough());
         assertEquals(expectedConfig.isWriteThrough(), config.isWriteThrough());
         assertEquals(expectedConfig.isStoreByValue(), config.isStoreByValue());
+        assertEquals(expectedConfig.getCacheName(), config.getCacheName());
+        assertEquals(cacheName, cache.getCacheName());
         // is immutable
         try {
             config.setReadThrough(!config.isReadThrough());
@@ -1199,20 +1159,17 @@ public class CacheTest {
 
     // ---------- utilities ----------
 
-    protected boolean isAllowNullValue() {
-        return RICache.DEFAULT_ALLOW_NULL_VALUE;
-    }
-
     /**
-     * Creates a cache. Sub classes may override this to create the cache differently.
+     * Creates a cache. Sub classes should override this to create the cache differently.
      *
+     * @param cacheName the cache name
      * @param config      the cache configuration
      * @param cacheLoader the default cache loader
      * @param <K>         the key type
      * @param <V>         the value type
      * @return a new cache
      */
-    protected <K, V> Cache<K, V> createCache(CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
+    protected <K, V> Cache<K, V> createCache(String cacheName, CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
         RICache.Builder<K, V> builder = new RICache.Builder<K, V>();
         if (config != null) {
             builder.setCacheConfiguration(config);
@@ -1220,23 +1177,28 @@ public class CacheTest {
         if (cacheLoader != null) {
             builder.setCacheLoader(cacheLoader);
         }
-        return builder.
-                setAllowNullValue(allowNullValue).
-                build();
+        if (cacheName != null) {
+            builder.setCacheName(cacheName);
+        }
+        return builder.build();
     }
 
     // ---------- utilities ----------
 
     private <K, V> Cache<K, V> createCache() {
-        return createCache(null, null);
+        return createCache(CACHE_NAME, null, null);
     }
 
     private <K, V> Cache<K, V> createAndStartCache() {
-        return createAndStartCache(null, null);
+        return createAndStartCache(CACHE_NAME, null, null);
     }
 
-    private <K, V> Cache<K, V> createAndStartCache(CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
-        Cache<K, V> cache = createCache(config, cacheLoader);
+    private <K, V> Cache<K, V> createAndStartCache(CacheLoader<K, V> cacheLoader) {
+        return createAndStartCache(CACHE_NAME, null, cacheLoader);
+    }
+
+    private <K, V> Cache<K, V> createAndStartCache(String cacheName, CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
+        Cache<K, V> cache = createCache(cacheName, config, cacheLoader);
         cache.start();
         return cache;
     }
