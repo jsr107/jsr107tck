@@ -45,12 +45,25 @@ import static org.junit.Assert.fail;
 /**
  * Unit test for Cache.
  * <p/>
- * Implementers of Cache should subclass this test, overriding {@link #createCache(CacheConfiguration, CacheLoader)}
+ * Implementers of Cache should subclass this test, overriding {@link #createCache(String, CacheConfiguration, CacheLoader)}
  *
  * @author Yannis Cosmadopoulos
  */
 public class CacheTest {
-    private static final long FUTURE_WAIT_MILLIS = 100;
+    /**
+     * the time to wait for a future
+     */
+    protected static final long FUTURE_WAIT_MILLIS = 100;
+    /**
+     * the default test cache name
+     */
+    protected static final String CACHE_NAME = "testCache";
+
+    @Test
+    public void getCacheName() {
+        Cache<String, Integer> cache = createCache();
+        assertEquals(CACHE_NAME, cache.getCacheName());
+    }
 
     @Test
     public void get_NotStarted() {
@@ -409,7 +422,7 @@ public class CacheTest {
                 return valueDefault;
             }
         };
-        Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
+        Cache<Integer, Integer> cache = createAndStartCache(clDefault);
         Integer key = 1;
         Future<Integer> future = cache.load(key, null, null);
         assertNotNull(future);
@@ -431,7 +444,7 @@ public class CacheTest {
                 return valueDefault;
             }
         };
-        Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
+        Cache<Integer, Integer> cache = createAndStartCache(clDefault);
         Integer key = 1;
         Future<Integer> future = cache.load(key, null, null);
         assertNotNull(future);
@@ -450,7 +463,7 @@ public class CacheTest {
                 return valueSpecific;
             }
         };
-        Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
+        Cache<Integer, Integer> cache = createAndStartCache(clDefault);
         Integer key = 1;
         Future<Integer> future = cache.load(key, clSpecific, null);
         assertNotNull(future);
@@ -468,7 +481,7 @@ public class CacheTest {
                 throw expectedException;
             }
         };
-        Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
+        Cache<Integer, Integer> cache = createAndStartCache(clDefault);
         Integer key = 1;
         Future<Integer> future = cache.load(key, null, null);
         assertNotNull(future);
@@ -578,7 +591,7 @@ public class CacheTest {
         keys.add(1);
         keys.add(2);
         CacheLoader<Integer, Integer> clDefault = new SimpleCacheLoader<Integer>();
-        Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
+        Cache<Integer, Integer> cache = createAndStartCache(clDefault);
         Future<Map<Integer, Integer>> future = cache.loadAll(keys, null, null);
         Map<Integer, Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
         assertEquals(keys.size(), map.size());
@@ -592,7 +605,7 @@ public class CacheTest {
     public void loadAll_BothCacheLoader() throws Exception {
         CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>();
         CacheLoader<Integer, Integer> clSpecific = new SimpleCacheLoader<Integer>();
-        Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
+        Cache<Integer, Integer> cache = createAndStartCache(clDefault);
         ArrayList<Integer> keys = new ArrayList<Integer>();
         keys.add(1);
         keys.add(2);
@@ -614,7 +627,7 @@ public class CacheTest {
                 throw expectedException;
             }
         };
-        Cache<Integer, Integer> cache = createAndStartCache(null, clDefault);
+        Cache<Integer, Integer> cache = createAndStartCache(clDefault);
         ArrayList<Integer> keys = new ArrayList<Integer>();
         keys.add(1);
         Future<Map<Integer, Integer>> future = cache.loadAll(keys, null, null);
@@ -1017,6 +1030,7 @@ public class CacheTest {
         assertFalse(config.isReadThrough());
         assertFalse(config.isWriteThrough());
         assertFalse(config.isStoreByValue());
+        assertEquals(CACHE_NAME, config.getCacheName());
         // is immutable
         try {
             config.setReadThrough(!config.isReadThrough());
@@ -1040,19 +1054,23 @@ public class CacheTest {
 
     @Test
     public void getConfiguration() {
+        String cacheName = CACHE_NAME + "XXX";
         CacheConfiguration defaultConfig = createCache().getConfiguration();
         CacheConfiguration expectedConfig = new RICacheConfiguration.Builder().
                 setReadThrough(!defaultConfig.isReadThrough()).
                 setWriteThrough(!defaultConfig.isWriteThrough()).
                 setStoreByValue(!defaultConfig.isStoreByValue()).
+                setCacheName(cacheName).
                 build();
 
-        Cache<Date, Integer> cache = createCache(expectedConfig, null);
+        Cache<Date, Integer> cache = createCache(null, expectedConfig, null);
         CacheConfiguration config = cache.getConfiguration();
         // defaults
         assertEquals(expectedConfig.isReadThrough(), config.isReadThrough());
         assertEquals(expectedConfig.isWriteThrough(), config.isWriteThrough());
         assertEquals(expectedConfig.isStoreByValue(), config.isStoreByValue());
+        assertEquals(expectedConfig.getCacheName(), config.getCacheName());
+        assertEquals(cacheName, cache.getCacheName());
         // is immutable
         try {
             config.setReadThrough(!config.isReadThrough());
@@ -1144,13 +1162,14 @@ public class CacheTest {
     /**
      * Creates a cache. Sub classes should override this to create the cache differently.
      *
+     * @param cacheName the cache name
      * @param config      the cache configuration
      * @param cacheLoader the default cache loader
      * @param <K>         the key type
      * @param <V>         the value type
      * @return a new cache
      */
-    protected <K, V> Cache<K, V> createCache(CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
+    protected <K, V> Cache<K, V> createCache(String cacheName, CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
         RICache.Builder<K, V> builder = new RICache.Builder<K, V>();
         if (config != null) {
             builder.setCacheConfiguration(config);
@@ -1158,21 +1177,28 @@ public class CacheTest {
         if (cacheLoader != null) {
             builder.setCacheLoader(cacheLoader);
         }
+        if (cacheName != null) {
+            builder.setCacheName(cacheName);
+        }
         return builder.build();
     }
 
     // ---------- utilities ----------
 
     private <K, V> Cache<K, V> createCache() {
-        return createCache(null, null);
+        return createCache(CACHE_NAME, null, null);
     }
 
     private <K, V> Cache<K, V> createAndStartCache() {
-        return createAndStartCache(null, null);
+        return createAndStartCache(CACHE_NAME, null, null);
     }
 
-    private <K, V> Cache<K, V> createAndStartCache(CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
-        Cache<K, V> cache = createCache(config, cacheLoader);
+    private <K, V> Cache<K, V> createAndStartCache(CacheLoader<K, V> cacheLoader) {
+        return createAndStartCache(CACHE_NAME, null, cacheLoader);
+    }
+
+    private <K, V> Cache<K, V> createAndStartCache(String cacheName, CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
+        Cache<K, V> cache = createCache(cacheName, config, cacheLoader);
         cache.start();
         return cache;
     }
