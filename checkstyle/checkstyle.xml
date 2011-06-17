@@ -92,7 +92,9 @@
         <!--Annotations-->
         <module name="AnnotationUseStyle"/>
         <module name="MissingDeprecated"/>
-        <module name="MissingOverride"/>
+        <module name="MissingOverride">
+            <property name="javaFiveCompatibility" value="true"/>
+        </module>
         <module name="PackageAnnotation"/>
         <module name="SuppressWarnings"/>
 

@@ -21,7 +21,11 @@ import mockit.Expectations;
 import mockit.Mocked;
 import org.junit.Test;
 
+import javax.cache.implementation.RICache;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -36,20 +40,6 @@ import static org.junit.Assert.fail;
 public class CacheManagerTest {
 
     @Test
-    public void addCache_NullCacheName(@Mocked final Cache cache) {
-        CacheManager cacheManager = getCacheManager();
-        new Expectations() {{
-            cache.getCacheName(); returns(null); times = 1;
-        }};
-        try {
-            cacheManager.addCache(cache);
-            fail("should have thrown an exception - cache name null");
-        } catch (NullPointerException e) {
-            //good
-        }
-    }
-
-    @Test
     public void addCache_NullCache() {
         CacheManager cacheManager = getCacheManager();
         try {
@@ -61,32 +51,64 @@ public class CacheManagerTest {
     }
 
     @Test
-    public void addCache_2Different(@Mocked final Cache<Integer, String> cache1, @Mocked final Cache cache2) {
+    public void addCache_2Different() {
         CacheManager cacheManager = getCacheManager();
-        final String name1 = "c1";
-        final String name2 = "c2";
-        new Expectations() {{
-            cache1.getCacheName(); returns(name1);
-            cache2.getCacheName(); returns(name2);
-        }};
+
+        String name1 = "c1";
+        Cache<Integer, String> cache1 = new RICache.Builder<Integer, String>().setCacheName(name1).build();
         cacheManager.addCache(cache1);
+        assertEquals(Status.STARTED, cache1.getStatus());
+
+        String name2 = "c2";
+        Cache<Integer, String> cache2 = new RICache.Builder<Integer, String>().setCacheName(name2).build();
         cacheManager.addCache(cache2);
+        assertEquals(Status.STARTED, cache2.getStatus());
+
         assertEquals(cache1, cacheManager.<Integer, String>getCache(name1));
         assertEquals(cache2, cacheManager.<Integer, String>getCache(name2));
     }
 
     @Test
-    public void addCache_2DifferentSameName(@Mocked final Cache<Integer, String> cache1, @Mocked final Cache cache2) {
+    public void addCache_2DifferentSameName() {
         CacheManager cacheManager = getCacheManager();
-        final String name1 = "c1";
-        new Expectations() {{
-            cache1.getCacheName(); returns(name1);
-            cache2.getCacheName(); returns(name1);
-        }};
+        String name1 = "c1";
+        Cache<Integer, String> cache1 = new RICache.Builder<Integer, String>().setCacheName(name1).build();
         cacheManager.addCache(cache1);
         assertEquals(cache1, cacheManager.<Integer, String>getCache(name1));
+        checkStarted(cache1);
+
+        Cache<Integer, String> cache2 = new RICache.Builder<Integer, String>().setCacheName(name1).build();
         cacheManager.addCache(cache2);
         assertEquals(cache2, cacheManager.<Integer, String>getCache(name1));
+        checkStarted(cache2);
+        checkStopped(cache1);
+    }
+
+    @Test
+    public void removeCache_Null() {
+        CacheManager cacheManager = getCacheManager();
+        try {
+            cacheManager.removeCache(null);
+            fail("should have thrown an exception - cache name null");
+        } catch (NullPointerException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void removeCache() {
+        CacheManager cacheManager = getCacheManager();
+        String name1 = "c1";
+        Cache<Integer, String> cache1 = new RICache.Builder<Integer, String>().setCacheName(name1).build();
+        cacheManager.addCache(cache1);
+        assertTrue(cacheManager.removeCache(name1));
+        checkStopped(cache1);
+    }
+
+    @Test
+    public void removeCache_NotThere() {
+        CacheManager cacheManager = getCacheManager();
+        assertFalse(cacheManager.removeCache("c1"));
     }
 
     /**
@@ -113,5 +135,17 @@ public class CacheManagerTest {
 
     private CacheManager getCacheManager() {
         return TestInstanceFactory.getInstance().getCacheManager();
+    }
+
+    private void checkStarted(Cache cache) {
+        Status status = cache.getStatus();
+        //may be asynchronous
+        assertTrue(status == Status.STARTED || status == Status.STARTING);
+    }
+
+    private void checkStopped(Cache cache) {
+        Status status = cache.getStatus();
+        //may be asynchronous
+        assertTrue(status == Status.STOPPED|| status == Status.STOPPING);
     }
 }
