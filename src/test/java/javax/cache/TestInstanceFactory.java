@@ -19,6 +19,7 @@ package javax.cache;
 
 import javax.cache.implementation.RICache;
 import javax.cache.implementation.RICacheBuilder;
+import javax.cache.implementation.RICacheConfiguration;
 import javax.cache.implementation.RICacheManager;
 
 /**
@@ -27,7 +28,7 @@ import javax.cache.implementation.RICacheManager;
  * To customize for a different class, set the system property defined by {@link #FACTORY_CLASS}.
  * <p/>
  *
- * @author ycosmado
+ * @author Yannis Cosmadopoulos
  * @since 1.0
  */
 public class TestInstanceFactory implements InstanceFactory {
@@ -63,14 +64,30 @@ public class TestInstanceFactory implements InstanceFactory {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public CacheBuilder getCacheBuilder() {
         return factory.getCacheBuilder();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public CacheManager getCacheManager() {
         return factory.getCacheManager();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public CacheConfiguration getCacheConfiguration() {
+        return factory.getCacheConfiguration();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public <K, V> Cache<K, V> createCache(String cacheName, CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
         return factory.createCache(cacheName, config, cacheLoader);
     }
@@ -79,14 +96,39 @@ public class TestInstanceFactory implements InstanceFactory {
      * factory for RI instances
      */
     public static class RIInstanceFactory implements InstanceFactory {
+
+        /**
+         * Will return an RI implementation.
+         *
+         * {@inheritDoc}
+         */
         public CacheBuilder getCacheBuilder() {
             return RICacheBuilder.instance;
         }
 
+        /**
+         * Will return an RI implementation.
+         *
+         * {@inheritDoc}
+         */
         public CacheManager getCacheManager() {
             return RICacheManager.instance;
         }
 
+        /**
+         * Will return an RI implementation.
+         *
+         * {@inheritDoc}
+         */
+        public CacheConfiguration getCacheConfiguration() {
+            return new RICacheConfiguration.Builder().build();
+        }
+
+        /**
+         * Will return an RI implementation.
+         *
+         * {@inheritDoc}
+         */
         public <K, V> Cache<K, V> createCache(String cacheName, CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
             RICache.Builder<K, V> builder = new RICache.Builder<K, V>();
             if (config != null) {

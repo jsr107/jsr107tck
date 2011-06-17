@@ -714,11 +714,6 @@ public class CacheTest {
         } catch (NullPointerException e) {
             //good
         }
-        for (Map.Entry<Date, Integer> entry : data.entrySet()) {
-            if (entry.getValue() != null) {
-                assertNull(cache.get(entry.getKey()));
-            }
-        }
     }
 
     @Test
@@ -1025,10 +1020,8 @@ public class CacheTest {
         Cache<Date, Integer> cache = createCache();
         CacheConfiguration config = cache.getConfiguration();
         // defaults
-        assertFalse(config.isReadThrough());
-        assertFalse(config.isWriteThrough());
-        assertFalse(config.isStoreByValue());
-        assertEquals(CACHE_NAME, config.getCacheName());
+        CacheConfiguration defaultConfig = new RICacheConfiguration.Builder().build();
+        assertEquals(defaultConfig, config);
         // is immutable
         try {
             config.setReadThrough(!config.isReadThrough());
@@ -1053,22 +1046,19 @@ public class CacheTest {
     @Test
     public void getConfiguration() {
         String cacheName = CACHE_NAME + "XXX";
-        CacheConfiguration defaultConfig = createCache().getConfiguration();
+        CacheConfiguration defaultConfig = new RICacheConfiguration.Builder().build();
         CacheConfiguration expectedConfig = new RICacheConfiguration.Builder().
                 setReadThrough(!defaultConfig.isReadThrough()).
                 setWriteThrough(!defaultConfig.isWriteThrough()).
                 setStoreByValue(!defaultConfig.isStoreByValue()).
-                setCacheName(cacheName).
                 build();
 
-        Cache<Date, Integer> cache = createCache(null, expectedConfig, null);
+        Cache<Date, Integer> cache = createCache(cacheName, expectedConfig, null);
         CacheConfiguration config = cache.getConfiguration();
         // defaults
         assertEquals(expectedConfig.isReadThrough(), config.isReadThrough());
         assertEquals(expectedConfig.isWriteThrough(), config.isWriteThrough());
         assertEquals(expectedConfig.isStoreByValue(), config.isStoreByValue());
-        assertEquals(expectedConfig.getCacheName(), config.getCacheName());
-        assertEquals(cacheName, cache.getCacheName());
         // is immutable
         try {
             config.setReadThrough(!config.isReadThrough());
@@ -1157,21 +1147,9 @@ public class CacheTest {
 
     // ---------- utilities ----------
 
-    /**
-     * Creates a cache.
-     *
-     * @param cacheName the cache name
-     * @param config      the cache configuration
-     * @param cacheLoader the default cache loader
-     * @param <K>         the key type
-     * @param <V>         the value type
-     * @return a new cache
-     */
-    protected <K, V> Cache<K, V> createCache(String cacheName, CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
+    private <K, V> Cache<K, V> createCache(String cacheName, CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
         return TestInstanceFactory.getInstance().createCache(cacheName, config, cacheLoader);
     }
-
-    // ---------- utilities ----------
 
     private <K, V> Cache<K, V> createCache() {
         return createCache(CACHE_NAME, null, null);

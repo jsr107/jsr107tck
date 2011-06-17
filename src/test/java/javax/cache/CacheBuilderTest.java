@@ -17,24 +17,94 @@
 
 package javax.cache;
 
+import org.junit.Test;
+
+import javax.cache.implementation.RICacheConfiguration;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
+
 /**
- * Unit tests for CacheManager
+ * Unit tests for CacheBuilder
  * <p/>
  *
- * Implementers of Cache should subclass this test, overriding {@link #getCacheBuilder()}
- *
- * @author ycosmado
+ * @author Yannis Cosmadopoulos
  * @since 1.0
  */
 public class CacheBuilderTest {
+    private static final String CACHE_NAME = "foo";
+
+    @Test
+    public void createCache_1NullCacheName() {
+        CacheBuilder builder = getCacheBuilder();
+        try {
+            builder.createCache(null);
+            fail("should have thrown an exception - null cache name not allowed");
+        } catch (NullPointerException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void createCache_1NameOK() {
+        CacheBuilder builder = getCacheBuilder();
+        String name = CACHE_NAME;
+        Cache cache = builder.createCache(name);
+        assertEquals(name, cache.getCacheName());
+    }
+
+    @Test
+    public void createCache_1StatusOK() {
+        CacheBuilder builder = getCacheBuilder();
+        Cache cache = builder.createCache(CACHE_NAME);
+        assertSame(Status.UNITIALISED, cache.getStatus());
+    }
+
+    @Test
+    public void createCache_2NullCacheName() {
+        CacheBuilder builder = getCacheBuilder();
+        try {
+            builder.createCache(null, getCacheConfiguration());
+            fail("should have thrown an exception - null cache name not allowed");
+        } catch (NullPointerException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void createCache_2NullCacheConfiguration() {
+        CacheBuilder builder = getCacheBuilder();
+        try {
+            builder.createCache(CACHE_NAME, null);
+            fail("should have thrown an exception - null cache configurationnot allowed");
+        } catch (NullPointerException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void createCache_2NameOK() {
+        CacheBuilder builder = getCacheBuilder();
+        String name = CACHE_NAME;
+        Cache cache = builder.createCache(name, getCacheConfiguration());
+        assertEquals(name, cache.getCacheName());
+    }
+
+    @Test
+    public void createCache_2StatusOK() {
+        CacheBuilder builder = getCacheBuilder();
+        Cache cache = builder.createCache(CACHE_NAME, getCacheConfiguration());
+        assertSame(Status.UNITIALISED, cache.getStatus());
+    }
+
     // ---------- utilities ----------
 
-    /**
-     * Create a cache builder instance
-     *
-     * @return a cache builder
-     */
-    protected CacheBuilder getCacheBuilder() {
+    private CacheBuilder getCacheBuilder() {
         return TestInstanceFactory.getInstance().getCacheBuilder();
+    }
+
+    private CacheConfiguration getCacheConfiguration() {
+        return new RICacheConfiguration.Builder().build();
     }
 }

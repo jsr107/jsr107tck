@@ -30,7 +30,7 @@ import static org.junit.Assert.fail;
  *
  * Implementers of Cache should subclass this test, overriding {@link #getCacheManager()}
  *
- * @author ycosmado
+ * @author Yannis Cosmadopoulos
  * @since 1.0
  */
 public class CacheManagerTest {
@@ -111,12 +111,7 @@ public class CacheManagerTest {
 
     // ---------- utilities ----------
 
-    /**
-     * Sub classes should override this to get a different CacheManager
-     *
-     * @return a cache manager
-     */
-    protected CacheManager getCacheManager() {
+    private CacheManager getCacheManager() {
         return TestInstanceFactory.getInstance().getCacheManager();
     }
 }

@@ -21,7 +21,37 @@ package javax.cache;
  * Interface for instance factory.
  */
 public interface InstanceFactory {
+    /**
+     * Create a {@link CacheBuilder} instance.
+     *
+     * @return a cache builder
+     */
     CacheBuilder getCacheBuilder();
+
+    /**
+     * Create a {@link CacheManager} instance.
+     *
+     * @return a cache manager
+     */
     CacheManager getCacheManager();
+
+    /**
+     * Create a mutable {@link CacheConfiguration} instance.
+     * The configuration returned should have the default values.
+     *
+     * @return a cache configuration
+     */
+    CacheConfiguration getCacheConfiguration();
+
+    /**
+     * Create a {@link Cache} instance
+     *
+     * @param cacheName the cache name
+     * @param config the cache configuration
+     * @param cacheLoader the cache loader
+     * @param <K> the key type
+     * @param <V> the value type
+     * @return a cache loader
+     */
     <K, V> Cache<K, V> createCache(String cacheName, CacheConfiguration config, CacheLoader<K, V> cacheLoader);
 }
