@@ -19,7 +19,6 @@ package javax.cache;
 
 import org.junit.Test;
 
-import javax.cache.implementation.RICache;
 import javax.cache.implementation.RICacheConfiguration;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,7 +44,6 @@ import static org.junit.Assert.fail;
 /**
  * Unit test for Cache.
  * <p/>
- * Implementers of Cache should subclass this test, overriding {@link #createCache(String, CacheConfiguration, CacheLoader)}
  *
  * @author Yannis Cosmadopoulos
  */
@@ -1160,7 +1158,7 @@ public class CacheTest {
     // ---------- utilities ----------
 
     /**
-     * Creates a cache. Sub classes should override this to create the cache differently.
+     * Creates a cache.
      *
      * @param cacheName the cache name
      * @param config      the cache configuration
@@ -1170,17 +1168,7 @@ public class CacheTest {
      * @return a new cache
      */
     protected <K, V> Cache<K, V> createCache(String cacheName, CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
-        RICache.Builder<K, V> builder = new RICache.Builder<K, V>();
-        if (config != null) {
-            builder.setCacheConfiguration(config);
-        }
-        if (cacheLoader != null) {
-            builder.setCacheLoader(cacheLoader);
-        }
-        if (cacheName != null) {
-            builder.setCacheName(cacheName);
-        }
-        return builder.build();
+        return TestInstanceFactory.getInstance().createCache(cacheName, config, cacheLoader);
     }
 
     // ---------- utilities ----------

@@ -21,7 +21,8 @@ import mockit.Expectations;
 import mockit.Mocked;
 import org.junit.Test;
 
-import javax.cache.implementation.RICacheManager;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Unit tests for CacheManager
@@ -34,23 +35,81 @@ import javax.cache.implementation.RICacheManager;
  */
 public class CacheManagerTest {
 
+    @Test
+    public void addCache_NullCacheName(@Mocked final Cache cache) {
+        CacheManager cacheManager = getCacheManager();
+        new Expectations() {{
+            cache.getCacheName(); returns(null); times = 1;
+        }};
+        try {
+            cacheManager.addCache(cache);
+            fail("should have thrown an exception - cache name null");
+        } catch (NullPointerException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void addCache_NullCache() {
+        CacheManager cacheManager = getCacheManager();
+        try {
+            cacheManager.addCache(null);
+            fail("should have thrown an exception - cache null");
+        } catch (NullPointerException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void addCache_2Different(@Mocked final Cache<Integer, String> cache1, @Mocked final Cache cache2) {
+        CacheManager cacheManager = getCacheManager();
+        final String name1 = "c1";
+        final String name2 = "c2";
+        new Expectations() {{
+            cache1.getCacheName(); returns(name1);
+            cache2.getCacheName(); returns(name2);
+        }};
+        cacheManager.addCache(cache1);
+        cacheManager.addCache(cache2);
+        assertEquals(cache1, cacheManager.<Integer, String>getCache(name1));
+        assertEquals(cache2, cacheManager.<Integer, String>getCache(name2));
+    }
+
+    @Test
+    public void addCache_2DifferentSameName(@Mocked final Cache<Integer, String> cache1, @Mocked final Cache cache2) {
+        CacheManager cacheManager = getCacheManager();
+        final String name1 = "c1";
+        new Expectations() {{
+            cache1.getCacheName(); returns(name1);
+            cache2.getCacheName(); returns(name1);
+        }};
+        cacheManager.addCache(cache1);
+        assertEquals(cache1, cacheManager.<Integer, String>getCache(name1));
+        cacheManager.addCache(cache2);
+        assertEquals(cache2, cacheManager.<Integer, String>getCache(name1));
+    }
 
     /**
-     * Checks that stop is called on all caches, even after 1 throws an exception
+     * Checks that stop is called on all caches, even after exception is thrown
      * @param cache1 a mock cache that throws CacheException on stop
      * @param cache2 a mock cache
      */
     @Test
     public void shutdown(@Mocked final Cache cache1, @Mocked final Cache cache2) {
         CacheManager cacheManager = getCacheManager();
-        cacheManager.addCache("c1", cache1);
-        cacheManager.addCache("c2", cache2);
         new Expectations() {{
+            cache1.getCacheName(); returns("c1");
+            cache2.getCacheName(); returns("c2");
+
             cache1.stop(); times = 1; result = new CacheException("something bad stopping 1");
             cache2.stop(); times = 1; result = new CacheException("something bad stopping 2");
         }};
+        cacheManager.addCache(cache1);
+        cacheManager.addCache(cache2);
         cacheManager.shutdown();
     }
+
+    // ---------- utilities ----------
 
     /**
      * Sub classes should override this to get a different CacheManager
@@ -58,6 +117,6 @@ public class CacheManagerTest {
      * @return a cache manager
      */
     protected CacheManager getCacheManager() {
-        return RICacheManager.instance;
+        return TestInstanceFactory.getInstance().getCacheManager();
     }
 }
