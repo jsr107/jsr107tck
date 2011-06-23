@@ -24,11 +24,11 @@ import static org.junit.Assert.assertNotNull;
  * @author Yannis Cosmadopoulos
  * @since 1.0
  */
-public class FactoryTest {
+public class CacheManagerFactoryTest {
 
     @Test
     public void foo() {
-        CacheManager cacheManager = Factory.instance.getCacheManager();
+        CacheManager cacheManager = CacheManagerFactory.instance.getCacheManager();
         assertNotNull(cacheManager);
     }
 }
