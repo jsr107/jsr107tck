@@ -127,7 +127,7 @@ public class CacheManagerTest {
     // ---------- utilities ----------
 
     private CacheManager getCacheManager() {
-        return Factory.instance.getCacheManager();
+        return CacheManagerFactory.instance.getCacheManager();
     }
 
     private void checkStarted(Cache cache) {
