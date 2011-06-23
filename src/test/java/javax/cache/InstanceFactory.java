@@ -29,13 +29,6 @@ public interface InstanceFactory {
     CacheBuilder getCacheBuilder();
 
     /**
-     * Create a {@link CacheManager} instance.
-     *
-     * @return a cache manager
-     */
-    CacheManager getCacheManager();
-
-    /**
      * Create a mutable {@link CacheConfiguration} instance.
      * The configuration returned should have the default values.
      *

@@ -20,7 +20,6 @@ package javax.cache;
 import javax.cache.implementation.RICache;
 import javax.cache.implementation.RICacheBuilder;
 import javax.cache.implementation.RICacheConfiguration;
-import javax.cache.implementation.RICacheManager;
 
 /**
  * Singleton factory for test instances.
@@ -74,13 +73,6 @@ public class TestInstanceFactory implements InstanceFactory {
     /**
      * {@inheritDoc}
      */
-    public CacheManager getCacheManager() {
-        return factory.getCacheManager();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public CacheConfiguration getCacheConfiguration() {
         return factory.getCacheConfiguration();
     }
@@ -104,15 +96,6 @@ public class TestInstanceFactory implements InstanceFactory {
          */
         public CacheBuilder getCacheBuilder() {
             return RICacheBuilder.instance;
-        }
-
-        /**
-         * Will return an RI implementation.
-         *
-         * {@inheritDoc}
-         */
-        public CacheManager getCacheManager() {
-            return RICacheManager.instance;
         }
 
         /**

@@ -17,8 +17,6 @@
 
 package javax.cache;
 
-import mockit.Expectations;
-import mockit.Mocked;
 import org.junit.Test;
 
 import javax.cache.implementation.RICache;
@@ -113,28 +111,23 @@ public class CacheManagerTest {
 
     /**
      * Checks that stop is called on all caches, even after exception is thrown
-     * @param cache1 a mock cache that throws CacheException on stop
-     * @param cache2 a mock cache
      */
     @Test
-    public void shutdown(@Mocked final Cache cache1, @Mocked final Cache cache2) {
+    public void shutdown() {
         CacheManager cacheManager = getCacheManager();
-        new Expectations() {{
-            cache1.getCacheName(); returns("c1");
-            cache2.getCacheName(); returns("c2");
-
-            cache1.stop(); times = 1; result = new CacheException("something bad stopping 1");
-            cache2.stop(); times = 1; result = new CacheException("something bad stopping 2");
-        }};
+        Cache cache1 = new RICache.Builder<Integer, String>().setCacheName("c1").build();
+        Cache cache2 = new RICache.Builder<Integer, String>().setCacheName("c2").build();
         cacheManager.addCache(cache1);
         cacheManager.addCache(cache2);
         cacheManager.shutdown();
+        checkStopped(cache1);
+        checkStopped(cache2);
     }
 
     // ---------- utilities ----------
 
     private CacheManager getCacheManager() {
-        return TestInstanceFactory.getInstance().getCacheManager();
+        return Factory.instance.getCacheManager();
     }
 
     private void checkStarted(Cache cache) {
