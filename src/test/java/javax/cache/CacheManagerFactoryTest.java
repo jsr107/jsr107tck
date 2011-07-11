@@ -19,6 +19,8 @@ package javax.cache;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 
 /**
  * @author Yannis Cosmadopoulos
@@ -27,8 +29,21 @@ import static org.junit.Assert.assertNotNull;
 public class CacheManagerFactoryTest {
 
     @Test
-    public void foo() {
-        CacheManager cacheManager = CacheManagerFactory.instance.getCacheManager();
-        assertNotNull(cacheManager);
+    public void getCacheManager() {
+        CacheManager defaultCacheManager = CacheManagerFactory.instance.getCacheManager();
+        assertNotNull(defaultCacheManager);
+        assertSame(defaultCacheManager, CacheManagerFactory.instance.getCacheManager());
+    }
+
+    @Test
+    public void createCacheManager() {
+        CacheManager newCacheManager = CacheManagerFactory.instance.createCacheManager();
+        assertNotNull(newCacheManager);
+        assertNotSame(newCacheManager, CacheManagerFactory.instance.createCacheManager());
+    }
+
+    @Test
+    public void createCacheManager_notDefault() {
+        assertNotSame(CacheManagerFactory.instance.getCacheManager(), CacheManagerFactory.instance.createCacheManager());
     }
 }
