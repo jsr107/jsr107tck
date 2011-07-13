@@ -85,6 +85,6 @@ public class CacheConfigurationTest {
     // ---------- utilities ----------
 
     private CacheConfiguration getCacheConfiguration() {
-        return TestInstanceFactory.getInstance().getCacheConfiguration();
+        return TestInstanceFactory.INSTANCE.getCacheConfiguration();
     }
 }

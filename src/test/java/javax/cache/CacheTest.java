@@ -1148,7 +1148,7 @@ public class CacheTest {
     // ---------- utilities ----------
 
     private <K, V> Cache<K, V> createCache(String cacheName, CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
-        return TestInstanceFactory.getInstance().createCache(cacheName, config, cacheLoader);
+        return TestInstanceFactory.INSTANCE.createCache(cacheName, config, cacheLoader);
     }
 
     private <K, V> Cache<K, V> createCache() {
