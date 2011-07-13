@@ -7,13 +7,13 @@
         <version>7</version>
     </parent>
     <groupId>javax.cache</groupId>
-    <artifactId>cache-tck</artifactId>
+    <artifactId>cache-tests</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>JSR107 tck</name>
+    <name>JSR107 Tests</name>
     <url>http://maven.apache.org</url>
-    <description>The Technology Compatibility Kit for JSR107. You should be able to test an inplementation by:
+    <description>Tests, which form part of the Technology Compatibility Kit for JSR107. You should be able to test an inplementation by:
         1. Adding the dependency
         2. Configuring the JUnit test fixtures
     </description>
