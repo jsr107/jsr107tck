@@ -37,23 +37,29 @@ public class CacheManagerFactoryTest {
     @Rule
     public TestExcluder rule = new TestExcluder(this.getClass());
 
+    /**
+     * The CacheManagerFactory.getCacheManager always returns a singleton CacheManager
+     */
     @Test
     public void getCacheManager() {
-        CacheManager defaultCacheManager = CacheManagerFactory.instance.getCacheManager();
+        CacheManager defaultCacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
         assertNotNull(defaultCacheManager);
-        assertSame(defaultCacheManager, CacheManagerFactory.instance.getCacheManager());
+        assertSame(defaultCacheManager, CacheManagerFactory.INSTANCE.getCacheManager());
     }
 
+    /**
+     * Tests that we can create non singleton CacheManagers
+     */
     @Test
     public void createCacheManager() {
-        CacheManager newCacheManager = CacheManagerFactory.instance.createCacheManager();
+        CacheManager newCacheManager = CacheManagerFactory.INSTANCE.createCacheManager();
         assertNotNull(newCacheManager);
-        assertNotSame(newCacheManager, CacheManagerFactory.instance.createCacheManager());
+        assertNotSame(newCacheManager, CacheManagerFactory.INSTANCE.createCacheManager());
     }
 
     @Test
     public void createCacheManager_notDefault() {
-        assertNotSame(CacheManagerFactory.instance.getCacheManager(), CacheManagerFactory.instance.createCacheManager());
+        assertNotSame(CacheManagerFactory.INSTANCE.getCacheManager(), CacheManagerFactory.INSTANCE.createCacheManager());
     }
 
     @Test
