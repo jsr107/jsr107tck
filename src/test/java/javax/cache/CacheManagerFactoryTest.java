@@ -16,17 +16,26 @@
  */
 package javax.cache;
 
+import org.junit.Rule;
 import org.junit.Test;
+
+import javax.cache.util.TestExcluder;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 
 /**
  * @author Yannis Cosmadopoulos
- * @since 1.0
+ * @since 1.7
  */
 public class CacheManagerFactoryTest {
+    /**
+     * Rule used to exclude tests
+     */
+    @Rule
+    public TestExcluder rule = new TestExcluder(this.getClass());
 
     @Test
     public void getCacheManager() {
@@ -45,5 +54,10 @@ public class CacheManagerFactoryTest {
     @Test
     public void createCacheManager_notDefault() {
         assertNotSame(CacheManagerFactory.instance.getCacheManager(), CacheManagerFactory.instance.createCacheManager());
+    }
+
+    @Test
+    public void dummyTest() {
+        fail();
     }
 }

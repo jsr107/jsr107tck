@@ -30,7 +30,7 @@ import static org.junit.Assert.fail;
  * <p/>
  *
  * @author Yannis Cosmadopoulos
- * @since 1.0
+ * @since 1.7
  */
 public class CacheBuilderTest {
     private static final String CACHE_NAME = "foo";

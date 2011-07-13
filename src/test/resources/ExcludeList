@@ -1,0 +1,2 @@
+#List tests to be excluded
+javax.cache.CacheManagerFactoryTest.dummyTest

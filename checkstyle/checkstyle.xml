@@ -228,6 +228,7 @@
         </module>
         <module name="VisibilityModifier">
             <property name="protectedAllowed" value="true"/>
+            <property name="publicMemberPattern" value="^rule$"/>
         </module>
 
         <!-- Metrics -->
