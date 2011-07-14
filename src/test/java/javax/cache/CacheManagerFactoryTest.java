@@ -29,7 +29,7 @@ import static org.junit.Assert.fail;
 
 /**
  * Tests the {@link CacheManagerFactory} class.
- * The tests here implicitly also test the {@link javax.cache.spi.ServiceFactory} used by the
+ * The tests here implicitly also test the {@link javax.cache.spi.CacheManagerFactoryProvider} used by the
  * CacheManagerFactory to create instances of {@link CacheManager}
  *
  * @author Yannis Cosmadopoulos
