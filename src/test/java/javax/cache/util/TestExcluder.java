@@ -25,9 +25,11 @@ import java.util.logging.Logger;
 
 /**
  * For the TCK we need to have an exclude list of bad tests so that disabling tests
- * can be done without changing code. This is one mechanism to do this.
+ * can be done without changing code.
  *
- * TODO: this should read the exclude list from some well known location
+ * This class creates a rule for the class provided
+ *
+ * The exclude list is created by {@link ExcludeList}
  *
  * @author Yannis Cosmadopoulos
  * @since 1.7
@@ -38,11 +40,20 @@ public class TestExcluder implements MethodRule {
 
     private final Set<String> excludes;
 
+    /**
+     * Constructor for TestExcluder.
+     * Uses the supplied class name and {@link ExcludeList#getExcludes(String)} to
+     * determine the methods to be excluded.
+     *
+     * @param c the class for which tests should be excluded
+     */
     public TestExcluder(Class c) {
-        excludes = ExcludeList.instance.getExcludes(c.getName());
+        excludes = ExcludeList.INSTANCE.getExcludes(c.getName());
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
     public Statement apply(Statement statement, FrameworkMethod frameworkMethod, Object o) {
         final String methodName = frameworkMethod.getName();
         final String className = frameworkMethod.getMethod().getDeclaringClass().getName();

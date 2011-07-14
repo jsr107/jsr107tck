@@ -28,21 +28,26 @@ import java.util.logging.Logger;
 
 /**
  * For the TCK we need to have an exclude list of bad tests so that disabling tests
- * can be done without changing code. This is one mechanism to do this.
+ * can be done without changing code.
+ *
  *
  * @author Yannis Cosmadopoulos
  * @since 1.7
  */
 public enum ExcludeList {
     /**
-     * The singleton
+     * The singleton.
+     * The exclude list is obtained by reading from a resource in the classpath.
+     * The default name of the resource is "ExcludeList", but can be overridden using
+     * the system property "ExcludeList".
+     * The resource should contain one entry per line with a classname and method name separated by a #
+     * There is a sample ExcludeList file in the resource area of the project
      */
-    instance;
+    INSTANCE(System.getProperty("ExcludeList", "ExcludeList"));
 
     private final HashMap<String, Set<String>> map = new HashMap<String, Set<String>>();
 
-    private ExcludeList() {
-        String fileName = System.getProperty("ExcludeList", "ExcludeList");
+    private ExcludeList(String fileName) {
 
         URL url = Thread.currentThread().getContextClassLoader().getResource(fileName);
         if (url != null) {
@@ -53,7 +58,7 @@ public enum ExcludeList {
                 String line;
                 while((line = in.readLine()) != null) {
                     if (!line.startsWith("#")) {
-                        int dot = line.lastIndexOf(".");
+                        int dot = line.lastIndexOf("#");
                         String className = line.substring(0, dot);
                         String methodName = line.substring(dot + 1);
                         Set<String> entry = map.get(className);
@@ -70,6 +75,10 @@ public enum ExcludeList {
                 logger.log(Level.SEVERE, "ExcludeList file:" + fileName, e);
             }
         }
+    }
+
+    private String getFileName() {
+        return System.getProperty("ExcludeList", "ExcludeList");
     }
 
     public Set<String> getExcludes(String className) {
