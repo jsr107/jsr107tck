@@ -20,11 +20,9 @@ package javax.cache;
 import org.junit.Test;
 
 import javax.cache.implementation.RICache;
-import javax.cache.implementation.RICacheManager;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -112,7 +110,7 @@ public class CacheManagerTest {
     }
 
     /**
-     * Checks that stop is called on all caches, even after exception is thrown
+     * Checks that stop is called on all caches
      */
     @Test
     public void shutdown() {
@@ -125,36 +123,6 @@ public class CacheManagerTest {
         checkStopped(cache1);
         checkStopped(cache2);
     }
-
-
-
-
-    /**
-     * The CacheManagerFactory always returns a singleton CacheManager
-     */
-    @Test
-    public void checkSingletonCacheManagers() {
-        CacheManager singletonCacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
-        CacheManager secondCacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
-
-        assertEquals(singletonCacheManager, secondCacheManager);
-    }
-
-
-    /**
-     * Tests that we can create non singleton CacheManagers
-     * even though the CacheManagerFactory only supports singletons
-     */
-    @Test
-    public void createAdditionalNonSingletonCacheManagers() {
-        CacheManager singletonCacheManager = getCacheManager();
-
-        CacheManager nonsingletonCacheManager = new RICacheManager("new");
-
-        assertNotSame(singletonCacheManager, nonsingletonCacheManager);
-    }
-
-
 
     // ---------- utilities ----------
 
