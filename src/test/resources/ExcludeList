@@ -1,2 +1,4 @@
-#List tests to be excluded
-javax.cache.CacheManagerFactoryTest.dummyTest
+#List tests to be excluded.
+#Lines beginning with a '#' are comments
+#Enter One method per line with syntax FULL_CLASS_NAME # METHOD_NAME as in the example below
+javax.cache.CacheManagerFactoryTest#dummyTest

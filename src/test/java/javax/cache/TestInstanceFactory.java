@@ -30,11 +30,11 @@ import javax.cache.implementation.RICacheConfiguration;
  * @author Yannis Cosmadopoulos
  * @since 1.0
  */
-public class TestInstanceFactory implements InstanceFactory {
+public enum TestInstanceFactory implements InstanceFactory {
     /**
      * the singleton
      */
-    private static final TestInstanceFactory INSTANCE = new TestInstanceFactory();
+    INSTANCE;
 
     private final InstanceFactory factory = createFactory();
 
@@ -42,10 +42,6 @@ public class TestInstanceFactory implements InstanceFactory {
      * name of the system property to set the factory class name
      */
     public static final String FACTORY_CLASS = "FactoryClass";
-
-    public static final InstanceFactory getInstance() {
-        return INSTANCE;
-    }
 
     private InstanceFactory createFactory() {
         String className = System.getProperty(FACTORY_CLASS, RIInstanceFactory.class.getName());

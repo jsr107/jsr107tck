@@ -101,7 +101,7 @@ public class CacheBuilderTest {
     // ---------- utilities ----------
 
     private CacheBuilder getCacheBuilder() {
-        return TestInstanceFactory.getInstance().getCacheBuilder();
+        return TestInstanceFactory.INSTANCE.getCacheBuilder();
     }
 
     private CacheConfiguration getCacheConfiguration() {

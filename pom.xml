@@ -46,6 +46,7 @@
         </dependency>
 
         <!--Insert JSR107 implementation as a dependency here-->
+
         <dependency>
             <groupId>javax.cache.implementation</groupId>
             <artifactId>cache-ri</artifactId>

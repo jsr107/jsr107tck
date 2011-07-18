@@ -39,33 +39,6 @@ import static org.junit.Assert.fail;
  */
 public class CacheManagerTest {
 
-
-
-    /**
-     * The CacheManagerFactory always returns a singleton CacheManager
-     */
-    @Test
-    public void checkSingletonCacheManagers() {
-        CacheManager singletonCacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
-        CacheManager secondCacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
-
-        assertEquals(singletonCacheManager, secondCacheManager);
-    }
-
-
-    /**
-     * Tests that we can create non singleton CacheManagers
-     * even though the CacheManagerFactory only supports singletons
-     */
-    @Test
-    public void createAdditionalNonSingletonCacheManagers() {
-        CacheManager singletonCacheManager = getCacheManager();
-        CacheManager nonsingletonCacheManager = new RICacheManager("my cache manager");
-        assertNotSame(singletonCacheManager, nonsingletonCacheManager);
-    }
-
-
-
     @Test
     public void addCache_NullCache() {
         CacheManager cacheManager = getCacheManager();
@@ -151,6 +124,34 @@ public class CacheManagerTest {
         cacheManager.shutdown();
         checkStopped(cache1);
         checkStopped(cache2);
+    }
+
+
+
+
+    /**
+     * The CacheManagerFactory always returns a singleton CacheManager
+     */
+    @Test
+    public void checkSingletonCacheManagers() {
+        CacheManager singletonCacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheManager secondCacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+
+        assertEquals(singletonCacheManager, secondCacheManager);
+    }
+
+
+    /**
+     * Tests that we can create non singleton CacheManagers
+     * even though the CacheManagerFactory only supports singletons
+     */
+    @Test
+    public void createAdditionalNonSingletonCacheManagers() {
+        CacheManager singletonCacheManager = getCacheManager();
+
+        CacheManager nonsingletonCacheManager = new RICacheManager("new");
+
+        assertNotSame(singletonCacheManager, nonsingletonCacheManager);
     }
 
 
