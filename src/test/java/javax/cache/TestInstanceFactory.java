@@ -17,8 +17,6 @@
 
 package javax.cache;
 
-import javax.cache.implementation.RICache;
-import javax.cache.implementation.RICacheBuilder;
 import javax.cache.implementation.RICacheConfiguration;
 
 /**
@@ -62,22 +60,8 @@ public enum TestInstanceFactory implements InstanceFactory {
     /**
      * {@inheritDoc}
      */
-    public CacheBuilder getCacheBuilder() {
-        return factory.getCacheBuilder();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public CacheConfiguration getCacheConfiguration() {
         return factory.getCacheConfiguration();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public <K, V> Cache<K, V> createCache(String cacheName, CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
-        return factory.createCache(cacheName, config, cacheLoader);
     }
 
     /**
@@ -90,36 +74,8 @@ public enum TestInstanceFactory implements InstanceFactory {
          *
          * {@inheritDoc}
          */
-        public CacheBuilder getCacheBuilder() {
-            return RICacheBuilder.INSTANCE;
-        }
-
-        /**
-         * Will return an RI implementation.
-         *
-         * {@inheritDoc}
-         */
         public CacheConfiguration getCacheConfiguration() {
             return new RICacheConfiguration.Builder().build();
-        }
-
-        /**
-         * Will return an RI implementation.
-         *
-         * {@inheritDoc}
-         */
-        public <K, V> Cache<K, V> createCache(String cacheName, CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
-            RICache.Builder<K, V> builder = new RICache.Builder<K, V>();
-            if (config != null) {
-                builder.setCacheConfiguration(config);
-            }
-            if (cacheLoader != null) {
-                builder.setCacheLoader(cacheLoader);
-            }
-            if (cacheName != null) {
-                builder.setCacheName(cacheName);
-            }
-            return builder.build();
         }
     }
 }
