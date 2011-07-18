@@ -39,6 +39,33 @@ import static org.junit.Assert.fail;
  */
 public class CacheManagerTest {
 
+
+
+    /**
+     * The CacheManagerFactory always returns a singleton CacheManager
+     */
+    @Test
+    public void checkSingletonCacheManagers() {
+        CacheManager singletonCacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheManager secondCacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+
+        assertEquals(singletonCacheManager, secondCacheManager);
+    }
+
+
+    /**
+     * Tests that we can create non singleton CacheManagers
+     * even though the CacheManagerFactory only supports singletons
+     */
+    @Test
+    public void createAdditionalNonSingletonCacheManagers() {
+        CacheManager singletonCacheManager = getCacheManager();
+        CacheManager nonsingletonCacheManager = new RICacheManager("my cache manager");
+        assertNotSame(singletonCacheManager, nonsingletonCacheManager);
+    }
+
+
+
     @Test
     public void addCache_NullCache() {
         CacheManager cacheManager = getCacheManager();
@@ -128,38 +155,10 @@ public class CacheManagerTest {
 
 
 
-
-    /**
-     * The CacheManagerFactory always returns a singleton CacheManager
-     */
-    @Test
-    public void checkSingletonCacheManagers() {
-        CacheManager singletonCacheManager = CacheManagerFactory.instance.getCacheManager();
-        CacheManager secondCacheManager = CacheManagerFactory.instance.getCacheManager();
-
-        assertEquals(singletonCacheManager, secondCacheManager);
-    }
-
-
-    /**
-     * Tests that we can create non singleton CacheManagers
-     * even though the CacheManagerFactory only supports singletons
-     */
-    @Test
-    public void createAdditionalNonSingletonCacheManagers() {
-        CacheManager singletonCacheManager = getCacheManager();
-
-        CacheManager nonsingletonCacheManager = new RICacheManager();
-
-        assertNotSame(singletonCacheManager, nonsingletonCacheManager);
-    }
-
-
-
     // ---------- utilities ----------
 
     private CacheManager getCacheManager() {
-        return CacheManagerFactory.instance.getCacheManager();
+        return CacheManagerFactory.INSTANCE.getCacheManager();
     }
 
     private void checkStarted(Cache cache) {

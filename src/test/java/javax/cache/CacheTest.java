@@ -88,6 +88,7 @@ public class CacheTest {
     @Test
     public void get_NotExisting() {
         Cache<String, Integer> cache = createAndStartCache();
+
         String existingKey = "key1";
         Integer existingValue = 1;
         cache.put(existingKey, existingValue);
@@ -99,6 +100,7 @@ public class CacheTest {
     @Test
     public void get_Existing() {
         Cache<String, Integer> cache = createAndStartCache();
+
         String existingKey = "key1";
         Integer existingValue = 1;
         cache.put(existingKey, existingValue);
@@ -108,6 +110,7 @@ public class CacheTest {
     @Test
     public void get_ExistingWithEqualButNonSameKey() {
         Cache<Date, Integer> cache = createAndStartCache();
+
         long now = System.currentTimeMillis();
         Date existingKey = new Date(now);
         Integer existingValue = 1;
@@ -153,6 +156,7 @@ public class CacheTest {
     @Test
     public void put_ExistingWithEqualButNonSameKey() throws Exception {
         Cache<Date, Integer> cache = createAndStartCache();
+
         long now = System.currentTimeMillis();
         Date key1 = new Date(now);
         Integer value1 = 1;
@@ -188,6 +192,7 @@ public class CacheTest {
     @Test
     public void remove_NotExistent() throws Exception {
         Cache<String, Integer> cache = createAndStartCache();
+
         String existingKey = "key1";
         Integer existingValue = 1;
         cache.put(existingKey, existingValue);
@@ -200,6 +205,7 @@ public class CacheTest {
     @Test
     public void remove_EqualButNotSameKey() {
         Cache<Date, Integer> cache = createAndStartCache();
+
         long now = System.currentTimeMillis();
 
         Date key1 = new Date(now);
@@ -240,6 +246,8 @@ public class CacheTest {
     @Test
     public void getAndRemove_NotExistent() throws Exception {
         final Cache<String, Integer> cache = createAndStartCache();
+
+
         final String existingKey = "key1";
         final Integer existingValue = 1;
         cache.put(existingKey, existingValue);
@@ -270,6 +278,8 @@ public class CacheTest {
     @Test
     public void getAll_NotStarted() {
         Cache<String, Integer> cache = createCache();
+
+
         try {
             cache.getAll(null);
             fail("should have thrown an exception - cache not started");
@@ -390,6 +400,8 @@ public class CacheTest {
     @Test
     public void load_Found() {
         Cache<Integer, Integer> cache = createAndStartCache();
+
+
         CacheLoader<Integer, Integer> cl = new MockCacheLoader<Integer, Integer>();
         Integer key = 1;
         cache.put(key, key);
@@ -443,6 +455,8 @@ public class CacheTest {
             }
         };
         Cache<Integer, Integer> cache = createAndStartCache(clDefault);
+
+
         Integer key = 1;
         Future<Integer> future = cache.load(key, null, null);
         assertNotNull(future);
@@ -462,6 +476,8 @@ public class CacheTest {
             }
         };
         Cache<Integer, Integer> cache = createAndStartCache(clDefault);
+
+
         Integer key = 1;
         Future<Integer> future = cache.load(key, clSpecific, null);
         assertNotNull(future);
@@ -556,6 +572,8 @@ public class CacheTest {
     @Test
     public void loadAll_1Found1Not() throws Exception {
         Cache<Integer, Integer> cache = createAndStartCache();
+
+
         CacheLoader<Integer, Integer> cl = new SimpleCacheLoader<Integer>();
         Integer keyThere = 1;
         cache.put(keyThere, keyThere);
@@ -590,6 +608,8 @@ public class CacheTest {
         keys.add(2);
         CacheLoader<Integer, Integer> clDefault = new SimpleCacheLoader<Integer>();
         Cache<Integer, Integer> cache = createAndStartCache(clDefault);
+
+
         Future<Map<Integer, Integer>> future = cache.loadAll(keys, null, null);
         Map<Integer, Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
         assertEquals(keys.size(), map.size());
@@ -604,6 +624,8 @@ public class CacheTest {
         CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>();
         CacheLoader<Integer, Integer> clSpecific = new SimpleCacheLoader<Integer>();
         Cache<Integer, Integer> cache = createAndStartCache(clDefault);
+
+
         ArrayList<Integer> keys = new ArrayList<Integer>();
         keys.add(1);
         keys.add(2);
@@ -641,9 +663,10 @@ public class CacheTest {
     @Test
     public void getCacheStatistics() {
         Cache<Date, Integer> cache = createAndStartCache();
-        //TODO: we may need more at some point
-        assertNull(cache.getCacheStatistics());
+        assertNotNull(cache.getCacheStatistics());
     }
+
+
 
     @Test
     public void registerCacheEntryListener() {
@@ -762,6 +785,8 @@ public class CacheTest {
     @Test
     public void putIfAbsent_Missing() {
         Cache<Date, Long> cache = createAndStartCache();
+
+
         Date key = new Date();
         Long value = key.getTime();
         assertTrue(cache.putIfAbsent(key, value));
@@ -771,6 +796,8 @@ public class CacheTest {
     @Test
     public void putIfAbsent_There() {
         Cache<Date, Long> cache = createAndStartCache();
+
+
         Date key = new Date();
         Long value = key.getTime();
         Long oldValue = value + 1;
@@ -832,6 +859,7 @@ public class CacheTest {
     @Test
     public void replace_3arg_Different() {
         Cache<Date, Long> cache = createAndStartCache();
+
         Date key = new Date();
         Long value = key.getTime();
         cache.put(key, value);
@@ -1165,7 +1193,7 @@ public class CacheTest {
 
     private <K, V> Cache<K, V> createAndStartCache(String cacheName, CacheConfiguration config, CacheLoader<K, V> cacheLoader) {
         Cache<K, V> cache = createCache(cacheName, config, cacheLoader);
-        cache.start();
+        CacheManagerFactory.INSTANCE.getCacheManager().addCache(cache);
         return cache;
     }
 

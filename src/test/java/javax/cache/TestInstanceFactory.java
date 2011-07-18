@@ -95,7 +95,7 @@ public class TestInstanceFactory implements InstanceFactory {
          * {@inheritDoc}
          */
         public CacheBuilder getCacheBuilder() {
-            return RICacheBuilder.instance;
+            return RICacheBuilder.INSTANCE;
         }
 
         /**
