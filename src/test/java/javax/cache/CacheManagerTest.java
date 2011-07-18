@@ -106,7 +106,7 @@ public class CacheManagerTest {
         assertEquals(Status.STARTED, cache1.getStatus());
 
         String name2 = "c2";
-        Cache<Integer, String> cache2 = getCacheManager().<Integer, String>createCacheBuilder(name1).build();
+        Cache<Integer, String> cache2 = getCacheManager().<Integer, String>createCacheBuilder(name2).build();
         assertEquals(Status.STARTED, cache2.getStatus());
 
         assertEquals(cache1, getCacheManager().getCache(name1));

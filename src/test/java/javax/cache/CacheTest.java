@@ -66,6 +66,7 @@ public class CacheTest {
     @Test
     public void get_NotStarted() {
         Cache<String, Integer> cache = createCache();
+        cache.stop();
         try {
             cache.get(null);
             fail("should have thrown an exception - cache not started");
@@ -123,6 +124,7 @@ public class CacheTest {
     @Test
     public void put_NotStarted() {
         Cache<String, Integer> cache = createCache();
+        cache.stop();
         try {
             cache.put(null, null);
             fail("should have thrown an exception - cache not started");
@@ -170,6 +172,7 @@ public class CacheTest {
     @Test
     public void remove_NotStarted() {
         Cache<String, Integer> cache = createCache();
+        cache.stop();
         try {
             cache.remove(null);
             fail("should have thrown an exception - cache not started");
@@ -224,6 +227,7 @@ public class CacheTest {
     @Test
     public void getAndRemove_NotStarted() {
         Cache<String, Integer> cache = createCache();
+        cache.stop();
         try {
             cache.getAndRemove(null);
             fail("should have thrown an exception - cache not started");
@@ -278,8 +282,7 @@ public class CacheTest {
     @Test
     public void getAll_NotStarted() {
         Cache<String, Integer> cache = createCache();
-
-
+        cache.stop();
         try {
             cache.getAll(null);
             fail("should have thrown an exception - cache not started");
@@ -341,6 +344,7 @@ public class CacheTest {
     @Test
     public void containsKey_NotStarted() {
         Cache<String, Integer> cache = createCache();
+        cache.stop();
         try {
             cache.containsKey(null);
             fail("should have thrown an exception - cache not started");
@@ -377,6 +381,7 @@ public class CacheTest {
     @Test
     public void load_NotStarted() {
         Cache<Integer, Integer> cache = createCache();
+        cache.stop();
         try {
             cache.load(null, null, null);
             fail("should have thrown an exception - cache not started");
@@ -510,6 +515,7 @@ public class CacheTest {
     @Test
     public void loadAll_NotStarted() {
         Cache<Integer, Integer> cache = createCache();
+        cache.stop();
         try {
             cache.loadAll(null, null, null);
             fail("should have thrown an exception - cache not started");
@@ -685,6 +691,7 @@ public class CacheTest {
     @Test
     public void putAll_NotStarted() {
         Cache<String, Integer> cache = createCache();
+        cache.stop();
         try {
             cache.putAll(null);
             fail("should have thrown an exception - cache not started");
@@ -752,6 +759,7 @@ public class CacheTest {
     @Test
     public void putIfAbsent_NotStarted() {
         Cache<String, Integer> cache = createCache();
+        cache.stop();
         try {
             cache.putIfAbsent(null, null);
             fail("should have thrown an exception - cache not started");
@@ -809,6 +817,7 @@ public class CacheTest {
     @Test
     public void replace_3arg_NotStarted() {
         Cache<String, Integer> cache = createCache();
+        cache.stop();
         try {
             cache.replace(null, null, null);
             fail("should have thrown an exception - cache not started");
@@ -883,6 +892,7 @@ public class CacheTest {
     @Test
     public void replace_2arg_NotStarted() {
         Cache<String, Integer> cache = createCache();
+        cache.stop();
         try {
             cache.replace(null, null);
             fail("should have thrown an exception - cache not started");
@@ -933,6 +943,7 @@ public class CacheTest {
     @Test
     public void getAndReplace_NotStarted() {
         Cache<String, Integer> cache = createCache();
+        cache.stop();
         try {
             cache.getAndReplace(null, null);
             fail("should have thrown an exception - cache not started");
@@ -983,6 +994,7 @@ public class CacheTest {
     @Test
     public void removeAll_NotStarted() {
         Cache<String, Integer> cache = createCache();
+        cache.stop();
         try {
             cache.removeAll(null);
             fail("should have thrown an exception - cache not started");
@@ -1115,6 +1127,7 @@ public class CacheTest {
     @Test
     public void iterator_NotStarted() {
         Cache<String, Integer> cache = createCache();
+        cache.stop();
         try {
             cache.iterator();
             fail("should have thrown an exception - cache not started");
@@ -1160,8 +1173,6 @@ public class CacheTest {
     @Test
     public void initialise() {
         Cache<Date, Integer> cache = createCache();
-        assertEquals(Status.UNITIALISED, cache.getStatus());
-        cache.start();
         assertEquals(Status.STARTED, cache.getStatus());
     }
 
