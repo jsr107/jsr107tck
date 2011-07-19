@@ -45,28 +45,21 @@ public enum ExcludeList {
      */
     INSTANCE(System.getProperty("ExcludeList", "ExcludeList"));
 
+    private final Logger logger = Logger.getLogger(getClass().getName());
+
     private final HashMap<String, Set<String>> map = new HashMap<String, Set<String>>();
 
     private ExcludeList(String fileName) {
-
         URL url = Thread.currentThread().getContextClassLoader().getResource(fileName);
         if (url != null) {
-            Logger logger = Logger.getLogger("org.junit");
             logger.info("===== ExcludeList url=" + url);
             try {
                 BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
                 String line;
                 while((line = in.readLine()) != null) {
-                    if (!line.startsWith("#")) {
-                        int dot = line.lastIndexOf("#");
-                        String className = line.substring(0, dot);
-                        String methodName = line.substring(dot + 1);
-                        Set<String> entry = map.get(className);
-                        if (entry == null) {
-                            entry = new HashSet<String>();
-                            map.put(className, entry);
-                        }
-                        entry.add(methodName);
+                    line = line.trim();
+                    if (line.length() > 0 && !line.startsWith("#")) {
+                        handleLine(line);
                     }
                 }
                 in.close();
@@ -74,6 +67,22 @@ public enum ExcludeList {
                 logger.config(e.toString());
                 logger.log(Level.SEVERE, "ExcludeList file:" + fileName, e);
             }
+        }
+    }
+
+    private void handleLine(String line) {
+        int dot = line.lastIndexOf("#");
+        if (dot > 0) {
+            String className = line.substring(0, dot);
+            String methodName = line.substring(dot + 1);
+            Set<String> entry = map.get(className);
+            if (entry == null) {
+                entry = new HashSet<String>();
+                map.put(className, entry);
+            }
+            entry.add(methodName);
+        } else {
+            logger.log(Level.WARNING, "===== ExcludeList bad entry: " + line);
         }
     }
 
