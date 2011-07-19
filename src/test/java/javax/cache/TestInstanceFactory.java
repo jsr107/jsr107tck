@@ -17,6 +17,7 @@
 
 package javax.cache;
 
+import javax.cache.implementation.RICache;
 import javax.cache.implementation.RICacheConfiguration;
 
 /**
@@ -56,12 +57,18 @@ public enum TestInstanceFactory implements InstanceFactory {
             return null;
         }
     }
+    /**
+     * {@inheritDoc}
+     */
+    public <K, V> Cache<K, V> createCache(String name) {
+        return factory.createCache(name);
+    }
 
     /**
      * {@inheritDoc}
      */
-    public CacheConfiguration getCacheConfiguration() {
-        return factory.getCacheConfiguration();
+    public CacheConfiguration createCacheConfiguration() {
+        return factory.createCacheConfiguration();
     }
 
     /**
@@ -74,7 +81,16 @@ public enum TestInstanceFactory implements InstanceFactory {
          *
          * {@inheritDoc}
          */
-        public CacheConfiguration getCacheConfiguration() {
+        public <K, V> Cache<K, V> createCache(String name) {
+            return new RICache.Builder<K, V>(name).build();
+        }
+
+        /**
+         * Will return an RI implementation.
+         *
+         * {@inheritDoc}
+         */
+        public CacheConfiguration createCacheConfiguration() {
             return new RICacheConfiguration.Builder().build();
         }
     }

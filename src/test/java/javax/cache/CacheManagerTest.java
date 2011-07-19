@@ -19,8 +19,6 @@ package javax.cache;
 
 import org.junit.Test;
 
-import javax.cache.implementation.RICacheConfiguration;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
@@ -128,6 +126,51 @@ public class CacheManagerTest {
     }
 
     @Test
+    public void addCache_NullCache() {
+        CacheManager cacheManager = getCacheManager();
+        try {
+            cacheManager.addCache(null);
+            fail("should have thrown an exception - cache null");
+        } catch (NullPointerException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void addCache_2Different() {
+        CacheManager cacheManager = getCacheManager();
+
+        String name1 = "c1";
+        Cache<Integer, String> cache1 = createCache(name1);
+        cacheManager.addCache(cache1);
+        assertEquals(Status.STARTED, cache1.getStatus());
+
+        String name2 = "c2";
+        Cache<Integer, String> cache2 = createCache(name2);
+        cacheManager.addCache(cache2);
+        assertEquals(Status.STARTED, cache2.getStatus());
+
+        assertEquals(cache1, cacheManager.<Integer, String>getCache(name1));
+        assertEquals(cache2, cacheManager.<Integer, String>getCache(name2));
+    }
+
+    @Test
+    public void addCache_2DifferentSameName() {
+        CacheManager cacheManager = getCacheManager();
+        String name1 = "c1";
+        Cache<Integer, String> cache1 = createCache(name1);
+        cacheManager.addCache(cache1);
+        assertEquals(cache1, cacheManager.<Integer, String>getCache(name1));
+        checkStarted(cache1);
+
+        Cache<Integer, String> cache2 = createCache(name1);
+        cacheManager.addCache(cache2);
+        assertEquals(cache2, cacheManager.<Integer, String>getCache(name1));
+        checkStarted(cache2);
+        checkStopped(cache1);
+    }
+
+    @Test
     public void removeCache_Null() {
         CacheManager cacheManager = getCacheManager();
         try {
@@ -182,7 +225,11 @@ public class CacheManagerTest {
     }
 
     private CacheConfiguration getCacheConfiguration() {
-        return new RICacheConfiguration.Builder().build();
+        return TestInstanceFactory.INSTANCE.createCacheConfiguration();
+    }
+
+    private <K, V> Cache<K, V> createCache(String name) {
+        return TestInstanceFactory.INSTANCE.createCache(name);
     }
 
     private void checkStarted(Cache cache) {

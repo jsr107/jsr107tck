@@ -23,10 +23,20 @@ package javax.cache;
 public interface InstanceFactory {
 
     /**
+     * Creates a cache instance.
+     * <p/>
+     * <em>TODO (yannis): Not clear why this is required.</em>
+     *
+     * @param name the cache name
+     * @return a new cache
+     */
+    <K, V> Cache<K, V> createCache(String name);
+
+    /**
      * Create a mutable {@link CacheConfiguration} instance.
      * The configuration returned should have the default values.
      *
      * @return a cache configuration
      */
-    CacheConfiguration getCacheConfiguration();
+    CacheConfiguration createCacheConfiguration();
 }
