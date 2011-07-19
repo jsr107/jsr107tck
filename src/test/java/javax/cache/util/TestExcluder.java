@@ -36,7 +36,7 @@ import java.util.logging.Logger;
  */
 public class TestExcluder implements MethodRule {
 
-    private final Logger logger = Logger.getLogger("org.junit");
+    private final Logger logger = Logger.getLogger(getClass().getName());
 
     private final Set<String> excludes;
 

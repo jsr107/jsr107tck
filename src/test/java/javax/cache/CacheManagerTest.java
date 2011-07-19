@@ -34,7 +34,7 @@ import static org.junit.Assert.fail;
  * @author Yannis Cosmadopoulos
  * @since 1.0
  */
-public class CacheManagerTest {
+public class CacheManagerTest extends TestSupport {
 
     @Test
     public void createCacheBuilder_NullCacheName() {
@@ -48,7 +48,7 @@ public class CacheManagerTest {
     }
 
     @Test
-    public void createCache() {
+    public void createCache_Same() {
         String name = "c1";
         Cache cache = getCacheManager().createCacheBuilder(name).build();
         assertSame(cache, getCacheManager().getCache(name));
@@ -84,7 +84,7 @@ public class CacheManagerTest {
     public void createCache_CacheConfiguration_NameOK() {
         String name = "c1";
         Cache cache = getCacheManager().createCacheBuilder(name).
-                setCacheConfiguration(getCacheConfiguration()).build();
+                setCacheConfiguration(createCacheConfiguration()).build();
         assertEquals(name, cache.getCacheName());
         assertSame(cache, getCacheManager().getCache(name));
     }
@@ -93,7 +93,7 @@ public class CacheManagerTest {
     public void createCache_CacheConfiguration_StatusOK() {
         String name = "c1";
         Cache cache = getCacheManager().createCacheBuilder(name).
-                setCacheConfiguration(getCacheConfiguration()).build();
+                setCacheConfiguration(createCacheConfiguration()).build();
         assertSame(Status.STARTED, cache.getStatus());
     }
 
@@ -141,12 +141,12 @@ public class CacheManagerTest {
         CacheManager cacheManager = getCacheManager();
 
         String name1 = "c1";
-        Cache<Integer, String> cache1 = createCache(name1);
+        Cache<Integer, String> cache1 = createOrphanCache(name1);
         cacheManager.addCache(cache1);
         assertEquals(Status.STARTED, cache1.getStatus());
 
         String name2 = "c2";
-        Cache<Integer, String> cache2 = createCache(name2);
+        Cache<Integer, String> cache2 = createOrphanCache(name2);
         cacheManager.addCache(cache2);
         assertEquals(Status.STARTED, cache2.getStatus());
 
@@ -158,12 +158,12 @@ public class CacheManagerTest {
     public void addCache_2DifferentSameName() {
         CacheManager cacheManager = getCacheManager();
         String name1 = "c1";
-        Cache<Integer, String> cache1 = createCache(name1);
+        Cache<Integer, String> cache1 = createOrphanCache(name1);
         cacheManager.addCache(cache1);
         assertEquals(cache1, cacheManager.<Integer, String>getCache(name1));
         checkStarted(cache1);
 
-        Cache<Integer, String> cache2 = createCache(name1);
+        Cache<Integer, String> cache2 = createOrphanCache(name1);
         cacheManager.addCache(cache2);
         assertEquals(cache2, cacheManager.<Integer, String>getCache(name1));
         checkStarted(cache2);
@@ -219,18 +219,6 @@ public class CacheManagerTest {
     }
 
     // ---------- utilities ----------
-
-    private CacheManager getCacheManager() {
-        return CacheManagerFactory.INSTANCE.getCacheManager();
-    }
-
-    private CacheConfiguration getCacheConfiguration() {
-        return TestInstanceFactory.INSTANCE.createCacheConfiguration();
-    }
-
-    private <K, V> Cache<K, V> createCache(String name) {
-        return TestInstanceFactory.INSTANCE.createCache(name);
-    }
 
     private void checkStarted(Cache cache) {
         Status status = cache.getStatus();
