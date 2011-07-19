@@ -400,19 +400,24 @@ public class CacheTest extends TestSupport {
     public void getAll() {
         Cache<Integer, Integer> cache = createCache();
 
-        ArrayList<Integer> keysInMap = new ArrayList<Integer>();
-        keysInMap.add(1);
-        keysInMap.add(2);
+        ArrayList<Integer> keysInCache = new ArrayList<Integer>();
+        keysInCache.add(1);
+        keysInCache.add(2);
+        for (Integer k : keysInCache) {
+            cache.put(k, k);
+        }
 
         ArrayList<Integer> keysToGet = new ArrayList<Integer>();
         keysToGet.add(2);
         keysToGet.add(3);
 
         Map<Integer, Integer> map = cache.getAll(keysToGet);
+        assertEquals(keysToGet.size(), map.size());
         for (Integer key : keysToGet) {
             assertTrue(map.containsKey(key));
-            if (keysInMap.contains(key)) {
+            if (keysInCache.contains(key)) {
                 assertEquals(cache.get(key), map.get(key));
+                assertEquals(key, map.get(key));
             } else {
                 assertFalse(cache.containsKey(key));
                 assertNull(map.get(key));

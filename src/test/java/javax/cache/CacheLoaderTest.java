@@ -138,7 +138,6 @@ public class CacheLoaderTest extends TestSupport {
         };
         Cache<Integer, Integer> cache = createCache(clDefault);
 
-
         Integer key = 1;
         Future<Integer> future = cache.load(key, clSpecific, null);
         assertNotNull(future);
@@ -235,7 +234,6 @@ public class CacheLoaderTest extends TestSupport {
     public void loadAll_1Found1Not() throws Exception {
         Cache<Integer, Integer> cache = createCache();
 
-
         CacheLoader<Integer, Integer> cl = new SimpleCacheLoader<Integer>();
         Integer keyThere = 1;
         cache.put(keyThere, keyThere);
@@ -271,7 +269,6 @@ public class CacheLoaderTest extends TestSupport {
         CacheLoader<Integer, Integer> clDefault = new SimpleCacheLoader<Integer>();
         Cache<Integer, Integer> cache = createCache(clDefault);
 
-
         Future<Map<Integer, Integer>> future = cache.loadAll(keys, null, null);
         Map<Integer, Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
         assertEquals(keys.size(), map.size());
@@ -286,7 +283,6 @@ public class CacheLoaderTest extends TestSupport {
         CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>();
         CacheLoader<Integer, Integer> clSpecific = new SimpleCacheLoader<Integer>();
         Cache<Integer, Integer> cache = createCache(clDefault);
-
 
         ArrayList<Integer> keys = new ArrayList<Integer>();
         keys.add(1);
@@ -322,6 +318,57 @@ public class CacheLoaderTest extends TestSupport {
         }
     }
 
+    @Test
+    public void get_CacheLoader_Stored() {
+        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
+        Cache<Integer, Integer> cache = createCache(clDefault);
+
+        Integer key = 1;
+        assertEquals(key, cache.get(key));
+
+        // Confirm that result is stored (no 2nd load)
+        clDefault.exception = new NullPointerException();
+        assertEquals(key, cache.get(key));
+    }
+
+    @Test
+    public void get_CacheLoader_Exception() {
+        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
+        Cache<Integer, Integer> cache = createCache(clDefault);
+
+        Integer key = 1;
+        clDefault.exception = new NullPointerException();
+        try {
+            cache.get(key);
+            fail("should have got an exception ");
+        } catch (RuntimeException e) {
+            assertEquals(clDefault.exception, e);
+        }
+    }
+
+    @Test
+    public void getAll_CacheLoader() {
+        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
+        Cache<Integer, Integer> cache = createCache(clDefault);
+
+        ArrayList<Integer> keysToGet = new ArrayList<Integer>();
+        keysToGet.add(1);
+        keysToGet.add(2);
+        keysToGet.add(3);
+
+        Map<Integer, Integer> map = cache.getAll(keysToGet);
+        assertEquals(keysToGet.size(), map.size());
+        for (Integer key : keysToGet) {
+            assertTrue(map.containsKey(key));
+            assertEquals(cache.get(key), map.get(key));
+            assertEquals(key, map.get(key));
+        }
+
+        // Confirm that result is stored (no 2nd load)
+        clDefault.exception = new NullPointerException();
+        assertEquals(keysToGet.size(), cache.getAll(keysToGet).size());
+    }
+
     // ---------- utilities ----------
 
     /**
@@ -329,7 +376,12 @@ public class CacheLoaderTest extends TestSupport {
      * @param <K>
      */
     private static class SimpleCacheLoader<K> implements CacheLoader<K, K> {
+        private RuntimeException exception = null;
+
         public K load(K key, Object arg) {
+            if (exception != null) {
+                throw exception;
+            }
             return key;
         }
 
