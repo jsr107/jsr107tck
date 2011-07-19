@@ -22,6 +22,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for CacheBuilder
@@ -37,7 +38,8 @@ public class CacheConfigurationTest {
         CacheConfiguration config = getCacheConfiguration();
         assertFalse(config.isReadThrough());
         assertFalse(config.isWriteThrough());
-        assertFalse(config.isStoreByValue());
+        assertFalse(config.isStatisticsEnabled());
+        assertTrue(config.isStoreByValue());
     }
 
     @Test

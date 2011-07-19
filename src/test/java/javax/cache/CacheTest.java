@@ -19,7 +19,6 @@ package javax.cache;
 
 import org.junit.Test;
 
-import javax.cache.implementation.RICacheConfiguration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -668,11 +667,11 @@ public class CacheTest {
 
     @Test
     public void getCacheStatistics() {
+        CacheConfiguration config = createCacheConfiguration();
+        config.setStatisticsEnabled(true);
         Cache<Date, Integer> cache = createCache();
-        assertNotNull(cache.getCacheStatistics());
+        assertNull(cache.getCacheStatistics());
     }
-
-
 
     @Test
     public void registerCacheEntryListener() {
@@ -1060,7 +1059,7 @@ public class CacheTest {
         Cache<Date, Integer> cache = createCache();
         CacheConfiguration config = cache.getConfiguration();
         // defaults
-        CacheConfiguration defaultConfig = new RICacheConfiguration.Builder().build();
+        CacheConfiguration defaultConfig = createCacheConfiguration();
         assertEquals(defaultConfig, config);
         // is immutable
         try {
@@ -1086,12 +1085,11 @@ public class CacheTest {
     @Test
     public void getConfiguration() {
         String cacheName = CACHE_NAME + "XXX";
-        CacheConfiguration defaultConfig = new RICacheConfiguration.Builder().build();
-        CacheConfiguration expectedConfig = new RICacheConfiguration.Builder().
-                setReadThrough(!defaultConfig.isReadThrough()).
-                setWriteThrough(!defaultConfig.isWriteThrough()).
-                setStoreByValue(!defaultConfig.isStoreByValue()).
-                build();
+        CacheConfiguration defaultConfig = createCacheConfiguration();
+        CacheConfiguration expectedConfig = createCacheConfiguration();
+        expectedConfig.setReadThrough(!defaultConfig.isReadThrough());
+        expectedConfig.setWriteThrough(!defaultConfig.isWriteThrough());
+        expectedConfig.setStoreByValue(!defaultConfig.isStoreByValue());
 
         Cache<Date, Integer> cache = getCacheManager().
                 <Date, Integer>createCacheBuilder(cacheName).
@@ -1190,6 +1188,10 @@ public class CacheTest {
 
     // ---------- utilities ----------
 
+    private CacheConfiguration createCacheConfiguration() {
+        return TestInstanceFactory.INSTANCE.createCacheConfiguration();
+    }
+
     private CacheManager getCacheManager() {
         return CacheManagerFactory.INSTANCE.getCacheManager();
     }
@@ -1204,6 +1206,13 @@ public class CacheTest {
         return getCacheManager().
                 <K, V>createCacheBuilder(CACHE_NAME).
                 setCacheLoader(cacheLoader).
+                build();
+    }
+
+    private <K, V> Cache<K, V> createCache(CacheConfiguration config) {
+        return getCacheManager().
+                <K, V>createCacheBuilder(CACHE_NAME).
+                setCacheConfiguration(config).
                 build();
     }
 
