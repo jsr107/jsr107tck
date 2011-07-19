@@ -712,7 +712,9 @@ public class CacheTest extends TestSupport {
     @Test
     public void replace_3arg_Missing() {
         Cache<Date, Integer> cache = createCache();
-        assertFalse(cache.replace(new Date(), 1, 2));
+        Date key = new Date();
+        assertFalse(cache.replace(key, 1, 2));
+        assertFalse(cache.containsKey(key));
     }
 
     @Test
@@ -793,7 +795,9 @@ public class CacheTest extends TestSupport {
     @Test
     public void replace_2arg_Missing() throws Exception {
         Cache<Date, Integer> cache = createCache();
-        assertFalse(cache.replace(new Date(), 1));
+        Date key = new Date();
+        assertFalse(cache.replace(key, 1));
+        assertFalse(cache.containsKey(key));
     }
 
     @Test

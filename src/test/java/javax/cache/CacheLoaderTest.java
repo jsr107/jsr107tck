@@ -319,12 +319,14 @@ public class CacheLoaderTest extends TestSupport {
     }
 
     @Test
-    public void get_CacheLoader_Stored() {
+    public void get_Stored() {
         SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
         Cache<Integer, Integer> cache = createCache(clDefault);
 
         Integer key = 1;
+        assertFalse(cache.containsKey(key));
         assertEquals(key, cache.get(key));
+        assertTrue(cache.containsKey(key));
 
         // Confirm that result is stored (no 2nd load)
         clDefault.exception = new NullPointerException();
@@ -332,7 +334,7 @@ public class CacheLoaderTest extends TestSupport {
     }
 
     @Test
-    public void get_CacheLoader_Exception() {
+    public void get_Exception() {
         SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
         Cache<Integer, Integer> cache = createCache(clDefault);
 
@@ -347,7 +349,7 @@ public class CacheLoaderTest extends TestSupport {
     }
 
     @Test
-    public void getAll_CacheLoader() {
+    public void getAll() {
         SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
         Cache<Integer, Integer> cache = createCache(clDefault);
 
@@ -365,8 +367,119 @@ public class CacheLoaderTest extends TestSupport {
         }
 
         // Confirm that result is stored (no 2nd load)
-        clDefault.exception = new NullPointerException();
-        assertEquals(keysToGet.size(), cache.getAll(keysToGet).size());
+        for (Integer key : keysToGet) {
+            assertTrue(cache.containsKey(key));
+        }
+    }
+
+    @Test
+    public void containsKey() {
+        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
+        Cache<Integer, Integer> cache = createCache(clDefault);
+        Integer key = 1;
+        assertFalse(cache.containsKey(key));
+        assertEquals(key, cache.get(key));
+        assertTrue(cache.containsKey(key));
+    }
+
+    @Test
+    public void putIfAbsent() {
+        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
+        Cache<Integer, Integer> cache = createCache(clDefault);
+        Integer key = 1;
+        Integer value = key + 1;
+        assertTrue(cache.putIfAbsent(key, value));
+        assertEquals(value, cache.get(key));
+    }
+
+    @Test
+    public void getAndRemove_NotExistent() {
+        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
+        Cache<Integer, Integer> cache = createCache(clDefault);
+        Integer key = 1;
+        assertNull(cache.getAndRemove(key));
+        assertFalse(cache.containsKey(key));
+    }
+
+    @Test
+    public void getAndRemove_There() {
+        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
+        Cache<Integer, Integer> cache = createCache(clDefault);
+        Integer key = 1;
+        Integer value = key  + 1;
+        cache.put(key, value);
+        assertEquals(value, cache.getAndRemove(key));
+        assertFalse(cache.containsKey(key));
+    }
+
+    @Test
+    public void replace_3arg_Missing() {
+        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
+        Cache<Integer, Integer> cache = createCache(clDefault);
+        Integer key = 1;
+        Integer oldValue = key;
+        Integer newValue = oldValue  + 1;
+        assertFalse(cache.replace(key, oldValue, newValue));
+        assertFalse(cache.containsKey(key));
+    }
+
+    @Test
+    public void replace_3arg_Different() {
+        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
+        Cache<Integer, Integer> cache = createCache(clDefault);
+        Integer key = 1;
+        Integer value1 = key  + 1;
+        Integer value2 = value1 + 1;
+        Integer value3 = value2 + 1;
+        cache.put(key, value1);
+        assertFalse(cache.replace(key, value2, value3));
+        assertEquals(value1, cache.get(key));
+    }
+
+    @Test
+    public void replace_3arg() {
+        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
+        Cache<Integer, Integer> cache = createCache(clDefault);
+        Integer key = 1;
+        Integer value1 = key  + 1;
+        Integer value2 = value1 + 1;
+        Integer value3 = value2 + 1;
+        cache.put(key, value2);
+        assertTrue(cache.replace(key, value2, value3));
+        assertEquals(value3, cache.get(key));
+    }
+
+    @Test
+    public void replace_2arg_Missing() {
+        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
+        Cache<Integer, Integer> cache = createCache(clDefault);
+        Integer key = 1;
+        Integer oldValue = key;
+        assertFalse(cache.replace(key, oldValue));
+        assertFalse(cache.containsKey(key));
+    }
+
+    @Test
+    public void replace_2arg() {
+        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
+        Cache<Integer, Integer> cache = createCache(clDefault);
+        Integer key = 1;
+        Integer value1 = key  + 1;
+        Integer value2 = value1 + 1;
+        Integer value3 = value2 + 1;
+        cache.put(key, value2);
+        assertTrue(cache.replace(key, value3));
+        assertEquals(value3, cache.get(key));
+    }
+
+    @Test
+    public void getAndReplace() {
+        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
+        Cache<Integer, Integer> cache = createCache(clDefault);
+        Integer key = 1;
+        Integer newValue = key + 1;
+        assertNull(cache.getAndReplace(key, newValue));
+        assertFalse(cache.containsKey(key));
     }
 
     // ---------- utilities ----------
