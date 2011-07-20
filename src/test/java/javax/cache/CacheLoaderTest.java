@@ -22,6 +22,8 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -482,6 +484,37 @@ public class CacheLoaderTest extends TestSupport {
         assertFalse(cache.containsKey(key));
     }
 
+    @Test
+    public void getWithNonKeyKey() {
+        ArrayList<Integer> key1 = new ArrayList<Integer>();
+        key1.add(1);
+        key1.add(2);
+        LinkedList<Integer> key2 = new LinkedList<Integer>(key1);
+
+        assertEquals(key1, key2);
+        assertEquals(key2, key1);
+
+        Cache<ArrayList<Integer>, String> cache = createCache();
+        CacheLoader<ArrayList<Integer>, String> cacheLoader = new ArrayListCacheLoader();
+
+        String value1 = "value1";
+
+        cache.put(key1, value1);
+        // Note: list2 is LinkedList which is NOT the key type (or be cast to it)
+        String value2 = cache.get(key2);
+        assertEquals(value1, value2);
+
+        // The following is attempting what the implementation of Cache.get would need to do on a cache miss.
+
+        // NOTE: The following does not compile
+//        String value3 = cacheLoader.load(key2, null);
+//        cache.put(key2, value3);
+
+        // with proposed new api
+        Cache.Entry<ArrayList<Integer>, String> entry3 = cacheLoader.loadEntry(key2, null);
+        cache.put(entry3.getKey(), entry3.getValue());
+    }
+
     // ---------- utilities ----------
 
     /**
@@ -498,12 +531,41 @@ public class CacheLoaderTest extends TestSupport {
             return key;
         }
 
+        public Cache.Entry<K, K> loadEntry(Object key, Object arg) {
+            throw new UnsupportedOperationException();
+        }
+
         public Map<K, K> loadAll(Collection<? extends K> keys, Object arg) {
             Map<K, K> map = new HashMap<K, K>();
             for (K key : keys) {
                 map.put(key, key);
             }
             return map;
+        }
+    }
+
+    /**
+     * A simple example of a Cache Loader
+     */
+    private static class ArrayListCacheLoader implements CacheLoader<ArrayList<Integer>, String> {
+        public String load(ArrayList<Integer> key, Object arg) {
+            throw new UnsupportedOperationException();
+        }
+
+        public Cache.Entry<ArrayList<Integer>, String> loadEntry(final Object key, Object arg) {
+            return new Cache.Entry<ArrayList<Integer>, String>() {
+                public ArrayList<Integer> getKey() {
+                    return new ArrayList<Integer>((List) key);
+                }
+
+                public String getValue() {
+                    return key.toString();
+                }
+            };
+        }
+
+        public Map<ArrayList<Integer>, String> loadAll(Collection<? extends ArrayList<Integer>> keys, Object arg) {
+            throw new UnsupportedOperationException();
         }
     }
 }

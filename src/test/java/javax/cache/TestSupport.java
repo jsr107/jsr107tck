@@ -84,6 +84,10 @@ class TestSupport {
             throw new UnsupportedOperationException();
         }
 
+        public Cache.Entry<K, V> loadEntry(Object key, Object arg) {
+            throw new UnsupportedOperationException();
+        }
+
         public Map<K, V> loadAll(Collection<? extends K> keys, Object arg) {
             throw new UnsupportedOperationException();
         }
