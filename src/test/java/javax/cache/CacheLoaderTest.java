@@ -485,7 +485,24 @@ public class CacheLoaderTest extends TestSupport {
     }
 
     @Test
-    public void getWithNonKeyKey() {
+    public void get_WithNonKeyKey() {
+        ArrayList<Integer> key1 = new ArrayList<Integer>();
+        key1.add(1);
+        key1.add(2);
+        LinkedList<Integer> key2 = new LinkedList<Integer>(key1);
+
+        assertEquals(key1, key2);
+        assertEquals(key2, key1);
+
+        CacheLoader<ArrayList<Integer>, String> cacheLoader = new ArrayListCacheLoader();
+        Cache<ArrayList<Integer>, String> cache = createCache(cacheLoader);
+
+        String value = cache.get(key2);
+        assertEquals(cacheLoader.loadEntry(key2,  null).getValue(), value);
+    }
+
+    @Test
+    public void getWithNonKeyKey2() {
         ArrayList<Integer> key1 = new ArrayList<Integer>();
         key1.add(1);
         key1.add(2);
