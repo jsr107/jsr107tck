@@ -491,45 +491,11 @@ public class CacheLoaderTest extends TestSupport {
         key1.add(2);
         LinkedList<Integer> key2 = new LinkedList<Integer>(key1);
 
-        assertEquals(key1, key2);
-        assertEquals(key2, key1);
-
         CacheLoader<ArrayList<Integer>, String> cacheLoader = new ArrayListCacheLoader();
         Cache<ArrayList<Integer>, String> cache = createCache(cacheLoader);
 
         String value = cache.get(key2);
         assertEquals(cacheLoader.loadEntry(key2,  null).getValue(), value);
-    }
-
-    @Test
-    public void getWithNonKeyKey2() {
-        ArrayList<Integer> key1 = new ArrayList<Integer>();
-        key1.add(1);
-        key1.add(2);
-        LinkedList<Integer> key2 = new LinkedList<Integer>(key1);
-
-        assertEquals(key1, key2);
-        assertEquals(key2, key1);
-
-        Cache<ArrayList<Integer>, String> cache = createCache();
-        CacheLoader<ArrayList<Integer>, String> cacheLoader = new ArrayListCacheLoader();
-
-        String value1 = "value1";
-
-        cache.put(key1, value1);
-        // Note: list2 is LinkedList which is NOT the key type (or be cast to it)
-        String value2 = cache.get(key2);
-        assertEquals(value1, value2);
-
-        // The following is attempting what the implementation of Cache.get would need to do on a cache miss.
-
-        // NOTE: The following does not compile
-//        String value3 = cacheLoader.load(key2, null);
-//        cache.put(key2, value3);
-
-        // with proposed new api
-        Cache.Entry<ArrayList<Integer>, String> entry3 = cacheLoader.loadEntry(key2, null);
-        cache.put(entry3.getKey(), entry3.getValue());
     }
 
     // ---------- utilities ----------
