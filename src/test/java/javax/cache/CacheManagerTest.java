@@ -193,7 +193,7 @@ public class CacheManagerTest extends TestSupport {
 
     @Test
     public void removeCache_NotThere() {
-        CacheManager cacheManager = getCacheManager();
+        CacheManager cacheManager = getCacheManager(this.toString());
         assertFalse(cacheManager.removeCache("c1"));
     }
 

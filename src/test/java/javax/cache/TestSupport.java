@@ -46,6 +46,10 @@ class TestSupport {
         return CacheManagerFactory.INSTANCE.getCacheManager();
     }
 
+    protected CacheManager getCacheManager(String name) {
+        return CacheManagerFactory.INSTANCE.getCacheManager(name);
+    }
+
     protected <K, V> Cache<K, V> createCache() {
         return getCacheManager().
                 <K, V>createCacheBuilder(CACHE_NAME).
