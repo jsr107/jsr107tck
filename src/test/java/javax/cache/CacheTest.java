@@ -138,6 +138,40 @@ public class CacheTest extends TestSupport {
         checkGetExpectation(existingValue, cache, newKey);
     }
 
+    //TODO how do we handle mutable keys? @Test
+    public void test_ExistingWithMutableKey_ByValue() {
+        CacheConfiguration config = createCacheConfiguration();
+        config.setStoreByValue(true);
+        Cache<Date, Integer> cache = createCache(config);
+
+        long now = System.currentTimeMillis();
+        Date key1 = new Date(now);
+        Date key2 = new Date(now);
+        Integer existingValue = 1;
+        cache.put(key1, existingValue);
+        long later = now + 5;
+        key1.setTime(later);
+        assertNull(cache.get(key1));
+        checkGetExpectation(existingValue, cache, key2);
+    }
+
+    //TODO how do we handle mutable keys? @Test
+    public void test_ExistingWithMutableKey_ByReference() {
+        CacheConfiguration config = createCacheConfiguration();
+        config.setStoreByValue(false);
+        Cache<Date, Integer> cache = createCache(config);
+
+        long now = System.currentTimeMillis();
+        Date key1 = new Date(now);
+        Date key2 = new Date(now);
+        Integer existingValue = 1;
+        cache.put(key1, existingValue);
+        long later = now + 5;
+        key1.setTime(later);
+        checkGetExpectation(existingValue, cache, key1);
+        assertNull(cache.get(key2));
+    }
+
     @Test
     public void put_NotStarted() {
         Cache<String, Integer> cache = createCache();
