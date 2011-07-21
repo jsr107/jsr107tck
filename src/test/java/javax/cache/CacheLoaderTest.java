@@ -419,9 +419,8 @@ public class CacheLoaderTest extends TestSupport {
         SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
         Cache<Integer, Integer> cache = createCache(clDefault);
         Integer key = 1;
-        Integer oldValue = key;
-        Integer newValue = oldValue  + 1;
-        assertFalse(cache.replace(key, oldValue, newValue));
+        Integer newValue = key + 1;
+        assertFalse(cache.replace(key, key, newValue));
         assertFalse(cache.containsKey(key));
     }
 
@@ -456,8 +455,7 @@ public class CacheLoaderTest extends TestSupport {
         SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
         Cache<Integer, Integer> cache = createCache(clDefault);
         Integer key = 1;
-        Integer oldValue = key;
-        assertFalse(cache.replace(key, oldValue));
+        assertFalse(cache.replace(key, key));
         assertFalse(cache.containsKey(key));
     }
 
@@ -495,7 +493,7 @@ public class CacheLoaderTest extends TestSupport {
         Cache<ArrayList<Integer>, String> cache = createCache(cacheLoader);
 
         String value = cache.get(key2);
-        assertEquals(cacheLoader.loadEntry(key2,  null).getValue(), value);
+        assertEquals(cacheLoader.loadEntry(key2, null).getValue(), value);
     }
 
     // ---------- utilities ----------
