@@ -138,7 +138,7 @@ public class CacheTest extends TestSupport {
         checkGetExpectation(existingValue, cache, newKey);
     }
 
-    //TODO how do we handle mutable keys? @Test
+    @Test
     public void test_ExistingWithMutableKey_ByValue() {
         CacheConfiguration config = createCacheConfiguration();
         config.setStoreByValue(true);
