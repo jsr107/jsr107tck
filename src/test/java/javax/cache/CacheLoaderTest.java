@@ -542,14 +542,22 @@ public class CacheLoaderTest extends TestSupport {
         private RuntimeException exception = null;
 
         public K load(K key, Object arg) {
+            throw new UnsupportedOperationException();
+        }
+
+        public Cache.Entry<K, K> loadEntry(final Object key, Object arg) {
             if (exception != null) {
                 throw exception;
             }
-            return key;
-        }
+            return new Cache.Entry<K, K>() {
+                public K getKey() {
+                    return (K) key;
+                }
 
-        public Cache.Entry<K, K> loadEntry(Object key, Object arg) {
-            throw new UnsupportedOperationException();
+                public K getValue() {
+                    return (K) key;
+                }
+            };
         }
 
         public Map<K, K> loadAll(Collection<? extends K> keys, Object arg) {
