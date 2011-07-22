@@ -16,8 +16,6 @@
  */
 package javax.cache;
 
-import java.util.Collection;
-import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -72,24 +70,5 @@ class TestSupport {
 
     protected <K, V> Cache<K, V> createOrphanCache(String name) {
         return TestInstanceFactory.INSTANCE.createCache(name);
-    }
-
-    /**
-     * A mock CacheLoader which simply throws UnsupportedOperationException on all methods.
-     * @param <K>
-     * @param <V>
-     */
-    protected static class MockCacheLoader<K, V> implements CacheLoader<K, V> {
-        public V load(K key, Object arg) {
-            throw new UnsupportedOperationException();
-        }
-
-        public Cache.Entry<K, V> loadEntry(Object key, Object arg) {
-            throw new UnsupportedOperationException();
-        }
-
-        public Map<K, V> loadAll(Collection<? extends K> keys, Object arg) {
-            throw new UnsupportedOperationException();
-        }
     }
 }

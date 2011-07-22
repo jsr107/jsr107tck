@@ -91,8 +91,16 @@ public class CacheLoaderTest extends TestSupport {
         final Integer valueDefault = null;
         CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>() {
             @Override
-            public Integer load(Integer key, Object arg) {
-                return valueDefault;
+            public Cache.Entry<Integer, Integer> load(final Object key, Object arg) {
+                return new Cache.Entry<Integer, Integer>() {
+                    public Integer getKey() {
+                        return (Integer) key;
+                    }
+
+                    public Integer getValue() {
+                        return null;
+                    }
+                };
             }
         };
         Cache<Integer, Integer> cache = createCache(clDefault);
@@ -111,14 +119,8 @@ public class CacheLoaderTest extends TestSupport {
     @Test
     public void load_DefaultCacheLoader() throws Exception {
         final Integer valueDefault = 123;
-        CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>() {
-            @Override
-            public Integer load(Integer key, Object arg) {
-                return valueDefault;
-            }
-        };
+        CacheLoader<Integer, Integer> clDefault = new SimpleCacheLoader<Integer>(valueDefault);
         Cache<Integer, Integer> cache = createCache(clDefault);
-
 
         Integer key = 1;
         Future<Integer> future = cache.load(key, null, null);
@@ -132,12 +134,7 @@ public class CacheLoaderTest extends TestSupport {
     public void load_BothCacheLoader() throws Exception {
         CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>();
         final Integer valueSpecific = 123;
-        CacheLoader<Integer, Integer> clSpecific = new MockCacheLoader<Integer, Integer>() {
-            @Override
-            public Integer load(Integer key, Object arg) {
-                return valueSpecific;
-            }
-        };
+        CacheLoader<Integer, Integer> clSpecific = new SimpleCacheLoader<Integer>(valueSpecific);
         Cache<Integer, Integer> cache = createCache(clDefault);
 
         Integer key = 1;
@@ -151,12 +148,7 @@ public class CacheLoaderTest extends TestSupport {
     @Test
     public void load_ExceptionPropagation() throws Exception {
         final RuntimeException expectedException = new RuntimeException("expected");
-        CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>() {
-            @Override
-            public Integer load(Integer key, Object arg) {
-                throw expectedException;
-            }
-        };
+        CacheLoader<Integer, Integer> clDefault = new SimpleCacheLoader<Integer>(expectedException);
         Cache<Integer, Integer> cache = createCache(clDefault);
         Integer key = 1;
         Future<Integer> future = cache.load(key, null, null);
@@ -493,10 +485,26 @@ public class CacheLoaderTest extends TestSupport {
         Cache<ArrayList<Integer>, String> cache = createCache(cacheLoader);
 
         String value = cache.get(key2);
-        assertEquals(cacheLoader.loadEntry(key2, null).getValue(), value);
+        assertEquals(cacheLoader.load(key2, null).getValue(), value);
     }
 
     // ---------- utilities ----------
+
+    /**
+     * A mock CacheLoader which simply throws UnsupportedOperationException on all methods.
+     * @param <K>
+     * @param <V>
+     */
+    protected static class MockCacheLoader<K, V> implements CacheLoader<K, V> {
+
+        public Cache.Entry<K, V> load(Object key, Object arg) {
+            throw new UnsupportedOperationException();
+        }
+
+        public Map<K, V> loadAll(Collection<? extends K> keys, Object arg) {
+            throw new UnsupportedOperationException();
+        }
+    }
 
     /**
      * A simple example of a Cache Loader which simply adds the key as the value.
@@ -504,12 +512,27 @@ public class CacheLoaderTest extends TestSupport {
      */
     private static class SimpleCacheLoader<K> implements CacheLoader<K, K> {
         private RuntimeException exception = null;
+        private final K value;
 
-        public K load(K key, Object arg) {
-            throw new UnsupportedOperationException();
+        public SimpleCacheLoader() {
+            this(null, null);
         }
 
-        public Cache.Entry<K, K> loadEntry(final Object key, Object arg) {
+        public SimpleCacheLoader(K value) {
+            this(value, null);
+        }
+
+        public SimpleCacheLoader(RuntimeException exception) {
+            this(null, exception);
+        }
+
+        public SimpleCacheLoader(K value, RuntimeException exception){
+            this.value = value;
+            this.exception = exception;
+
+        }
+
+        public Cache.Entry<K, K> load(final Object key, Object arg) {
             if (exception != null) {
                 throw exception;
             }
@@ -519,7 +542,7 @@ public class CacheLoaderTest extends TestSupport {
                 }
 
                 public K getValue() {
-                    return (K) key;
+                    return value == null ? (K) key : value;
                 }
             };
         }
@@ -537,11 +560,8 @@ public class CacheLoaderTest extends TestSupport {
      * A simple example of a Cache Loader
      */
     private static class ArrayListCacheLoader implements CacheLoader<ArrayList<Integer>, String> {
-        public String load(ArrayList<Integer> key, Object arg) {
-            throw new UnsupportedOperationException();
-        }
 
-        public Cache.Entry<ArrayList<Integer>, String> loadEntry(final Object key, Object arg) {
+        public Cache.Entry<ArrayList<Integer>, String> load(final Object key, Object arg) {
             return new Cache.Entry<ArrayList<Integer>, String>() {
                 public ArrayList<Integer> getKey() {
                     return new ArrayList<Integer>((List) key);
