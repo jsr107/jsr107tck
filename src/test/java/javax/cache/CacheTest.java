@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.logging.Level;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -86,9 +87,7 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void get_Existing_ByValue() {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStoreByValue(true);
-        Cache<String, Integer> cache = createCache(config);
+        Cache<String, Integer> cache = createByValueCache();
 
         String existingKey = "key1";
         Integer existingValue = 1;
@@ -98,9 +97,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void get_Existing_ByReference() {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStoreByValue(false);
-        Cache<String, Integer> cache = createCache(config);
+        Cache<String, Integer> cache = createByReferenceCache();
+        if (cache == null) return;
 
         String existingKey = "key1";
         Integer existingValue = 1;
@@ -110,9 +108,7 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void get_ExistingWithEqualButNonSameKey_ByValue() {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStoreByValue(true);
-        Cache<Date, Integer> cache = createCache(config);
+        Cache<Date, Integer> cache = createByValueCache();
 
         long now = System.currentTimeMillis();
         Date existingKey = new Date(now);
@@ -125,9 +121,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void get_ExistingWithEqualButNonSameKey_ByReference() {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStoreByValue(false);
-        Cache<Date, Integer> cache = createCache(config);
+        Cache<Date, Integer> cache = createByReferenceCache();
+        if (cache == null) return;
 
         long now = System.currentTimeMillis();
         Date existingKey = new Date(now);
@@ -140,9 +135,7 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void test_ExistingWithMutableKey_ByValue() {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStoreByValue(true);
-        Cache<Date, Integer> cache = createCache(config);
+        Cache<Date, Integer> cache = createByValueCache();
 
         long now = System.currentTimeMillis();
         Date key1 = new Date(now);
@@ -157,9 +150,8 @@ public class CacheTest extends TestSupport {
 
     //TODO how do we handle mutable keys? @Test
     public void test_ExistingWithMutableKey_ByReference() {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStoreByValue(false);
-        Cache<Date, Integer> cache = createCache(config);
+        Cache<Date, Integer> cache = createByReferenceCache();
+        if (cache == null) return;
 
         long now = System.currentTimeMillis();
         Date key1 = new Date(now);
@@ -208,9 +200,7 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void put_ExistingWithEqualButNonSameKey_ByValue() throws Exception {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStoreByValue(true);
-        Cache<Date, Integer> cache = createCache(config);
+        Cache<Date, Integer> cache = createByValueCache();
 
         long now = System.currentTimeMillis();
         Date key1 = new Date(now);
@@ -224,9 +214,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void put_ExistingWithEqualButNonSameKey_ByReference() throws Exception {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStoreByValue(false);
-        Cache<Date, Integer> cache = createCache(config);
+        Cache<Date, Integer> cache = createByReferenceCache();
+        if (cache == null) return;
 
         long now = System.currentTimeMillis();
         Date key1 = new Date(now);
@@ -240,16 +229,9 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void put_Mutable_ByReference() {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStoreByValue(false);
-        Cache<Integer, Date> cache;
-        try {
-            cache = createCache(config);
-        } catch (InvalidConfigurationException e) {
-            // it is valid for a cache implementation to not support store by reference
-            logger.info("cache does not support store by value: " + e.getMessage());
-            return;
-        }
+        Cache<Integer, Date> cache = createByReferenceCache();
+        if (cache == null) return;
+
         long now = System.currentTimeMillis();
         Date value1 = new Date(now);
         Integer key = 1;
@@ -260,16 +242,7 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void put_Mutable_ByValue() {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStoreByValue(true);
-        Cache<Integer, Date> cache;
-        try {
-            cache = createCache(config);
-        } catch (InvalidConfigurationException e) {
-            // it is valid for a cache implementation to not support store by value
-            logger.info("cache does not support store by value: " + e.getMessage());
-            return;
-        }
+        Cache<Integer, Date> cache = createByValueCache();
         long time1 = System.currentTimeMillis();
         Date value1 = new Date(time1);
         Integer key = 1;
@@ -590,9 +563,7 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void putAll_ByValue() {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStoreByValue(true);
-        Cache<Date, Integer> cache = createCache(config);
+        Cache<Date, Integer> cache = createByValueCache();
         Map<Date, Integer> data = createData(3);
         cache.putAll(data);
         for (Map.Entry<Date, Integer> entry : data.entrySet()) {
@@ -602,9 +573,9 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void putAll_ByReference() {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStoreByValue(false);
-        Cache<Date, Integer> cache = createCache(config);
+        Cache<Date, Integer> cache = createByReferenceCache();
+        if (cache == null) return;
+
         Map<Date, Integer> data = createData(3);
         cache.putAll(data);
         for (Map.Entry<Date, Integer> entry : data.entrySet()) {
@@ -648,9 +619,7 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void putIfAbsent_Missing_ByValue() {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStoreByValue(true);
-        Cache<Date, Long> cache = createCache(config);
+        Cache<Date, Long> cache = createByValueCache();
 
         Date key = new Date();
         Long value = key.getTime();
@@ -660,9 +629,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void putIfAbsent_Missing_ByReference() {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStoreByValue(false);
-        Cache<Date, Long> cache = createCache(config);
+        Cache<Date, Long> cache = createByReferenceCache();
+        if (cache == null) return;
 
         Date key = new Date();
         Long value = key.getTime();
@@ -672,9 +640,7 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void putIfAbsent_There_ByValue() {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStoreByValue(true);
-        Cache<Date, Long> cache = createCache(config);
+        Cache<Date, Long> cache = createByValueCache();
 
         Date key = new Date();
         Long value = key.getTime();
@@ -686,9 +652,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void putIfAbsent_There_ByReference() {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStoreByValue(false);
-        Cache<Date, Long> cache = createCache(config);
+        Cache<Date, Long> cache = createByReferenceCache();
+        if (cache == null) return;
 
         Date key = new Date();
         Long value = key.getTime();
@@ -766,9 +731,7 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void replace_3arg_ByValue() throws Exception {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStoreByValue(true);
-        Cache<Date, Long> cache = createCache(config);
+        Cache<Date, Long> cache = createByValueCache();
 
         Date key = new Date();
         Long value = key.getTime();
@@ -780,9 +743,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void replace_3arg_ByReference() throws Exception {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStoreByValue(false);
-        Cache<Date, Long> cache = createCache(config);
+        Cache<Date, Long> cache = createByReferenceCache();
+        if (cache == null) return;
 
         Date key = new Date();
         Long value = key.getTime();
@@ -1093,6 +1055,23 @@ public class CacheTest extends TestSupport {
 //    }
 
     // ---------- utilities ----------
+
+    private <A, B> Cache<A, B> createByValueCache() {
+        CacheConfiguration config = createCacheConfiguration();
+        config.setStoreByValue(true);
+        return createCache(config);
+    }
+
+    private <A, B> Cache<A, B> createByReferenceCache() {
+        try {
+            CacheConfiguration config = createCacheConfiguration();
+            config.setStoreByValue(false);
+            return createCache(config);
+        } catch (InvalidConfigurationException e) {
+            logger.log(Level.INFO, "===== cache does not support store by reference: " + e.getMessage());
+            return null;
+        }
+    }
 
     private LinkedHashMap<Date, Integer> createData(int count, long now) {
         LinkedHashMap<Date, Integer> map = new LinkedHashMap<Date, Integer>(count);
