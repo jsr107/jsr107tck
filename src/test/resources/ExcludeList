@@ -3,3 +3,4 @@
 #Enter One method per line with syntax FULL_CLASS_NAME # METHOD_NAME as in the example below
 
 javax.cache.CacheManagerFactoryTest#dummyTest
+javax.cache.InterceptionTest#test_AT_CacheResult

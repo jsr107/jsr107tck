@@ -1,165 +1,188 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>7</version>
-    </parent>
-    <groupId>javax.cache</groupId>
-    <artifactId>cache-tests</artifactId>
-    <version>0.2-SNAPSHOT</version>
-    <packaging>jar</packaging>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
+	<groupId>javax.cache</groupId>
+	<artifactId>cache-tests</artifactId>
+	<version>0.2-SNAPSHOT</version>
+	<packaging>jar</packaging>
 
-    <name>JSR107 Tests</name>
-    <url>http://maven.apache.org</url>
-    <description>Tests, which form part of the Technology Compatibility Kit for JSR107. You should be able to test an inplementation by:
+	<name>JSR107 Tests</name>
+	<url>http://maven.apache.org</url>
+	<description>Tests, which form part of the Technology Compatibility Kit for JSR107. You should be able to test an inplementation by:
         1. Adding the dependency
         2. Configuring the JUnit test fixtures
     </description>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <skipCheckstyle>false</skipCheckstyle>
-    </properties>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<skipCheckstyle>false</skipCheckstyle>
+	</properties>
 
-    <dependencies>
+	<dependencies>
 
-        <dependency>
-            <groupId>mockit</groupId>
-            <artifactId>jmockit</artifactId>
-            <version>0.999.9</version>
-            <scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>mockit</groupId>
+			<artifactId>jmockit</artifactId>
+			<version>0.999.9</version>
+			<scope>test</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8.2</version>
-            <scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+			<scope>test</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>javax.cache</groupId>
-            <artifactId>cache-api</artifactId>
-            <version>0.2-SNAPSHOT</version>
-        </dependency>
-
-        <!--Insert JSR107 implementation as a dependency here-->
-
-        <dependency>
-            <groupId>javax.cache.implementation</groupId>
-            <artifactId>cache-ri</artifactId>
-            <version>0.2-SNAPSHOT</version>
-        </dependency>
-
-    </dependencies>
+		<dependency>
+			<groupId>javax.cache</groupId>
+			<artifactId>cache-api</artifactId>
+			<version>0.2-SNAPSHOT</version>
+		</dependency>
 
 
-    <build>
-        <plugins>
+		<dependency>
+			<groupId>org.jboss.weld.se</groupId>
+			<artifactId>weld-se-core</artifactId>
+			<version>1.1.0.Final</version>
+		</dependency>
 
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-                <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
-                </configuration>
-            </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.8</version>
-                <configuration>
-                  <excludes>
-                    <exclude>**/TestInstanceFactory*</exclude>
-                  </excludes>
-                </configuration>
-            </plugin>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>1.5.10</version>
+		</dependency>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.8</version>
-                <configuration>
-                    <author>true</author>
-                    <bottom>true</bottom>
-                    <minmemory>128m</minmemory>
-                    <maxmemory>512</maxmemory>
-                </configuration>
-            </plugin>
+		<!--Insert JSR107 implementation as a dependency here -->
+		<dependency>
+			<groupId>javax.cache.implementation</groupId>
+			<artifactId>cache-ri</artifactId>
+			<version>0.2-SNAPSHOT</version>
+		</dependency>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.0.3</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+	</dependencies>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.5</version>
-                <executions>
-                    <execution>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>checkstyle</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <configLocation>${basedir}/checkstyle/checkstyle.xml
+
+	<build>
+		<plugins>
+
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.8</version>
+				<configuration>
+					<excludes>
+						<exclude>**/TestInstanceFactory*</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.8</version>
+				<configuration>
+					<author>true</author>
+					<bottom>true</bottom>
+					<minmemory>128m</minmemory>
+					<maxmemory>512</maxmemory>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.0.3</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.5</version>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<goals>
+							<goal>checkstyle</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<configLocation>${basedir}/checkstyle/checkstyle.xml
                     </configLocation>
-                    <suppressionsLocation>${basedir}/checkstyle/suppressions.xml
+					<suppressionsLocation>${basedir}/checkstyle/suppressions.xml
                     </suppressionsLocation>
-                    <headerLocation>${basedir}/checkstyle/ClassHeader.txt
+					<headerLocation>${basedir}/checkstyle/ClassHeader.txt
                     </headerLocation>
-                    <sourceDirectory>src/test/java</sourceDirectory>
-                    <skip>${skipCheckstyle}</skip>
-                    <enableRSS>false</enableRSS>
-                    <linkXRef>true</linkXRef>
-                    <consoleOutput>true</consoleOutput>
-                    <failsOnError>true</failsOnError>
-                    <failOnViolation>true</failOnViolation>
-                    <violationSeverity>warning</violationSeverity>
-                    <enableRulesSummary>true</enableRulesSummary>
-                </configuration>
-            </plugin>
+					<sourceDirectory>src/test/java</sourceDirectory>
+					<skip>${skipCheckstyle}</skip>
+					<enableRSS>false</enableRSS>
+					<linkXRef>true</linkXRef>
+					<consoleOutput>true</consoleOutput>
+					<failsOnError>true</failsOnError>
+					<failOnViolation>true</failOnViolation>
+					<violationSeverity>warning</violationSeverity>
+					<enableRulesSummary>true</enableRulesSummary>
+				</configuration>
+			</plugin>
 
 
-        </plugins>
-    </build>
+		</plugins>
+	</build>
 
-    <repositories>
-        <!--Required for CloudBees CI. Local builds will still work if you mvn install jsr107api first-->
-        <repository>
-            <id>cloudbees-snapshots</id>
-            <url>https://repository-jsr107.forge.cloudbees.com/snapshot</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
+	<repositories>
+		<!--Required for CloudBees CI. Local builds will still work if you mvn 
+			install jsr107api first -->
+		<repository>
+			<id>cloudbees-snapshots</id>
+			<url>https://repository-jsr107.forge.cloudbees.com/snapshot</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
 
-        <repository>
-           <id>jmockit-svn</id>
-           <url>http://jmockit.googlecode.com/svn/maven-repo</url>
-           <releases><checksumPolicy>ignore</checksumPolicy></releases>
-        </repository>
+		<repository>
+			<id>jmockit-svn</id>
+			<url>http://jmockit.googlecode.com/svn/maven-repo</url>
+			<releases>
+				<checksumPolicy>ignore</checksumPolicy>
+			</releases>
+		</repository>
 
-    </repositories>
+
+		<repository>
+			<id>jboss.maven.repo</id>
+			<name>JBoss Repository</name>
+			<url>http://repository.jboss.org/nexus/content/groups/public-jboss/</url>
+		</repository>
+
+	</repositories>
 
 </project>
