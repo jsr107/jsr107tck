@@ -42,7 +42,7 @@ public class BlogManager {
      * @param title
      * @return
      */
-    @CacheResult
+    @CacheResult(cacheName="blogManager")
     public Blog getEntryCached(String title) {
         return map.get(title);
     }
@@ -60,7 +60,7 @@ public class BlogManager {
      * 
      * @param title
      */
-    @CacheRemoveEntry
+    @CacheRemoveEntry(cacheName="blogManager")
     public void clearEntryFromCache(String title) {
     }
 
@@ -75,7 +75,7 @@ public class BlogManager {
     /**
      * 
      */
-    @CacheRemoveAll
+    @CacheRemoveAll(cacheName="blogManager")
     public void clearCache() {
     }
 
