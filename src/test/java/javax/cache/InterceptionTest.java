@@ -129,13 +129,40 @@ public class InterceptionTest {
         Blog entryCached = blogManager.getEntryCached(testTitle);
         assertEquals(entryCached.getBody(), testBody);
 
-        /* clear from map, but not from cache */
+        /* clear from cache using annotation @CacheRemoveEntry */
         blogManager.clearEntryFromCache(testTitle); 
         
-        /* clear from cache using annotation @CacheRemoveEntry */
+        /* clear from map, but not from cache */        
         blogManager.clearEntry(testTitle); 
 
         entryCached = blogManager.getEntryCached(testTitle);
+        assertNull("Item should removed from the cache and the map",
+                entryCached);
+        
+        
+    }
+
+    
+    @Test 
+    public void test_AT_CacheRemoveAll() {
+        String testBody = "" + System.currentTimeMillis();
+        String testTitle = "title b";
+        
+        Blog blog = new Blog(testTitle, testBody);
+        BlogManager blogManager = getBlogManager();
+        blogManager.createEntry(blog);
+
+        Blog entryCached = blogManager.getEntryCached(testTitle);
+        assertEquals(entryCached.getBody(), testBody);
+
+        /* clear from map, but not from cache */        
+        blogManager.clearEntry(testTitle); 
+        
+        /* clear from cache using annotation @CacheRemoveAll */
+        blogManager.clearCache();
+
+        entryCached = blogManager.getEntryCached(testTitle);
+
         assertNull("Item should removed from the cache and the map",
                 entryCached);
         
