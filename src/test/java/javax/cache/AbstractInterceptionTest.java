@@ -38,7 +38,7 @@ import domain.Blog;
  * @author Rick Hightower
  * 
  */
-public class InterceptionTest {
+public abstract class AbstractInterceptionTest {
 
     /**
      * 
@@ -47,7 +47,7 @@ public class InterceptionTest {
     /**
      * 
      */
-    private static BlogManager blogManager;
+    protected static BlogManager blogManager;
 
     /**
      * 
@@ -86,13 +86,7 @@ public class InterceptionTest {
      * 
      * @return
      */
-    public BlogManager getBlogManager() {
-        if (blogManager == null) {
-            blogManager = getBeanByType(BlogManager.class);
-        }
-        return blogManager;
-    }
-
+    public abstract BlogManager getBlogManager() ;
     @Test
     /**
      * 

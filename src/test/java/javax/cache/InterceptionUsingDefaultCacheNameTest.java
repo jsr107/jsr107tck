@@ -14,52 +14,28 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package manager;
+package javax.cache;
 
-import domain.Blog;
+import manager.BlogManager;
+import manager.UsingDefaultCacheNameBlogManagerImpl;
 
 /**
  * 
  * @author Rick Hightower
- *
+ * 
  */
-public interface BlogManager {
-
-    /**
-     * 
-     * @param title
-     * @return
-     */
-    Blog getEntryCached(String title);
-
-    /**
-     * 
-     * @param title
-     * @return
-     */
-    Blog getEntryRaw(String title);
-
-    /**
-     * 
-     * @param title
-     */
-    void clearEntryFromCache(String title);
-
-    /**
-     * 
-     * @param title
-     */
-    void clearEntry(String title);
+public class InterceptionUsingDefaultCacheNameTest extends
+        AbstractInterceptionTest {
 
     /**
      * 
      */
-    void clearCache();
-
-    /**
-     * 
-     * @param blog
-     */
-    void createEntry(Blog blog);
+    @Override
+    public BlogManager getBlogManager() {
+        if (blogManager == null) {
+            blogManager = getBeanByType(UsingDefaultCacheNameBlogManagerImpl.class);
+        }
+        return blogManager;
+    }
 
 }
