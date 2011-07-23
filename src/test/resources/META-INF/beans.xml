@@ -4,6 +4,6 @@ http://java.sun.com/xml/ns/javaee
 http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
 
     <interceptors>
-        <class>javax.cache.impl.interceptor.CacheResultInterceptor</class>
+        <class>javax.cache.impl.interceptor.RICacheResultInterceptor</class>
     </interceptors>
 </beans>

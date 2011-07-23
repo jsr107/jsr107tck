@@ -29,6 +29,7 @@ import manager.BlogManager;
 
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
+import org.junit.Test;
 
 import domain.Blog;
 
@@ -92,7 +93,7 @@ public class InterceptionTest {
         return blogManager;
     }
 
-    // @Test
+    @Test
     /**
      * 
      */
