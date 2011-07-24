@@ -256,6 +256,97 @@ public class CacheTest extends TestSupport {
     }
 
     @Test
+    public void getAndPut_NotStarted() {
+        Cache<String, Integer> cache = createCache();
+        cache.stop();
+        try {
+            cache.getAndPut(null, null);
+            fail("should have thrown an exception - cache not started");
+        } catch (IllegalStateException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void getAndPut_NullKey() throws Exception {
+        Cache<String, Integer> cache = createCache();
+        try {
+            cache.getAndPut(null, 1);
+            fail("should have thrown an exception - null key not allowed");
+        } catch (NullPointerException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void getAndPut_NullValue() throws Exception {
+        Cache<String, Integer> cache = createCache();
+        try {
+            cache.getAndPut("key", null);
+            fail("should have thrown an exception - null value not allowed");
+        } catch (NullPointerException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void getAndPut_ExistingWithEqualButNonSameKey_ByValue() throws Exception {
+        Cache<Date, Integer> cache = createByValueCache();
+
+        long now = System.currentTimeMillis();
+        Date key1 = new Date(now);
+        Integer value1 = 1;
+        assertNull(cache.getAndPut(key1, value1));
+        Date key2 = new Date(now);
+        Integer value2 = value1 + 1;
+        assertEquals(value1, cache.getAndPut(key2, value2));
+        checkGetExpectation(value2, cache, key2);
+    }
+
+    @Test
+    public void getAndPut_ExistingWithEqualButNonSameKey_ByReference() throws Exception {
+        Cache<Date, Integer> cache = createByReferenceCache();
+        if (cache == null) return;
+
+        long now = System.currentTimeMillis();
+        Date key1 = new Date(now);
+        Integer value1 = 1;
+        assertNull(cache.getAndPut(key1, value1));
+        Date key2 = new Date(now);
+        Integer value2 = value1 + 1;
+        assertSame(value1, cache.getAndPut(key2, value2));
+        checkGetExpectation(value2, cache, key2);
+    }
+
+    @Test
+    public void getAndPut_Mutable_ByReference() {
+        Cache<Integer, Date> cache = createByReferenceCache();
+        if (cache == null) return;
+
+        long now = System.currentTimeMillis();
+        Date value1 = new Date(now);
+        Integer key = 1;
+        assertNull(cache.getAndPut(key, value1));
+        Date value2 = cache.get(key);
+        assertSame(value1, value2);
+    }
+
+    @Test
+    public void getAndPut_Mutable_ByValue() {
+        Cache<Integer, Date> cache = createByValueCache();
+        long time1 = System.currentTimeMillis();
+        Date value1 = new Date(time1);
+        Integer key = 1;
+        assertNull(cache.getAndPut(key, value1));
+        long time2 = time1 + 5;
+        value1.setTime(time2);
+        Date value2 = cache.get(key);
+        assertNotSame(value1, value2);
+        assertEquals(time2, value1.getTime());
+        assertEquals(time1, value2.getTime());
+    }
+
+    @Test
     public void remove_NotStarted() {
         Cache<String, Integer> cache = createCache();
         cache.stop();
