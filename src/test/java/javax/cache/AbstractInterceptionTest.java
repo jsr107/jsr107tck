@@ -87,6 +87,7 @@ public abstract class AbstractInterceptionTest {
      * @return
      */
     public abstract BlogManager getBlogManager() ;
+
     @Test
     /**
      * 
@@ -111,6 +112,33 @@ public abstract class AbstractInterceptionTest {
                 entryCached.getBody(), testBody);
 
     }
+    
+
+    @Test
+    /**
+     * 
+     */
+    public void test_AT_CacheResult_UsingAt_CacheKeyParam() {
+        String testBody = "" + System.currentTimeMillis();
+        String testTitle = "title abc";
+        Blog blog = new Blog(testTitle, testBody);
+        BlogManager blogManager = getBlogManager();
+        blogManager.createEntry(blog);
+
+        Blog entryCached = blogManager.getEntryCached("asdf", testTitle, "adsfa");
+        assertEquals(entryCached.getBody(), testBody);
+
+        /* clear from map, but not from cache */
+        blogManager.clearEntry(testTitle); 
+        entryCached = blogManager.getEntryCached(testTitle);
+        assertNotNull("Item should still be in the cache thus not null",
+                entryCached);
+        assertEquals(
+                "Item should still be in the cache and the title should be the same as before",
+                entryCached.getBody(), testBody);
+
+    }
+
     
     @Test 
     public void test_AT_CacheRemoveEntry() {

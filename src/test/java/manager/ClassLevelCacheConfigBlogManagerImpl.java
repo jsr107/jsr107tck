@@ -23,6 +23,8 @@ import javax.cache.interceptor.CacheConfig;
 import javax.cache.interceptor.CacheRemoveAll;
 import javax.cache.interceptor.CacheRemoveEntry;
 import javax.cache.interceptor.CacheResult;
+import javax.cache.interceptor.CacheKeyParam;
+
 
 import domain.Blog;
 
@@ -81,5 +83,14 @@ public class ClassLevelCacheConfigBlogManagerImpl implements BlogManager {
     public void createEntry(Blog blog) {
         map.put(blog.getTitle(), blog);
     }
+    
+    /**
+     * 
+     */
+    @CacheResult
+    public Blog getEntryCached(String randomArg, @CacheKeyParam String title, String randomArg2) {
+        return map.get(title);
+    }
+
 
 }

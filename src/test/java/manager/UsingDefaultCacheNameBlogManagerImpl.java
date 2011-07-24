@@ -22,6 +22,8 @@ import java.util.Map;
 import javax.cache.interceptor.CacheRemoveAll;
 import javax.cache.interceptor.CacheRemoveEntry;
 import javax.cache.interceptor.CacheResult;
+import javax.cache.interceptor.CacheKeyParam;
+
 
 import domain.Blog;
 
@@ -79,5 +81,14 @@ public class UsingDefaultCacheNameBlogManagerImpl implements BlogManager {
     public void createEntry(Blog blog) {
         map.put(blog.getTitle(), blog);
     }
+    
+    /**
+     * 
+     */
+    @CacheResult
+    public Blog getEntryCached(String randomArg, @CacheKeyParam String title, String randomArg2) {
+        return map.get(title);
+    }
+
 
 }

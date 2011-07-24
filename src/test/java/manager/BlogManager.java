@@ -37,6 +37,13 @@ public interface BlogManager {
      * @param title
      * @return
      */
+    Blog getEntryCached(String randomArg, String title, String randomArg2);
+
+    /**
+     * 
+     * @param title
+     * @return
+     */
     Blog getEntryRaw(String title);
 
     /**
