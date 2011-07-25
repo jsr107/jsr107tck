@@ -497,10 +497,12 @@ public class CacheLoaderTest extends TestSupport {
      */
     protected static class MockCacheLoader<K, V> implements CacheLoader<K, V> {
 
+        @Override
         public Cache.Entry<K, V> load(Object key, Object arg) {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public Map<K, V> loadAll(Collection<? extends K> keys, Object arg) {
             throw new UnsupportedOperationException();
         }
@@ -532,21 +534,25 @@ public class CacheLoaderTest extends TestSupport {
 
         }
 
+        @Override
         public Cache.Entry<K, K> load(final Object key, Object arg) {
             if (exception != null) {
                 throw exception;
             }
             return new Cache.Entry<K, K>() {
+                @Override
                 public K getKey() {
                     return (K) key;
                 }
 
+                @Override
                 public K getValue() {
                     return value == null ? (K) key : value;
                 }
             };
         }
 
+        @Override
         public Map<K, K> loadAll(Collection<? extends K> keys, Object arg) {
             Map<K, K> map = new HashMap<K, K>();
             for (K key : keys) {
@@ -561,18 +567,22 @@ public class CacheLoaderTest extends TestSupport {
      */
     private static class ArrayListCacheLoader implements CacheLoader<ArrayList<Integer>, String> {
 
+        @Override
         public Cache.Entry<ArrayList<Integer>, String> load(final Object key, Object arg) {
             return new Cache.Entry<ArrayList<Integer>, String>() {
+                @Override
                 public ArrayList<Integer> getKey() {
                     return new ArrayList<Integer>((List) key);
                 }
 
+                @Override
                 public String getValue() {
                     return key.toString();
                 }
             };
         }
 
+        @Override
         public Map<ArrayList<Integer>, String> loadAll(Collection<? extends ArrayList<Integer>> keys, Object arg) {
             throw new UnsupportedOperationException();
         }
