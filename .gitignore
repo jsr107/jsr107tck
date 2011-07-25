@@ -1,6 +1,7 @@
 tck.iml
 tck.ipr
 tck.iws
+cache-tests.iml
 .idea
 target
 /.settings
