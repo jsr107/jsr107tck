@@ -320,30 +320,25 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getAndPut_Mutable_ByReference() {
-        Cache<Integer, Date> cache = createByReferenceCache();
+        Cache<Long, Date> cache = createByReferenceCache();
         if (cache == null) return;
 
-        long now = System.currentTimeMillis();
-        Date value1 = new Date(now);
-        Integer key = 1;
-        assertNull(cache.getAndPut(key, value1));
-        Date value2 = cache.get(key);
-        assertSame(value1, value2);
+        long key = System.currentTimeMillis();
+        Date value = new Date(key);
+        assertNull(cache.getAndPut(key, value));
+        assertSame(value, cache.get(key));
     }
 
     @Test
     public void getAndPut_Mutable_ByValue() {
-        Cache<Integer, Date> cache = createByValueCache();
-        long time1 = System.currentTimeMillis();
-        Date value1 = new Date(time1);
-        Integer key = 1;
-        assertNull(cache.getAndPut(key, value1));
-        long time2 = time1 + 5;
-        value1.setTime(time2);
-        Date value2 = cache.get(key);
-        assertNotSame(value1, value2);
-        assertEquals(time2, value1.getTime());
-        assertEquals(time1, value2.getTime());
+        Cache<Long, Date> cache = createByValueCache();
+
+        long key = System.currentTimeMillis();
+        Date value = new Date(key);
+        Date valueOriginal = new Date(key);
+        assertNull(cache.getAndPut(key, value));
+        value.setTime(key + 1);
+        assertEquals(valueOriginal, cache.get(key));
     }
 
     @Test
@@ -454,6 +449,34 @@ public class CacheTest extends TestSupport {
         assertEquals(value1, cache.getAndRemove(key1.clone()));
         assertNull(cache.get(key1));
         assertEquals(value2, cache.get(key2));
+    }
+
+    @Test
+    public void getAndRemove_ByReference() {
+        final Cache<Long, Date> cache = createByReferenceCache();
+        if (cache == null) return;
+
+        final Long key = System.currentTimeMillis();
+        final Date value = new Date(key);
+        cache.put(key, value);
+        value.setTime(key + 1);
+
+        assertSame(value, cache.getAndRemove(key));
+        assertFalse(cache.containsKey(key));
+    }
+
+    @Test
+    public void getAndRemove_ByValue() {
+        final Cache<Long, Date> cache = createByValueCache();
+
+        final Long key = System.currentTimeMillis();
+        final Date value = new Date(key);
+        final Date valueOriginal = new Date(key);
+        cache.put(key, value);
+        value.setTime(key + 1);
+
+        assertEquals(valueOriginal, cache.getAndRemove(key));
+        assertFalse(cache.containsKey(key));
     }
 
     @Test
@@ -935,18 +958,36 @@ public class CacheTest extends TestSupport {
     @Test
     public void getAndReplace_Missing() {
         Cache<Date, Integer> cache = createCache();
-        assertNull(cache.getAndReplace(new Date(), 1));
+        Date key = new Date();
+        assertNull(cache.getAndReplace(key, 1));
+        assertFalse(cache.containsKey(key));
     }
 
     @Test
-    public void getAndReplace() {
-        Cache<Date, Long> cache = createCache();
-        Date key = new Date();
-        Long value = key.getTime();
+    public void getAndReplace_ByValue() {
+        Cache<Long, Date> cache = createByValueCache();
+
+        Long key = System.currentTimeMillis();
+        Date value = new Date(key);
+        Date valueOriginal = new Date(key);
         cache.put(key, value);
-        Long nextValue = value + 1;
-        assertEquals(value, cache.getAndReplace(key, nextValue));
-        assertEquals(nextValue, cache.get(key));
+        Date nextValue = new Date(key + 1);
+        value.setTime(key + 5);
+        assertEquals(valueOriginal, cache.getAndReplace(key, nextValue));
+        checkGetExpectation(nextValue, cache, key);
+    }
+
+    @Test
+    public void getAndReplace_ByReference() {
+        Cache<Long, Date> cache = createByReferenceCache();
+        if (cache == null) return;
+
+        Long key = System.currentTimeMillis();
+        Date value = new Date(key);
+        cache.put(key, value);
+        Date nextValue = new Date(key + 1);
+        assertSame(value, cache.getAndReplace(key, nextValue));
+        checkGetExpectation(nextValue, cache, key);
     }
 
     @Test
