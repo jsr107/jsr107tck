@@ -21,6 +21,14 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<skipCheckstyle>false</skipCheckstyle>
+        <!--
+         to use something other than the RI, invoke maven with -D arguments
+         corresponding to the properties below
+        -->
+        <test.cache.FactoryClass>javax.cache.TestInstanceFactory$RIInstanceFactory</test.cache.FactoryClass>
+        <test.cache.groupId>javax.cache.implementation</test.cache.groupId>
+        <test.cache.artifactId>cache-ri</test.cache.artifactId>
+        <test.cache.version>0.2-SNAPSHOT</test.cache.version>
 	</properties>
 
 	<dependencies>
@@ -60,16 +68,11 @@
 		</dependency>
 
 		<!--Insert JSR107 implementation as a dependency here -->
-        <!--<dependency>-->
-            <!--<groupId>acme.cache</groupId>-->
-            <!--<artifactId>acmeCache</artifactId>-->
-            <!--<version>0.2-SNAPSHOT</version>-->
-        <!--</dependency>-->
 
 		<dependency>
-			<groupId>javax.cache.implementation</groupId>
-			<artifactId>cache-ri</artifactId>
-			<version>0.2-SNAPSHOT</version>
+			<groupId>${test.cache.groupId}</groupId>
+			<artifactId>${test.cache.artifactId}</artifactId>
+			<version>${test.cache.version}</version>
 		</dependency>
 
 	</dependencies>
@@ -95,7 +98,10 @@
 					<excludes>
 						<exclude>**/TestInstanceFactory*</exclude>
 					</excludes>
-				</configuration>
+                    <systemPropertyVariables>
+                        <cache.test.FactoryClass>${test.cache.FactoryClass}</cache.test.FactoryClass>
+                    </systemPropertyVariables>
+                </configuration>
 			</plugin>
 
 			<plugin>

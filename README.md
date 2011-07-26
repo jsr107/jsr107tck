@@ -1,29 +1,37 @@
 # Running tests using a different cache impl
 
-## Adding a implementation jar
-Edit pom.xml and add a dependency on your implementation. Look for the text:
+Running an implementation other than the RI can be achieved by using -D flags to pint at a dependency other than the RI
 
-		<!--Insert JSR107 implementation as a dependency here -->
+Issuing:
 
-and add for example:
+    mvn test
 
-        <dependency>
-            <groupId>acme.cache</groupId>
-            <artifactId>acmeCache</artifactId>
-            <version>0.2-SNAPSHOT</version>
-        </dependency>
+is equivalent to:
 
-The jar should contain a file META-INF/services/javax.cache.spi.CacheManagerFactoryProvider as described in
+    mvn \
+        -Dtest.cache.FactoryClass='javax.cache.TestInstanceFactory$RIInstanceFactory' \
+        -Dtest.cache.groupId='javax.cache.implementation' \
+        -Dtest.cache.artifactId='cache-ri' \
+        -Dtest.cache.version='0.2-SNAPSHOT' \
+        test
+
+By providing system properties corresponding to the above you can use a dependency other than the RI.
+The implementation jar should contain a file META-INF/services/javax.cache.spi.CacheManagerFactoryProvider as described in
 [chapter 9](https://docs.google.com/document/d/1YZ-lrH6nW871Vd9Z34Og_EqbX_kxxJi55UrSn4yL2Ak/edit?hl=en&authkey=CMCdo8kE&pli=1#heading=h.qojqofiovvda) of the spec.
 
-to run for example just the CacheManagerTest issue the command:
+To run for example just the CacheManagerTest using the acme cache issue the command:
 
-    mvn -Dtest=CacheManagerTest test
+    mvn -Dtest=CacheManagerTest \
+        -Dtest.cache.groupId='acme.cache' \
+        -Dtest.cache.artifactId='acmeCache' \
+        -Dtest.cache.version='0.2-SNAPSHOT' \
+        test
 
 ## Excluding tests
 To exclude tests from being run, please edit file:
 
     src/test/resources/ExcludeList
+
 
 ## TCK InstanceFactory
 *NOTE: please think of better ways to do this.*
@@ -33,14 +41,11 @@ Some tests require an implementation of
 to create instance of classes not creatable directly from the API (Cache, CacheConfiguration).
 By default RI versions of these classes will be created. To use your implementation of the factory add
 
-    -Dcache.test.FactoryClass=<YourFactoryClassName>
+    -test.cache.FactoryClass=<YourFactoryClassName>
 
 to the target ensuring your factory is in the test classpath.
-So, to use the RI implementation (the default) can use:
 
-    mvn -Dtest=CacheConfigurationTest -Dcache.test.FactoryClass='javax.cache.TestInstanceFactory$RIInstanceFactory' test
-
-A possible solution, allowing the elimination of InstanceFatory in the TCK, is for us to add the factory methods:
+A possible solution, allowing the elimination of InstanceFactory in the TCK, is for us to add the factory methods:
 
     <K, V> Cache<K, V> createCache(String name);
     CacheConfiguration createCacheConfiguration();

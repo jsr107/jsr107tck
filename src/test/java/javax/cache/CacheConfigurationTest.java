@@ -43,7 +43,7 @@ public class CacheConfigurationTest {
 
     @Test
     public void checkDefaults() {
-        CacheConfiguration config = getCacheConfiguration();
+        CacheConfiguration config = createCacheConfiguration();
         assertFalse(config.isReadThrough());
         assertFalse(config.isWriteThrough());
         assertFalse(config.isStatisticsEnabled());
@@ -52,25 +52,25 @@ public class CacheConfigurationTest {
 
     @Test
     public void notSame() {
-        assertNotSame(getCacheConfiguration(), getCacheConfiguration());
+        assertNotSame(createCacheConfiguration(), createCacheConfiguration());
     }
 
     @Test
     public void equals() {
-        assertEquals(getCacheConfiguration(), getCacheConfiguration());
+        assertEquals(createCacheConfiguration(), createCacheConfiguration());
     }
 
     @Test
     public void equalsNotEquals() {
-        CacheConfiguration config1 = getCacheConfiguration();
+        CacheConfiguration config1 = createCacheConfiguration();
         config1.setReadThrough(!config1.isReadThrough());
-        CacheConfiguration config2 = getCacheConfiguration();
+        CacheConfiguration config2 = createCacheConfiguration();
         assertFalse(config1.equals(config2));
     }
 
     @Test
     public void setReadThrough() {
-        CacheConfiguration config = getCacheConfiguration();
+        CacheConfiguration config = createCacheConfiguration();
         boolean flag = config.isReadThrough();
         config.setReadThrough(!flag);
         assertEquals(!flag, config.isReadThrough());
@@ -78,7 +78,7 @@ public class CacheConfigurationTest {
 
     @Test
     public void setStoreByValue() {
-        CacheConfiguration config = getCacheConfiguration();
+        CacheConfiguration config = createCacheConfiguration();
         boolean flag = config.isStoreByValue();
         config.setStoreByValue(!flag);
         assertEquals(!flag, config.isStoreByValue());
@@ -86,7 +86,7 @@ public class CacheConfigurationTest {
 
     @Test
     public void setWriteThrough() {
-        CacheConfiguration config = getCacheConfiguration();
+        CacheConfiguration config = createCacheConfiguration();
         boolean flag = config.isWriteThrough();
         config.setWriteThrough(!flag);
         assertEquals(!flag, config.isWriteThrough());
@@ -94,7 +94,7 @@ public class CacheConfigurationTest {
 
     // ---------- utilities ----------
 
-    private CacheConfiguration getCacheConfiguration() {
+    private CacheConfiguration createCacheConfiguration() {
         return TestInstanceFactory.INSTANCE.createCacheConfiguration();
     }
 }
