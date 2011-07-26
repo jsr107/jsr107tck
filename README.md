@@ -25,7 +25,7 @@ To exclude tests from being run, please edit file:
 
     src/test/resources/ExcludeList
 
-## Class Factory
+## TCK InstanceFactory
 *NOTE: please think of better ways to do this.*
 
 Some tests require an implementation of
