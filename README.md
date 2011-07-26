@@ -2,8 +2,11 @@ Example of running tests using a different cache impl
 -----------------------------------------------------
 
 Edit pom.xml and add a dependency on your implementation. Look for the text:
+
 		<!--Insert JSR107 implementation as a dependency here -->
+
 and add for example:
+
         <dependency>
             <groupId>acme.cache</groupId>
             <artifactId>acmeCache</artifactId>
