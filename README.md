@@ -1,6 +1,6 @@
-Example of running tests using a different cache impl
------------------------------------------------------
+# Running tests using a different cache impl
 
+## Adding a implementation jar
 Edit pom.xml and add a dependency on your implementation. Look for the text:
 
 		<!--Insert JSR107 implementation as a dependency here -->
@@ -20,11 +20,14 @@ to run for example just the CacheManagerTest issue the command:
 
     mvn -Dtest=CacheManagerTest test
 
+## Excluding tests
 To exclude tests from being run, please edit file:
 
     src/test/resources/ExcludeList
 
-NOTE: please think of better ways to do this
+## Class Factory
+*NOTE: please think of better ways to do this.*
+
 Some tests require an implementation of
 [javax.cache.InstanceFactory](https://github.com/jsr107/jsr107tck/blob/master/src/test/java/javax/cache/InstanceFactory.java)
 to create instance of classes not creatable directly from the API (Cache, CacheConfiguration).
