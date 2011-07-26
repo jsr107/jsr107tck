@@ -17,7 +17,10 @@
 
 package javax.cache;
 
+import org.junit.Rule;
 import org.junit.Test;
+
+import javax.cache.util.TestExcluder;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -35,6 +38,11 @@ import static org.junit.Assert.fail;
  * @since 1.0
  */
 public class CacheManagerTest extends TestSupport {
+    /**
+     * Rule used to exclude tests
+     */
+    @Rule
+    public TestExcluder rule = new TestExcluder(this.getClass());
 
     @Test
     public void createCacheBuilder_NullCacheName() {

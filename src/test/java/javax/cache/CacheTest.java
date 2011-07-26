@@ -17,8 +17,10 @@
 
 package javax.cache;
 
+import org.junit.Rule;
 import org.junit.Test;
 
+import javax.cache.util.TestExcluder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -43,6 +45,11 @@ import static org.junit.Assert.fail;
  * @author Yannis Cosmadopoulos
  */
 public class CacheTest extends TestSupport {
+    /**
+     * Rule used to exclude tests
+     */
+    @Rule
+    public TestExcluder rule = new TestExcluder(this.getClass());
 
     @Test
     public void getCacheName() {

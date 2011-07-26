@@ -60,6 +60,12 @@
 		</dependency>
 
 		<!--Insert JSR107 implementation as a dependency here -->
+        <dependency>
+            <groupId>acme.cache</groupId>
+            <artifactId>acmeCache</artifactId>
+            <version>0.2-SNAPSHOT</version>
+        </dependency>
+
 		<dependency>
 			<groupId>javax.cache.implementation</groupId>
 			<artifactId>cache-ri</artifactId>

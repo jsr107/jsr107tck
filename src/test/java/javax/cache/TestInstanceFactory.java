@@ -40,7 +40,7 @@ public enum TestInstanceFactory implements InstanceFactory {
     /**
      * name of the system property to set the factory class name
      */
-    public static final String FACTORY_CLASS = "FactoryClass";
+    public static final String FACTORY_CLASS = "cache.test.FactoryClass";
 
     private InstanceFactory createFactory() {
         String className = System.getProperty(FACTORY_CLASS, RIInstanceFactory.class.getName());
