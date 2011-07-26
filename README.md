@@ -31,7 +31,7 @@ To exclude tests from being run, please edit file:
 Some tests require an implementation of
 [javax.cache.InstanceFactory](https://github.com/jsr107/jsr107tck/blob/master/src/test/java/javax/cache/InstanceFactory.java)
 to create instance of classes not creatable directly from the API (Cache, CacheConfiguration).
-By default RI version sof these classes will be created. To use your implementation of the factory add
+By default RI versions of these classes will be created. To use your implementation of the factory add
 
     -Dcache.test.FactoryClass=<YourFactoryClassName>
 
@@ -40,3 +40,9 @@ So, to use the RI implementation (the default) can use:
 
     mvn -Dtest=CacheConfigurationTest -Dcache.test.FactoryClass='javax.cache.TestInstanceFactory$RIInstanceFactory' test
 
+A possible solution, allowing the elimination of InstanceFatory in the TCK, is for us to add the factory methods:
+
+    <K, V> Cache<K, V> createCache(String name);
+    CacheConfiguration createCacheConfiguration();
+
+to the api. For example we could add them to the  javax.cache.spi.CacheManagerFactoryProvider interface and to javax.cache.CacheManagerFactory. If we did this then the 2 should be renamed
