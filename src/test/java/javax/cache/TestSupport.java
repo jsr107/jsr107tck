@@ -37,7 +37,7 @@ class TestSupport {
     protected static final String CACHE_NAME = "testCache";
 
     protected CacheConfiguration createCacheConfiguration() {
-        return TestInstanceFactory.INSTANCE.createCacheConfiguration();
+        return CacheManagerFactory.INSTANCE.createCacheConfiguration();
     }
 
     protected CacheManager getCacheManager() {
@@ -69,6 +69,6 @@ class TestSupport {
     }
 
     protected <K, V> Cache<K, V> createOrphanCache(String name) {
-        return TestInstanceFactory.INSTANCE.createCache(name);
+        return CacheManagerFactory.INSTANCE.createCache(name);
     }
 }
