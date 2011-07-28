@@ -1,3 +1,0 @@
-# ServiceFactory will use the first definition it will find.
-# If this file is called ServiceFactory and the following gets found first it will fail.
-junk.javax.cache.implementation.RIServiceFactory
