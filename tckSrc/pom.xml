@@ -33,6 +33,12 @@
 
 		<dependency>
 			<groupId>javax.cache</groupId>
+			<artifactId>test-domain</artifactId>
+			<version>0.2-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.cache</groupId>
 			<artifactId>cache-api</artifactId>
 			<version>0.2-SNAPSHOT</version>
 		</dependency>
