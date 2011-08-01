@@ -2,12 +2,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>javax.cache</groupId>
-    <artifactId>cache-ri-tests</artifactId>
+    <artifactId>ri-tester</artifactId>
     <version>0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>RI Tests</name>
-    <url>https://github.com/jsr107/jsr107spec</url>
+    <url>https://github.com/jsr107/RI</url>
+    <description>Wires together cache-tests with the RI implementation and runs JUnit against them. Create
+        a similar module for each new implementation you wish to test. See README.md for details.
+    </description>
 
     <dependencies>
 
