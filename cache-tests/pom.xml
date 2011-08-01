@@ -12,7 +12,7 @@
     </parent>
 
 	<name>Cache Tests</name>
-	<url>http://maven.apache.org</url>
+    <url>https://github.com/jsr107/jsr107tck</url>
 	<description>Tests, which form part of the Technology Compatibility Kit for JSR107. You should be able to test an inplementation by:
         1. Adding the dependency
         2. Configuring the JUnit test fixtures
@@ -20,7 +20,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<skipCheckstyle>false</skipCheckstyle>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 
 	<dependencies>
@@ -141,7 +141,6 @@
 					<headerLocation>${basedir}/checkstyle/ClassHeader.txt
                     </headerLocation>
 					<sourceDirectory>src/test/java</sourceDirectory>
-					<skip>${skipCheckstyle}</skip>
 					<enableRSS>false</enableRSS>
 					<linkXRef>true</linkXRef>
 					<consoleOutput>true</consoleOutput>
