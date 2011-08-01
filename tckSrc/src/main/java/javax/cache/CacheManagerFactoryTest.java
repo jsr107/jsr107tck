@@ -118,6 +118,21 @@ public class CacheManagerFactoryTest {
         assertNotSame(CacheManagerFactory.INSTANCE.getCacheManager(name1), CacheManagerFactory.INSTANCE.getCacheManager(name2));
     }
 
+    @Test
+    public void createCacheConfiguration() {
+        CacheConfiguration cacheConfiguration = CacheManagerFactory.INSTANCE.createCacheConfiguration();
+        assertNotNull(cacheConfiguration);
+        assertNotSame(cacheConfiguration, CacheManagerFactory.INSTANCE.createCacheConfiguration());
+    }
+
+    @Test
+    public void createCache() {
+        String name = "fred";
+        Cache cache = CacheManagerFactory.INSTANCE.createCache(name);
+        assertNotNull(cache);
+        assertNotSame(cache, CacheManagerFactory.INSTANCE.createCache(name));
+    }
+
     /**
      * Used to confirm that file exclusion works.
      * @see #rule
