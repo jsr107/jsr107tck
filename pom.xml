@@ -15,8 +15,8 @@
     <!--</parent>-->
 
     <modules>
-        <module>tckDomain</module>
-        <module>tckSrc</module>
+        <module>test-domain</module>
+        <module>cache-tests</module>
         <module>ri-tester</module>
     </modules>
 </project>
