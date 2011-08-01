@@ -29,7 +29,8 @@ import java.util.logging.Logger;
  *
  * This class creates a rule for the class provided
  *
- * The exclude list is created by {@link ExcludeList}
+ * The exclude list is created by {@link ExcludeList} by creating a file in the root of your classpath called
+ * "ExcludeList". There is an example in the testRI module for testing the RI.
  *
  * @author Yannis Cosmadopoulos
  * @since 1.7
