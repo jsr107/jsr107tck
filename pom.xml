@@ -4,9 +4,15 @@
          http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>javax.cache</groupId>
-    <artifactId>cache-tests-root</artifactId>
+    <artifactId>tck-parent</artifactId>
     <version>0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
+
+    <!--<parent>-->
+        <!--<groupId>org.sonatype.oss</groupId>-->
+        <!--<artifactId>oss-parent</artifactId>-->
+        <!--<version>7</version>-->
+    <!--</parent>-->
 
     <modules>
         <module>tckDomain</module>
