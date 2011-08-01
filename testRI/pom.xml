@@ -20,6 +20,8 @@
         <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>cache-tests</artifactId>
+            <classifier>tests</classifier>
+            <scope>test</scope>
             <version>0.2-SNAPSHOT</version>
         </dependency>
 
@@ -28,6 +30,7 @@
     <build>
         <plugins>
 
+            <!--Required because JUnit will not detect tests simply included in a dep-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -39,7 +42,6 @@
                         <configuration>
                             <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
                             <includeArtifactIds>cache-tests</includeArtifactIds>
-                            <classifier>tests</classifier>
                             <includeScope>test</includeScope>
                         </configuration>
                     </execution>
