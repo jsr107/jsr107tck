@@ -9,6 +9,9 @@
 
     <name>test-domain</name>
     <url>http://maven.apache.org</url>
+    <description>This is a simple domain used for testing javax.cache. It is in it's own module so that classloading
+        nuances can be tested.
+    </description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

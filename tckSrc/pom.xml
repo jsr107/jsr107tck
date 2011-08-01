@@ -78,6 +78,7 @@
                 <executions>
                   <execution>
                     <goals>
+                        <!--Reference this using a "tests" classifier-->
                       <goal>test-jar</goal>
                     </goals>
                   </execution>
