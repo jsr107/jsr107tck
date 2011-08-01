@@ -14,18 +14,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package javax.cache;
+package javax.cache.interceptor;
 
 import manager.BlogManager;
-import manager.ClassLevelCacheConfigBlogManagerImpl;
+import manager.UsingDefaultCacheNameBlogManagerImpl;
 
 /**
  * 
  * @author Rick Hightower
  * 
  */
-public class InterceptionUsingCacheConfigTest extends
-        AbstractInterceptionTest {
+public class InterceptionUsingDefaultCacheNameTest extends
+    AbstractInterceptionTest {
 
     /**
      * 
@@ -33,7 +33,7 @@ public class InterceptionUsingCacheConfigTest extends
     @Override
     public BlogManager getBlogManager() {
         if (blogManager == null) {
-            blogManager = getBeanByType(ClassLevelCacheConfigBlogManagerImpl.class);
+            blogManager = getBeanByType(UsingDefaultCacheNameBlogManagerImpl.class);
         }
         return blogManager;
     }

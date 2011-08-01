@@ -14,28 +14,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package javax.cache;
-
-import manager.BlogManager;
-import manager.UsingDefaultCacheNameBlogManagerImpl;
 
 /**
- * 
- * @author Rick Hightower
- * 
+ This package contains the TCK for JSR107.
+
+ The tests use JUnit and should run both from an IDE and Maven using the supplied pom.xml.
+
+
+ @author Greg Luck
  */
-public class InterceptionUsingDefaultCacheNameTest extends
-        AbstractInterceptionTest {
-
-    /**
-     * 
-     */
-    @Override
-    public BlogManager getBlogManager() {
-        if (blogManager == null) {
-            blogManager = getBeanByType(UsingDefaultCacheNameBlogManagerImpl.class);
-        }
-        return blogManager;
-    }
-
-}
+package javax.cache.interceptor;
