@@ -1,17 +1,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.sonatype.oss</groupId>
-		<artifactId>oss-parent</artifactId>
-		<version>7</version>
-	</parent>
 	<groupId>javax.cache</groupId>
 	<artifactId>cache-tests</artifactId>
 	<version>0.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
+    <parent>
+        <groupId>javax.cache</groupId>
+        <artifactId>tck-parent</artifactId>
+        <version>0.2-SNAPSHOT</version>
+    </parent>
 
-	<name>JSR107 Tests</name>
+	<name>Cache Tests</name>
 	<url>http://maven.apache.org</url>
 	<description>Tests, which form part of the Technology Compatibility Kit for JSR107. You should be able to test an inplementation by:
         1. Adding the dependency

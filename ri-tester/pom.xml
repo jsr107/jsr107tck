@@ -5,8 +5,13 @@
     <artifactId>ri-tester</artifactId>
     <version>0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
+    <parent>
+        <groupId>javax.cache</groupId>
+        <artifactId>tck-parent</artifactId>
+        <version>0.2-SNAPSHOT</version>
+    </parent>
 
-    <name>RI Tests</name>
+    <name>RI Tester</name>
     <url>https://github.com/jsr107/RI</url>
     <description>Wires together cache-tests with the RI implementation and runs JUnit against them. Create
         a similar module for each new implementation you wish to test. See README.md for details.
