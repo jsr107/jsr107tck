@@ -69,6 +69,45 @@
             </plugin>
 
         </plugins>
+
+
     </build>
+
+
+    <!-- Profile for running full profile tests.
+         Use mvn -P test-full-cache clean install -->
+    <profiles>
+        <profile>
+            <id>test-full-cache</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.9</version>
+                        <configuration>
+                            <includes>
+                                <include>**/full/*Test.java</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/*$*</exclude>
+                            </excludes>
+                            <systemProperties>
+                                <property>
+                                    <name>net.sf.ehcache.skipUpdateCheck</name>
+                                    <value>true</value>
+                                </property>
+                                <property>
+                                    <name>java.awt.headless</name>
+                                    <value>true</value>
+                                </property>
+                            </systemProperties>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 
 </project>
