@@ -17,6 +17,6 @@
     <modules>
         <module>tckDomain</module>
         <module>tckSrc</module>
-        <module>testRI</module>
+        <module>ri-tester</module>
     </modules>
 </project>
