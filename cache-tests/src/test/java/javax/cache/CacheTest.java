@@ -1161,6 +1161,17 @@ public class CacheTest extends TestSupport {
     }
 
     @Test
+    public void simpleAPI() {
+        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        Cache<Integer, Date> cache = cacheManager.getCache("sampleCache");
+        Date value1 = new Date();
+        Integer key = 1;
+        cache.put(key, value1);
+        Date value2 = cache.get(key);
+        assertEquals(value1, value2);
+    }
+
+    @Test
     public void iterator() {
         Cache<Date, Integer> cache = createCache();
         LinkedHashMap<Date, Integer> data = createData(3);
