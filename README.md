@@ -8,16 +8,16 @@ For a test outside the jsr107 depot look [here](https://github.com/yannis666/Acm
 
 ##Maven
 
-To build all modules and run all tests, including optional ones:
+To build all modules but not run any tests:
 
-    mvn clean install
+    mvn -DskipTests clean install
 
 This command is required before running tests to install test dependencies.
 
 The ri-tester module wires up tests and the RI. A similar module should be created for each implementation.
 The specification has mandatory features in the basic profile.
 
-The following commands should be run from teh ri-tester directory:
+The following commands should be run from the ri-tester directory:
 
 To run basic tests:
 
@@ -27,6 +27,6 @@ The optional features are JTA and Annotations. To run optional tests:
 
     mvn -P test-optional-cache test
 
-Finally, to run a single test:
+Finally, to run a single test class:
 
     mvn -Dtest=CacheManagerFactoryTest test
