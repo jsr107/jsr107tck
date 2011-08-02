@@ -6,10 +6,27 @@
 
 For a test outside the jsr107 depot look [here](https://github.com/yannis666/AcmeCache/)
 
-Some useful maven targets which can be run from the top level:
+##Maven
 
-`mvn clean install`  - builds all modules
+To build all modules and run all tests, including optional ones:
 
-    mvn -P test-base-cache test
+    mvn clean install
+
+This command is required before running tests to install test dependencies.
+
+The ri-tester module wires up tests and the RI. A similar module should be created for each implementation.
+The specification has mandatory features in the basic profile.
+
+The following commands should be run from teh ri-tester directory:
+
+To run basic tests:
+
+    mvn -P test-basic-cache test
+
+The optional features are JTA and Annotations. To run optional tests:
+
     mvn -P test-optional-cache test
+
+Finally, to run a single test:
+
     mvn -Dtest=CacheManagerFactoryTest test
