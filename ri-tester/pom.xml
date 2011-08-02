@@ -80,26 +80,12 @@
 
     <profiles>
 
-        <!-- Profile for running full tests. This is the default.
-             Use mvn -P test-full-cache clean install -->
-        <profile>
-            <id>test-full-cache</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
+        <!--To run all tests do not specify any profile-->
 
-        <!-- Profile for running base tests.
-             Use mvn -P test-base-cache clean install -->
+        <!-- Profile for running basic tests.
+             Use mvn -P test-basic-cache clean install -->
         <profile>
-            <id>test-base-cache</id>
+            <id>test-basic-cache</id>
             <build>
                 <plugins>
                     <plugin>
