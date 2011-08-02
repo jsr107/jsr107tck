@@ -20,6 +20,6 @@
     <modules>
         <module>test-domain</module>
         <module>cache-tests</module>
-        <module>ri-tester</module>
+        <module>implementation-tester</module>
     </modules>
 </project>
