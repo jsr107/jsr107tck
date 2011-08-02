@@ -6,9 +6,10 @@
 
 For a test outside the jsr107 depot look [here](https://github.com/yannis666/AcmeCache/)
 
-Some useful maven targets:
+Some useful maven targets which can be run from the top level:
 
-    mvn clean install
+`mvn clean install`  - builds all modules
+
     mvn -P test-base-cache test
     mvn -P test-optional-cache test
     mvn -Dtest=CacheManagerFactoryTest test
