@@ -23,6 +23,9 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!--Change the following properties on the command line to override with the coordinates for your implementation-->
+        <!--e.g. mvn clean test -Dimplementation-groupId=javax.cache.implementation
+                                -Dimplementation-artifactId=cache-ri
+                                -Dimplementation-version=0.2-SNAPSHOT-->
         <implementation-groupId>javax.cache.implementation</implementation-groupId>
         <implementation-artifactId>cache-ri</implementation-artifactId>
         <implementation-version>0.2-SNAPSHOT</implementation-version>
