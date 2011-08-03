@@ -1166,7 +1166,7 @@ public class CacheTest extends TestSupport {
         CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
         Cache<Integer, Date> cache = cacheManager.getCache(cacheName);
         if (cache == null) {
-                cache = cacheManager.<Integer,Date>createCacheBuilder(cacheName).build();
+            cache = cacheManager.<Integer,Date>createCacheBuilder(cacheName).build();
         }
         Date value1 = new Date();
         Integer key = 1;
