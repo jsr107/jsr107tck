@@ -21,6 +21,8 @@ import org.junit.Test;
 
 import javax.cache.util.TestExcluder;
 
+import java.util.logging.Logger;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
@@ -131,6 +133,15 @@ public class CacheManagerFactoryTest {
         Cache cache = CacheManagerFactory.INSTANCE.createCache(name);
         assertNotNull(cache);
         assertNotSame(cache, CacheManagerFactory.INSTANCE.createCache(name));
+    }
+
+    @Test
+    public void isSupported() {
+        OptionalFeature[] features = OptionalFeature.values();
+        for (OptionalFeature feature:features) {
+            boolean value = CacheManagerFactory.INSTANCE.isSupported(feature);
+            Logger.getLogger(getClass().getName()).info("Optional feature " + feature + " supported=" + value);
+        }
     }
 
     /**
