@@ -1,11 +1,31 @@
 # TCK test of RI
 
-Wires together cache-tests with the RI implementation and runs JUnit against them.
+The [TCK](http://download.oracle.com/javame/test-tools/jctt/tck_project_planning_guide.pdf) for javax.cache.
 
-Create a similar module for each new implementation you wish to test.
-For a test outside the jsr107 depot look [here](https://github.com/yannis666/AcmeCache/)
+Wires together cache-tests with the implementation and runs JUnit against them.
 
-## Excluding tests
-To exclude tests from being run, please edit file:
+## ExcludeList
+The exclude list for the TCK is here:
 
     src/test/resources/ExcludeList
+
+Please note that the exclude list is part of the formal TCK and cannot be modified by implementers.
+
+## Running tests against a javax.cache implementation
+
+For implementations hosted in a maven repository, the TCK can be run directly from this directory using maven.
+No file modifications are necessary, the dependency to the implementation under test being provided using
+system properties to identify the address of the implementation
+- implementation-groupId
+- implementation-artifactId
+- implementation-version
+
+A cache implementation by the fictional Acme company, illustrates Acme cache failing to pass the TCK:
+
+     mvn \
+         -Dimplementation-groupId=acme.cache \
+         -Dimplementation-artifactId=acme-cache \
+         -Dimplementation-version=0.1-SNAPSHOT \
+         test
+
+For implementations not in maven you may install jars to the local maven repository or adjust the test class path.

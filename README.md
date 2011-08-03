@@ -29,33 +29,45 @@ The following commands should be run from the implementation-tester directory:
 
 To run basic tests on the RI:
 
-    mvn -P test-basic-cache \
+    mvn \
         -Dimplementation-groupId=javax.cache.implementation \
         -Dimplementation-artifactId=cache-ri \
         -Dimplementation-version=0.2-SNAPSHOT \
+        -P test-basic-cache \
         test
 
 The optional features are JTA and Annotations. To run optional tests:
 
-    mvn -P test-optional-cache \
+    mvn \
         -Dimplementation-groupId=javax.cache.implementation \
         -Dimplementation-artifactId=cache-ri \
         -Dimplementation-version=0.2-SNAPSHOT \
+        -P test-optional-cache \
         test
 
 Finally, to run a single test class:
 
-    mvn -Dtest=CacheManagerFactoryTest \
+    mvn \
         -Dimplementation-groupId=javax.cache.implementation \
         -Dimplementation-artifactId=cache-ri \
         -Dimplementation-version=0.2-SNAPSHOT \
+        -Dtest=CacheManagerFactoryTest \
         test
 
-An example for something other than the RI, a cache implementation by the fictional Acme company, illustrates how
-to run a single test class:
+An example for something other than the RI, a cache implementation by the fictional Acme company,
+illustrates Acme cache failing to pass the TCK:
 
-    mvn -Dtest=CacheManagerFactoryTest \
+    mvn \
         -Dimplementation-groupId=acme.cache \
         -Dimplementation-artifactId=acme-cache \
         -Dimplementation-version=0.1-SNAPSHOT \
+        test
+
+The single class CacheManagerFactoryTest passes for Acme cache
+
+    mvn \
+        -Dimplementation-groupId=acme.cache \
+        -Dimplementation-artifactId=acme-cache \
+        -Dimplementation-version=0.1-SNAPSHOT \
+        -Dtest=CacheManagerFactoryTest \
         test
