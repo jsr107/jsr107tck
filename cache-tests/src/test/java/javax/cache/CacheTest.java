@@ -1162,9 +1162,12 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void simpleAPI() {
+        String cacheName = "sampleCache";
         CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
-        Cache<Integer, Date> cache =
-                cacheManager.<Integer,Date>createCacheBuilder("sampleCache").build();
+        Cache<Integer, Date> cache = cacheManager.getCache(cacheName);
+        if (cache == null) {
+                cache = cacheManager.<Integer,Date>createCacheBuilder(cacheName).build();
+        }
         Date value1 = new Date();
         Integer key = 1;
         cache.put(key, value1);
