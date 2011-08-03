@@ -1163,7 +1163,8 @@ public class CacheTest extends TestSupport {
     @Test
     public void simpleAPI() {
         CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
-        Cache<Integer, Date> cache = cacheManager.getCache("sampleCache");
+        Cache<Integer, Date> cache =
+                cacheManager.<Integer,Date>createCacheBuilder("sampleCache").build();
         Date value1 = new Date();
         Integer key = 1;
         cache.put(key, value1);
