@@ -16,9 +16,10 @@ Please note that the exclude list is part of the formal TCK and cannot be modifi
 For implementations hosted in a maven repository, the TCK can be run directly from this directory using maven.
 No file modifications are necessary, the dependency to the implementation under test being provided using
 system properties to identify the address of the implementation
-- implementation-groupId
-- implementation-artifactId
-- implementation-version
+
+-  implementation-groupId
+-  implementation-artifactId
+-  implementation-version
 
 A cache implementation by the fictional Acme company, illustrates Acme cache failing to pass the TCK:
 
