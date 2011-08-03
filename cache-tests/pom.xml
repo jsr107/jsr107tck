@@ -43,18 +43,10 @@
 			<version>0.2-SNAPSHOT</version>
 		</dependency>
 
-
-		<dependency>
+ 		<dependency>
 			<groupId>org.jboss.weld.se</groupId>
             <artifactId>weld-se</artifactId>
             <version>1.1.2.Final</version>
-		</dependency>
-
-
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
-			<version>1.6.1</version>
 		</dependency>
 
 	</dependencies>
