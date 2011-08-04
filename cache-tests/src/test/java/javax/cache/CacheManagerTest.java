@@ -24,7 +24,6 @@ import javax.cache.util.TestExcluder;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -32,8 +31,6 @@ import static org.junit.Assert.fail;
 /**
  * Unit tests for CacheManager
  * <p/>
- *
- * Implementers of Cache should subclass this test, overriding {@link #getCacheManager()}
  *
  * @author Yannis Cosmadopoulos
  * @since 1.0
@@ -229,15 +226,14 @@ public class CacheManagerTest extends TestSupport {
 
     @Test
     public void getUserTransaction() {
-        if (CacheManagerFactory.INSTANCE.isSupported(OptionalFeature.JTA)) {
-            assertNotNull(getCacheManager().getUserTransaction());
-        } else {
-            try {
-                getCacheManager().getUserTransaction();
+        boolean transactions = CacheManagerFactory.INSTANCE.isSupported(OptionalFeature.JTA);
+        try {
+            getCacheManager().getUserTransaction();
+            if (!transactions) {
                 fail();
-            } catch (UnsupportedOperationException e) {
-                // expected
             }
+        } catch (UnsupportedOperationException e) {
+            assertFalse(transactions);
         }
     }
 
