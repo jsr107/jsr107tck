@@ -28,13 +28,11 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.logging.Level;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -103,33 +101,8 @@ public class CacheTest extends TestSupport {
     }
 
     @Test
-    public void get_Existing_ByReference() {
-        Cache<String, Integer> cache = createByReferenceCache();
-        if (cache == null) return;
-
-        String existingKey = "key1";
-        Integer existingValue = 1;
-        cache.put(existingKey, existingValue);
-        checkGetExpectation(existingValue, cache, existingKey);
-    }
-
-    @Test
     public void get_ExistingWithEqualButNonSameKey_ByValue() {
         Cache<Date, Integer> cache = createByValueCache();
-
-        long now = System.currentTimeMillis();
-        Date existingKey = new Date(now);
-        Integer existingValue = 1;
-        cache.put(existingKey, existingValue);
-        Date newKey = new Date(now);
-        assertNotSame(existingKey, newKey);
-        checkGetExpectation(existingValue, cache, newKey);
-    }
-
-    @Test
-    public void get_ExistingWithEqualButNonSameKey_ByReference() {
-        Cache<Date, Integer> cache = createByReferenceCache();
-        if (cache == null) return;
 
         long now = System.currentTimeMillis();
         Date existingKey = new Date(now);
@@ -153,22 +126,6 @@ public class CacheTest extends TestSupport {
         key1.setTime(later);
         assertNull(cache.get(key1));
         checkGetExpectation(existingValue, cache, key2);
-    }
-
-    //TODO how do we handle mutable keys? @Test
-    public void test_ExistingWithMutableKey_ByReference() {
-        Cache<Date, Integer> cache = createByReferenceCache();
-        if (cache == null) return;
-
-        long now = System.currentTimeMillis();
-        Date key1 = new Date(now);
-        Date key2 = new Date(now);
-        Integer existingValue = 1;
-        cache.put(key1, existingValue);
-        long later = now + 5;
-        key1.setTime(later);
-        checkGetExpectation(existingValue, cache, key1);
-        assertNull(cache.get(key2));
     }
 
     @Test
@@ -217,34 +174,6 @@ public class CacheTest extends TestSupport {
         Integer value2 = value1 + 1;
         cache.put(key2, value2);
         checkGetExpectation(value2, cache, key2);
-    }
-
-    @Test
-    public void put_ExistingWithEqualButNonSameKey_ByReference() throws Exception {
-        Cache<Date, Integer> cache = createByReferenceCache();
-        if (cache == null) return;
-
-        long now = System.currentTimeMillis();
-        Date key1 = new Date(now);
-        Integer value1 = 1;
-        cache.put(key1, value1);
-        Date key2 = new Date(now);
-        Integer value2 = value1 + 1;
-        cache.put(key2, value2);
-        checkGetExpectation(value2, cache, key2);
-    }
-
-    @Test
-    public void put_Mutable_ByReference() {
-        Cache<Integer, Date> cache = createByReferenceCache();
-        if (cache == null) return;
-
-        long now = System.currentTimeMillis();
-        Date value1 = new Date(now);
-        Integer key = 1;
-        cache.put(key, value1);
-        Date value2 = cache.get(key);
-        assertSame(value1, value2);
     }
 
     @Test
@@ -308,32 +237,6 @@ public class CacheTest extends TestSupport {
         Integer value2 = value1 + 1;
         assertEquals(value1, cache.getAndPut(key2, value2));
         checkGetExpectation(value2, cache, key2);
-    }
-
-    @Test
-    public void getAndPut_ExistingWithEqualButNonSameKey_ByReference() throws Exception {
-        Cache<Date, Integer> cache = createByReferenceCache();
-        if (cache == null) return;
-
-        long now = System.currentTimeMillis();
-        Date key1 = new Date(now);
-        Integer value1 = 1;
-        assertNull(cache.getAndPut(key1, value1));
-        Date key2 = new Date(now);
-        Integer value2 = value1 + 1;
-        assertSame(value1, cache.getAndPut(key2, value2));
-        checkGetExpectation(value2, cache, key2);
-    }
-
-    @Test
-    public void getAndPut_Mutable_ByReference() {
-        Cache<Long, Date> cache = createByReferenceCache();
-        if (cache == null) return;
-
-        long key = System.currentTimeMillis();
-        Date value = new Date(key);
-        assertNull(cache.getAndPut(key, value));
-        assertSame(value, cache.get(key));
     }
 
     @Test
@@ -456,20 +359,6 @@ public class CacheTest extends TestSupport {
         assertEquals(value1, cache.getAndRemove(key1.clone()));
         assertNull(cache.get(key1));
         assertEquals(value2, cache.get(key2));
-    }
-
-    @Test
-    public void getAndRemove_ByReference() {
-        final Cache<Long, Date> cache = createByReferenceCache();
-        if (cache == null) return;
-
-        final Long key = System.currentTimeMillis();
-        final Date value = new Date(key);
-        cache.put(key, value);
-        value.setTime(key + 1);
-
-        assertSame(value, cache.getAndRemove(key));
-        assertFalse(cache.containsKey(key));
     }
 
     @Test
@@ -693,18 +582,6 @@ public class CacheTest extends TestSupport {
     }
 
     @Test
-    public void putAll_ByReference() {
-        Cache<Date, Integer> cache = createByReferenceCache();
-        if (cache == null) return;
-
-        Map<Date, Integer> data = createData(3);
-        cache.putAll(data);
-        for (Map.Entry<Date, Integer> entry : data.entrySet()) {
-            checkGetExpectation(entry.getValue(), cache, entry.getKey());
-        }
-    }
-
-    @Test
     public void putIfAbsent_NotStarted() {
         Cache<String, Integer> cache = createCache();
         cache.stop();
@@ -749,32 +626,8 @@ public class CacheTest extends TestSupport {
     }
 
     @Test
-    public void putIfAbsent_Missing_ByReference() {
-        Cache<Date, Long> cache = createByReferenceCache();
-        if (cache == null) return;
-
-        Date key = new Date();
-        Long value = key.getTime();
-        assertTrue(cache.putIfAbsent(key, value));
-        checkGetExpectation(value, cache, key);
-    }
-
-    @Test
     public void putIfAbsent_There_ByValue() {
         Cache<Date, Long> cache = createByValueCache();
-
-        Date key = new Date();
-        Long value = key.getTime();
-        Long oldValue = value + 1;
-        cache.put(key, oldValue);
-        assertFalse(cache.putIfAbsent(key, value));
-        checkGetExpectation(oldValue, cache, key);
-    }
-
-    @Test
-    public void putIfAbsent_There_ByReference() {
-        Cache<Date, Long> cache = createByReferenceCache();
-        if (cache == null) return;
 
         Date key = new Date();
         Long value = key.getTime();
@@ -860,19 +713,6 @@ public class CacheTest extends TestSupport {
         Long nextValue = value + 1;
         assertTrue(cache.replace(key, value, nextValue));
         assertEquals(nextValue, cache.get(key));
-    }
-
-    @Test
-    public void replace_3arg_ByReference() throws Exception {
-        Cache<Date, Long> cache = createByReferenceCache();
-        if (cache == null) return;
-
-        Date key = new Date();
-        Long value = key.getTime();
-        cache.put(key, value);
-        Long nextValue = value + 1;
-        assertTrue(cache.replace(key, value, nextValue));
-        assertSame(nextValue, cache.get(key));
     }
 
     @Test
@@ -981,19 +821,6 @@ public class CacheTest extends TestSupport {
         Date nextValue = new Date(key + 1);
         value.setTime(key + 5);
         assertEquals(valueOriginal, cache.getAndReplace(key, nextValue));
-        checkGetExpectation(nextValue, cache, key);
-    }
-
-    @Test
-    public void getAndReplace_ByReference() {
-        Cache<Long, Date> cache = createByReferenceCache();
-        if (cache == null) return;
-
-        Long key = System.currentTimeMillis();
-        Date value = new Date(key);
-        cache.put(key, value);
-        Date nextValue = new Date(key + 1);
-        assertSame(value, cache.getAndReplace(key, nextValue));
         checkGetExpectation(nextValue, cache, key);
     }
 
@@ -1203,47 +1030,5 @@ public class CacheTest extends TestSupport {
         assertEquals(Status.STOPPED, cache.getStatus());
     }
 
-    //TODO: we already have basic tests
-//    @Test
-//    public void getStatus() {
-//    }
-
     // ---------- utilities ----------
-
-    private <A, B> Cache<A, B> createByValueCache() {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStoreByValue(true);
-        return createCache(config);
-    }
-
-    private <A, B> Cache<A, B> createByReferenceCache() {
-        try {
-            CacheConfiguration config = createCacheConfiguration();
-            config.setStoreByValue(false);
-            return createCache(config);
-        } catch (InvalidConfigurationException e) {
-            logger.log(Level.INFO, "===== cache does not support store by reference: " + e.getMessage());
-            return null;
-        }
-    }
-
-    private LinkedHashMap<Date, Integer> createData(int count, long now) {
-        LinkedHashMap<Date, Integer> map = new LinkedHashMap<Date, Integer>(count);
-        for (int i = 0; i < count; i++) {
-            map.put(new Date(now + i), i);
-        }
-        return map;
-    }
-
-    private LinkedHashMap<Date, Integer> createData(int count) {
-        return createData(count, System.currentTimeMillis());
-    }
-
-    private <K, V> void checkGetExpectation(V expected, Cache<K, V> cache, K key) {
-        if (cache.getConfiguration().isStoreByValue()) {
-            assertEquals(expected, cache.get(key));
-        } else {
-            assertSame(expected, cache.get(key));
-        }
-    }
 }

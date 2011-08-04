@@ -16,7 +16,13 @@
  */
 package javax.cache;
 
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 /**
  * Unit test support base class
@@ -68,7 +74,44 @@ class TestSupport {
                 build();
     }
 
+    protected <A, B> Cache<A, B> createByValueCache() {
+        CacheConfiguration config = createCacheConfiguration();
+        config.setStoreByValue(true);
+        return createCache(config);
+    }
+
+    protected <A, B> Cache<A, B> createByReferenceCache() {
+        try {
+            CacheConfiguration config = createCacheConfiguration();
+            config.setStoreByValue(false);
+            return createCache(config);
+        } catch (InvalidConfigurationException e) {
+            logger.log(Level.INFO, "===== cache does not support store by reference: " + e.getMessage());
+            return null;
+        }
+    }
+
     protected <K, V> Cache<K, V> createOrphanCache(String name) {
         return CacheManagerFactory.INSTANCE.createCache(name);
+    }
+
+    protected LinkedHashMap<Date, Integer> createData(int count, long now) {
+        LinkedHashMap<Date, Integer> map = new LinkedHashMap<Date, Integer>(count);
+        for (int i = 0; i < count; i++) {
+            map.put(new Date(now + i), i);
+        }
+        return map;
+    }
+
+    protected LinkedHashMap<Date, Integer> createData(int count) {
+        return createData(count, System.currentTimeMillis());
+    }
+
+    protected <K, V> void checkGetExpectation(V expected, Cache<K, V> cache, K key) {
+        if (cache.getConfiguration().isStoreByValue()) {
+            assertEquals(expected, cache.get(key));
+        } else {
+            assertSame(expected, cache.get(key));
+        }
     }
 }

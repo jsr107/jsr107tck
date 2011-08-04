@@ -16,12 +16,7 @@
  */
 package javax.cache.util;
 
-import org.junit.rules.MethodRule;
-import org.junit.runners.model.FrameworkMethod;
-import org.junit.runners.model.Statement;
-
 import java.util.Set;
-import java.util.logging.Logger;
 
 /**
  * For the TCK we need to have an exclude list of bad tests so that disabling tests
@@ -33,11 +28,10 @@ import java.util.logging.Logger;
  * "ExcludeList". There is an example in the testRI module for testing the RI.
  *
  * @author Yannis Cosmadopoulos
- * @since 1.7
+ * @since 1.0
  */
-public class TestExcluder implements MethodRule {
+public class TestExcluder extends AbstractTestExcluder {
 
-    private final Logger logger = Logger.getLogger(getClass().getName());
 
     private final Set<String> excludes;
 
@@ -52,40 +46,9 @@ public class TestExcluder implements MethodRule {
         excludes = ExcludeList.INSTANCE.getExcludes(c.getName());
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public Statement apply(Statement statement, FrameworkMethod frameworkMethod, Object o) {
-        final String methodName = frameworkMethod.getName();
-        final String className = frameworkMethod.getMethod().getDeclaringClass().getName();
-        if (isExcluded(methodName)) {
-            return new ExcludedStatement(className, methodName, logger);
-        } else {
-            return statement;
-        }
-    }
 
-    private boolean isExcluded(String methodName) {
+    protected boolean isExcluded(String methodName) {
         return excludes != null && excludes.contains(methodName);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public static class ExcludedStatement extends Statement {
-        private final String methodName;
-        private final String className;
-        private final Logger logger;
-
-        public ExcludedStatement(String className, String methodName, Logger logger) {
-            this.className = className;
-            this.methodName = methodName;
-            this.logger = logger;
-        }
-
-        @Override
-        public void evaluate() throws Throwable {
-            logger.info("===== EXCLUDING TEST '" + className + "'\t'" + methodName + "'.");
-        }
-    }
 }
