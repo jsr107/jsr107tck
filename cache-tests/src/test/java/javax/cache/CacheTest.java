@@ -923,35 +923,17 @@ public class CacheTest extends TestSupport {
         // defaults
         CacheConfiguration defaultConfig = createCacheConfiguration();
         assertEquals(defaultConfig, config);
-        // is immutable
-        try {
-            config.setReadThrough(!config.isReadThrough());
-            fail("immutable");
-        } catch (UnsupportedOperationException e) {
-            //good
-        }
-        try {
-            config.setWriteThrough(!config.isWriteThrough());
-            fail("immutable");
-        } catch (UnsupportedOperationException e) {
-            //good
-        }
-        try {
-            config.setStoreByValue(!config.isStoreByValue());
-            fail("immutable");
-        } catch (UnsupportedOperationException e) {
-            //good
-        }
     }
 
     @Test
-    public void getConfiguration() {
+    public void getConfiguration_SuppliedInConstructor() {
         String cacheName = CACHE_NAME + "XXX";
         CacheConfiguration defaultConfig = createCacheConfiguration();
         CacheConfiguration expectedConfig = createCacheConfiguration();
         expectedConfig.setReadThrough(!defaultConfig.isReadThrough());
         expectedConfig.setWriteThrough(!defaultConfig.isWriteThrough());
         expectedConfig.setStoreByValue(!defaultConfig.isStoreByValue());
+        expectedConfig.setTransactionEnabled(!defaultConfig.isTransactionEnabled());
 
         Cache<Date, Integer> cache = getCacheManager().
                 <Date, Integer>createCacheBuilder(cacheName).
@@ -963,25 +945,48 @@ public class CacheTest extends TestSupport {
         assertEquals(expectedConfig.isReadThrough(), config.isReadThrough());
         assertEquals(expectedConfig.isWriteThrough(), config.isWriteThrough());
         assertEquals(expectedConfig.isStoreByValue(), config.isStoreByValue());
-        // is immutable
-        try {
-            config.setReadThrough(!config.isReadThrough());
-            fail("immutable");
-        } catch (UnsupportedOperationException e) {
-            //good
-        }
-        try {
-            config.setWriteThrough(!config.isWriteThrough());
-            fail("immutable");
-        } catch (UnsupportedOperationException e) {
-            //good
-        }
+        assertEquals(expectedConfig.isTransactionEnabled(), config.isTransactionEnabled());
         try {
             config.setStoreByValue(!config.isStoreByValue());
             fail("immutable");
         } catch (UnsupportedOperationException e) {
             //good
         }
+        try {
+            config.setTransactionEnabled(!config.isTransactionEnabled());
+            fail("immutable");
+        } catch (UnsupportedOperationException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void getConfiguration_Mutation() {
+        String cacheName = CACHE_NAME + "YYY";
+
+        Cache<Date, Integer> cache = getCacheManager().
+                <Date, Integer>createCacheBuilder(cacheName).
+                build();
+
+        CacheConfiguration config = cache.getConfiguration();
+
+        try {
+            config.setStoreByValue(!config.isStoreByValue());
+            fail("immutable");
+        } catch (UnsupportedOperationException e) {
+            //good
+        }
+        try {
+            config.setTransactionEnabled(!config.isTransactionEnabled());
+            fail("immutable");
+        } catch (UnsupportedOperationException e) {
+            //good
+        }
+        boolean enabled = config.isStatisticsEnabled();
+        assertEquals(enabled, config.isStatisticsEnabled());
+        config.setStatisticsEnabled(!enabled);
+        assertEquals(!enabled, config.isStatisticsEnabled());
+        assertEquals(!enabled, cache.getConfiguration().isStatisticsEnabled());
     }
 
     @Test
