@@ -19,6 +19,7 @@ package javax.cache;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.MethodRule;
 
 import javax.cache.util.TestExcluder;
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ public class CacheTest extends TestSupport {
      * Rule used to exclude tests
      */
     @Rule
-    public TestExcluder rule = new TestExcluder(this.getClass());
+    public MethodRule rule = new TestExcluder(this.getClass());
 
     @Test
     public void getCacheName() {

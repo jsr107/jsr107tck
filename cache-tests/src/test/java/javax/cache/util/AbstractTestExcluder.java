@@ -52,6 +52,10 @@ public abstract class AbstractTestExcluder implements MethodRule {
 
     protected abstract boolean isExcluded(String methodName);
 
+    protected Logger getLogger() {
+        return logger;
+    }
+
     /**
      * Statement for excluded methods
      */
