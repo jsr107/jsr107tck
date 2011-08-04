@@ -64,14 +64,14 @@ public class CacheManagerTest extends TestSupport {
     public void createCache_NameOK() {
         String name = "c1";
         Cache cache = getCacheManager().createCacheBuilder(name).build();
-        assertEquals(name, cache.getCacheName());
+        assertEquals(name, cache.getName());
     }
 
     @Test
     public void createCache_StatusOK() {
         String name = "c1";
         Cache cache = getCacheManager().createCacheBuilder(name).build();
-        assertSame(Status.STARTED, cache.getStatus());
+        assertSame(CacheStatus.STARTED, cache.getStatus());
     }
 
     @Test
@@ -91,7 +91,7 @@ public class CacheManagerTest extends TestSupport {
         String name = "c1";
         Cache cache = getCacheManager().createCacheBuilder(name).
                 setCacheConfiguration(createCacheConfiguration()).build();
-        assertEquals(name, cache.getCacheName());
+        assertEquals(name, cache.getName());
         assertSame(cache, getCacheManager().getCache(name));
     }
 
@@ -100,18 +100,18 @@ public class CacheManagerTest extends TestSupport {
         String name = "c1";
         Cache cache = getCacheManager().createCacheBuilder(name).
                 setCacheConfiguration(createCacheConfiguration()).build();
-        assertSame(Status.STARTED, cache.getStatus());
+        assertSame(CacheStatus.STARTED, cache.getStatus());
     }
 
     @Test
     public void createCache_Different() {
         String name1 = "c1";
         Cache<Integer, String> cache1 = getCacheManager().<Integer, String>createCacheBuilder(name1).build();
-        assertEquals(Status.STARTED, cache1.getStatus());
+        assertEquals(CacheStatus.STARTED, cache1.getStatus());
 
         String name2 = "c2";
         Cache<Integer, String> cache2 = getCacheManager().<Integer, String>createCacheBuilder(name2).build();
-        assertEquals(Status.STARTED, cache2.getStatus());
+        assertEquals(CacheStatus.STARTED, cache2.getStatus());
 
         assertEquals(cache1, getCacheManager().getCache(name1));
         assertEquals(cache2, getCacheManager().getCache(name2));
@@ -149,12 +149,12 @@ public class CacheManagerTest extends TestSupport {
         String name1 = "c1";
         Cache<Integer, String> cache1 = CacheManagerFactory.INSTANCE.createCache(name1);
         cacheManager.addCache(cache1);
-        assertEquals(Status.STARTED, cache1.getStatus());
+        assertEquals(CacheStatus.STARTED, cache1.getStatus());
 
         String name2 = "c2";
         Cache<Integer, String> cache2 = CacheManagerFactory.INSTANCE.createCache(name2);
         cacheManager.addCache(cache2);
-        assertEquals(Status.STARTED, cache2.getStatus());
+        assertEquals(CacheStatus.STARTED, cache2.getStatus());
 
         assertEquals(cache1, cacheManager.<Integer, String>getCache(name1));
         assertEquals(cache2, cacheManager.<Integer, String>getCache(name2));
@@ -240,14 +240,14 @@ public class CacheManagerTest extends TestSupport {
     // ---------- utilities ----------
 
     private void checkStarted(Cache cache) {
-        Status status = cache.getStatus();
+        CacheStatus status = cache.getStatus();
         //may be asynchronous
-        assertTrue(status == Status.STARTED || status == Status.STARTING);
+        assertTrue(status == CacheStatus.STARTED || status == CacheStatus.STARTING);
     }
 
     private void checkStopped(Cache cache) {
-        Status status = cache.getStatus();
+        CacheStatus status = cache.getStatus();
         //may be asynchronous
-        assertTrue(status == Status.STOPPED || status == Status.STOPPING);
+        assertTrue(status == CacheStatus.STOPPED || status == CacheStatus.STOPPING);
     }
 }

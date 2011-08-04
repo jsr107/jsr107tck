@@ -54,7 +54,7 @@ public class CacheTest extends TestSupport {
     @Test
     public void getCacheName() {
         Cache<String, Integer> cache = createCache();
-        assertEquals(CACHE_NAME, cache.getCacheName());
+        assertEquals(CACHE_NAME, cache.getName());
     }
 
     @Test
@@ -496,15 +496,15 @@ public class CacheTest extends TestSupport {
     @Test
     public void getCacheStatistics() {
         Cache<Date, Integer> cache = createCache();
-        assertNull(cache.getCacheStatistics());
+        assertNull(cache.getStatistics());
     }
 
     @Test
-    public void getCacheStatistics_NotEnabled() {
+    public void getStatistics_NotEnabled() {
         CacheConfiguration config = createCacheConfiguration();
         config.setStatisticsEnabled(false);
         Cache<Date, Integer> cache = createCache(config);
-        assertNull(cache.getCacheStatistics());
+        assertNull(cache.getStatistics());
     }
 
     /**
@@ -520,11 +520,11 @@ public class CacheTest extends TestSupport {
     }
 
     @Test
-    public void getCacheStatistics_Enabled() {
+    public void getStatistics_Enabled() {
         CacheConfiguration config = createCacheConfiguration();
         config.setStatisticsEnabled(true);
         Cache<Date, Integer> cache = createCache(config);
-        assertNotNull(cache.getCacheStatistics());
+        assertNotNull(cache.getStatistics());
     }
 
     @Test
@@ -1048,14 +1048,14 @@ public class CacheTest extends TestSupport {
     @Test
     public void initialise() {
         Cache<Date, Integer> cache = createCache();
-        assertEquals(Status.STARTED, cache.getStatus());
+        assertEquals(CacheStatus.STARTED, cache.getStatus());
     }
 
     @Test
     public void stop() {
         Cache<Date, Integer> cache = createCache();
         cache.stop();
-        assertEquals(Status.STOPPED, cache.getStatus());
+        assertEquals(CacheStatus.STOPPED, cache.getStatus());
     }
 
     // ---------- utilities ----------

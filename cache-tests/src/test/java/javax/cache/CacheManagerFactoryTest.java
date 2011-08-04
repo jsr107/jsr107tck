@@ -132,7 +132,7 @@ public class CacheManagerFactoryTest {
     public void createCache_Uninitialized() {
         String name = "fred";
         Cache cache = CacheManagerFactory.INSTANCE.createCache(name);
-        assertEquals(Status.UNINITIALISED, cache.getStatus());
+        assertEquals(CacheStatus.UNINITIALISED, cache.getStatus());
     }
 
     @Test
