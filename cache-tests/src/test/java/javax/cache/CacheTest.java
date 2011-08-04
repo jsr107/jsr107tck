@@ -31,6 +31,7 @@ import java.util.NoSuchElementException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -493,10 +494,24 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getCacheStatistics() {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStatisticsEnabled(true);
         Cache<Date, Integer> cache = createCache();
         assertNull(cache.getCacheStatistics());
+    }
+
+    @Test
+    public void getCacheStatistics_NotEnabled() {
+        CacheConfiguration config = createCacheConfiguration();
+        config.setStatisticsEnabled(false);
+        Cache<Date, Integer> cache = createCache(config);
+        assertNull(cache.getCacheStatistics());
+    }
+
+    @Test
+    public void getCacheStatistics_Enabled() {
+        CacheConfiguration config = createCacheConfiguration();
+        config.setStatisticsEnabled(true);
+        Cache<Date, Integer> cache = createCache(config);
+        assertNotNull(cache.getCacheStatistics());
     }
 
     @Test
