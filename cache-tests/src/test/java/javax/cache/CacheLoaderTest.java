@@ -20,7 +20,7 @@ package javax.cache;
 import org.junit.Rule;
 import org.junit.Test;
 
-import javax.cache.util.TestExcluder;
+import javax.cache.util.ExcludeListExcluder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -49,7 +49,7 @@ public class CacheLoaderTest extends TestSupport {
      * Rule used to exclude tests
      */
     @Rule
-    public TestExcluder rule = new TestExcluder(this.getClass());
+    public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
 
     /**
      * the time to wait for a future

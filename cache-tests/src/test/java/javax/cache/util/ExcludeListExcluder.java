@@ -30,19 +30,19 @@ import java.util.Set;
  * @author Yannis Cosmadopoulos
  * @since 1.0
  */
-public class TestExcluder extends AbstractTestExcluder {
+public class ExcludeListExcluder extends AbstractTestExcluder {
 
 
     private final Set<String> excludes;
 
     /**
-     * Constructor for TestExcluder.
+     * Constructor for ExcludeListExcluder.
      * Uses the supplied class name and {@link ExcludeList#getExcludes(String)} to
      * determine the methods to be excluded.
      *
      * @param c the class for which tests should be excluded
      */
-    public TestExcluder(Class c) {
+    public ExcludeListExcluder(Class c) {
         excludes = ExcludeList.INSTANCE.getExcludes(c.getName());
     }
 

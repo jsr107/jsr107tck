@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.junit.rules.MethodRule;
 
 import javax.cache.util.AllTestExcluder;
-import javax.cache.util.TestExcluder;
+import javax.cache.util.ExcludeListExcluder;
 import java.util.Date;
 import java.util.Map;
 
@@ -38,13 +38,14 @@ import static org.junit.Assert.assertTrue;
  * @author Yannis Cosmadopoulos
  */
 public class CacheStoreByReferenceTest extends TestSupport {
+
     /**
      * Rule used to exclude tests
      */
     @Rule
     public MethodRule rule =
             CacheManagerFactory.INSTANCE.isSupported(OptionalFeature.STORE_BY_REFERENCE) ?
-                    new TestExcluder(this.getClass()) :
+                    new ExcludeListExcluder(this.getClass()) :
                     new AllTestExcluder();
 
     @Test

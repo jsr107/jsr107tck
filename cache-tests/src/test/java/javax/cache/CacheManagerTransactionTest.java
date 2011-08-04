@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.junit.rules.MethodRule;
 
 import javax.cache.util.AllTestExcluder;
-import javax.cache.util.TestExcluder;
+import javax.cache.util.ExcludeListExcluder;
 import javax.transaction.UserTransaction;
 
 import static org.junit.Assert.assertEquals;
@@ -34,13 +34,14 @@ import static org.junit.Assert.assertEquals;
  * @since 1.0
  */
 public class CacheManagerTransactionTest extends TestSupport {
+
     /**
      * Rule used to exclude tests
      */
     @Rule
     public MethodRule rule =
             CacheManagerFactory.INSTANCE.isSupported(OptionalFeature.JTA) ?
-                    new TestExcluder(this.getClass()) :
+                    new ExcludeListExcluder(this.getClass()) :
                     new AllTestExcluder();
 
     @Test
@@ -50,18 +51,4 @@ public class CacheManagerTransactionTest extends TestSupport {
         assertEquals(javax.transaction.Status.STATUS_NO_TRANSACTION , userTrans.getStatus());
     }
 
-    @Test
-    public void getUserTransactionAlt() throws Exception {
-        TransactionalCacheManager cm = (TransactionalCacheManager) getCacheManager();
-        UserTransaction userTrans = cm.getUserTransactionAlt();
-        assertEquals(javax.transaction.Status.STATUS_NO_TRANSACTION , userTrans.getStatus());
-    }
-
-    /**
-     * Demonstrating alternative API possibility
-     * TODO: remove this
-     */
-    private interface TransactionalCacheManager extends CacheManager {
-        UserTransaction getUserTransactionAlt();
-    }
 }

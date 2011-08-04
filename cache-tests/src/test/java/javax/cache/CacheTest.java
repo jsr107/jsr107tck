@@ -21,7 +21,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 
-import javax.cache.util.TestExcluder;
+import javax.cache.util.ExcludeListExcluder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -49,7 +49,7 @@ public class CacheTest extends TestSupport {
      * Rule used to exclude tests
      */
     @Rule
-    public MethodRule rule = new TestExcluder(this.getClass());
+    public MethodRule rule = new ExcludeListExcluder(this.getClass());
 
     @Test
     public void getCacheName() {
@@ -505,6 +505,18 @@ public class CacheTest extends TestSupport {
         config.setStatisticsEnabled(false);
         Cache<Date, Integer> cache = createCache(config);
         assertNull(cache.getCacheStatistics());
+    }
+
+    /**
+     * Inline example of creating a cache
+     */
+    @Test
+    public void createCacheWithConfiguration() {
+        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheConfiguration cacheConfiguration = CacheManagerFactory.INSTANCE.createCacheConfiguration();
+        cacheConfiguration.setReadThrough(false);
+        Cache testCache = cacheManager.createCacheBuilder("test").setCacheConfiguration(cacheConfiguration).build();
+        assertNotNull(testCache);
     }
 
     @Test
