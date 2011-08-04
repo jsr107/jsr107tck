@@ -18,7 +18,6 @@ package javax.cache;
 
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
@@ -72,27 +71,6 @@ class TestSupport {
                 <K, V>createCacheBuilder(CACHE_NAME).
                 setCacheConfiguration(config).
                 build();
-    }
-
-    protected <A, B> Cache<A, B> createByValueCache() {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStoreByValue(true);
-        return createCache(config);
-    }
-
-    protected <A, B> Cache<A, B> createByReferenceCache() {
-        try {
-            CacheConfiguration config = createCacheConfiguration();
-            config.setStoreByValue(false);
-            return createCache(config);
-        } catch (InvalidConfigurationException e) {
-            logger.log(Level.INFO, "===== cache does not support store by reference: " + e.getMessage());
-            return null;
-        }
-    }
-
-    protected <K, V> Cache<K, V> createOrphanCache(String name) {
-        return CacheManagerFactory.INSTANCE.createCache(name);
     }
 
     protected LinkedHashMap<Date, Integer> createData(int count, long now) {

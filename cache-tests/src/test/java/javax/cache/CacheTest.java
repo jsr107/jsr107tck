@@ -1047,4 +1047,10 @@ public class CacheTest extends TestSupport {
     }
 
     // ---------- utilities ----------
+
+    private <A, B> Cache<A, B> createByValueCache() {
+        CacheConfiguration config = createCacheConfiguration();
+        config.setStoreByValue(true);
+        return createCache(config);
+    }
 }

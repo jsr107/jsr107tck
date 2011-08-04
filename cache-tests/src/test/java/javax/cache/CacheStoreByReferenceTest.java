@@ -219,4 +219,10 @@ public class CacheStoreByReferenceTest extends TestSupport {
     }
 
     // ---------- utilities ----------
+
+    private <A, B> Cache<A, B> createByReferenceCache() {
+        CacheConfiguration config = createCacheConfiguration();
+        config.setStoreByValue(false);
+        return createCache(config);
+    }
 }

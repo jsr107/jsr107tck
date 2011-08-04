@@ -24,6 +24,7 @@ import javax.cache.util.TestExcluder;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -149,12 +150,12 @@ public class CacheManagerTest extends TestSupport {
         CacheManager cacheManager = getCacheManager();
 
         String name1 = "c1";
-        Cache<Integer, String> cache1 = createOrphanCache(name1);
+        Cache<Integer, String> cache1 = CacheManagerFactory.INSTANCE.createCache(name1);
         cacheManager.addCache(cache1);
         assertEquals(Status.STARTED, cache1.getStatus());
 
         String name2 = "c2";
-        Cache<Integer, String> cache2 = createOrphanCache(name2);
+        Cache<Integer, String> cache2 = CacheManagerFactory.INSTANCE.createCache(name2);
         cacheManager.addCache(cache2);
         assertEquals(Status.STARTED, cache2.getStatus());
 
@@ -166,12 +167,12 @@ public class CacheManagerTest extends TestSupport {
     public void addCache_2DifferentSameName() {
         CacheManager cacheManager = getCacheManager();
         String name1 = "c1";
-        Cache<Integer, String> cache1 = createOrphanCache(name1);
+        Cache<Integer, String> cache1 = CacheManagerFactory.INSTANCE.createCache(name1);
         cacheManager.addCache(cache1);
         assertEquals(cache1, cacheManager.<Integer, String>getCache(name1));
         checkStarted(cache1);
 
-        Cache<Integer, String> cache2 = createOrphanCache(name1);
+        Cache<Integer, String> cache2 = CacheManagerFactory.INSTANCE.createCache(name1);
         cacheManager.addCache(cache2);
         assertEquals(cache2, cacheManager.<Integer, String>getCache(name1));
         checkStarted(cache2);
@@ -224,6 +225,20 @@ public class CacheManagerTest extends TestSupport {
 
         checkStopped(cache1);
         checkStopped(cache2);
+    }
+
+    @Test
+    public void getUserTransaction() {
+        if (CacheManagerFactory.INSTANCE.isSupported(OptionalFeature.JTA)) {
+            assertNotNull(getCacheManager().getUserTransaction());
+        } else {
+            try {
+                getCacheManager().getUserTransaction();
+                fail();
+            } catch (UnsupportedOperationException e) {
+                // expected
+            }
+        }
     }
 
     // ---------- utilities ----------

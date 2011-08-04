@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
@@ -128,11 +129,24 @@ public class CacheManagerFactoryTest {
     }
 
     @Test
-    public void createCache() {
+    public void createCache_Uninitialized() {
         String name = "fred";
         Cache cache = CacheManagerFactory.INSTANCE.createCache(name);
-        assertNotNull(cache);
-        assertNotSame(cache, CacheManagerFactory.INSTANCE.createCache(name));
+        assertEquals(Status.UNINITIALISED, cache.getStatus());
+    }
+
+    @Test
+    public void createCache_NoManager() {
+        String name = "fred";
+        Cache cache = CacheManagerFactory.INSTANCE.createCache(name);
+        assertNull(cache.getCacheManager());
+    }
+
+    @Test
+    public void createCache_NamedDifferent() {
+        String name = "fred";
+        assertNotSame(CacheManagerFactory.INSTANCE.createCache(name),
+                CacheManagerFactory.INSTANCE.createCache(name));
     }
 
     @Test
