@@ -1,53 +1,61 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>javax.cache</groupId>
-	<artifactId>cache-tests</artifactId>
-	<version>0.2-SNAPSHOT</version>
-	<packaging>jar</packaging>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>javax.cache</groupId>
+    <artifactId>cache-tests</artifactId>
+    <version>0.2-SNAPSHOT</version>
+    <packaging>jar</packaging>
     <parent>
         <groupId>javax.cache</groupId>
         <artifactId>tck-parent</artifactId>
         <version>0.2-SNAPSHOT</version>
     </parent>
 
-	<name>Cache Tests</name>
+    <name>Cache Tests</name>
     <url>https://github.com/jsr107/jsr107tck</url>
-	<description>Tests, which form part of the Technology Compatibility Kit for JSR107. You should be able to test an inplementation by:
+    <description>Tests, which form part of the Technology Compatibility Kit for JSR107. You should be able to test an inplementation by:
         1. Adding the dependency
         2. Configuring the JUnit test fixtures
     </description>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-	</properties>
+    </properties>
 
-	<dependencies>
+    <dependencies>
 
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8.2</version>
-		</dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.2</version>
+        </dependency>
 
-		<dependency>
-			<groupId>javax.cache</groupId>
-			<artifactId>test-domain</artifactId>
-			<version>0.2-SNAPSHOT</version>
-		</dependency>
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>test-domain</artifactId>
+            <version>0.2-SNAPSHOT</version>
+        </dependency>
 
-		<dependency>
-			<groupId>javax.cache</groupId>
-			<artifactId>cache-api</artifactId>
-			<version>0.2-SNAPSHOT</version>
-		</dependency>
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
+            <version>0.2-SNAPSHOT</version>
+        </dependency>
 
- 		<dependency>
-			<groupId>org.jboss.weld.se</groupId>
+        <dependency>
+            <groupId>org.jboss.weld.se</groupId>
             <artifactId>weld-se</artifactId>
             <version>1.1.2.Final</version>
-		</dependency>
+        </dependency>
+
+        <!--DO not commit this-->
+        <!--<dependency>-->
+            <!--<groupId>javax.cache.implementation</groupId>-->
+            <!--<artifactId>cache-ri</artifactId>-->
+            <!--<version>0.2-SNAPSHOT</version>-->
+        <!--</dependency>-->
+
 
         <!--Only required for ee profile implementations-->
         <dependency>
@@ -56,132 +64,132 @@
             <version>1.1</version>
         </dependency>
 
-	</dependencies>
+    </dependencies>
 
-	<build>
-		<plugins>
+    <build>
+        <plugins>
 
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
-				<configuration>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
                     <source>1.6</source>
                     <target>1.6</target>
-				</configuration>
-			</plugin>
+                </configuration>
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.3.1</version>
                 <executions>
-                  <execution>
-                    <goals>
-                        <!--Reference this using a "tests" classifier-->
-                      <goal>test-jar</goal>
-                    </goals>
-                  </execution>
+                    <execution>
+                        <goals>
+                            <!--Reference this using a "tests" classifier-->
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.9</version>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.9</version>
                 <configuration>
-                  <skipTests>true</skipTests>
+                    <skipTests>true</skipTests>
                 </configuration>
             </plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.8</version>
-				<configuration>
-					<author>true</author>
-					<bottom>true</bottom>
-					<minmemory>128m</minmemory>
-					<maxmemory>512</maxmemory>
-				</configuration>
-			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.8</version>
+                <configuration>
+                    <author>true</author>
+                    <bottom>true</bottom>
+                    <minmemory>128m</minmemory>
+                    <maxmemory>512</maxmemory>
+                </configuration>
+            </plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.0.3</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<phase>package</phase>
-						<goals>
-							<goal>test-jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.0.3</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.5</version>
-				<executions>
-					<execution>
-						<phase>install</phase>
-						<goals>
-							<goal>checkstyle</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<configLocation>${basedir}/checkstyle/checkstyle.xml
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.5</version>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>checkstyle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <configLocation>${basedir}/checkstyle/checkstyle.xml
                     </configLocation>
-					<suppressionsLocation>${basedir}/checkstyle/suppressions.xml
+                    <suppressionsLocation>${basedir}/checkstyle/suppressions.xml
                     </suppressionsLocation>
-					<headerLocation>${basedir}/checkstyle/ClassHeader.txt
+                    <headerLocation>${basedir}/checkstyle/ClassHeader.txt
                     </headerLocation>
-					<sourceDirectory>src/test/java</sourceDirectory>
-					<enableRSS>false</enableRSS>
-					<linkXRef>true</linkXRef>
-					<consoleOutput>true</consoleOutput>
-					<failsOnError>true</failsOnError>
-					<failOnViolation>true</failOnViolation>
-					<violationSeverity>warning</violationSeverity>
-					<enableRulesSummary>true</enableRulesSummary>
-				</configuration>
-			</plugin>
+                    <sourceDirectory>src/test/java</sourceDirectory>
+                    <enableRSS>false</enableRSS>
+                    <linkXRef>true</linkXRef>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <failOnViolation>true</failOnViolation>
+                    <violationSeverity>warning</violationSeverity>
+                    <enableRulesSummary>true</enableRulesSummary>
+                </configuration>
+            </plugin>
 
-		</plugins>
-	</build>
+        </plugins>
+    </build>
 
-	<repositories>
-		<!--Required for CloudBees CI. Local builds will still work if you mvn 
-			install jsr107api first -->
-		<repository>
-			<id>cloudbees-snapshots</id>
-			<url>https://repository-jsr107.forge.cloudbees.com/snapshot</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
+    <repositories>
+        <!--Required for CloudBees CI. Local builds will still work if you mvn
+              install jsr107api first -->
+        <repository>
+            <id>cloudbees-snapshots</id>
+            <url>https://repository-jsr107.forge.cloudbees.com/snapshot</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
 
-		<repository>
-			<id>jmockit-svn</id>
-			<url>http://jmockit.googlecode.com/svn/maven-repo</url>
-			<releases>
-				<checksumPolicy>ignore</checksumPolicy>
-			</releases>
-		</repository>
+        <repository>
+            <id>jmockit-svn</id>
+            <url>http://jmockit.googlecode.com/svn/maven-repo</url>
+            <releases>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </repository>
 
 
-		<repository>
-			<id>jboss.maven.repo</id>
-			<name>JBoss Repository</name>
-			<url>http://repository.jboss.org/nexus/content/groups/public-jboss/</url>
-		</repository>
+        <repository>
+            <id>jboss.maven.repo</id>
+            <name>JBoss Repository</name>
+            <url>http://repository.jboss.org/nexus/content/groups/public-jboss/</url>
+        </repository>
 
-	</repositories>
+    </repositories>
 
 </project>

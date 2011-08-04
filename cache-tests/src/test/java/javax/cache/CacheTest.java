@@ -21,6 +21,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 
+import javax.cache.event.CacheEntryReadListener;
+import javax.cache.event.NotificationScope;
 import javax.cache.util.ExcludeListExcluder;
 import java.util.ArrayList;
 import java.util.Date;
@@ -509,6 +511,8 @@ public class CacheTest extends TestSupport {
 
     /**
      * Inline example of creating a cache
+     *
+     * @todo ugly. Needs a proper fluent style.
      */
     @Test
     public void createCacheWithConfiguration() {
@@ -530,14 +534,24 @@ public class CacheTest extends TestSupport {
     @Test
     public void registerCacheEntryListener() {
         Cache<Date, Integer> cache = createCache();
-        cache.registerCacheEntryListener(null, null);
+        CacheEntryReadListener<Date, Integer> listener = new MyCacheEntryListener<Date, Integer>();
+        cache.registerCacheEntryListener(listener, NotificationScope.ALL);
         //TODO: more
+        //todo prevent null listener
     }
+
+
+
+
 
     @Test
     public void unregisterCacheEntryListener() {
         Cache<Date, Integer> cache = createCache();
+        CacheEntryReadListener<Date, Integer> listener = new MyCacheEntryListener<Date, Integer>();
+        cache.registerCacheEntryListener(listener, NotificationScope.ALL);
         cache.unregisterCacheEntryListener(null);
+        cache.unregisterCacheEntryListener(listener);
+
         //TODO: more
     }
 
@@ -1069,5 +1083,44 @@ public class CacheTest extends TestSupport {
         CacheConfiguration config = createCacheConfiguration();
         config.setStoreByValue(true);
         return createCache(config);
+    }
+
+    /**
+     * Test listener
+     * @param <K>
+     * @param <V>
+     */
+    static class MyCacheEntryListener<K, V> implements CacheEntryReadListener<K, V> {
+
+
+        /**
+         * Called after the entry has been read. If no entry existed for the key the event is not called.
+         * This method is not called if a batch operation was performed.
+         *
+         * @param entry The entry just read.
+         * @see #onReadAll(Iterable)
+         */
+        @Override
+        public void onRead(Cache.Entry<K, V> entry) {
+            //noop
+        }
+
+        /**
+         * Called after the entries have been read. Only entries which existed in the cache are passed in.
+         *
+         * @param entries The entry just read.
+         */
+        @Override
+        public void onReadAll(Iterable<Cache.Entry<K, V>> entries) {
+            //noop
+        }
+
+        /**
+         * @return the notification scope for this listener
+         */
+        @Override
+        public NotificationScope getNotificationScope() {
+            return NotificationScope.ALL;
+        }
     }
 }
