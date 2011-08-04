@@ -21,6 +21,10 @@ import static org.junit.Assert.*;
 import java.lang.annotation.Annotation;
 import java.util.Set;
 
+import javax.cache.CacheManagerFactory;
+import javax.cache.OptionalFeature;
+import javax.cache.util.AllTestExcluder;
+import javax.cache.util.ExcludeListExcluder;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
@@ -29,28 +33,36 @@ import manager.BlogManager;
 
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
+import org.junit.Rule;
 import org.junit.Test;
 
 import domain.Blog;
+import org.junit.rules.MethodRule;
 
 /**
- * 
  * @author Rick Hightower
- * 
  */
 public abstract class AbstractInterceptionTest {
 
     /**
-     * 
+     * Rule used to exclude tests that do not implement Transactions
+     */
+    @Rule
+    public MethodRule rule =
+            CacheManagerFactory.INSTANCE.isSupported(OptionalFeature.ANNOTATIONS) ?
+                    new ExcludeListExcluder(this.getClass()) :
+                    new AllTestExcluder();
+
+    /**
+     *
      */
     private static BeanManager beanManager;
     /**
-     * 
+     *
      */
     protected static BlogManager blogManager;
 
     /**
-     * 
      * @param <T>
      * @param type
      * @param qualifiers
@@ -83,14 +95,13 @@ public abstract class AbstractInterceptionTest {
     }
 
     /**
-     * 
      * @return
      */
-    public abstract BlogManager getBlogManager() ;
+    public abstract BlogManager getBlogManager();
 
     @Test
     /**
-     * 
+     *
      */
     public void test_AT_CacheResult() {
         String testBody = "" + System.currentTimeMillis();
@@ -103,7 +114,7 @@ public abstract class AbstractInterceptionTest {
         assertEquals(entryCached.getBody(), testBody);
 
         /* clear from map, but not from cache */
-        blogManager.clearEntry(testTitle); 
+        blogManager.clearEntry(testTitle);
         entryCached = blogManager.getEntryCached(testTitle);
         assertNotNull("Item should still be in the cache thus not null",
                 entryCached);
@@ -112,11 +123,11 @@ public abstract class AbstractInterceptionTest {
                 entryCached.getBody(), testBody);
 
     }
-    
+
 
     @Test
     /**
-     * 
+     *
      */
     public void test_AT_CacheResult_UsingAt_CacheKeyParam() {
         String testBody = "" + System.currentTimeMillis();
@@ -129,7 +140,7 @@ public abstract class AbstractInterceptionTest {
         assertEquals(entryCached.getBody(), testBody);
 
         /* clear from map, but not from cache */
-        blogManager.clearEntry(testTitle); 
+        blogManager.clearEntry(testTitle);
         entryCached = blogManager.getEntryCached(testTitle);
         assertNotNull("Item should still be in the cache thus not null",
                 entryCached);
@@ -139,8 +150,8 @@ public abstract class AbstractInterceptionTest {
 
     }
 
-    
-    @Test 
+
+    @Test
     public void test_AT_CacheRemoveEntry() {
         String testBody = "" + System.currentTimeMillis();
         String testTitle = "title b";
@@ -152,24 +163,24 @@ public abstract class AbstractInterceptionTest {
         assertEquals(entryCached.getBody(), testBody);
 
         /* clear from cache using annotation @CacheRemoveEntry */
-        blogManager.clearEntryFromCache(testTitle); 
-        
-        /* clear from map, but not from cache */        
-        blogManager.clearEntry(testTitle); 
+        blogManager.clearEntryFromCache(testTitle);
+
+        /* clear from map, but not from cache */
+        blogManager.clearEntry(testTitle);
 
         entryCached = blogManager.getEntryCached(testTitle);
         assertNull("Item should removed from the cache and the map",
                 entryCached);
-        
-        
+
+
     }
 
-    
-    @Test 
+
+    @Test
     public void test_AT_CacheRemoveAll() {
         String testBody = "" + System.currentTimeMillis();
         String testTitle = "title b";
-        
+
         Blog blog = new Blog(testTitle, testBody);
         BlogManager blogManager = getBlogManager();
         blogManager.createEntry(blog);
@@ -177,9 +188,9 @@ public abstract class AbstractInterceptionTest {
         Blog entryCached = blogManager.getEntryCached(testTitle);
         assertEquals(entryCached.getBody(), testBody);
 
-        /* clear from map, but not from cache */        
-        blogManager.clearEntry(testTitle); 
-        
+        /* clear from map, but not from cache */
+        blogManager.clearEntry(testTitle);
+
         /* clear from cache using annotation @CacheRemoveAll */
         blogManager.clearCache();
 
@@ -187,8 +198,8 @@ public abstract class AbstractInterceptionTest {
 
         assertNull("Item should removed from the cache and the map",
                 entryCached);
-        
-        
+
+
     }
 
 }
