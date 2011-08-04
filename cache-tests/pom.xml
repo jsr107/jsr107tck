@@ -34,13 +34,13 @@
         <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>test-domain</artifactId>
-            <version>0.2-SNAPSHOT</version>
+            <version>${parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
-            <version>0.2-SNAPSHOT</version>
+            <version>${parent.version}</version>
         </dependency>
 
         <dependency>
@@ -57,7 +57,6 @@
         <!--</dependency>-->
 
 
-        <!--Only required for ee profile implementations-->
         <dependency>
             <groupId>javax.transaction</groupId>
             <artifactId>jta</artifactId>
