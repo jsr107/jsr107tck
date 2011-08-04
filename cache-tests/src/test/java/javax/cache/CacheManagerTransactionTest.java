@@ -36,7 +36,7 @@ import static org.junit.Assert.assertEquals;
 public class CacheManagerTransactionTest extends TestSupport {
 
     /**
-     * Rule used to exclude tests
+     * Rule used to exclude tests that do not implement Transactions
      */
     @Rule
     public MethodRule rule =
