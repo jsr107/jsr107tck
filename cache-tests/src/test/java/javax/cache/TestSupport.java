@@ -41,13 +41,6 @@ class TestSupport {
      */
     protected static final String CACHE_NAME = "testCache";
 
-    protected <K, V> Cache<K, V> createCache(CacheLoader<K, V> cacheLoader) {
-        return CacheManagerFactory.INSTANCE.getCacheManager().
-                <K, V>createCacheBuilder(CACHE_NAME).
-                setCacheLoader(cacheLoader).
-                build();
-    }
-
     protected LinkedHashMap<Date, Integer> createData(int count, long now) {
         LinkedHashMap<Date, Integer> map = new LinkedHashMap<Date, Integer>(count);
         for (int i = 0; i < count; i++) {
