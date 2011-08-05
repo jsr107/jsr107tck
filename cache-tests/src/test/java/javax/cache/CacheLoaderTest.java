@@ -58,7 +58,8 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void load_NullKey() {
-        Cache<Integer, Integer> cache = createCache();
+        Cache<Integer, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Integer, Integer>createCacheBuilder(CACHE_NAME).build();
         CacheLoader<Integer, Integer> cl = new MockCacheLoader<Integer, Integer>();
         try {
             cache.load(null, cl, null);
@@ -70,7 +71,8 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void load_Found() {
-        Cache<Integer, Integer> cache = createCache();
+        Cache<Integer, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Integer, Integer>createCacheBuilder(CACHE_NAME).build();
 
         CacheLoader<Integer, Integer> cl = new MockCacheLoader<Integer, Integer>();
         Integer key = 1;
@@ -84,7 +86,8 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void load_NoCacheLoader() {
-        Cache<Integer, Integer> cache = createCache();
+        Cache<Integer, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Integer, Integer>createCacheBuilder(CACHE_NAME).build();
         Integer key = 1;
         try {
             assertNull(cache.load(key, null, null));
@@ -170,7 +173,8 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void loadAll_NotStarted() {
-        Cache<Integer, Integer> cache = createCache();
+        Cache<Integer, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Integer, Integer>createCacheBuilder(CACHE_NAME).build();
         cache.stop();
         try {
             cache.loadAll(null, null, null);
@@ -182,7 +186,8 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void loadAll_NullKeys() {
-        Cache<Integer, Integer> cache = createCache();
+        Cache<Integer, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Integer, Integer>createCacheBuilder(CACHE_NAME).build();
         try {
             cache.loadAll(null, null, null);
             fail("should have thrown an exception - keys null");
@@ -193,7 +198,8 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void loadAll_NullKey() throws Exception {
-        final Cache<Integer, Integer> cache = createCache();
+        final Cache<Integer, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Integer, Integer>createCacheBuilder(CACHE_NAME).build();
         CacheLoader<Integer, Integer> cl = new SimpleCacheLoader<Integer>();
         ArrayList<Integer> keys = new ArrayList<Integer>();
         keys.add(null);
@@ -207,7 +213,8 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void loadAll_NullValue() throws Exception {
-        final Cache<Integer, Integer> cache = createCache();
+        final Cache<Integer, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Integer, Integer>createCacheBuilder(CACHE_NAME).build();
         CacheLoader<Integer, Integer> cl = new MockCacheLoader<Integer, Integer>() {
             @Override
             public Map<Integer, Integer> loadAll(Collection<? extends Integer> keys, Object arg) {
@@ -233,7 +240,8 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void loadAll_1Found1Not() throws Exception {
-        Cache<Integer, Integer> cache = createCache();
+        Cache<Integer, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Integer, Integer>createCacheBuilder(CACHE_NAME).build();
 
         CacheLoader<Integer, Integer> cl = new SimpleCacheLoader<Integer>();
         Integer keyThere = 1;
@@ -252,7 +260,8 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void loadAll_NoCacheLoader() throws Exception {
-        Cache<Integer, Integer> cache = createCache();
+        Cache<Integer, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Integer, Integer>createCacheBuilder(CACHE_NAME).build();
         ArrayList<Integer> keys = new ArrayList<Integer>();
         keys.add(1);
         try {

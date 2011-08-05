@@ -20,13 +20,11 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import javax.cache.util.ExcludeListExcluder;
-
 import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
@@ -119,34 +117,6 @@ public class CacheManagerFactoryTest {
         String name1 = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "1";
         String name2 = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "2";
         assertNotSame(CacheManagerFactory.INSTANCE.getCacheManager(name1), CacheManagerFactory.INSTANCE.getCacheManager(name2));
-    }
-
-    @Test
-    public void createCacheConfiguration() {
-        CacheConfiguration cacheConfiguration = CacheManagerFactory.INSTANCE.createCacheConfiguration();
-        assertNotNull(cacheConfiguration);
-        assertNotSame(cacheConfiguration, CacheManagerFactory.INSTANCE.createCacheConfiguration());
-    }
-
-    @Test
-    public void createCache_Uninitialized() {
-        String name = "fred";
-        Cache cache = CacheManagerFactory.INSTANCE.createCache(name);
-        assertEquals(CacheStatus.UNINITIALISED, cache.getStatus());
-    }
-
-    @Test
-    public void createCache_NoManager() {
-        String name = "fred";
-        Cache cache = CacheManagerFactory.INSTANCE.createCache(name);
-        assertNull(cache.getCacheManager());
-    }
-
-    @Test
-    public void createCache_NamedDifferent() {
-        String name = "fred";
-        assertNotSame(CacheManagerFactory.INSTANCE.createCache(name),
-                CacheManagerFactory.INSTANCE.createCache(name));
     }
 
     @Test

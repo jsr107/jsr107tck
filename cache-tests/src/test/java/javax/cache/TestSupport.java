@@ -41,35 +41,10 @@ class TestSupport {
      */
     protected static final String CACHE_NAME = "testCache";
 
-    protected CacheConfiguration createCacheConfiguration() {
-        return CacheManagerFactory.INSTANCE.createCacheConfiguration();
-    }
-
-    protected CacheManager getCacheManager() {
-        return CacheManagerFactory.INSTANCE.getCacheManager();
-    }
-
-    protected CacheManager getCacheManager(String name) {
-        return CacheManagerFactory.INSTANCE.getCacheManager(name);
-    }
-
-    protected <K, V> Cache<K, V> createCache() {
-        return getCacheManager().
-                <K, V>createCacheBuilder(CACHE_NAME).
-                build();
-    }
-
     protected <K, V> Cache<K, V> createCache(CacheLoader<K, V> cacheLoader) {
-        return getCacheManager().
+        return CacheManagerFactory.INSTANCE.getCacheManager().
                 <K, V>createCacheBuilder(CACHE_NAME).
                 setCacheLoader(cacheLoader).
-                build();
-    }
-
-    protected <K, V> Cache<K, V> createCache(CacheConfiguration config) {
-        return getCacheManager().
-                <K, V>createCacheBuilder(CACHE_NAME).
-                setCacheConfiguration(config).
                 build();
     }
 

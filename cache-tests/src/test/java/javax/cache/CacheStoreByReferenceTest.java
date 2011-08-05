@@ -222,8 +222,10 @@ public class CacheStoreByReferenceTest extends TestSupport {
     // ---------- utilities ----------
 
     private <A, B> Cache<A, B> createByReferenceCache() {
-        CacheConfiguration config = createCacheConfiguration();
+        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheConfiguration config = cacheManager.createCacheConfiguration();
         config.setStoreByValue(false);
-        return createCache(config);
+        Cache<A, B> cache = cacheManager.<A, B>createCacheBuilder(CACHE_NAME).setCacheConfiguration(config).build();
+        return cache;
     }
 }

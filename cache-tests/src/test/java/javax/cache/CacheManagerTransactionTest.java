@@ -46,7 +46,7 @@ public class CacheManagerTransactionTest extends TestSupport {
 
     @Test
     public void getUserTransaction() throws Exception {
-        CacheManager cm = getCacheManager();
+        CacheManager cm = CacheManagerFactory.INSTANCE.getCacheManager();
         UserTransaction userTrans = (UserTransaction) cm.getUserTransaction();
         assertEquals(javax.transaction.Status.STATUS_NO_TRANSACTION , userTrans.getStatus());
     }

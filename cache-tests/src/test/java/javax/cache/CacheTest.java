@@ -55,13 +55,15 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getCacheName() {
-        Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
         assertEquals(CACHE_NAME, cache.getName());
     }
 
     @Test
     public void get_NotStarted() {
-        Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
         cache.stop();
         try {
             cache.get(null);
@@ -73,7 +75,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void get_NullKey() {
-        Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
         try {
             assertNull(cache.get(null));
             fail("should have thrown an exception - null key not allowed");
@@ -84,7 +87,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void get_NotExisting() {
-        Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
 
         String existingKey = "key1";
         Integer existingValue = 1;
@@ -96,7 +100,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void get_Existing_ByValue() {
-        Cache<String, Integer> cache = createByValueCache();
+        Cache<String, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
 
         String existingKey = "key1";
         Integer existingValue = 1;
@@ -106,7 +111,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void get_ExistingWithEqualButNonSameKey_ByValue() {
-        Cache<Date, Integer> cache = createByValueCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
 
         long now = System.currentTimeMillis();
         Date existingKey = new Date(now);
@@ -119,7 +125,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void test_ExistingWithMutableKey_ByValue() {
-        Cache<Date, Integer> cache = createByValueCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
 
         long now = System.currentTimeMillis();
         Date key1 = new Date(now);
@@ -134,7 +141,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void put_NotStarted() {
-        Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
         cache.stop();
         try {
             cache.put(null, null);
@@ -146,7 +154,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void put_NullKey() throws Exception {
-        Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
         try {
             cache.put(null, 1);
             fail("should have thrown an exception - null key not allowed");
@@ -157,7 +166,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void put_NullValue() throws Exception {
-        Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
         try {
             cache.put("key", null);
             fail("should have thrown an exception - null value not allowed");
@@ -168,7 +178,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void put_ExistingWithEqualButNonSameKey_ByValue() throws Exception {
-        Cache<Date, Integer> cache = createByValueCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
 
         long now = System.currentTimeMillis();
         Date key1 = new Date(now);
@@ -182,7 +193,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void put_Mutable_ByValue() {
-        Cache<Integer, Date> cache = createByValueCache();
+        Cache<Integer, Date> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Integer, Date>createCacheBuilder(CACHE_NAME).build();
         long time1 = System.currentTimeMillis();
         Date value1 = new Date(time1);
         Integer key = 1;
@@ -197,7 +209,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getAndPut_NotStarted() {
-        Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
         cache.stop();
         try {
             cache.getAndPut(null, null);
@@ -209,7 +222,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getAndPut_NullKey() throws Exception {
-        Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
         try {
             cache.getAndPut(null, 1);
             fail("should have thrown an exception - null key not allowed");
@@ -220,7 +234,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getAndPut_NullValue() throws Exception {
-        Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
         try {
             cache.getAndPut("key", null);
             fail("should have thrown an exception - null value not allowed");
@@ -231,7 +246,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getAndPut_ExistingWithEqualButNonSameKey_ByValue() throws Exception {
-        Cache<Date, Integer> cache = createByValueCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
 
         long now = System.currentTimeMillis();
         Date key1 = new Date(now);
@@ -245,7 +261,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getAndPut_Mutable_ByValue() {
-        Cache<Long, Date> cache = createByValueCache();
+        Cache<Long, Date> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Long, Date>createCacheBuilder(CACHE_NAME).build();
 
         long key = System.currentTimeMillis();
         Date value = new Date(key);
@@ -257,7 +274,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void remove_NotStarted() {
-        Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
         cache.stop();
         try {
             cache.remove(null);
@@ -269,7 +287,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void remove_NullKey() throws Exception {
-        Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
         try {
             assertFalse(cache.remove(null));
             fail("should have thrown an exception - null key not allowed");
@@ -280,7 +299,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void remove_NotExistent() throws Exception {
-        Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
 
         String existingKey = "key1";
         Integer existingValue = 1;
@@ -293,7 +313,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void remove_EqualButNotSameKey() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
 
         long now = System.currentTimeMillis();
 
@@ -312,7 +333,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getAndRemove_NotStarted() {
-        Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
         cache.stop();
         try {
             cache.getAndRemove(null);
@@ -324,7 +346,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getAndRemove_NullKey() throws Exception {
-        final Cache<String, Integer> cache = createCache();
+        final Cache<String, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
         try {
             assertNull(cache.getAndRemove(null));
             fail("should have thrown an exception - null key not allowed");
@@ -335,8 +358,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getAndRemove_NotExistent() throws Exception {
-        final Cache<String, Integer> cache = createCache();
-
+        final Cache<String, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
 
         final String existingKey = "key1";
         final Integer existingValue = 1;
@@ -349,7 +372,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getAndRemove_EqualButNotSameKey() {
-        final Cache<Date, Integer> cache = createCache();
+        final Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         final long now = System.currentTimeMillis();
 
         final Date key1 = new Date(now);
@@ -367,7 +391,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getAndRemove_ByValue() {
-        final Cache<Long, Date> cache = createByValueCache();
+        final Cache<Long, Date> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Long, Date>createCacheBuilder(CACHE_NAME).build();
 
         final Long key = System.currentTimeMillis();
         final Date value = new Date(key);
@@ -381,7 +406,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getAll_NotStarted() {
-        Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
         cache.stop();
         try {
             cache.getAll(null);
@@ -393,7 +419,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getAll_Null() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         try {
             cache.getAll(null);
             fail("should have thrown an exception - null keys not allowed");
@@ -404,7 +431,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getAll_NullKey() {
-        Cache<Integer, String> cache = createCache();
+        Cache<Integer, String> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Integer, String>createCacheBuilder(CACHE_NAME).build();
         ArrayList<Integer> keys = new ArrayList<Integer>();
         keys.add(1);
         keys.add(null);
@@ -419,7 +447,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getAll() {
-        Cache<Integer, Integer> cache = createCache();
+        Cache<Integer, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Integer, Integer>createCacheBuilder(CACHE_NAME).build();
 
         ArrayList<Integer> keysInCache = new ArrayList<Integer>();
         keysInCache.add(1);
@@ -448,7 +477,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void containsKey_NotStarted() {
-        Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
         cache.stop();
         try {
             cache.containsKey(null);
@@ -460,7 +490,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void containsKey_Null() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         try {
             assertFalse(cache.containsKey(null));
             fail("should have thrown an exception - null key not allowed");
@@ -471,7 +502,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void containsKey() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         Map<Date, Integer> data = createData(3);
         for (Map.Entry<Date, Integer> entry : data.entrySet()) {
             assertFalse(cache.containsKey(entry.getKey()));
@@ -485,7 +517,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void load_NotStarted() {
-        Cache<Integer, Integer> cache = createCache();
+        Cache<Integer, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Integer, Integer>createCacheBuilder(CACHE_NAME).build();
         cache.stop();
         try {
             cache.load(null, null, null);
@@ -497,15 +530,18 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getCacheStatistics() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         assertNull(cache.getStatistics());
     }
 
     @Test
     public void getStatistics_NotEnabled() {
-        CacheConfiguration config = createCacheConfiguration();
+        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheConfiguration config = cacheManager.createCacheConfiguration();
         config.setStatisticsEnabled(false);
-        Cache<Date, Integer> cache = createCache(config);
+        Cache<Date, Integer> cache = cacheManager.<Date, Integer>createCacheBuilder(CACHE_NAME).
+                setCacheConfiguration(config).build();
         assertNull(cache.getStatistics());
     }
 
@@ -517,25 +553,28 @@ public class CacheTest extends TestSupport {
     @Test
     public void createCacheWithConfiguration() {
         CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
-        CacheConfiguration cacheConfiguration = CacheManagerFactory.INSTANCE.createCacheConfiguration();
+        CacheConfiguration cacheConfiguration = cacheManager.createCacheConfiguration();
         cacheConfiguration.setReadThrough(false);
-        Cache testCache = cacheManager.createCacheBuilder("test").setCacheConfiguration(cacheConfiguration).build();
+        Cache testCache = cacheManager.createCacheBuilder(CACHE_NAME).setCacheConfiguration(cacheConfiguration).build();
         assertNotNull(testCache);
     }
 
     @Test
     public void getStatistics_Enabled() {
-        CacheConfiguration config = createCacheConfiguration();
+        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheConfiguration config = cacheManager.createCacheConfiguration();
         config.setStatisticsEnabled(true);
-        Cache<Date, Integer> cache = createCache(config);
+        Cache<Date, Integer> cache = cacheManager.<Date, Integer>createCacheBuilder(CACHE_NAME)
+                .setCacheConfiguration(config).build();
         assertNotNull(cache.getStatistics());
     }
 
     @Test
     public void registerCacheEntryListener() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         CacheEntryReadListener<Date, Integer> listener = new MyCacheEntryListener<Date, Integer>();
-        cache.registerCacheEntryListener(listener, NotificationScope.ALL);
+        cache.registerCacheEntryListener(listener, NotificationScope.LOCAL, false);
         //TODO: more
         //todo prevent null listener
     }
@@ -546,9 +585,10 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void unregisterCacheEntryListener() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         CacheEntryReadListener<Date, Integer> listener = new MyCacheEntryListener<Date, Integer>();
-        cache.registerCacheEntryListener(listener, NotificationScope.ALL);
+        cache.registerCacheEntryListener(listener, NotificationScope.LOCAL, false);
         cache.unregisterCacheEntryListener(null);
         cache.unregisterCacheEntryListener(listener);
 
@@ -557,7 +597,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void putAll_NotStarted() {
-        Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
         cache.stop();
         try {
             cache.putAll(null);
@@ -569,7 +610,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void putAll_Null() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         try {
             cache.putAll(null);
             fail("should have thrown an exception - null map not allowed");
@@ -580,7 +622,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void putAll_NullKey() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         Map<Date, Integer> data = createData(3);
         // note: using LinkedHashMap, we have made an effort to ensure the null
         // be added after other "good" values.
@@ -600,7 +643,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void putAll_NullValue() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         Map<Date, Integer> data = createData(3);
         // note: using LinkedHashMap, we have made an effort to ensure the null
         // be added after other "good" values.
@@ -615,7 +659,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void putAll_ByValue() {
-        Cache<Date, Integer> cache = createByValueCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         Map<Date, Integer> data = createData(3);
         cache.putAll(data);
         for (Map.Entry<Date, Integer> entry : data.entrySet()) {
@@ -625,7 +670,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void putIfAbsent_NotStarted() {
-        Cache<String, Integer> cache = createCache();
+        Cache<String, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
         cache.stop();
         try {
             cache.putIfAbsent(null, null);
@@ -637,7 +683,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void putIfAbsent_NullKey() throws Exception {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         try {
             assertFalse(cache.putIfAbsent(null, 1));
             fail("should have thrown an exception - null key not allowed");
@@ -648,7 +695,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void putIfAbsent_NullValue() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         try {
             cache.putIfAbsent(new Date(), null);
             fail("should have thrown an exception - null value not allowed");
@@ -659,7 +707,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void putIfAbsent_Missing_ByValue() {
-        Cache<Date, Long> cache = createByValueCache();
+        Cache<Date, Long> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Long>createCacheBuilder(CACHE_NAME).build();
 
         Date key = new Date();
         Long value = key.getTime();
@@ -669,7 +718,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void putIfAbsent_There_ByValue() {
-        Cache<Date, Long> cache = createByValueCache();
+        Cache<Date, Long> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Long>createCacheBuilder(CACHE_NAME).build();
 
         Date key = new Date();
         Long value = key.getTime();
@@ -681,7 +731,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void replace_3arg_NotStarted() {
-        Cache<String, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         cache.stop();
         try {
             cache.replace(null, null, null);
@@ -693,7 +744,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void replace_3arg_NullKey() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         try {
             assertFalse(cache.replace(null, 1, 2));
             fail("should have thrown an exception - null key not allowed");
@@ -704,7 +756,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void replace_3arg_NullValue1() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         try {
             assertFalse(cache.replace(new Date(), null, 2));
             fail("should have thrown an exception - null value not allowed");
@@ -715,7 +768,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void replace_3arg_NullValue2() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         try {
             assertFalse(cache.replace(new Date(), 1, null));
             fail("should have thrown an exception - null value not allowed");
@@ -726,7 +780,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void replace_3arg_Missing() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         Date key = new Date();
         assertFalse(cache.replace(key, 1, 2));
         assertFalse(cache.containsKey(key));
@@ -734,7 +789,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void replace_3arg_Different() {
-        Cache<Date, Long> cache = createCache();
+        Cache<Date, Long> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Long>createCacheBuilder(CACHE_NAME).build();
 
         Date key = new Date();
         Long value = key.getTime();
@@ -747,7 +803,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void replace_3arg_ByValue() throws Exception {
-        Cache<Date, Long> cache = createByValueCache();
+        Cache<Date, Long> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Long>createCacheBuilder(CACHE_NAME).build();
 
         Date key = new Date();
         Long value = key.getTime();
@@ -759,7 +816,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void replace_2arg_NotStarted() {
-        Cache<String, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         cache.stop();
         try {
             cache.replace(null, null);
@@ -771,7 +829,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void replace_2arg_NullKey() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         try {
             assertFalse(cache.replace(null, 1));
             fail("should have thrown an exception - null key not allowed");
@@ -782,7 +841,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void replace_2arg_NullValue() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         try {
             assertFalse(cache.replace(new Date(), null));
             fail("should have thrown an exception - null value not allowed");
@@ -793,7 +853,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void replace_2arg_Missing() throws Exception {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         Date key = new Date();
         assertFalse(cache.replace(key, 1));
         assertFalse(cache.containsKey(key));
@@ -801,7 +862,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void replace_2arg() {
-        Cache<Date, Long> cache = createCache();
+        Cache<Date, Long> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Long>createCacheBuilder(CACHE_NAME).build();
         Date key = new Date();
         Long value = key.getTime();
         cache.put(key, value);
@@ -812,7 +874,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getAndReplace_NotStarted() {
-        Cache<String, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         cache.stop();
         try {
             cache.getAndReplace(null, null);
@@ -824,7 +887,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getAndReplace_NullKey() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         try {
             assertNull(cache.getAndReplace(null, 1));
             fail("should have thrown an exception - null key not allowed");
@@ -835,7 +899,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getAndReplace_NullValue() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         try {
             assertNull(cache.getAndReplace(new Date(), null));
             fail("should have thrown an exception - null value not allowed");
@@ -846,7 +911,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getAndReplace_Missing() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         Date key = new Date();
         assertNull(cache.getAndReplace(key, 1));
         assertFalse(cache.containsKey(key));
@@ -854,7 +920,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getAndReplace_ByValue() {
-        Cache<Long, Date> cache = createByValueCache();
+        Cache<Long, Date> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Long, Date>createCacheBuilder(CACHE_NAME).build();
 
         Long key = System.currentTimeMillis();
         Date value = new Date(key);
@@ -868,7 +935,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void removeAll_NotStarted() {
-        Cache<String, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         cache.stop();
         try {
             cache.removeAll(null);
@@ -880,7 +948,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void removeAll_1arg_Null() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         try {
             cache.removeAll(null);
             fail("should have thrown an exception - null keys not allowed");
@@ -891,7 +960,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void removeAll_1arg_NullKey() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         ArrayList<Date> keys = new ArrayList<Date>();
         keys.add(null);
 
@@ -905,7 +975,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void removeAll_1arg() {
-        Cache<Integer, Integer> cache = createCache();
+        Cache<Integer, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Integer, Integer>createCacheBuilder(CACHE_NAME).build();
         Map<Integer, Integer> data = new HashMap<Integer, Integer>();
         data.put(1, 1);
         data.put(2, 2);
@@ -921,7 +992,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void removeAll() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         Map<Date, Integer> data = createData(3);
         cache.putAll(data);
         cache.removeAll();
@@ -932,24 +1004,26 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void getConfiguration_Default() {
-        Cache<Date, Integer> cache = createCache();
+        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        Cache<Date, Integer> cache = cacheManager.<Date, Integer>createCacheBuilder(CACHE_NAME).build();
         CacheConfiguration config = cache.getConfiguration();
         // defaults
-        CacheConfiguration defaultConfig = createCacheConfiguration();
+        CacheConfiguration defaultConfig = cacheManager.createCacheConfiguration();
         assertEquals(defaultConfig, config);
     }
 
     @Test
     public void getConfiguration_SuppliedInConstructor() {
         String cacheName = CACHE_NAME + "XXX";
-        CacheConfiguration defaultConfig = createCacheConfiguration();
-        CacheConfiguration expectedConfig = createCacheConfiguration();
+        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheConfiguration defaultConfig = cacheManager.createCacheConfiguration();
+        CacheConfiguration expectedConfig = cacheManager.createCacheConfiguration();
         expectedConfig.setReadThrough(!defaultConfig.isReadThrough());
         expectedConfig.setWriteThrough(!defaultConfig.isWriteThrough());
         expectedConfig.setStoreByValue(!defaultConfig.isStoreByValue());
         expectedConfig.setTransactionEnabled(!defaultConfig.isTransactionEnabled());
 
-        Cache<Date, Integer> cache = getCacheManager().
+        Cache<Date, Integer> cache = cacheManager.
                 <Date, Integer>createCacheBuilder(cacheName).
                 setCacheConfiguration(expectedConfig).
                 build();
@@ -978,7 +1052,7 @@ public class CacheTest extends TestSupport {
     public void getConfiguration_Mutation() {
         String cacheName = CACHE_NAME + "YYY";
 
-        Cache<Date, Integer> cache = getCacheManager().
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
                 <Date, Integer>createCacheBuilder(cacheName).
                 build();
 
@@ -1005,7 +1079,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void iterator_NotStarted() {
-        Cache<String, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         cache.stop();
         try {
             cache.iterator();
@@ -1017,7 +1092,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void iterator_Empty() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         Iterator<Cache.Entry<Date, Integer>> iterator = cache.iterator();
         assertFalse(iterator.hasNext());
         try {
@@ -1051,7 +1127,8 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void iterator() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         LinkedHashMap<Date, Integer> data = createData(3);
         cache.putAll(data);
         Iterator<Cache.Entry<Date, Integer>> iterator = cache.iterator();
@@ -1066,24 +1143,20 @@ public class CacheTest extends TestSupport {
 
     @Test
     public void initialise() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         assertEquals(CacheStatus.STARTED, cache.getStatus());
     }
 
     @Test
     public void stop() {
-        Cache<Date, Integer> cache = createCache();
+        Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
+                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         cache.stop();
         assertEquals(CacheStatus.STOPPED, cache.getStatus());
     }
 
     // ---------- utilities ----------
-
-    private <A, B> Cache<A, B> createByValueCache() {
-        CacheConfiguration config = createCacheConfiguration();
-        config.setStoreByValue(true);
-        return createCache(config);
-    }
 
     /**
      * Test listener
@@ -1120,7 +1193,7 @@ public class CacheTest extends TestSupport {
          */
         @Override
         public NotificationScope getNotificationScope() {
-            return NotificationScope.ALL;
+            return NotificationScope.LOCAL;
         }
     }
 }
