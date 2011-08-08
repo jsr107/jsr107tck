@@ -19,7 +19,7 @@ package manager;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.cache.interceptor.CachingDefaults;
+import javax.cache.interceptor.CacheDefaults;
 import javax.cache.interceptor.CacheRemoveAll;
 import javax.cache.interceptor.CacheRemoveEntry;
 import javax.cache.interceptor.CacheResult;
@@ -33,7 +33,7 @@ import domain.Blog;
  * @author Rick Hightower
  * 
  */
-@CachingDefaults(cacheName="blgMngr")
+@CacheDefaults(cacheName="blgMngr")
 public class ClassLevelCacheConfigBlogManagerImpl implements BlogManager {
 
     /**
