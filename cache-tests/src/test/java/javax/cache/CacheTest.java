@@ -547,8 +547,6 @@ public class CacheTest extends TestSupport {
 
     /**
      * Inline example of creating a cache
-     *
-     * @todo ugly. Needs a proper fluent style.
      */
     @Test
     public void createCacheWithConfiguration() {

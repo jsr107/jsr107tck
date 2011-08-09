@@ -56,10 +56,15 @@ public class CacheConfigurationTest {
         assertNotSame(cacheManager.createCacheConfiguration(), cacheManager.createCacheConfiguration());
     }
 
+    /**
+     *
+     */
     @Test
     public void equals() {
         CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
-        assertEquals(cacheManager.createCacheConfiguration(), cacheManager.createCacheConfiguration());
+        CacheConfiguration cacheConfiguration1 = cacheManager.createCacheConfiguration();
+        CacheConfiguration cacheConfiguration2 = cacheManager.createCacheConfiguration();
+        assertTrue(cacheConfiguration1.equals(cacheConfiguration2));
     }
 
     @Test
