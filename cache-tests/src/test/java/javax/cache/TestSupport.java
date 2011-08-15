@@ -32,9 +32,9 @@ import static org.junit.Assert.assertSame;
 class TestSupport {
 
     /**
-     * the logger
+     * The logger
      */
-    protected final Logger logger = Logger.getLogger(getClass().getName());
+    protected static final Logger LOG = Logger.getLogger(TestSupport.class.getName());
 
     /**
      * the default test cache name
