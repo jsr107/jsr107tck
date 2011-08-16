@@ -24,6 +24,7 @@
  implementation does not support the feature as interrogated by a capabilities on CacheManagerFactoryProvider.
 
 
+ @author Yannis Cosmadopoulos
  @author Greg Luck
  */
 package javax.cache;
