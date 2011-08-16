@@ -36,6 +36,7 @@ import static org.junit.Assert.assertTrue;
  * <p/>
  *
  * @author Yannis Cosmadopoulos
+ * @since 1.0
  */
 public class CacheStoreByReferenceTest extends TestSupport {
 

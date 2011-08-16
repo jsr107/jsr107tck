@@ -28,6 +28,7 @@ import static org.junit.Assert.assertSame;
  * <p/>
  *
  * @author Yannis Cosmadopoulos
+ * @since 1.0
  */
 class TestSupport {
 

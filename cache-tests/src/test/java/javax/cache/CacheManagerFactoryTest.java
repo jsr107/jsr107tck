@@ -34,7 +34,7 @@ import static org.junit.Assert.fail;
  * CacheManagerFactory to create instances of {@link CacheManager}
  *
  * @author Yannis Cosmadopoulos
- * @since 1.7
+ * @since 1.0
  *
  * @see CacheManagerFactory
  */

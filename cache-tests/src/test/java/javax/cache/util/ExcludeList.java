@@ -32,7 +32,7 @@ import java.util.logging.Logger;
  *
  *
  * @author Yannis Cosmadopoulos
- * @since 1.7
+ * @since 1.0
  */
 public enum ExcludeList {
     /**

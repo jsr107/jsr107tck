@@ -45,6 +45,7 @@ import static org.junit.Assert.fail;
  * <p/>
  *
  * @author Yannis Cosmadopoulos
+ * @since 1.0
  */
 public class CacheTest extends TestSupport {
     /**
