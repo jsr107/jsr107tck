@@ -64,8 +64,7 @@ public class CacheConfigurationTest {
         CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
         CacheConfiguration cacheConfiguration1 = cacheManager.createCacheConfiguration();
         CacheConfiguration cacheConfiguration2 = cacheManager.createCacheConfiguration();
-        //Uses ==
-        assertFalse(cacheConfiguration1.equals(cacheConfiguration2));
+        assertTrue(cacheConfiguration1.equals(cacheConfiguration2));
     }
 
     @Test

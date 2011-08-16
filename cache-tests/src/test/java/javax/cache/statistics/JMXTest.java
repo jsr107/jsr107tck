@@ -53,7 +53,7 @@ public class JMXTest {
      */
     @Before
     public void setUp() throws Exception {
-        cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        cacheManager = CacheManagerFactory.INSTANCE.getCacheManager(this.getClass().getName());
     }
 
     @After
