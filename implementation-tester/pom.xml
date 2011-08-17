@@ -4,12 +4,12 @@
 
     <groupId>javax.cache</groupId>
     <artifactId>implementation-tester</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.2</version>
     <packaging>jar</packaging>
     <parent>
         <groupId>javax.cache</groupId>
         <artifactId>tck-parent</artifactId>
-        <version>0.2-SNAPSHOT</version>
+        <version>0.2</version>
     </parent>
 
     <name>Implementation Tester</name>
@@ -25,10 +25,10 @@
         <!--Change the following properties on the command line to override with the coordinates for your implementation-->
         <!--e.g. mvn clean test -Dimplementation-groupId=javax.cache.implementation
                                 -Dimplementation-artifactId=cache-ri
-                                -Dimplementation-version=0.2-SNAPSHOT-->
+                                -Dimplementation-version=0.2-->
         <implementation-groupId>javax.cache.implementation</implementation-groupId>
         <implementation-artifactId>cache-ri</implementation-artifactId>
-        <implementation-version>0.2-SNAPSHOT</implementation-version>
+        <implementation-version>0.2</implementation-version>
 
 
     </properties>
@@ -46,7 +46,7 @@
             <artifactId>cache-tests</artifactId>
             <classifier>tests</classifier>
             <scope>test</scope>
-            <version>0.2-SNAPSHOT</version>
+            <version>0.2</version>
         </dependency>
 
     </dependencies>

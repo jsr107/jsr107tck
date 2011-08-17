@@ -4,12 +4,12 @@
 
     <groupId>javax.cache</groupId>
     <artifactId>test-domain</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.2</version>
     <packaging>jar</packaging>
     <parent>
         <groupId>javax.cache</groupId>
         <artifactId>tck-parent</artifactId>
-        <version>0.2-SNAPSHOT</version>
+        <version>0.2</version>
     </parent>
 
     <name>Test Domain</name>
@@ -27,7 +27,7 @@
         <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
-            <version>0.2-SNAPSHOT</version>
+            <version>0.2</version>
         </dependency>
     </dependencies>
 

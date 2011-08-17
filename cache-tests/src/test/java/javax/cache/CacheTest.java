@@ -1008,7 +1008,8 @@ public class CacheTest extends TestSupport {
         CacheConfiguration config = cache.getConfiguration();
         // defaults
         CacheConfiguration defaultConfig = cacheManager.createCacheConfiguration();
-        assertEquals(defaultConfig, config);
+        //separate instances
+        assertNotSame(defaultConfig, config);
     }
 
     @Test
