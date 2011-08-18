@@ -9,7 +9,7 @@
     <parent>
         <groupId>javax.cache</groupId>
         <artifactId>tck-parent</artifactId>
-        <version>0.2</version>
+        <version>0.3-SNAPSHOT</version>
     </parent>
 
     <name>Implementation Tester</name>
@@ -46,7 +46,7 @@
             <artifactId>cache-tests</artifactId>
             <classifier>tests</classifier>
             <scope>test</scope>
-            <version>0.2</version>
+            <version>0.3-SNAPSHOT</version>
         </dependency>
 
     </dependencies>
