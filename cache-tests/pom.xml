@@ -3,11 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>javax.cache</groupId>
     <artifactId>cache-tests</artifactId>
-<<<<<<< HEAD
     <version>${parent.version}</version>
-=======
-    <version>0.3-SNAPSHOT</version>
->>>>>>> 3bdd065a0ff79799eae0288e52d4d1d2dd6c87e4
     <packaging>jar</packaging>
     <parent>
         <groupId>javax.cache</groupId>
