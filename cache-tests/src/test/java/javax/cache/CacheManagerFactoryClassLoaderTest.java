@@ -38,7 +38,7 @@ import static org.junit.Assert.fail;
  *
  * @see CacheManagerFactory
  */
-public class CacheManagerFactoryTest {
+public class CacheManagerFactoryClassLoaderTest {
     /**
      * Rule used to exclude tests
      */
@@ -50,9 +50,10 @@ public class CacheManagerFactoryTest {
      */
     @Test
     public void getCacheManager_singleton() {
-        CacheManager defaultCacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        CacheManager defaultCacheManager = CacheManagerFactory.INSTANCE.getCacheManager(cl);
         assertNotNull(defaultCacheManager);
-        assertSame(defaultCacheManager, CacheManagerFactory.INSTANCE.getCacheManager());
+        assertSame(defaultCacheManager, CacheManagerFactory.INSTANCE.getCacheManager(cl));
     }
 
     /**
@@ -62,7 +63,8 @@ public class CacheManagerFactoryTest {
      */
     @Test
     public void getCacheManager_name() {
-        CacheManager defaultCacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        CacheManager defaultCacheManager = CacheManagerFactory.INSTANCE.getCacheManager(cl);
         assertSame(CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME, defaultCacheManager.getName());
     }
 
@@ -72,8 +74,9 @@ public class CacheManagerFactoryTest {
      */
     @Test
     public void getCacheManager_named_default() {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
         String name = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME;
-        assertSame(CacheManagerFactory.INSTANCE.getCacheManager(), CacheManagerFactory.INSTANCE.getCacheManager(name));
+        assertSame(CacheManagerFactory.INSTANCE.getCacheManager(cl), CacheManagerFactory.INSTANCE.getCacheManager(cl, name));
     }
 
     /**
@@ -82,10 +85,11 @@ public class CacheManagerFactoryTest {
      */
     @Test
     public void getCacheManager_named() {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
         String name = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "1";
-        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager(name);
+        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager(cl, name);
         assertNotNull(cacheManager);
-        assertSame(cacheManager, CacheManagerFactory.INSTANCE.getCacheManager(name));
+        assertSame(cacheManager, CacheManagerFactory.INSTANCE.getCacheManager(cl, name));
     }
 
     /**
@@ -94,8 +98,9 @@ public class CacheManagerFactoryTest {
      */
     @Test
     public void getCacheManager_named_name() {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
         String name = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "1";
-        assertEquals(name, CacheManagerFactory.INSTANCE.getCacheManager(name).getName());
+        assertEquals(name, CacheManagerFactory.INSTANCE.getCacheManager(cl, name).getName());
     }
 
     /**
@@ -104,8 +109,9 @@ public class CacheManagerFactoryTest {
      */
     @Test
     public void getCacheManager_named_notDefault() {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
         String name = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "1";
-        assertNotSame(CacheManagerFactory.INSTANCE.getCacheManager(), CacheManagerFactory.INSTANCE.getCacheManager(name));
+        assertNotSame(CacheManagerFactory.INSTANCE.getCacheManager(cl), CacheManagerFactory.INSTANCE.getCacheManager(cl, name));
     }
 
     /**
@@ -114,26 +120,9 @@ public class CacheManagerFactoryTest {
      */
     @Test
     public void getCacheManager_named_different() {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
         String name1 = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "1";
         String name2 = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "2";
-        assertNotSame(CacheManagerFactory.INSTANCE.getCacheManager(name1), CacheManagerFactory.INSTANCE.getCacheManager(name2));
-    }
-
-    @Test
-    public void isSupported() {
-        OptionalFeature[] features = OptionalFeature.values();
-        for (OptionalFeature feature:features) {
-            boolean value = CacheManagerFactory.INSTANCE.isSupported(feature);
-            Logger.getLogger(getClass().getName()).info("Optional feature " + feature + " supported=" + value);
-        }
-    }
-
-    /**
-     * Used to confirm that file exclusion works.
-     * @see #rule
-     */
-    @Test
-    public void dummyTest() {
-        fail();
+        assertNotSame(CacheManagerFactory.INSTANCE.getCacheManager(cl, name1), CacheManagerFactory.INSTANCE.getCacheManager(cl, name2));
     }
 }
