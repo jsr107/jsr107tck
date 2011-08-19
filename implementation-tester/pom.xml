@@ -28,7 +28,7 @@
                                 -Dimplementation-version=0.2-->
         <implementation-groupId>javax.cache.implementation</implementation-groupId>
         <implementation-artifactId>cache-ri</implementation-artifactId>
-        <implementation-version>0.3-snapshot</implementation-version>
+        <implementation-version>${parent.version}</implementation-version>
 
 
     </properties>
