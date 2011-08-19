@@ -67,56 +67,56 @@ public class CacheManagerFactoryTest {
     }
 
     /**
-     * {@link CacheManagerFactory#getCacheManager(String)} invoked with {@link CacheManagerFactory#DEFAULT_CACHE_MANAGER_NAME}
+     * {@link CacheManagerFactory#getCacheManager(ClassLoader, String)} invoked with {@link CacheManagerFactory#DEFAULT_CACHE_MANAGER_NAME}
      * returns the default CacheManager
      */
     @Test
     public void getCacheManager_named_default() {
         String name = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME;
-        assertSame(CacheManagerFactory.INSTANCE.getCacheManager(), CacheManagerFactory.INSTANCE.getCacheManager(name));
+        assertSame(CacheManagerFactory.INSTANCE.getCacheManager(), CacheManagerFactory.INSTANCE.getCacheManager(null, name));
     }
 
     /**
-     * Multiple invocations of {@link CacheManagerFactory#getCacheManager(String)} with the same name
+     * Multiple invocations of {@link CacheManagerFactory#getCacheManager(ClassLoader, String)} with the same name
      * return the same CacheManager instance
      */
     @Test
     public void getCacheManager_named() {
         String name = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "1";
-        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager(name);
+        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager(null, name);
         assertNotNull(cacheManager);
-        assertSame(cacheManager, CacheManagerFactory.INSTANCE.getCacheManager(name));
+        assertSame(cacheManager, CacheManagerFactory.INSTANCE.getCacheManager(null, name));
     }
 
     /**
-     * The name of the CacheManager returned by {@link CacheManagerFactory#getCacheManager(String)} is the same
+     * The name of the CacheManager returned by {@link CacheManagerFactory#getCacheManager(ClassLoader, String)} is the same
      * as the name used in the invocation
      */
     @Test
     public void getCacheManager_named_name() {
         String name = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "1";
-        assertEquals(name, CacheManagerFactory.INSTANCE.getCacheManager(name).getName());
+        assertEquals(name, CacheManagerFactory.INSTANCE.getCacheManager(null, name).getName());
     }
 
     /**
-     * Invocations of {@link CacheManagerFactory#getCacheManager(String)} using a names other
+     * Invocations of {@link CacheManagerFactory#getCacheManager(ClassLoader, String)} using a names other
      * than the default returns a CacheManager other than the default
      */
     @Test
     public void getCacheManager_named_notDefault() {
         String name = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "1";
-        assertNotSame(CacheManagerFactory.INSTANCE.getCacheManager(), CacheManagerFactory.INSTANCE.getCacheManager(name));
+        assertNotSame(CacheManagerFactory.INSTANCE.getCacheManager(), CacheManagerFactory.INSTANCE.getCacheManager(null, name));
     }
 
     /**
-     * Invocations of {@link CacheManagerFactory#getCacheManager(String)} using different names return
+     * Invocations of {@link CacheManagerFactory#getCacheManager(ClassLoader, String)} using different names return
      * different instances
      */
     @Test
     public void getCacheManager_named_different() {
         String name1 = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "1";
         String name2 = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "2";
-        assertNotSame(CacheManagerFactory.INSTANCE.getCacheManager(name1), CacheManagerFactory.INSTANCE.getCacheManager(name2));
+        assertNotSame(CacheManagerFactory.INSTANCE.getCacheManager(null, name1), CacheManagerFactory.INSTANCE.getCacheManager(null, name2));
     }
 
     @Test

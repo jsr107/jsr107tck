@@ -160,7 +160,7 @@ public class CacheManagerTest extends TestSupport {
 
     @Test
     public void removeCache_NotThere() {
-        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager(this.toString());
+        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager(null, this.toString());
         assertFalse(cacheManager.removeCache("c1"));
     }
 
