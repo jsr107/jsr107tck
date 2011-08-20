@@ -21,6 +21,10 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import javax.cache.util.ExcludeListExcluder;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -167,18 +171,27 @@ public class CacheManagerFactoryClassLoaderTest {
         assertNotSame(cacheManager1, factory.getCacheManager(cl1));
     }
 
-    @Test
-    public void foo() {
-        //TODO: need to add the following jar to the classpath
-        // and test serialization/deserialization
-        String domainJar = System.getProperty(DOMAINJAR);
+    private URL[] getDomainJarURIs() throws MalformedURLException {
+        String domainJar = System.getProperty(DOMAINJAR,
+                "C:/Users/yannis/IdeaProjects/jsr107/jsr107tck/implementation-tester/target/domainlib/domain.jar");
+        return new URL[]{new File(domainJar).toURI().toURL()};
     }
 
     // utilities --------------------------------------------------------------
 
-    private static class MyClassLoader extends ClassLoader {
+    private static class MyClassLoader extends URLClassLoader{
         public MyClassLoader(ClassLoader parent) {
-            super(parent);
+            this(new URL[0], parent);
+        }
+
+        public MyClassLoader(URL[] urls, ClassLoader parent) {
+            super(urls, parent);
+        }
+
+        @Override
+        protected Class<?> findClass(String name) throws ClassNotFoundException {
+            System.out.println("find class-----" + name);
+            return super.findClass(name);
         }
     }
 }
