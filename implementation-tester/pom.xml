@@ -22,6 +22,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+        <domain-lib-dir>${project.build.directory}/domainlib</domain-lib-dir>
+        <domain-jar>domain.jar</domain-jar>
         <!--Change the following properties on the command line to override with the coordinates for your implementation-->
         <!--e.g. mvn clean test -Dimplementation-groupId=javax.cache.implementation
                                 -Dimplementation-artifactId=cache-ri
@@ -54,12 +56,13 @@
     <build>
         <plugins>
 
-            <!--Required because JUnit will not detect tests simply included in a dep-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
+                    <!--Required because JUnit will not detect tests simply included in a dep-->
                     <execution>
+                        <id>copy-cache-tests</id>
                         <goals>
                             <goal>unpack-dependencies</goal>
                         </goals>
@@ -67,6 +70,23 @@
                             <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
                             <includeArtifactIds>cache-tests</includeArtifactIds>
                             <includeScope>test</includeScope>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-domain</id>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>javax.cache</groupId>
+                                    <artifactId>test-domain</artifactId>
+                                    <version>${parent.version}</version>
+                                    <outputDirectory>${domain-lib-dir}</outputDirectory>
+                                    <destFileName>${domain-jar}}</destFileName>
+                                </artifactItem>
+                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>
@@ -82,6 +102,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.9</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <domainJar>${domain-lib-dir}/${domain-jar}</domainJar>
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
 
         </plugins>
@@ -105,6 +130,9 @@
                             <excludes>
                                 <include>**/interceptor/*Test.java</include>
                             </excludes>
+                            <systemPropertyVariables>
+                                <domainJar>${domain-lib-dir}/${domain-jar}</domainJar>
+                            </systemPropertyVariables>
                         </configuration>
                     </plugin>
                 </plugins>

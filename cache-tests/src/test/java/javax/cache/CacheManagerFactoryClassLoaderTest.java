@@ -45,6 +45,10 @@ public class CacheManagerFactoryClassLoaderTest {
      */
     @Rule
     public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
+    /**
+     * this should be set by maven to point at the domain jar
+     */
+    private static final String DOMAINJAR = "domainJar";
 
     @Before
     public void startUp() {
@@ -161,6 +165,13 @@ public class CacheManagerFactoryClassLoaderTest {
         factory.release();
         assertNotSame(cacheManager, factory.getCacheManager(cl));
         assertNotSame(cacheManager1, factory.getCacheManager(cl1));
+    }
+
+    @Test
+    public void foo() {
+        //TODO: need to add the following jar to the classpath
+        // and test serialization/deserialization
+        String domainJar = System.getProperty(DOMAINJAR);
     }
 
     // utilities --------------------------------------------------------------
