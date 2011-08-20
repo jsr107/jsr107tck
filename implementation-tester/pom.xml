@@ -81,10 +81,10 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>javax.cache</groupId>
-                                    <artifactId>test-domain</artifactId>
+                                    <artifactId>app-domain</artifactId>
                                     <version>${parent.version}</version>
                                     <outputDirectory>${domain-lib-dir}</outputDirectory>
-                                    <destFileName>${domain-jar}}</destFileName>
+                                    <destFileName>${domain-jar}</destFileName>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

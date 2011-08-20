@@ -19,6 +19,7 @@
     </parent>
 
     <modules>
+        <module>app-domain</module>
         <module>test-domain</module>
         <module>cache-tests</module>
         <module>implementation-tester</module>
