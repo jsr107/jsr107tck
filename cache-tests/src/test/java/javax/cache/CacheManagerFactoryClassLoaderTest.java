@@ -170,21 +170,21 @@ public class CacheManagerFactoryClassLoaderTest {
     @Test
     public void classLoader() throws Exception {
         AppDomainHandler domainHandler1 = new AppDomainHandler();
-        AppDomainHandler domainHandler2 = new AppDomainHandler();
-
-        Object storedInstance = domainHandler1.newInstanceForDomainClass();
-
+        Class class1 = domainHandler1.getClassForDomainClass();
+        Object storedInstance = class1.newInstance();
         Cache<Integer, Object> cache1 = domainHandler1.getCache();
         cache1.put(1, storedInstance);
         Object o1_1 = cache1.get(1);
         assertSame(storedInstance.getClass(), o1_1.getClass());
-        assertSame(domainHandler1.getClassForDomainClass(), o1_1.getClass());
+        assertSame(class1, o1_1.getClass());
 
+        AppDomainHandler domainHandler2 = new AppDomainHandler();
+        Class class2 = domainHandler2.getClassForDomainClass();
         Cache<Integer, Object> cache2 = domainHandler2.getCache();
         cache2.put(1, storedInstance);
         Object o2_1 = cache2.get(1);
         assertNotSame(storedInstance.getClass(), o2_1.getClass());
-        assertSame(domainHandler2.getClassForDomainClass(), o2_1.getClass());
+        assertSame(class2, o2_1.getClass());
     }
 
     // utilities --------------------------------------------------------------
@@ -216,10 +216,6 @@ public class CacheManagerFactoryClassLoaderTest {
 
         private Cache<Integer, Object> createCache() {
             return CacheManagerFactory.INSTANCE.getCacheManager(classLoader).<Integer, Object>createCacheBuilder("c1").build();
-        }
-
-        public Object newInstanceForDomainClass() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-            return getClassForDomainClass().newInstance();
         }
 
         public Class getClassForDomainClass() throws ClassNotFoundException {
