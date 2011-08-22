@@ -42,8 +42,6 @@ import static org.junit.Assert.assertSame;
  * @see CacheManagerFactory
  */
 public class CacheManagerFactoryClassLoaderTest {
-    private static String TEST_CLASS_NAME = "domain.Zoo";
-
     CacheManagerFactory factory;
 
     /**
@@ -51,10 +49,6 @@ public class CacheManagerFactoryClassLoaderTest {
      */
     @Rule
     public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
-    /**
-     * this should be set by maven to point at the domain jar
-     */
-    private static final String DOMAINJAR = "domainJar";
 
     @Before
     public void startUp() {
@@ -175,38 +169,72 @@ public class CacheManagerFactoryClassLoaderTest {
 
     @Test
     public void classLoader() throws Exception {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        ClassLoader cl1 = new MyClassLoader(getDomainJarURIs(), cl);
-        ClassLoader cl2 = new MyClassLoader(getDomainJarURIs(), cl);
+        AppDomainHandler domainHandler1 = new AppDomainHandler();
+        AppDomainHandler domainHandler2 = new AppDomainHandler();
 
-        Object storedInstance = Class.forName(TEST_CLASS_NAME, false, cl1).newInstance();
-        Cache cache1 = factory.getCacheManager(cl1).createCacheBuilder("c1").build();
+        Object storedInstance = domainHandler1.newInstanceForDomainClass();
+
+        Cache<Integer, Object> cache1 = domainHandler1.getCache();
         cache1.put(1, storedInstance);
         Object o1_1 = cache1.get(1);
         assertSame(storedInstance.getClass(), o1_1.getClass());
+        assertSame(domainHandler1.getClassForDomainClass(), o1_1.getClass());
 
-        Cache cache2 = factory.getCacheManager(cl2).createCacheBuilder("c2").build();
+        Cache<Integer, Object> cache2 = domainHandler2.getCache();
         cache2.put(1, storedInstance);
         Object o2_1 = cache2.get(1);
         assertNotSame(storedInstance.getClass(), o2_1.getClass());
-        assertSame(Class.forName(TEST_CLASS_NAME, false, cl2), o2_1.getClass());
+        assertSame(domainHandler2.getClassForDomainClass(), o2_1.getClass());
     }
 
     // utilities --------------------------------------------------------------
 
-    private URL[] getDomainJarURIs() throws MalformedURLException {
-        String domainJar = System.getProperty(DOMAINJAR,
-                "/Users1/yannis/IdeaProjects/jsr107/jsr107tck/implementation-tester/target/domainlib/domain.jar");
-        return new URL[]{new File(domainJar).toURI().toURL()};
-    }
+    /**
+     * Wrapper round domain program.
+     * Creates a ClassLoader whose parent is the thread
+     */
+    private static class AppDomainHandler {
+        private static String TEST_CLASS_NAME = "domain.Zoo";
+        /**
+         * this should be set by maven to point at the domain jar
+         */
+        private static final String DOMAINJAR = "domainJar";
+        private static final String DEFAULT_DOMAINJAR = "jsr107tck/implementation-tester/target/domainlib/domain.jar";
+        private final ClassLoader classLoader;
+        private final Cache<Integer, Object> cache;
 
-    private static class MyClassLoader extends URLClassLoader{
-        public MyClassLoader(ClassLoader parent) {
-            this(new URL[0], parent);
+        public AppDomainHandler() throws MalformedURLException {
+            this.classLoader = createClassLoader();
+            cache = createCache();
         }
 
-        public MyClassLoader(URL[] urls, ClassLoader parent) {
-            super(urls, parent);
+        private ClassLoader createClassLoader() throws MalformedURLException {
+            String domainJar = System.getProperty(DOMAINJAR, DEFAULT_DOMAINJAR);
+            URL urls[] = new URL[]{new File(domainJar).toURI().toURL()};
+            ClassLoader parent = Thread.currentThread().getContextClassLoader();
+            return new URLClassLoader(urls, parent);
+        }
+
+        private Cache<Integer, Object> createCache() {
+            return CacheManagerFactory.INSTANCE.getCacheManager(classLoader).<Integer, Object>createCacheBuilder("c1").build();
+        }
+
+        public Object newInstanceForDomainClass() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+            return getClassForDomainClass().newInstance();
+        }
+
+        public Class getClassForDomainClass() throws ClassNotFoundException {
+            return Class.forName(TEST_CLASS_NAME, false, classLoader);
+        }
+
+        public Cache<Integer, Object> getCache() {
+            return cache;
+        }
+    }
+
+    private static class MyClassLoader extends ClassLoader{
+        public MyClassLoader(ClassLoader parent) {
+            super(parent);
         }
     }
 }
