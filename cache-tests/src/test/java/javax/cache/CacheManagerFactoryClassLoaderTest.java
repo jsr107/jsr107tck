@@ -191,7 +191,6 @@ public class CacheManagerFactoryClassLoaderTest {
 
     /**
      * Wrapper round domain program.
-     * Creates a ClassLoader whose parent is the thread
      */
     private static class AppDomainHandler {
         private static String TEST_CLASS_NAME = "domain.Zoo";
