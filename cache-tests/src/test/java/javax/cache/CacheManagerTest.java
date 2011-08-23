@@ -74,7 +74,7 @@ public class CacheManagerTest extends TestSupport {
     public void createCache_StatusOK() {
         String name = "c1";
         Cache cache = CacheManagerFactory.INSTANCE.getCacheManager().createCacheBuilder(name).build();
-        assertSame(CacheStatus.STARTED, cache.getStatus());
+        assertSame(Status.STARTED, cache.getStatus());
     }
 
     @Test
@@ -105,7 +105,7 @@ public class CacheManagerTest extends TestSupport {
         CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
         Cache cache = cacheManager.createCacheBuilder(name).
                 setCacheConfiguration(cacheManager.createCacheConfiguration()).build();
-        assertSame(CacheStatus.STARTED, cache.getStatus());
+        assertSame(Status.STARTED, cache.getStatus());
     }
 
     @Test
@@ -113,11 +113,11 @@ public class CacheManagerTest extends TestSupport {
         String name1 = "c1";
         CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
         Cache<Integer, String> cache1 = cacheManager.<Integer, String>createCacheBuilder(name1).build();
-        assertEquals(CacheStatus.STARTED, cache1.getStatus());
+        assertEquals(Status.STARTED, cache1.getStatus());
 
         String name2 = "c2";
         Cache<Integer, String> cache2 = cacheManager.<Integer, String>createCacheBuilder(name2).build();
-        assertEquals(CacheStatus.STARTED, cache2.getStatus());
+        assertEquals(Status.STARTED, cache2.getStatus());
 
         assertEquals(cache1, cacheManager.getCache(name1));
         assertEquals(cache2, cacheManager.getCache(name2));
@@ -209,14 +209,14 @@ public class CacheManagerTest extends TestSupport {
     // ---------- utilities ----------
 
     private void checkStarted(Cache cache) {
-        CacheStatus status = cache.getStatus();
+        Status status = cache.getStatus();
         //may be asynchronous
-        assertTrue(status == CacheStatus.STARTED || status == CacheStatus.STARTING);
+        assertTrue(status == Status.STARTED || status == Status.STARTING);
     }
 
     private void checkStopped(Cache cache) {
-        CacheStatus status = cache.getStatus();
+        Status status = cache.getStatus();
         //may be asynchronous
-        assertTrue(status == CacheStatus.STOPPED || status == CacheStatus.STOPPING);
+        assertTrue(status == Status.STOPPED || status == Status.STOPPING);
     }
 }

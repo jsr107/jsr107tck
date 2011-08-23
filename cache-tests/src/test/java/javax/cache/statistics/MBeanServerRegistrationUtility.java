@@ -22,7 +22,7 @@ import javax.cache.Cache;
 import javax.cache.CacheException;
 import javax.cache.CacheManager;
 import javax.cache.CacheStatistics;
-import javax.cache.CacheStatus;
+import javax.cache.Status;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
@@ -47,7 +47,7 @@ public class MBeanServerRegistrationUtility {
 
     private MBeanServer mBeanServer;
     private CacheManager cacheManager;
-    private CacheStatus status;
+    private Status status;
 
     /**
      * Creates a Management Service.
@@ -58,7 +58,7 @@ public class MBeanServerRegistrationUtility {
 
         this.cacheManager = cacheManager;
         this.mBeanServer = mBeanServer;
-        status = CacheStatus.UNINITIALISED;
+        status = Status.UNINITIALISED;
 
         try {
 
@@ -70,7 +70,7 @@ public class MBeanServerRegistrationUtility {
         } catch (Exception e) {
             throw new CacheException(e);
         }
-        status = CacheStatus.STARTED;
+        status = Status.STARTED;
     }
 
     /**
@@ -111,7 +111,7 @@ public class MBeanServerRegistrationUtility {
      *
      * @return the status at the point in time the method is called
      */
-    public CacheStatus getStatus() {
+    public Status getStatus() {
         return status;
     }
 
@@ -140,7 +140,7 @@ public class MBeanServerRegistrationUtility {
                         + registeredObjectName + " . Error was " + e.getMessage(), e);
             }
         }
-        status = CacheStatus.STOPPED;
+        status = Status.STOPPED;
     }
 }
 

@@ -1145,7 +1145,7 @@ public class CacheTest extends TestSupport {
     public void initialise() {
         Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
                 <Date, Integer>createCacheBuilder(CACHE_NAME).build();
-        assertEquals(CacheStatus.STARTED, cache.getStatus());
+        assertEquals(Status.STARTED, cache.getStatus());
     }
 
     @Test
@@ -1153,7 +1153,7 @@ public class CacheTest extends TestSupport {
         Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().
                 <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         cache.stop();
-        assertEquals(CacheStatus.STOPPED, cache.getStatus());
+        assertEquals(Status.STOPPED, cache.getStatus());
     }
 
     // ---------- utilities ----------
