@@ -21,6 +21,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import javax.cache.util.ExcludeListExcluder;
+import javax.net.ssl.SSLEngineResult;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -165,11 +166,13 @@ public class CacheManagerTest extends TestSupport {
     }
 
     /**
-     * Checks that stop is called on all caches
+     * Checks that stop is called on all caches.
+     * Also checks CacheManager status
      */
     @Test
     public void shutdown() {
         CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        assertEquals(Status.STARTED, cacheManager.getStatus());
 
         String name1 = "c1";
         CacheBuilder<Integer, String> builder1 = cacheManager.createCacheBuilder(name1);
@@ -180,6 +183,7 @@ public class CacheManagerTest extends TestSupport {
         Cache<Integer, String> cache2 = builder2.build();
 
         cacheManager.shutdown();
+        assertEquals(Status.STOPPED, cacheManager.getStatus());
 
         checkStopped(cache1);
         checkStopped(cache2);

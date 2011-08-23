@@ -32,10 +32,13 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Unit test for Cache.
+ * Implementations can optionally support storeByReference.
+ *
+ * Tests aspects where storeByReference makes a difference
  * <p/>
  *
  * @author Yannis Cosmadopoulos
+ * @author Greg Luck
  * @since 1.0
  */
 public class CacheStoreByReferenceTest extends TestSupport {
@@ -157,6 +160,43 @@ public class CacheStoreByReferenceTest extends TestSupport {
         assertSame(value, cache.getAndRemove(key));
         assertFalse(cache.containsKey(key));
     }
+
+    /**
+     * Remove atomic value not changed
+     */
+    @Test
+    public void remove_2arg_ByReference() {
+        final Cache<Long, Date> cache = createByReferenceCache();
+        if (cache == null) return;
+
+        final Long key = System.currentTimeMillis();
+        final Date value = new Date(key);
+        cache.put(key, value);
+        value.setTime(key + 1);
+
+        assertTrue(cache.remove(key, value));
+        assertFalse(cache.containsKey(key));
+    }
+
+
+    /**
+     * Remove atomic value but changed
+     */
+    @Test
+    public void remove_with_change_2arg_ByReference() throws InterruptedException {
+        final Cache<Long, Date> cache = createByReferenceCache();
+        if (cache == null) return;
+
+        final Long key = System.currentTimeMillis();
+        Date value = new Date(key);
+        cache.put(key, value);
+        value.setTime(key + 1);
+        value = new Date(System.currentTimeMillis() + 5000);
+
+        assertFalse(cache.remove(key, value));
+        assertTrue(cache.containsKey(key));
+    }
+
 
     @Test
     public void putAll_ByReference() {
