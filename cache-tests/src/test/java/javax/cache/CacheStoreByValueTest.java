@@ -56,6 +56,11 @@ public class CacheStoreByValueTest extends TestSupport {
         checkGetExpectation(existingValue, cache, newKey);
     }
 
+    /**
+     * Even though we store the value "by value" the keys can still get mutated!
+     * Which causes lookups to fail.
+     * todo this test should fail
+     */
     @Test
     public void test_ExistingWithMutableKey_ByValue() {
         Cache<Date, Integer> cache = CacheManagerFactory.INSTANCE.getCacheManager().

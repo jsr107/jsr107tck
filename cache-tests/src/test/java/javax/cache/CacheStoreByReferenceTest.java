@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.Map;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -77,20 +78,27 @@ public class CacheStoreByReferenceTest extends TestSupport {
         checkGetExpectation(existingValue, cache, newKey);
     }
 
-    //TODO how do we handle mutable keys? @Test
+    /**
+     * We know that values can get mutated but so can keys!
+     * Which causes lookups to fail.
+     */
+    @Test
     public void test_ExistingWithMutableKey_ByReference() {
         Cache<Date, Integer> cache = createByReferenceCache();
         if (cache == null) return;
 
         long now = System.currentTimeMillis();
         Date key1 = new Date(now);
-        Date key2 = new Date(now);
         Integer existingValue = 1;
         cache.put(key1, existingValue);
         long later = now + 5;
+        assertTrue(cache.containsKey(key1));
+        assertNotNull(cache.get(key1));
+
+        //now mutate the key
         key1.setTime(later);
-        checkGetExpectation(existingValue, cache, key1);
-        assertNull(cache.get(key2));
+        assertFalse(cache.containsKey(key1));
+        assertNull(cache.get(key1));
     }
 
     @Test
