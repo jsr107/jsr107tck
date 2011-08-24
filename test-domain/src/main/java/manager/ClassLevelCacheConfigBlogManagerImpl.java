@@ -19,11 +19,11 @@ package manager;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.cache.interceptor.CacheDefaults;
-import javax.cache.interceptor.CacheRemoveAll;
-import javax.cache.interceptor.CacheRemoveEntry;
-import javax.cache.interceptor.CacheResult;
-import javax.cache.interceptor.CacheKeyParam;
+import javax.cache.annotation.CacheDefaults;
+import javax.cache.annotation.CacheRemoveAll;
+import javax.cache.annotation.CacheRemoveEntry;
+import javax.cache.annotation.CacheResult;
+import javax.cache.annotation.CacheKeyParam;
 
 
 import domain.Blog;

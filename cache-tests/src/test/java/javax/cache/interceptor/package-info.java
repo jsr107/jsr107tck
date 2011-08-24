@@ -23,4 +23,4 @@
 
  @author Greg Luck
  */
-package javax.cache.interceptor;
+package javax.cache.annotation;
