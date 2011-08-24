@@ -16,6 +16,7 @@
  */
 package javax.cache;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -26,9 +27,11 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the {@link CacheManagerFactory} class.
@@ -47,6 +50,12 @@ public class CacheManagerFactoryClassLoaderTest {
      */
     @Rule
     public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
+
+    @Before
+    public void startUp() {
+        // clear down
+        shutdown();
+    }
 
     /**
      * Multiple invocations of {@link CacheManagerFactory#getCacheManager()} return the same CacheManager
@@ -147,16 +156,98 @@ public class CacheManagerFactoryClassLoaderTest {
     }
 
     @Test
-    public void release() {
+    public void shutdown_0_Empty() {
+        assertFalse(shutdown());
+    }
+
+    @Test
+    public void shutdown_0_Full() {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        String name = this.toString();
         ClassLoader cl1 = new MyClassLoader(cl);
-        CacheManager cacheManager = getCacheManager(cl);
+        ClassLoader cl2 = new MyClassLoader(cl);
+        ClassLoader cl3 = new MyClassLoader(cl);
         CacheManager cacheManager1 = getCacheManager(cl1);
-        assertSame(cacheManager, getCacheManager(cl));
-        assertSame(cacheManager1, getCacheManager(cl1));
-        shutdown();
-        assertNotSame(cacheManager, getCacheManager(cl));
+        CacheManager cacheManager2 = getCacheManager(cl2);
+        CacheManager cacheManager3 = getCacheManager(cl3, name);
+
+        assertTrue(shutdown());
+
         assertNotSame(cacheManager1, getCacheManager(cl1));
+        assertNotSame(cacheManager2, getCacheManager(cl2));
+        assertNotSame(cacheManager3, getCacheManager(cl3, name));
+    }
+
+    @Test
+    public void shutdown_1_hit() {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        String name = this.toString();
+        ClassLoader cl1 = new MyClassLoader(cl);
+        ClassLoader cl2 = new MyClassLoader(cl);
+        ClassLoader cl3 = new MyClassLoader(cl);
+        CacheManager cacheManager1 = getCacheManager(cl1);
+        CacheManager cacheManager2 = getCacheManager(cl2);
+        CacheManager cacheManager3 = getCacheManager(cl3, name);
+
+        assertTrue(shutdown(cl2));
+
+        assertSame(cacheManager1, getCacheManager(cl1));
+        assertNotSame(cacheManager2, getCacheManager(cl2));
+        assertSame(cacheManager3, getCacheManager(cl3, name));
+    }
+
+    @Test
+    public void shutdown_1_miss() {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        String name = this.toString();
+        ClassLoader cl1 = new MyClassLoader(cl);
+        ClassLoader cl2 = new MyClassLoader(cl);
+        ClassLoader cl3 = new MyClassLoader(cl);
+        CacheManager cacheManager1 = getCacheManager(cl1);
+        CacheManager cacheManager2 = getCacheManager(cl2);
+        CacheManager cacheManager3 = getCacheManager(cl3, name);
+
+        assertFalse(shutdown(new MyClassLoader(cl)));
+
+        assertSame(cacheManager1, getCacheManager(cl1));
+        assertSame(cacheManager2, getCacheManager(cl2));
+        assertSame(cacheManager3, getCacheManager(cl3, name));
+    }
+
+    @Test
+    public void shutdown_2_hit() {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        String name = this.toString();
+        ClassLoader cl1 = new MyClassLoader(cl);
+        ClassLoader cl2 = new MyClassLoader(cl);
+        ClassLoader cl3 = new MyClassLoader(cl);
+        CacheManager cacheManager1 = getCacheManager(cl1);
+        CacheManager cacheManager2 = getCacheManager(cl2);
+        CacheManager cacheManager3 = getCacheManager(cl3, name);
+
+        assertTrue(shutdown(cl3, name));
+
+        assertSame(cacheManager1, getCacheManager(cl1));
+        assertSame(cacheManager2, getCacheManager(cl2));
+        assertNotSame(cacheManager3, getCacheManager(cl3, name));
+    }
+
+    @Test
+    public void shutdown_2_miss() {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        String name = this.toString();
+        ClassLoader cl1 = new MyClassLoader(cl);
+        ClassLoader cl2 = new MyClassLoader(cl);
+        ClassLoader cl3 = new MyClassLoader(cl);
+        CacheManager cacheManager1 = getCacheManager(cl1);
+        CacheManager cacheManager2 = getCacheManager(cl2);
+        CacheManager cacheManager3 = getCacheManager(cl3, name);
+
+        assertFalse(shutdown(cl3, name + "a"));
+
+        assertSame(cacheManager1, getCacheManager(cl1));
+        assertSame(cacheManager2, getCacheManager(cl2));
+        assertSame(cacheManager3, getCacheManager(cl3, name));
     }
 
     @Test
@@ -189,8 +280,16 @@ public class CacheManagerFactoryClassLoaderTest {
         return CacheManagerFactory.getCacheManager(classLoader, name);
     }
 
-    private static void shutdown() {
-        CacheManagerFactory.shutdown();
+    private static boolean shutdown() {
+        return CacheManagerFactory.shutdown();
+    }
+
+    private static boolean shutdown(ClassLoader classLoader) {
+        return CacheManagerFactory.shutdown(classLoader);
+    }
+
+    private static boolean shutdown(ClassLoader classLoader, String name) {
+        return CacheManagerFactory.shutdown(classLoader, name);
     }
 
     /**
