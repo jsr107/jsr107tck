@@ -140,7 +140,7 @@ public class CacheManagerFactoryTest {
     public void release() {
         CacheManager cacheManager = factory.getCacheManager();
         assertSame(cacheManager, factory.getCacheManager());
-        factory.release();
+        factory.shutdown();
         assertNotSame(cacheManager, factory.getCacheManager());
     }
 

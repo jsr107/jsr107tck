@@ -45,6 +45,9 @@ public class CacheManagerTest extends TestSupport {
     @Rule
     public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
 
+
+
+
     @Test
     public void createCacheBuilder_NullCacheName() {
         CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
@@ -201,6 +204,17 @@ public class CacheManagerTest extends TestSupport {
             assertFalse(transactions);
         }
     }
+
+
+    //todo Fails sometimes. We need to define what happens on shutdown to the singleton.
+//    @Test
+    public void lifecycle() {
+        CacheManagerFactory factory = CacheManagerFactory.INSTANCE;
+        assertEquals(Status.STARTED, factory.getStatus());
+        factory.shutdown();
+        assertEquals(Status.STOPPED, factory.getStatus());
+    }
+
 
     @Test
     public void createCacheConfiguration() {

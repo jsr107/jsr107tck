@@ -162,7 +162,7 @@ public class CacheManagerFactoryClassLoaderTest {
         CacheManager cacheManager1 = factory.getCacheManager(cl1);
         assertSame(cacheManager, factory.getCacheManager(cl));
         assertSame(cacheManager1, factory.getCacheManager(cl1));
-        factory.release();
+        factory.shutdown();
         assertNotSame(cacheManager, factory.getCacheManager(cl));
         assertNotSame(cacheManager1, factory.getCacheManager(cl1));
     }
