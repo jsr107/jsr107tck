@@ -52,7 +52,7 @@ public abstract class AbstractInterceptionTest {
      */
     @Rule
     public MethodRule rule =
-            CacheManagerFactory.INSTANCE.isSupported(OptionalFeature.ANNOTATIONS) ?
+            CacheManagerFactory.isSupported(OptionalFeature.ANNOTATIONS) ?
                     new ExcludeListExcluder(this.getClass()) :
                     new AllTestExcluder();
 

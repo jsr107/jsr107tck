@@ -16,7 +16,6 @@
  */
 package javax.cache;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -33,7 +32,7 @@ import static org.junit.Assert.assertSame;
 
 /**
  * Tests the {@link CacheManagerFactory} class.
- * The tests here implicitly also test the {@link javax.cache.spi.CacheManagerFactoryProvider} used by the
+ * The tests here implicitly also test the {@link javax.cache.spi.ServiceProvider} used by the
  * CacheManagerFactory to create instances of {@link CacheManager}
  *
  * @author Yannis Cosmadopoulos
@@ -42,7 +41,6 @@ import static org.junit.Assert.assertSame;
  * @see CacheManagerFactory
  */
 public class CacheManagerFactoryClassLoaderTest {
-    CacheManagerFactory factory;
 
     /**
      * Rule used to exclude tests
@@ -50,27 +48,21 @@ public class CacheManagerFactoryClassLoaderTest {
     @Rule
     public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
 
-    @Before
-    public void startUp() {
-        factory = CacheManagerFactory.INSTANCE;
-    }
-
-
     /**
      * Multiple invocations of {@link CacheManagerFactory#getCacheManager()} return the same CacheManager
      */
     @Test
     public void getCacheManager_singleton() {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        CacheManager defaultCacheManager = factory.getCacheManager(cl);
+        CacheManager defaultCacheManager = getCacheManager(cl);
         assertNotNull(defaultCacheManager);
-        assertSame(defaultCacheManager, factory.getCacheManager(cl));
+        assertSame(defaultCacheManager, getCacheManager(cl));
 
         // for a different class loader
         ClassLoader cl1 = new MyClassLoader(cl);
-        CacheManager defaultCacheManager1 = factory.getCacheManager(cl1);
+        CacheManager defaultCacheManager1 = getCacheManager(cl1);
         assertNotSame(defaultCacheManager, defaultCacheManager1);
-        assertSame(defaultCacheManager1, factory.getCacheManager(cl1));
+        assertSame(defaultCacheManager1, getCacheManager(cl1));
     }
 
     /**
@@ -81,7 +73,7 @@ public class CacheManagerFactoryClassLoaderTest {
     @Test
     public void getCacheManager_name() {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        CacheManager defaultCacheManager = factory.getCacheManager(cl);
+        CacheManager defaultCacheManager = getCacheManager(cl);
         assertSame(CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME, defaultCacheManager.getName());
     }
 
@@ -93,12 +85,12 @@ public class CacheManagerFactoryClassLoaderTest {
     public void getCacheManager_named_default() {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         String name = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME;
-        assertSame(factory.getCacheManager(cl), factory.getCacheManager(cl, name));
+        assertSame(getCacheManager(cl), getCacheManager(cl, name));
 
         // is different for different class loader
         ClassLoader cl1 = new MyClassLoader(cl);
-        assertSame(factory.getCacheManager(cl1), factory.getCacheManager(cl1, name));
-        assertNotSame(factory.getCacheManager(cl), factory.getCacheManager(cl1, name));
+        assertSame(getCacheManager(cl1), getCacheManager(cl1, name));
+        assertNotSame(getCacheManager(cl), getCacheManager(cl1, name));
     }
 
     /**
@@ -109,14 +101,14 @@ public class CacheManagerFactoryClassLoaderTest {
     public void getCacheManager_named() {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         String name = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "1";
-        CacheManager cacheManager = factory.getCacheManager(cl, name);
+        CacheManager cacheManager = getCacheManager(cl, name);
         assertNotNull(cacheManager);
-        assertSame(cacheManager, factory.getCacheManager(cl, name));
+        assertSame(cacheManager, getCacheManager(cl, name));
 
         // is different for different class loader
         ClassLoader cl1 = new MyClassLoader(cl);
-        CacheManager cacheManager1 = factory.getCacheManager(cl1, name);
-        assertSame(cacheManager1, factory.getCacheManager(cl1, name));
+        CacheManager cacheManager1 = getCacheManager(cl1, name);
+        assertSame(cacheManager1, getCacheManager(cl1, name));
         assertNotSame(cacheManager, cacheManager1);
     }
 
@@ -128,7 +120,7 @@ public class CacheManagerFactoryClassLoaderTest {
     public void getCacheManager_named_name() {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         String name = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "1";
-        assertEquals(name, factory.getCacheManager(cl, name).getName());
+        assertEquals(name, getCacheManager(cl, name).getName());
     }
 
     /**
@@ -139,7 +131,7 @@ public class CacheManagerFactoryClassLoaderTest {
     public void getCacheManager_named_notDefault() {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         String name = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "1";
-        assertNotSame(factory.getCacheManager(cl), factory.getCacheManager(cl, name));
+        assertNotSame(getCacheManager(cl), getCacheManager(cl, name));
     }
 
     /**
@@ -151,20 +143,20 @@ public class CacheManagerFactoryClassLoaderTest {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         String name1 = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "1";
         String name2 = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "2";
-        assertNotSame(factory.getCacheManager(cl, name1), factory.getCacheManager(cl, name2));
+        assertNotSame(getCacheManager(cl, name1), getCacheManager(cl, name2));
     }
 
     @Test
     public void release() {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         ClassLoader cl1 = new MyClassLoader(cl);
-        CacheManager cacheManager = factory.getCacheManager(cl);
-        CacheManager cacheManager1 = factory.getCacheManager(cl1);
-        assertSame(cacheManager, factory.getCacheManager(cl));
-        assertSame(cacheManager1, factory.getCacheManager(cl1));
-        factory.shutdown();
-        assertNotSame(cacheManager, factory.getCacheManager(cl));
-        assertNotSame(cacheManager1, factory.getCacheManager(cl1));
+        CacheManager cacheManager = getCacheManager(cl);
+        CacheManager cacheManager1 = getCacheManager(cl1);
+        assertSame(cacheManager, getCacheManager(cl));
+        assertSame(cacheManager1, getCacheManager(cl1));
+        shutdown();
+        assertNotSame(cacheManager, getCacheManager(cl));
+        assertNotSame(cacheManager1, getCacheManager(cl1));
     }
 
     @Test
@@ -188,6 +180,18 @@ public class CacheManagerFactoryClassLoaderTest {
     }
 
     // utilities --------------------------------------------------------------
+
+    private static CacheManager getCacheManager(ClassLoader classLoader) {
+        return CacheManagerFactory.getCacheManager(classLoader);
+    }
+
+    private static CacheManager getCacheManager(ClassLoader classLoader, String name) {
+        return CacheManagerFactory.getCacheManager(classLoader, name);
+    }
+
+    private static void shutdown() {
+        CacheManagerFactory.shutdown();
+    }
 
     /**
      * Wrapper round domain program.
@@ -215,7 +219,7 @@ public class CacheManagerFactoryClassLoaderTest {
         }
 
         private Cache<Integer, Object> createCache() {
-            return CacheManagerFactory.INSTANCE.getCacheManager(classLoader).<Integer, Object>createCacheBuilder("c1").build();
+            return CacheManagerFactory.getCacheManager(classLoader).<Integer, Object>createCacheBuilder("c1").build();
         }
 
         public Class getClassForDomainClass() throws ClassNotFoundException {

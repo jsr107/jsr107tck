@@ -43,7 +43,7 @@ public class CacheConfigurationTest {
 
     @Test
     public void checkDefaults() {
-        CacheConfiguration config = CacheManagerFactory.INSTANCE.getCacheManager().createCacheConfiguration();
+        CacheConfiguration config = getCacheManager().createCacheConfiguration();
         assertFalse(config.isReadThrough());
         assertFalse(config.isWriteThrough());
         assertFalse(config.isStatisticsEnabled());
@@ -52,7 +52,7 @@ public class CacheConfigurationTest {
 
     @Test
     public void notSame() {
-        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheManager cacheManager = getCacheManager();
         assertNotSame(cacheManager.createCacheConfiguration(), cacheManager.createCacheConfiguration());
     }
 
@@ -61,7 +61,7 @@ public class CacheConfigurationTest {
      */
     @Test
     public void equals() {
-        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheManager cacheManager = getCacheManager();
         CacheConfiguration cacheConfiguration1 = cacheManager.createCacheConfiguration();
         CacheConfiguration cacheConfiguration2 = cacheManager.createCacheConfiguration();
         assertNotSame(cacheConfiguration1, cacheConfiguration2);
@@ -69,7 +69,7 @@ public class CacheConfigurationTest {
 
     @Test
     public void equalsNotEquals() {
-        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheManager cacheManager = getCacheManager();
         CacheConfiguration config1 = cacheManager.createCacheConfiguration();
         config1.setReadThrough(!config1.isReadThrough());
         CacheConfiguration config2 = cacheManager.createCacheConfiguration();
@@ -78,7 +78,7 @@ public class CacheConfigurationTest {
 
     @Test
     public void setReadThrough() {
-        CacheConfiguration config = CacheManagerFactory.INSTANCE.getCacheManager().createCacheConfiguration();
+        CacheConfiguration config = getCacheManager().createCacheConfiguration();
         boolean flag = config.isReadThrough();
         config.setReadThrough(!flag);
         assertEquals(!flag, config.isReadThrough());
@@ -86,7 +86,7 @@ public class CacheConfigurationTest {
 
     @Test
     public void setStoreByValue() {
-        CacheConfiguration config = CacheManagerFactory.INSTANCE.getCacheManager().createCacheConfiguration();
+        CacheConfiguration config = getCacheManager().createCacheConfiguration();
         boolean flag = config.isStoreByValue();
         config.setStoreByValue(!flag);
         assertEquals(!flag, config.isStoreByValue());
@@ -94,11 +94,15 @@ public class CacheConfigurationTest {
 
     @Test
     public void setWriteThrough() {
-        CacheConfiguration config = CacheManagerFactory.INSTANCE.getCacheManager().createCacheConfiguration();
+        CacheConfiguration config = getCacheManager().createCacheConfiguration();
         boolean flag = config.isWriteThrough();
         config.setWriteThrough(!flag);
         assertEquals(!flag, config.isWriteThrough());
     }
 
     // ---------- utilities ----------
+
+    private static CacheManager getCacheManager() {
+        return CacheManagerFactory.getCacheManager();
+    }
 }

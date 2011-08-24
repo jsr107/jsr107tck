@@ -50,7 +50,7 @@ public class CacheManagerTest extends TestSupport {
 
     @Test
     public void createCacheBuilder_NullCacheName() {
-        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheManager cacheManager = getCacheManager();
         try {
             cacheManager.createCacheBuilder(null);
             fail("should have thrown an exception - null cache name not allowed");
@@ -62,7 +62,7 @@ public class CacheManagerTest extends TestSupport {
     @Test
     public void createCache_Same() {
         String name = "c1";
-        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheManager cacheManager = getCacheManager();
         Cache cache = cacheManager.createCacheBuilder(name).build();
         assertSame(cache, cacheManager.getCache(name));
     }
@@ -70,21 +70,21 @@ public class CacheManagerTest extends TestSupport {
     @Test
     public void createCache_NameOK() {
         String name = "c1";
-        Cache cache = CacheManagerFactory.INSTANCE.getCacheManager().createCacheBuilder(name).build();
+        Cache cache = getCacheManager().createCacheBuilder(name).build();
         assertEquals(name, cache.getName());
     }
 
     @Test
     public void createCache_StatusOK() {
         String name = "c1";
-        Cache cache = CacheManagerFactory.INSTANCE.getCacheManager().createCacheBuilder(name).build();
+        Cache cache = getCacheManager().createCacheBuilder(name).build();
         assertSame(Status.STARTED, cache.getStatus());
     }
 
     @Test
     public void createCache_NullCacheConfiguration() {
         String name = "c1";
-        CacheBuilder builder = CacheManagerFactory.INSTANCE.getCacheManager().createCacheBuilder(name);
+        CacheBuilder builder = getCacheManager().createCacheBuilder(name);
         try {
             builder.setCacheConfiguration(null);
             fail("should have thrown an exception - null cache configuration not allowed");
@@ -96,7 +96,7 @@ public class CacheManagerTest extends TestSupport {
     @Test
     public void createCache_CacheConfiguration_NameOK() {
         String name = "c1";
-        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheManager cacheManager = getCacheManager();
         Cache cache = cacheManager.createCacheBuilder(name).
                 setCacheConfiguration(cacheManager.createCacheConfiguration()).build();
         assertEquals(name, cache.getName());
@@ -106,7 +106,7 @@ public class CacheManagerTest extends TestSupport {
     @Test
     public void createCache_CacheConfiguration_StatusOK() {
         String name = "c1";
-        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheManager cacheManager = getCacheManager();
         Cache cache = cacheManager.createCacheBuilder(name).
                 setCacheConfiguration(cacheManager.createCacheConfiguration()).build();
         assertSame(Status.STARTED, cache.getStatus());
@@ -115,7 +115,7 @@ public class CacheManagerTest extends TestSupport {
     @Test
     public void createCache_Different() {
         String name1 = "c1";
-        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheManager cacheManager = getCacheManager();
         Cache<Integer, String> cache1 = cacheManager.<Integer, String>createCacheBuilder(name1).build();
         assertEquals(Status.STARTED, cache1.getStatus());
 
@@ -129,7 +129,7 @@ public class CacheManagerTest extends TestSupport {
 
     @Test
     public void createCache_DifferentSameName() {
-        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheManager cacheManager = getCacheManager();
         String name1 = "c1";
         Cache<Integer, String> cache1 = cacheManager.<Integer, String>createCacheBuilder(name1).build();
         assertEquals(cache1, cacheManager.<Integer, String>getCache(name1));
@@ -143,7 +143,7 @@ public class CacheManagerTest extends TestSupport {
 
     @Test
     public void removeCache_Null() {
-        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheManager cacheManager = getCacheManager();
         try {
             cacheManager.removeCache(null);
             fail("should have thrown an exception - cache name null");
@@ -154,7 +154,7 @@ public class CacheManagerTest extends TestSupport {
 
     @Test
     public void removeCache() {
-        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheManager cacheManager = getCacheManager();
         String name1 = "c1";
         CacheBuilder<Integer, String> builder1 = cacheManager.createCacheBuilder(name1);
         Cache<Integer, String> cache1 = builder1.build();
@@ -164,7 +164,7 @@ public class CacheManagerTest extends TestSupport {
 
     @Test
     public void removeCache_NotThere() {
-        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager(this.toString());
+        CacheManager cacheManager = getCacheManager(this.toString());
         assertFalse(cacheManager.removeCache("c1"));
     }
 
@@ -174,7 +174,7 @@ public class CacheManagerTest extends TestSupport {
      */
     @Test
     public void shutdown() {
-        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheManager cacheManager = getCacheManager();
         assertEquals(Status.STARTED, cacheManager.getStatus());
 
         String name1 = "c1";
@@ -194,9 +194,9 @@ public class CacheManagerTest extends TestSupport {
 
     @Test
     public void getUserTransaction() {
-        boolean transactions = CacheManagerFactory.INSTANCE.isSupported(OptionalFeature.JTA);
+        boolean transactions = CacheManagerFactory.isSupported(OptionalFeature.JTA);
         try {
-            CacheManagerFactory.INSTANCE.getCacheManager().getUserTransaction();
+            getCacheManager().getUserTransaction();
             if (!transactions) {
                 fail();
             }
@@ -209,16 +209,15 @@ public class CacheManagerTest extends TestSupport {
     //todo Fails sometimes. We need to define what happens on shutdown to the singleton.
 //    @Test
     public void lifecycle() {
-        CacheManagerFactory factory = CacheManagerFactory.INSTANCE;
-        assertEquals(Status.STARTED, factory.getStatus());
-        factory.shutdown();
-        assertEquals(Status.STOPPED, factory.getStatus());
+        assertEquals(Status.STARTED, CacheManagerFactory.getStatus());
+        CacheManagerFactory.shutdown();
+        assertEquals(Status.STOPPED, CacheManagerFactory.getStatus());
     }
 
 
     @Test
     public void createCacheConfiguration() {
-        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheManager cacheManager = getCacheManager();
         CacheConfiguration cacheConfiguration = cacheManager.createCacheConfiguration();
         assertNotNull(cacheConfiguration);
         assertNotSame(cacheConfiguration, cacheManager.createCacheConfiguration());

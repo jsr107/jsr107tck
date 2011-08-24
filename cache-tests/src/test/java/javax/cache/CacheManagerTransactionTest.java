@@ -40,15 +40,14 @@ public class CacheManagerTransactionTest extends TestSupport {
      */
     @Rule
     public MethodRule rule =
-            CacheManagerFactory.INSTANCE.isSupported(OptionalFeature.JTA) ?
+            CacheManagerFactory.isSupported(OptionalFeature.JTA) ?
                     new ExcludeListExcluder(this.getClass()) :
                     new AllTestExcluder();
 
     @Test
     public void getUserTransaction() throws Exception {
-        CacheManager cm = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheManager cm = getCacheManager();
         UserTransaction userTrans = (UserTransaction) cm.getUserTransaction();
         assertEquals(javax.transaction.Status.STATUS_NO_TRANSACTION , userTrans.getStatus());
     }
-
 }

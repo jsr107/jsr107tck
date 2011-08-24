@@ -61,4 +61,12 @@ class TestSupport {
             assertSame(expected, cache.get(key));
         }
     }
+
+    protected static CacheManager getCacheManager() {
+        return CacheManagerFactory.getCacheManager();
+    }
+
+    protected static CacheManager getCacheManager(String name) {
+        return CacheManagerFactory.getCacheManager(name);
+    }
 }

@@ -50,7 +50,7 @@ public class CacheStoreByReferenceTest extends TestSupport {
      */
     @Rule
     public MethodRule rule =
-            CacheManagerFactory.INSTANCE.isSupported(OptionalFeature.STORE_BY_REFERENCE) ?
+            CacheManagerFactory.isSupported(OptionalFeature.STORE_BY_REFERENCE) ?
                     new ExcludeListExcluder(this.getClass()) :
                     new AllTestExcluder();
 
@@ -291,7 +291,7 @@ public class CacheStoreByReferenceTest extends TestSupport {
     // ---------- utilities ----------
 
     private <A, B> Cache<A, B> createByReferenceCache() {
-        CacheManager cacheManager = CacheManagerFactory.INSTANCE.getCacheManager();
+        CacheManager cacheManager = getCacheManager();
         CacheConfiguration config = cacheManager.createCacheConfiguration();
         config.setStoreByValue(false);
         Cache<A, B> cache = cacheManager.<A, B>createCacheBuilder(CACHE_NAME).setCacheConfiguration(config).build();

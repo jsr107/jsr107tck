@@ -53,7 +53,7 @@ public class JMXTest {
      */
     @Before
     public void setUp() throws Exception {
-        cacheManager = CacheManagerFactory.INSTANCE.getCacheManager(this.getClass().getName());
+        cacheManager = CacheManagerFactory.getCacheManager(this.getClass().getName());
     }
 
     @After
@@ -76,7 +76,7 @@ public class JMXTest {
 
     @Test
     public void testCacheStatisticsWhereStatisticsTurnedOn() throws Exception {
-        CacheConfiguration config = CacheManagerFactory.INSTANCE.getCacheManager().createCacheConfiguration();
+        CacheConfiguration config = CacheManagerFactory.getCacheManager().createCacheConfiguration();
         config.setStatisticsEnabled(true);
         cacheManager.createCacheBuilder("cache1").setCacheConfiguration(config).build();
         cacheManager.createCacheBuilder("cache2").setCacheConfiguration(config).build();
