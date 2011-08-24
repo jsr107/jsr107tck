@@ -114,6 +114,11 @@ public class CacheStoreByReferenceTest extends TestSupport {
         for (Cache.Entry<Date, Integer> entry: cache){
             LOG.info(entry.getKey().toString());
         }
+
+        //try to remove it, but it cannot be found!
+        assertFalse(cache.remove(key1));
+        assertFalse(cache.remove(key1OriginalValue));
+
     }
 
     @Test
