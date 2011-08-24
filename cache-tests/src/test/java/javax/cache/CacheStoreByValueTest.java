@@ -57,9 +57,8 @@ public class CacheStoreByValueTest extends TestSupport {
     }
 
     /**
-     * Even though we store the value "by value" the keys can still get mutated!
-     * Which causes lookups to fail.
-     * todo this test should fail
+     * We store both the keys and values as value ie no references therefore the key is immune
+     * from mutation
      */
     @Test
     public void test_ExistingWithMutableKey_ByValue() {
@@ -73,6 +72,7 @@ public class CacheStoreByValueTest extends TestSupport {
         cache.put(key1, existingValue);
         long later = now + 5;
         key1.setTime(later);
+        //null because key was stored by value
         assertNull(cache.get(key1));
         checkGetExpectation(existingValue, cache, key2);
     }

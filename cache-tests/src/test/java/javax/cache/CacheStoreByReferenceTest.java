@@ -24,6 +24,7 @@ import javax.cache.util.AllTestExcluder;
 import javax.cache.util.ExcludeListExcluder;
 import java.util.Date;
 import java.util.Map;
+import java.util.TimerTask;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -81,6 +82,8 @@ public class CacheStoreByReferenceTest extends TestSupport {
     /**
      * We know that values can get mutated but so can keys!
      * Which causes lookups to fail.
+     * In fact the entry get lost and cannot be retrieved.
+     * This is also how Map behaves.
      */
     @Test
     public void test_ExistingWithMutableKey_ByReference() {
@@ -89,16 +92,28 @@ public class CacheStoreByReferenceTest extends TestSupport {
 
         long now = System.currentTimeMillis();
         Date key1 = new Date(now);
+        LOG.info(key1.toString());
+        Date key1OriginalValue = (Date) key1.clone();
         Integer existingValue = 1;
         cache.put(key1, existingValue);
-        long later = now + 5;
+        long later = now + 5000;
         assertTrue(cache.containsKey(key1));
         assertNotNull(cache.get(key1));
 
         //now mutate the key
         key1.setTime(later);
+        LOG.info(key1.toString());
         assertFalse(cache.containsKey(key1));
         assertNull(cache.get(key1));
+
+        //now test with the original key value
+        assertFalse(cache.containsKey(key1OriginalValue));
+        assertNull(cache.get(key1OriginalValue));
+
+        //Entry is there but is irretrievable
+        for (Cache.Entry<Date, Integer> entry: cache){
+            LOG.info(entry.getKey().toString());
+        }
     }
 
     @Test
