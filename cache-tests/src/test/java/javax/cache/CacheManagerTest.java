@@ -17,6 +17,7 @@
 
 package javax.cache;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -46,7 +47,10 @@ public class CacheManagerTest extends TestSupport {
     public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
 
 
-
+    @Before
+    public void startUp() {
+        CacheManagerFactory.shutdown();
+    }
 
     @Test
     public void createCacheBuilder_NullCacheName() {
@@ -173,23 +177,44 @@ public class CacheManagerTest extends TestSupport {
      * Also checks CacheManager status
      */
     @Test
-    public void shutdown() {
+    public void shutdown_stopCalled() {
         CacheManager cacheManager = getCacheManager();
-        assertEquals(Status.STARTED, cacheManager.getStatus());
 
-        String name1 = "c1";
-        CacheBuilder<Integer, String> builder1 = cacheManager.createCacheBuilder(name1);
-        Cache<Integer, String> cache1 = builder1.build();
-
-        String name2 = "c2";
-        CacheBuilder<Integer, String> builder2 = cacheManager.createCacheBuilder(name2);
-        Cache<Integer, String> cache2 = builder2.build();
+        Cache cache1 = cacheManager.createCacheBuilder("c1").build();
+        Cache cache2 = cacheManager.createCacheBuilder("c2").build();
 
         cacheManager.shutdown();
-        assertEquals(Status.STOPPED, cacheManager.getStatus());
 
         checkStopped(cache1);
         checkStopped(cache2);
+    }
+
+    /**
+     * Checks that stop is called on all caches.
+     * Also checks CacheManager status
+     */
+    @Test
+    public void shutdown_status() {
+        CacheManager cacheManager = getCacheManager();
+
+        assertEquals(Status.STARTED, cacheManager.getStatus());
+        cacheManager.shutdown();
+        assertEquals(Status.STOPPED, cacheManager.getStatus());
+    }
+
+    /**
+     * Checks that stop is called on all caches.
+     * Also checks CacheManager status
+     */
+    @Test
+    public void shutdown_cachesEmpty() {
+        CacheManager cacheManager = getCacheManager();
+
+        cacheManager.createCacheBuilder("c1").build();
+        cacheManager.createCacheBuilder("c2").build();
+
+        cacheManager.shutdown();
+        assertTrue(cacheManager.getCaches().isEmpty());
     }
 
     @Test
