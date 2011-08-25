@@ -17,6 +17,7 @@
 
 package javax.cache;
 
+import org.jboss.weld.exceptions.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,10 +25,17 @@ import org.junit.Test;
 import javax.cache.util.ExcludeListExcluder;
 import javax.net.ssl.SSLEngineResult;
 
+import java.lang.IllegalStateException;
+import java.lang.UnsupportedOperationException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -120,11 +128,11 @@ public class CacheManagerTest extends TestSupport {
     public void createCache_Different() {
         String name1 = "c1";
         CacheManager cacheManager = getCacheManager();
-        Cache<Integer, String> cache1 = cacheManager.<Integer, String>createCacheBuilder(name1).build();
+        Cache cache1 = cacheManager.createCacheBuilder(name1).build();
         assertEquals(Status.STARTED, cache1.getStatus());
 
         String name2 = "c2";
-        Cache<Integer, String> cache2 = cacheManager.<Integer, String>createCacheBuilder(name2).build();
+        Cache cache2 = cacheManager.createCacheBuilder(name2).build();
         assertEquals(Status.STARTED, cache2.getStatus());
 
         assertEquals(cache1, cacheManager.getCache(name1));
@@ -135,12 +143,12 @@ public class CacheManagerTest extends TestSupport {
     public void createCache_DifferentSameName() {
         CacheManager cacheManager = getCacheManager();
         String name1 = "c1";
-        Cache<Integer, String> cache1 = cacheManager.<Integer, String>createCacheBuilder(name1).build();
-        assertEquals(cache1, cacheManager.<Integer, String>getCache(name1));
+        Cache cache1 = cacheManager.createCacheBuilder(name1).build();
+        assertEquals(cache1, cacheManager.getCache(name1));
         checkStarted(cache1);
 
-        Cache<Integer, String> cache2 = cacheManager.<Integer, String>createCacheBuilder(name1).build();
-        assertEquals(cache2, cacheManager.<Integer, String>getCache(name1));
+        Cache cache2 = cacheManager.createCacheBuilder(name1).build();
+        assertEquals(cache2, cacheManager.getCache(name1));
         checkStarted(cache2);
         checkStopped(cache1);
     }
@@ -157,12 +165,20 @@ public class CacheManagerTest extends TestSupport {
     }
 
     @Test
-    public void removeCache() {
+    public void removeCache_There() {
         CacheManager cacheManager = getCacheManager();
         String name1 = "c1";
-        CacheBuilder<Integer, String> builder1 = cacheManager.createCacheBuilder(name1);
-        Cache<Integer, String> cache1 = builder1.build();
+        cacheManager.createCacheBuilder(name1).build();
         assertTrue(cacheManager.removeCache(name1));
+        assertTrue(cacheManager.getCaches().isEmpty());
+    }
+
+    @Test
+    public void removeCache_CacheStopped() {
+        CacheManager cacheManager = getCacheManager();
+        String name1 = "c1";
+        Cache cache1 = cacheManager.createCacheBuilder(name1).build();
+        cacheManager.removeCache(name1);
         checkStopped(cache1);
     }
 
@@ -172,10 +188,18 @@ public class CacheManagerTest extends TestSupport {
         assertFalse(cacheManager.removeCache("c1"));
     }
 
-    /**
-     * Checks that stop is called on all caches.
-     * Also checks CacheManager status
-     */
+    @Test
+    public void removeCache_Stopped() {
+        CacheManager cacheManager = getCacheManager();
+        cacheManager.shutdown();
+        try {
+            cacheManager.removeCache("c1");
+            fail();
+        } catch (IllegalStateException e) {
+            //ok
+        }
+    }
+
     @Test
     public void shutdown_stopCalled() {
         CacheManager cacheManager = getCacheManager();
@@ -189,10 +213,6 @@ public class CacheManagerTest extends TestSupport {
         checkStopped(cache2);
     }
 
-    /**
-     * Checks that stop is called on all caches.
-     * Also checks CacheManager status
-     */
     @Test
     public void shutdown_status() {
         CacheManager cacheManager = getCacheManager();
@@ -202,10 +222,19 @@ public class CacheManagerTest extends TestSupport {
         assertEquals(Status.STOPPED, cacheManager.getStatus());
     }
 
-    /**
-     * Checks that stop is called on all caches.
-     * Also checks CacheManager status
-     */
+    @Test
+    public void shutdown_statusTwice() {
+        CacheManager cacheManager = getCacheManager();
+
+        cacheManager.shutdown();
+        try {
+            cacheManager.shutdown();
+            fail();
+        } catch (IllegalStateException e) {
+            // good
+        }
+    }
+
     @Test
     public void shutdown_cachesEmpty() {
         CacheManager cacheManager = getCacheManager();
@@ -230,16 +259,6 @@ public class CacheManagerTest extends TestSupport {
         }
     }
 
-
-    //todo Fails sometimes. We need to define what happens on shutdown to the singleton.
-//    @Test
-    public void lifecycle() {
-        assertEquals(Status.STARTED, CacheManagerFactory.getStatus());
-        CacheManagerFactory.shutdown();
-        assertEquals(Status.STOPPED, CacheManagerFactory.getStatus());
-    }
-
-
     @Test
     public void createCacheConfiguration() {
         CacheManager cacheManager = getCacheManager();
@@ -248,7 +267,109 @@ public class CacheManagerTest extends TestSupport {
         assertNotSame(cacheConfiguration, cacheManager.createCacheConfiguration());
     }
 
+    @Test
+    public void getCache_Missing() {
+        CacheManager cacheManager = getCacheManager();
+        assertNull(cacheManager.getCache("notThere"));
+    }
+
+    @Test
+    public void getCache_There() {
+        String name = this.toString();
+        CacheManager cacheManager = getCacheManager();
+        Cache cache = cacheManager.createCacheBuilder(name).build();
+        assertSame(cache, cacheManager.getCache(name));
+    }
+
+    @Test
+    public void getCache_Missing_Stopped() {
+        CacheManager cacheManager = getCacheManager();
+        cacheManager.shutdown();
+        try {
+            cacheManager.getCache("notThere");
+            fail();
+        } catch (IllegalStateException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void getCache_There_Stopped() {
+        String name = this.toString();
+        CacheManager cacheManager = getCacheManager();
+        cacheManager.createCacheBuilder(name).build();
+        cacheManager.shutdown();
+        try {
+            cacheManager.getCache(name);
+            fail();
+        } catch (IllegalStateException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void getCaches_Empty() {
+        CacheManager cacheManager = getCacheManager();
+        assertTrue(cacheManager.getCaches().isEmpty());
+    }
+
+    @Test
+    public void getCaches_NotEmpty() {
+        CacheManager cacheManager = getCacheManager();
+
+        ArrayList<Cache> caches1 = new ArrayList<Cache>();
+        caches1.add(cacheManager.createCacheBuilder("c1").build());
+        caches1.add(cacheManager.createCacheBuilder("c2").build());
+        caches1.add(cacheManager.createCacheBuilder("c3").build());
+
+        Collection<Cache> caches2 = cacheManager.getCaches();
+        checkCollections(caches1, caches2);
+    }
+
+    @Test
+    public void getCaches_MutateReturn() {
+        CacheManager cacheManager = getCacheManager();
+
+        ArrayList<Cache> caches1 = new ArrayList<Cache>();
+        caches1.add(cacheManager.createCacheBuilder("c1").build());
+        caches1.add(cacheManager.createCacheBuilder("c2").build());
+
+        Collection<Cache> caches2 = cacheManager.getCaches();
+        caches2.clear();
+
+        Collection<Cache> caches3 = cacheManager.getCaches();
+        checkCollections(caches1, caches3);
+    }
+
+
+    @Test
+    public void getCaches_MutateCacheManager() {
+        CacheManager cacheManager = getCacheManager();
+
+        String removeName = "c2";
+        ArrayList<Cache> caches1 = new ArrayList<Cache>();
+        caches1.add(cacheManager.createCacheBuilder("c1").build());
+        cacheManager.createCacheBuilder(removeName).build();
+        caches1.add(cacheManager.createCacheBuilder("c3").build());
+
+        Collection<Cache> caches2 = cacheManager.getCaches();
+        assertEquals(3, caches2.size());
+        cacheManager.removeCache(removeName);
+        assertEquals(3, caches2.size());
+
+        Collection<Cache> caches3 = cacheManager.getCaches();
+        assertEquals(2, caches3.size());
+        checkCollections(caches1, caches3);
+    }
+
     // ---------- utilities ----------
+
+    private <T> void checkCollections(Collection<T> collection1, Collection<T> collection2) {
+        assertEquals(collection1.size(), collection1.size());
+        for (T element : collection1) {
+            assertTrue(collection2.contains(element));
+        }
+    }
 
     private void checkStarted(Cache cache) {
         Status status = cache.getStatus();
