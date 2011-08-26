@@ -17,19 +17,14 @@
 
 package javax.cache;
 
-import org.jboss.weld.exceptions.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import javax.cache.util.ExcludeListExcluder;
-import javax.net.ssl.SSLEngineResult;
-
-import java.lang.IllegalStateException;
-import java.lang.UnsupportedOperationException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -322,7 +317,7 @@ public class CacheManagerTest extends TestSupport {
         caches1.add(cacheManager.createCacheBuilder("c2").build());
         caches1.add(cacheManager.createCacheBuilder("c3").build());
 
-        Collection<Cache> caches2 = cacheManager.getCaches();
+        Set<Cache> caches2 = cacheManager.getCaches();
         checkCollections(caches1, caches2);
     }
 
@@ -330,17 +325,16 @@ public class CacheManagerTest extends TestSupport {
     public void getCaches_MutateReturn() {
         CacheManager cacheManager = getCacheManager();
 
-        ArrayList<Cache> caches1 = new ArrayList<Cache>();
-        caches1.add(cacheManager.createCacheBuilder("c1").build());
-        caches1.add(cacheManager.createCacheBuilder("c2").build());
+        cacheManager.createCacheBuilder("c1").build();
 
-        Collection<Cache> caches2 = cacheManager.getCaches();
-        caches2.clear();
-
-        Collection<Cache> caches3 = cacheManager.getCaches();
-        checkCollections(caches1, caches3);
+        Set<Cache> caches2 = cacheManager.getCaches();
+        try {
+            caches2.clear();
+            fail();
+        } catch (UnsupportedOperationException e) {
+            // immutable
+        }
     }
-
 
     @Test
     public void getCaches_MutateCacheManager() {
@@ -352,12 +346,12 @@ public class CacheManagerTest extends TestSupport {
         cacheManager.createCacheBuilder(removeName).build();
         caches1.add(cacheManager.createCacheBuilder("c3").build());
 
-        Collection<Cache> caches2 = cacheManager.getCaches();
+        Set<Cache> caches2 = cacheManager.getCaches();
         assertEquals(3, caches2.size());
         cacheManager.removeCache(removeName);
         assertEquals(3, caches2.size());
 
-        Collection<Cache> caches3 = cacheManager.getCaches();
+        Set<Cache> caches3 = cacheManager.getCaches();
         assertEquals(2, caches3.size());
         checkCollections(caches1, caches3);
     }

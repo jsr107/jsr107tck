@@ -29,7 +29,6 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
-import java.util.Collection;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -62,7 +61,7 @@ public class MBeanServerRegistrationUtility {
 
         try {
 
-            Collection<Cache> caches = this.cacheManager.getCaches();
+            Set<? extends Cache> caches = this.cacheManager.getCaches();
             for (Cache cache : caches) {
                 //todo some caches may not be capturing statistics
                 registerCacheStatistics(cache);
