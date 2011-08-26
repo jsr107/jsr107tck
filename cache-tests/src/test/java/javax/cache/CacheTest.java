@@ -415,7 +415,7 @@ public class CacheTest extends TestSupport {
                 <Integer, Integer>createCacheBuilder(CACHE_NAME).build();
         cache.stop();
         try {
-            cache.load(null, null, null);
+            cache.load(null);
             fail("should have thrown an exception - cache not started");
         } catch (IllegalStateException e) {
             //good
