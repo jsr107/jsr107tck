@@ -24,6 +24,7 @@ import org.junit.Test;
 import javax.cache.util.ExcludeListExcluder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -354,6 +355,33 @@ public class CacheManagerTest extends TestSupport {
         Set<Cache> caches3 = cacheManager.getCaches();
         assertEquals(2, caches3.size());
         checkCollections(caches1, caches3);
+    }
+
+    @Test
+    public void isSupported() {
+        CacheManager cacheManager = getCacheManager();
+
+        for (OptionalFeature feature : OptionalFeature.values()) {
+            assertSame(CacheManagerFactory.isSupported(feature), cacheManager.isSupported(feature));
+        }
+    }
+
+    @Test
+    public void addImmutableClass_Null() {
+        CacheManager cacheManager = getCacheManager();
+        try {
+            cacheManager.addImmutableClass(null);
+            fail();
+        } catch (NullPointerException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void addImmutableClass_NotImmutable() {
+        CacheManager cacheManager = getCacheManager();
+        // Note: we lie - Date is mutable
+        cacheManager.addImmutableClass(Date.class);
     }
 
     // ---------- utilities ----------

@@ -16,6 +16,8 @@
  */
 package javax.cache;
 
+import org.junit.Before;
+
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.logging.Logger;

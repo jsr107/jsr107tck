@@ -1,5 +1,6 @@
 package javax.cache;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
@@ -31,6 +32,11 @@ public class CacheStoreByValueTest extends TestSupport {
     @Rule
     public MethodRule rule = new ExcludeListExcluder(this.getClass());
 
+    @Before
+    public void setUp() {
+        CacheManagerFactory.shutdown();
+    }
+
     @Test
     public void get_Existing_ByValue() {
         Cache<String, Integer> cache = getCacheManager().
@@ -61,7 +67,7 @@ public class CacheStoreByValueTest extends TestSupport {
      * from mutation
      */
     @Test
-    public void test_ExistingWithMutableKey_ByValue() {
+    public void get_ExistingWithMutableKey_ByValue() {
         Cache<Date, Integer> cache = getCacheManager().
                 <Date, Integer>createCacheBuilder(CACHE_NAME).build();
 
@@ -75,6 +81,26 @@ public class CacheStoreByValueTest extends TestSupport {
         //null because key was stored by value
         assertNull(cache.get(key1));
         checkGetExpectation(existingValue, cache, key2);
+    }
+
+    @Test
+    public void get_DeclaredImmutable() {
+        CacheManager cacheManager = getCacheManager();
+        // Note: we lie - Date is mutable
+        cacheManager.addImmutableClass(Date.class);
+        Cache<Integer, Date> cache = cacheManager.
+                <Integer, Date>createCacheBuilder(CACHE_NAME).build();
+
+        Integer existingKey = 1;
+        Date existingValue = new Date();
+        cache.put(existingKey, existingValue);
+
+        if (existingValue == cache.get(existingKey)) {
+            // we can't actually do an assertion as impl may not store by ref
+            LOG.info("Immutable was stored by reference");
+        } else {
+            checkGetExpectation(existingValue, cache, existingKey);
+        }
     }
 
     @Test
