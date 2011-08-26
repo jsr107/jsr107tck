@@ -156,7 +156,7 @@ public class CacheManagerFactoryTest {
     }
 
     private static void shutdown() {
-        CacheManagerFactory.shutdown();
+        CacheManagerFactory.close();
     }
 
     private static boolean isSupported(OptionalFeature optionalFeature) {

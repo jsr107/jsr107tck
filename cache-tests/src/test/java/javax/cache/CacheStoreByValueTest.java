@@ -34,7 +34,7 @@ public class CacheStoreByValueTest extends TestSupport {
 
     @Before
     public void setUp() {
-        CacheManagerFactory.shutdown();
+        CacheManagerFactory.close();
     }
 
     @Test

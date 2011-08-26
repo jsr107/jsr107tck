@@ -281,15 +281,15 @@ public class CacheManagerFactoryClassLoaderTest {
     }
 
     private static boolean shutdown() {
-        return CacheManagerFactory.shutdown();
+        return CacheManagerFactory.close();
     }
 
     private static boolean shutdown(ClassLoader classLoader) {
-        return CacheManagerFactory.shutdown(classLoader);
+        return CacheManagerFactory.close(classLoader);
     }
 
     private static boolean shutdown(ClassLoader classLoader, String name) {
-        return CacheManagerFactory.shutdown(classLoader, name);
+        return CacheManagerFactory.close(classLoader, name);
     }
 
     /**

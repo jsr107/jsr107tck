@@ -53,7 +53,7 @@ public class CacheManagerTest extends TestSupport {
 
     @Before
     public void startUp() {
-        CacheManagerFactory.shutdown();
+        CacheManagerFactory.close();
     }
 
     @Test
