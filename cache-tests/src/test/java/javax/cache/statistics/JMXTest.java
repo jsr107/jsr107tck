@@ -76,10 +76,8 @@ public class JMXTest {
 
     @Test
     public void testCacheStatisticsWhereStatisticsTurnedOn() throws Exception {
-        CacheConfiguration config = CacheManagerFactory.getCacheManager().createCacheConfiguration();
-        config.setStatisticsEnabled(true);
-        cacheManager.createCacheBuilder("cache1").setCacheConfiguration(config).build();
-        cacheManager.createCacheBuilder("cache2").setCacheConfiguration(config).build();
+        cacheManager.createCacheBuilder("cache1").setStatisticsEnabled(true).build();
+        cacheManager.createCacheBuilder("cache2").setStatisticsEnabled(true).build();
 
         mBeanServerRegistrationUtility = new MBeanServerRegistrationUtility(cacheManager, mBeanServer);
         Assert.assertTrue((mBeanServer.queryNames(new ObjectName("javax.cache:*"), null).size()) >= 2);

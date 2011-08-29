@@ -432,10 +432,8 @@ public class CacheTest extends TestSupport {
     @Test
     public void getStatistics_NotEnabled() {
         CacheManager cacheManager = getCacheManager();
-        CacheConfiguration config = cacheManager.createCacheConfiguration();
-        config.setStatisticsEnabled(false);
         Cache<Date, Integer> cache = cacheManager.<Date, Integer>createCacheBuilder(CACHE_NAME).
-                setCacheConfiguration(config).build();
+                setStatisticsEnabled(false).build();
         assertNull(cache.getStatistics());
     }
 
@@ -445,19 +443,15 @@ public class CacheTest extends TestSupport {
     @Test
     public void createCacheWithConfiguration() {
         CacheManager cacheManager = getCacheManager();
-        CacheConfiguration cacheConfiguration = cacheManager.createCacheConfiguration();
-        cacheConfiguration.setReadThrough(false);
-        Cache testCache = cacheManager.createCacheBuilder(CACHE_NAME).setCacheConfiguration(cacheConfiguration).build();
+        Cache testCache = cacheManager.createCacheBuilder(CACHE_NAME).setReadThrough(false).build();
         assertNotNull(testCache);
     }
 
     @Test
     public void getStatistics_Enabled() {
         CacheManager cacheManager = getCacheManager();
-        CacheConfiguration config = cacheManager.createCacheConfiguration();
-        config.setStatisticsEnabled(true);
         Cache<Date, Integer> cache = cacheManager.<Date, Integer>createCacheBuilder(CACHE_NAME)
-                .setCacheConfiguration(config).build();
+                .setStatisticsEnabled(true).build();
         assertNotNull(cache.getStatistics());
     }
 
@@ -851,35 +845,21 @@ public class CacheTest extends TestSupport {
         String cacheName = CACHE_NAME + "XXX";
         CacheManager cacheManager = getCacheManager();
         CacheConfiguration defaultConfig = cacheManager.createCacheConfiguration();
-        CacheConfiguration expectedConfig = cacheManager.createCacheConfiguration();
-        expectedConfig.setReadThrough(!defaultConfig.isReadThrough());
-        expectedConfig.setWriteThrough(!defaultConfig.isWriteThrough());
-        expectedConfig.setStoreByValue(!defaultConfig.isStoreByValue());
-        expectedConfig.setTransactionEnabled(!defaultConfig.isTransactionEnabled());
 
         Cache<Date, Integer> cache = cacheManager.
                 <Date, Integer>createCacheBuilder(cacheName).
-                setCacheConfiguration(expectedConfig).
+                setReadThrough(!defaultConfig.isReadThrough()).
+                setWriteThrough(!defaultConfig.isWriteThrough()).
+                setStoreByValue(!defaultConfig.isStoreByValue()).
+                setTransactionEnabled(!defaultConfig.isTransactionEnabled()).
                 build();
 
         CacheConfiguration config = cache.getConfiguration();
         // defaults
-        assertEquals(expectedConfig.isReadThrough(), config.isReadThrough());
-        assertEquals(expectedConfig.isWriteThrough(), config.isWriteThrough());
-        assertEquals(expectedConfig.isStoreByValue(), config.isStoreByValue());
-        assertEquals(expectedConfig.isTransactionEnabled(), config.isTransactionEnabled());
-        try {
-            config.setStoreByValue(!config.isStoreByValue());
-            fail("immutable");
-        } catch (UnsupportedOperationException e) {
-            //good
-        }
-        try {
-            config.setTransactionEnabled(!config.isTransactionEnabled());
-            fail("immutable");
-        } catch (UnsupportedOperationException e) {
-            //good
-        }
+        assertEquals(!defaultConfig.isReadThrough(), config.isReadThrough());
+        assertEquals(!defaultConfig.isWriteThrough(), config.isWriteThrough());
+        assertEquals(!defaultConfig.isStoreByValue(), config.isStoreByValue());
+        assertEquals(!defaultConfig.isTransactionEnabled(), config.isTransactionEnabled());
     }
 
     @Test
@@ -892,18 +872,6 @@ public class CacheTest extends TestSupport {
 
         CacheConfiguration config = cache.getConfiguration();
 
-        try {
-            config.setStoreByValue(!config.isStoreByValue());
-            fail("immutable");
-        } catch (UnsupportedOperationException e) {
-            //good
-        }
-        try {
-            config.setTransactionEnabled(!config.isTransactionEnabled());
-            fail("immutable");
-        } catch (UnsupportedOperationException e) {
-            //good
-        }
         boolean enabled = config.isStatisticsEnabled();
         assertEquals(enabled, config.isStatisticsEnabled());
         config.setStatisticsEnabled(!enabled);

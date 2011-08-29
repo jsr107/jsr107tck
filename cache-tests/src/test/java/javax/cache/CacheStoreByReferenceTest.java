@@ -292,9 +292,6 @@ public class CacheStoreByReferenceTest extends TestSupport {
 
     private <A, B> Cache<A, B> createByReferenceCache() {
         CacheManager cacheManager = getCacheManager();
-        CacheConfiguration config = cacheManager.createCacheConfiguration();
-        config.setStoreByValue(false);
-        Cache<A, B> cache = cacheManager.<A, B>createCacheBuilder(CACHE_NAME).setCacheConfiguration(config).build();
-        return cache;
+        return cacheManager.<A, B>createCacheBuilder(CACHE_NAME).setStoreByValue(false).build();
     }
 }

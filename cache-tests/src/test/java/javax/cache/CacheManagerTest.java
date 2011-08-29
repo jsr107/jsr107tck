@@ -90,37 +90,6 @@ public class CacheManagerTest extends TestSupport {
     }
 
     @Test
-    public void createCache_NullCacheConfiguration() {
-        String name = "c1";
-        CacheBuilder builder = getCacheManager().createCacheBuilder(name);
-        try {
-            builder.setCacheConfiguration(null);
-            fail("should have thrown an exception - null cache configuration not allowed");
-        } catch (NullPointerException e) {
-            //good
-        }
-    }
-
-    @Test
-    public void createCache_CacheConfiguration_NameOK() {
-        String name = "c1";
-        CacheManager cacheManager = getCacheManager();
-        Cache cache = cacheManager.createCacheBuilder(name).
-                setCacheConfiguration(cacheManager.createCacheConfiguration()).build();
-        assertEquals(name, cache.getName());
-        assertSame(cache, cacheManager.getCache(name));
-    }
-
-    @Test
-    public void createCache_CacheConfiguration_StatusOK() {
-        String name = "c1";
-        CacheManager cacheManager = getCacheManager();
-        Cache cache = cacheManager.createCacheBuilder(name).
-                setCacheConfiguration(cacheManager.createCacheConfiguration()).build();
-        assertSame(Status.STARTED, cache.getStatus());
-    }
-
-    @Test
     public void createCache_Different() {
         String name1 = "c1";
         CacheManager cacheManager = getCacheManager();

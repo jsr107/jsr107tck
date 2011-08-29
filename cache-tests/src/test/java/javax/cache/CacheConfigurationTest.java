@@ -85,14 +85,6 @@ public class CacheConfigurationTest {
     }
 
     @Test
-    public void setStoreByValue() {
-        CacheConfiguration config = getCacheManager().createCacheConfiguration();
-        boolean flag = config.isStoreByValue();
-        config.setStoreByValue(!flag);
-        assertEquals(!flag, config.isStoreByValue());
-    }
-
-    @Test
     public void setWriteThrough() {
         CacheConfiguration config = getCacheManager().createCacheConfiguration();
         boolean flag = config.isWriteThrough();
