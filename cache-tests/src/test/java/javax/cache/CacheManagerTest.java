@@ -318,7 +318,7 @@ public class CacheManagerTest extends TestSupport {
         caches1.add(cacheManager.createCacheBuilder("c2").build());
         caches1.add(cacheManager.createCacheBuilder("c3").build());
 
-        Set<Cache> caches2 = cacheManager.getCaches();
+        Set caches2 = cacheManager.getCaches();
         checkCollections(caches1, caches2);
     }
 
@@ -328,7 +328,7 @@ public class CacheManagerTest extends TestSupport {
 
         cacheManager.createCacheBuilder("c1").build();
 
-        Set<Cache> caches2 = cacheManager.getCaches();
+        Set caches2 = cacheManager.getCaches();
         try {
             caches2.clear();
             fail();
@@ -347,12 +347,12 @@ public class CacheManagerTest extends TestSupport {
         cacheManager.createCacheBuilder(removeName).build();
         caches1.add(cacheManager.createCacheBuilder("c3").build());
 
-        Set<Cache> caches2 = cacheManager.getCaches();
+        Set caches2 = cacheManager.getCaches();
         assertEquals(3, caches2.size());
         cacheManager.removeCache(removeName);
         assertEquals(3, caches2.size());
 
-        Set<Cache> caches3 = cacheManager.getCaches();
+        Set caches3 = cacheManager.getCaches();
         assertEquals(2, caches3.size());
         checkCollections(caches1, caches3);
     }
@@ -386,7 +386,7 @@ public class CacheManagerTest extends TestSupport {
 
     // ---------- utilities ----------
 
-    private <T> void checkCollections(Collection<T> collection1, Collection<T> collection2) {
+    private <T> void  checkCollections(Collection<T> collection1, Collection<T> collection2) {
         assertEquals(collection1.size(), collection1.size());
         for (T element : collection1) {
             assertTrue(collection2.contains(element));
