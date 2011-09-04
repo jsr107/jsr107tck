@@ -841,28 +841,6 @@ public class CacheTest extends TestSupport {
     }
 
     @Test
-    public void getConfiguration_SuppliedInConstructor() {
-        String cacheName = CACHE_NAME + "XXX";
-        CacheManager cacheManager = getCacheManager();
-        CacheConfiguration defaultConfig = cacheManager.createCacheConfiguration();
-
-        Cache<Date, Integer> cache = cacheManager.
-                <Date, Integer>createCacheBuilder(cacheName).
-                setReadThrough(!defaultConfig.isReadThrough()).
-                setWriteThrough(!defaultConfig.isWriteThrough()).
-                setStoreByValue(!defaultConfig.isStoreByValue()).
-                setTransactionEnabled(!defaultConfig.isTransactionEnabled()).
-                build();
-
-        CacheConfiguration config = cache.getConfiguration();
-        // defaults
-        assertEquals(!defaultConfig.isReadThrough(), config.isReadThrough());
-        assertEquals(!defaultConfig.isWriteThrough(), config.isWriteThrough());
-        assertEquals(!defaultConfig.isStoreByValue(), config.isStoreByValue());
-        assertEquals(!defaultConfig.isTransactionEnabled(), config.isTransactionEnabled());
-    }
-
-    @Test
     public void getConfiguration_Mutation() {
         String cacheName = CACHE_NAME + "YYY";
 

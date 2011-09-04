@@ -64,11 +64,11 @@ class TestSupport {
         }
     }
 
-    protected static CacheManager getCacheManager() {
+    protected CacheManager getCacheManager() {
         return CacheManagerFactory.getCacheManager();
     }
 
-    protected static CacheManager getCacheManager(String name) {
+    protected CacheManager getCacheManager(String name) {
         return CacheManagerFactory.getCacheManager(name);
     }
 }
