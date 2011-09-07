@@ -18,6 +18,8 @@ package javax.cache.annotation;
 
 import static org.junit.Assert.*;
 
+import javax.cache.cdiutils.BeanManagerLocatorFactory;
+
 import java.lang.annotation.Annotation;
 import java.util.Set;
 
@@ -31,8 +33,6 @@ import javax.enterprise.inject.spi.BeanManager;
 
 import manager.BlogManager;
 
-import org.jboss.weld.environment.se.Weld;
-import org.jboss.weld.environment.se.WeldContainer;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -77,10 +77,7 @@ public abstract class AbstractInterceptionTest {
         }
 
         if (beanManager == null) {
-            WeldContainer delegate;
-            Weld weld = new Weld();
-            delegate = weld.initialize();
-            beanManager = delegate.getBeanManager();
+            beanManager = BeanManagerLocatorFactory.create().locateBeanManager();
         }
 
         Set<Bean<?>> beans = beanManager.getBeans(type, qualifiers);
