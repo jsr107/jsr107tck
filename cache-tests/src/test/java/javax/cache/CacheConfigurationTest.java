@@ -17,6 +17,7 @@
 
 package javax.cache;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -35,15 +36,22 @@ import static org.junit.Assert.assertTrue;
  * @since 1.0
  */
 public class CacheConfigurationTest {
+    private static final String CACHE_NAME = "testCache";
+
     /**
      * Rule used to exclude tests
      */
     @Rule
     public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
 
+    @Before
+    public void startUp() {
+        CacheManagerFactory.close();
+    }
+
     @Test
     public void checkDefaults() {
-        CacheConfiguration config = getCacheManager().createCacheConfiguration();
+        CacheConfiguration config = getCacheConfiguration(CACHE_NAME + "0");
         assertFalse(config.isReadThrough());
         assertFalse(config.isWriteThrough());
         assertFalse(config.isStatisticsEnabled());
@@ -52,47 +60,43 @@ public class CacheConfigurationTest {
 
     @Test
     public void notSame() {
-        CacheManager cacheManager = getCacheManager();
-        assertNotSame(cacheManager.createCacheConfiguration(), cacheManager.createCacheConfiguration());
+        CacheConfiguration config1 = getCacheConfiguration(CACHE_NAME + "1");
+        CacheConfiguration config2 = getCacheConfiguration(CACHE_NAME + "2");
+        assertNotSame(config1, config2);
     }
 
-    /**
-     *
-     */
     @Test
     public void equals() {
-        CacheManager cacheManager = getCacheManager();
-        CacheConfiguration cacheConfiguration1 = cacheManager.createCacheConfiguration();
-        CacheConfiguration cacheConfiguration2 = cacheManager.createCacheConfiguration();
-        assertNotSame(cacheConfiguration1, cacheConfiguration2);
+        CacheConfiguration config1 = getCacheConfiguration(CACHE_NAME + "1");
+        CacheConfiguration config2 = getCacheConfiguration(CACHE_NAME + "2");
+        assertEquals(config1, config2);
     }
 
     @Test
     public void equalsNotEquals() {
-        CacheManager cacheManager = getCacheManager();
-        CacheConfiguration config1 = cacheManager.createCacheConfiguration();
-        config1.setReadThrough(!config1.isReadThrough());
-        CacheConfiguration config2 = cacheManager.createCacheConfiguration();
+        CacheConfiguration config1 = getCacheConfiguration(CACHE_NAME + "1");
+        config1.setStatisticsEnabled(!config1.isStatisticsEnabled());
+        CacheConfiguration config2 = getCacheConfiguration(CACHE_NAME + "2");
         assertFalse(config1.equals(config2));
     }
 
     @Test
-    public void setReadThrough() {
-        CacheConfiguration config = getCacheManager().createCacheConfiguration();
-        boolean flag = config.isReadThrough();
-        config.setReadThrough(!flag);
-        assertEquals(!flag, config.isReadThrough());
-    }
-
-    @Test
-    public void setWriteThrough() {
-        CacheConfiguration config = getCacheManager().createCacheConfiguration();
-        boolean flag = config.isWriteThrough();
-        config.setWriteThrough(!flag);
-        assertEquals(!flag, config.isWriteThrough());
+    public void setStatisticsEnabled() {
+        CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
+        boolean flag = config.isStatisticsEnabled();
+        config.setStatisticsEnabled(!flag);
+        assertEquals(!flag, config.isStatisticsEnabled());
     }
 
     // ---------- utilities ----------
+
+    private CacheConfiguration getCacheConfiguration(String cacheName) {
+        Cache cache = getCacheManager().getCache(cacheName);
+        if (cache == null) {
+            cache = getCacheManager().createCacheBuilder(cacheName).build();
+        }
+        return cache.getConfiguration();
+    }
 
     private static CacheManager getCacheManager() {
         return CacheManagerFactory.getCacheManager();

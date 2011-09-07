@@ -225,14 +225,6 @@ public class CacheManagerTest extends TestSupport {
     }
 
     @Test
-    public void createCacheConfiguration() {
-        CacheManager cacheManager = getCacheManager();
-        CacheConfiguration cacheConfiguration = cacheManager.createCacheConfiguration();
-        assertNotNull(cacheConfiguration);
-        assertNotSame(cacheConfiguration, cacheManager.createCacheConfiguration());
-    }
-
-    @Test
     public void getCache_Missing() {
         CacheManager cacheManager = getCacheManager();
         assertNull(cacheManager.getCache("notThere"));

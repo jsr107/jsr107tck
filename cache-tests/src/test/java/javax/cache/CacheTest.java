@@ -830,17 +830,6 @@ public class CacheTest extends TestSupport {
     }
 
     @Test
-    public void getConfiguration_Default() {
-        CacheManager cacheManager = getCacheManager();
-        Cache<Date, Integer> cache = cacheManager.<Date, Integer>createCacheBuilder(CACHE_NAME).build();
-        CacheConfiguration config = cache.getConfiguration();
-        // defaults
-        CacheConfiguration defaultConfig = cacheManager.createCacheConfiguration();
-        //separate instances
-        assertNotSame(defaultConfig, config);
-    }
-
-    @Test
     public void getConfiguration_Mutation() {
         String cacheName = CACHE_NAME + "YYY";
 
