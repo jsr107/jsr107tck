@@ -180,17 +180,6 @@ public class CacheStoreByValueTest extends TestSupport {
     }
 
     @Test
-    public void putAll_ByValue() {
-        Cache<Date, Integer> cache = getCacheManager().
-                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
-        Map<Date, Integer> data = createData(3);
-        cache.putAll(data);
-        for (Map.Entry<Date, Integer> entry : data.entrySet()) {
-            assertEquals(entry.getValue(), cache.get(entry.getKey()));
-        }
-    }
-
-    @Test
     public void putIfAbsent_Missing_ByValue() {
         Cache<Date, Long> cache = getCacheManager().
                 <Date, Long>createCacheBuilder(CACHE_NAME).build();

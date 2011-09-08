@@ -23,6 +23,7 @@ import org.junit.rules.MethodRule;
 import javax.cache.util.AllTestExcluder;
 import javax.cache.util.ExcludeListExcluder;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TimerTask;
 
@@ -228,12 +229,12 @@ public class CacheStoreByReferenceTest extends TestSupport {
 
     @Test
     public void putAll_ByReference() {
-        Cache<Date, Integer> cache = createByReferenceCache();
+        Cache<Date, Date> cache = createByReferenceCache();
         if (cache == null) return;
 
-        Map<Date, Integer> data = createData(3);
+        Map<Date, Date> data = createData(3);
         cache.putAll(data);
-        for (Map.Entry<Date, Integer> entry : data.entrySet()) {
+        for (Map.Entry<Date, Date> entry : data.entrySet()) {
             assertSame(entry.getValue(), cache.get(entry.getKey()));
         }
     }
@@ -289,6 +290,18 @@ public class CacheStoreByReferenceTest extends TestSupport {
     }
 
     // ---------- utilities ----------
+
+    private LinkedHashMap<Date, Date> createData(int count, long now) {
+        LinkedHashMap<Date, Date> map = new LinkedHashMap<Date, Date>(count);
+        for (int i = 0; i < count; i++) {
+            map.put(new Date(now + i), new Date(now + 1000 + i));
+        }
+        return map;
+    }
+
+    private LinkedHashMap<Date, Date> createData(int count) {
+        return createData(count, System.currentTimeMillis());
+    }
 
     private <A, B> Cache<A, B> createByReferenceCache() {
         CacheManager cacheManager = getCacheManager();

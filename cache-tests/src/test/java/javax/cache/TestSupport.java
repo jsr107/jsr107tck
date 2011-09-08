@@ -44,18 +44,6 @@ class TestSupport {
      */
     protected static final String CACHE_NAME = "testCache";
 
-    protected LinkedHashMap<Date, Integer> createData(int count, long now) {
-        LinkedHashMap<Date, Integer> map = new LinkedHashMap<Date, Integer>(count);
-        for (int i = 0; i < count; i++) {
-            map.put(new Date(now + i), i);
-        }
-        return map;
-    }
-
-    protected LinkedHashMap<Date, Integer> createData(int count) {
-        return createData(count, System.currentTimeMillis());
-    }
-
     protected CacheManager getCacheManager() {
         return CacheManagerFactory.getCacheManager();
     }
