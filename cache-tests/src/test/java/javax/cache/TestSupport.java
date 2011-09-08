@@ -56,14 +56,6 @@ class TestSupport {
         return createData(count, System.currentTimeMillis());
     }
 
-    protected <K, V> void checkGetExpectation(V expected, Cache<K, V> cache, K key) {
-        if (cache.getConfiguration().isStoreByValue()) {
-            assertEquals(expected, cache.get(key));
-        } else {
-            assertSame(expected, cache.get(key));
-        }
-    }
-
     protected CacheManager getCacheManager() {
         return CacheManagerFactory.getCacheManager();
     }

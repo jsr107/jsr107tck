@@ -102,6 +102,16 @@ public class CacheTest extends TestSupport {
         assertNull(cache.get(key1));
     }
 
+    @Test
+    public void get_Existing_ByValue() {
+        Cache<String, Integer> cache = getCacheManager().
+                <String, Integer>createCacheBuilder(CACHE_NAME).build();
+
+        String existingKey = "key1";
+        Integer existingValue = 1;
+        cache.put(existingKey, existingValue);
+        assertEquals(existingValue, cache.get(existingKey));
+    }
 
     @Test
     public void put_NotStarted() {
@@ -178,6 +188,16 @@ public class CacheTest extends TestSupport {
         }
     }
 
+    @Test
+    public void getAndPut() {
+        Cache<Long, String> cache = getCacheManager().
+                <Long, String>createCacheBuilder(CACHE_NAME).build();
+
+        long key = System.currentTimeMillis();
+        String value = "value" + key;
+        assertNull(cache.getAndPut(key, value));
+        assertEquals(value, cache.get(key));
+    }
 
     @Test
     public void remove_NotStarted() {
@@ -423,7 +443,7 @@ public class CacheTest extends TestSupport {
     }
 
     @Test
-    public void getCacheStatistics() {
+    public void getStatistics() {
         Cache<Date, Integer> cache = getCacheManager().
                 <Date, Integer>createCacheBuilder(CACHE_NAME).build();
         assertNull(cache.getStatistics());

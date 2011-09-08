@@ -62,7 +62,7 @@ public class CacheStoreByReferenceTest extends TestSupport {
         String existingKey = "key1";
         Integer existingValue = 1;
         cache.put(existingKey, existingValue);
-        checkGetExpectation(existingValue, cache, existingKey);
+        assertSame(existingValue, cache.get(existingKey));
     }
 
     @Test
@@ -76,7 +76,7 @@ public class CacheStoreByReferenceTest extends TestSupport {
         cache.put(existingKey, existingValue);
         Date newKey = new Date(now);
         assertNotSame(existingKey, newKey);
-        checkGetExpectation(existingValue, cache, newKey);
+        assertSame(existingValue, cache.get(newKey));
     }
 
     /**
@@ -133,7 +133,7 @@ public class CacheStoreByReferenceTest extends TestSupport {
         Date key2 = new Date(now);
         Integer value2 = value1 + 1;
         cache.put(key2, value2);
-        checkGetExpectation(value2, cache, key2);
+        assertSame(value2, cache.get(key2));
     }
 
     @Test
@@ -161,7 +161,7 @@ public class CacheStoreByReferenceTest extends TestSupport {
         Date key2 = new Date(now);
         Integer value2 = value1 + 1;
         assertSame(value1, cache.getAndPut(key2, value2));
-        checkGetExpectation(value2, cache, key2);
+        assertSame(value2, cache.get(key2));
     }
 
     @Test
@@ -234,7 +234,7 @@ public class CacheStoreByReferenceTest extends TestSupport {
         Map<Date, Integer> data = createData(3);
         cache.putAll(data);
         for (Map.Entry<Date, Integer> entry : data.entrySet()) {
-            checkGetExpectation(entry.getValue(), cache, entry.getKey());
+            assertSame(entry.getValue(), cache.get(entry.getKey()));
         }
     }
 
@@ -246,7 +246,7 @@ public class CacheStoreByReferenceTest extends TestSupport {
         Date key = new Date();
         Long value = key.getTime();
         assertTrue(cache.putIfAbsent(key, value));
-        checkGetExpectation(value, cache, key);
+        assertSame(value, cache.get(key));
     }
 
     @Test
@@ -259,7 +259,7 @@ public class CacheStoreByReferenceTest extends TestSupport {
         Long oldValue = value + 1;
         cache.put(key, oldValue);
         assertFalse(cache.putIfAbsent(key, value));
-        checkGetExpectation(oldValue, cache, key);
+        assertSame(oldValue, cache.get(key));
     }
 
     @Test
@@ -285,7 +285,7 @@ public class CacheStoreByReferenceTest extends TestSupport {
         cache.put(key, value);
         Date nextValue = new Date(key + 1);
         assertSame(value, cache.getAndReplace(key, nextValue));
-        checkGetExpectation(nextValue, cache, key);
+        assertSame(nextValue, cache.get(key));
     }
 
     // ---------- utilities ----------

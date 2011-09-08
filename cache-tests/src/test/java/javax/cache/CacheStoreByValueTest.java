@@ -39,27 +39,29 @@ public class CacheStoreByValueTest extends TestSupport {
 
     @Test
     public void get_Existing_ByValue() {
-        Cache<String, Integer> cache = getCacheManager().
-                <String, Integer>createCacheBuilder(CACHE_NAME).build();
+        Cache<String, Date> cache = getCacheManager().
+                <String, Date>createCacheBuilder(CACHE_NAME).build();
 
+        long now = System.currentTimeMillis();
         String existingKey = "key1";
-        Integer existingValue = 1;
+        Date existingValue = new Date(now);
         cache.put(existingKey, existingValue);
-        checkGetExpectation(existingValue, cache, existingKey);
+        existingValue.setTime(now + 10);
+        assertEquals(new Date(now), cache.get(existingKey));
     }
 
     @Test
     public void get_ExistingWithEqualButNonSameKey_ByValue() {
-        Cache<Date, Integer> cache = getCacheManager().
-                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
+        Cache<Date, Date> cache = getCacheManager().
+                <Date, Date>createCacheBuilder(CACHE_NAME).build();
 
         long now = System.currentTimeMillis();
         Date existingKey = new Date(now);
-        Integer existingValue = 1;
+        Date existingValue = new Date(now);
         cache.put(existingKey, existingValue);
         Date newKey = new Date(now);
-        assertNotSame(existingKey, newKey);
-        checkGetExpectation(existingValue, cache, newKey);
+        existingValue.setTime(now + 10);
+        assertEquals(new Date(now), cache.get(newKey));
     }
 
     /**
@@ -80,7 +82,7 @@ public class CacheStoreByValueTest extends TestSupport {
         key1.setTime(later);
         //null because key was stored by value
         assertNull(cache.get(key1));
-        checkGetExpectation(existingValue, cache, key2);
+        assertEquals(existingValue, cache.get(key2));
     }
 
     @Test
@@ -99,7 +101,7 @@ public class CacheStoreByValueTest extends TestSupport {
             // we can't actually do an assertion as impl may not store by ref
             LOG.info("Immutable was stored by reference");
         } else {
-            checkGetExpectation(existingValue, cache, existingKey);
+            assertEquals(existingValue, cache.get(existingKey));
         }
     }
 
@@ -115,7 +117,7 @@ public class CacheStoreByValueTest extends TestSupport {
         Date key2 = new Date(now);
         Integer value2 = value1 + 1;
         cache.put(key2, value2);
-        checkGetExpectation(value2, cache, key2);
+        assertEquals(value2, cache.get(key2));
     }
 
     @Test
@@ -146,7 +148,7 @@ public class CacheStoreByValueTest extends TestSupport {
         Date key2 = new Date(now);
         Integer value2 = value1 + 1;
         assertEquals(value1, cache.getAndPut(key2, value2));
-        checkGetExpectation(value2, cache, key2);
+        assertEquals(value2, cache.get(key2));
     }
 
     @Test
@@ -184,7 +186,7 @@ public class CacheStoreByValueTest extends TestSupport {
         Map<Date, Integer> data = createData(3);
         cache.putAll(data);
         for (Map.Entry<Date, Integer> entry : data.entrySet()) {
-            checkGetExpectation(entry.getValue(), cache, entry.getKey());
+            assertEquals(entry.getValue(), cache.get(entry.getKey()));
         }
     }
 
@@ -196,7 +198,7 @@ public class CacheStoreByValueTest extends TestSupport {
         Date key = new Date();
         Long value = key.getTime();
         assertTrue(cache.putIfAbsent(key, value));
-        checkGetExpectation(value, cache, key);
+        assertEquals(value, cache.get(key));
     }
 
     @Test
@@ -209,7 +211,7 @@ public class CacheStoreByValueTest extends TestSupport {
         Long oldValue = value + 1;
         cache.put(key, oldValue);
         assertFalse(cache.putIfAbsent(key, value));
-        checkGetExpectation(oldValue, cache, key);
+        assertEquals(oldValue, cache.get(key));
     }
 
     @Test
@@ -237,6 +239,6 @@ public class CacheStoreByValueTest extends TestSupport {
         Date nextValue = new Date(key + 1);
         value.setTime(key + 5);
         assertEquals(valueOriginal, cache.getAndReplace(key, nextValue));
-        checkGetExpectation(nextValue, cache, key);
+        assertEquals(nextValue, cache.get(key));
     }
 }
