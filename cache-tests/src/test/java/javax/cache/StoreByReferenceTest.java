@@ -23,16 +23,11 @@ import org.junit.rules.MethodRule;
 
 import javax.cache.util.AllTestExcluder;
 import javax.cache.util.ExcludeListExcluder;
-import java.text.DateFormat;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.TimerTask;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -47,14 +42,7 @@ import static org.junit.Assert.assertTrue;
  * @author Greg Luck
  * @since 1.0
  */
-public class CacheStoreByReferenceTest extends TestSupport {
-    /**
-     * the default test cache name
-     */
-    private static final String CACHE_NAME = CacheTest.class.getName();
-
-    Cache<Date, Date> cache;
-
+public class StoreByReferenceTest extends CacheTestSupport<Date, Date> {
     /**
      * Rule used to exclude tests
      */
@@ -67,13 +55,11 @@ public class CacheStoreByReferenceTest extends TestSupport {
     @Before
     public void setUp() {
         CacheManagerFactory.close();
-        cache = createByReferenceCache();
+        super.setUp();
     }
 
     @Test
     public void get_Existing() {
-        if (cache == null) return;
-
         long now = System.currentTimeMillis();
         Date existingKey = new Date(now);
         Date existingValue = new Date(now);
@@ -85,8 +71,6 @@ public class CacheStoreByReferenceTest extends TestSupport {
 
     @Test
     public void get_Existing_NotSameKey() {
-        if (cache == null) return;
-
         long now = System.currentTimeMillis();
         Date existingKey = new Date(now);
         Date existingValue = new Date(now);
@@ -105,8 +89,6 @@ public class CacheStoreByReferenceTest extends TestSupport {
      */
     @Test
     public void get_Existing_MutateKey() {
-        if (cache == null) return;
-
         long now = System.currentTimeMillis();
         Date key1 = new Date(now);
         LOG.info(key1.toString());
@@ -140,8 +122,6 @@ public class CacheStoreByReferenceTest extends TestSupport {
 
     @Test
     public void put_Existing_NotSameKey() throws Exception {
-        if (cache == null) return;
-
         long now = System.currentTimeMillis();
         Date key1 = new Date(now);
         Date value1 = new Date(now);
@@ -156,8 +136,6 @@ public class CacheStoreByReferenceTest extends TestSupport {
 
     @Test
     public void getAndPut_NotThere() {
-        if (cache == null) return;
-
         long now = System.currentTimeMillis();
         Date existingKey = new Date(now);
         Date existingValue = new Date(now);
@@ -169,8 +147,6 @@ public class CacheStoreByReferenceTest extends TestSupport {
 
     @Test
     public void getAndPut_Existing() {
-        if (cache == null) return;
-
         long now = System.currentTimeMillis();
         Date existingKey = new Date(now);
         Date value1 = new Date(now);
@@ -182,8 +158,6 @@ public class CacheStoreByReferenceTest extends TestSupport {
 
     @Test
     public void getAndPut_Existing_NotSameKey() {
-        if (cache == null) return;
-
         long now = System.currentTimeMillis();
         Date key1 = new Date(now);
         Date value1 = new Date(now);
@@ -197,9 +171,7 @@ public class CacheStoreByReferenceTest extends TestSupport {
 
     @Test
     public void putAll() {
-        if (cache == null) return;
-
-        Map<Date, Date> data = createData(3);
+        Map<Date, Date> data = createDDData(3);
         cache.putAll(data);
         for (Map.Entry<Date, Date> entry : data.entrySet()) {
             assertSame(entry.getValue(), cache.get(entry.getKey()));
@@ -208,8 +180,6 @@ public class CacheStoreByReferenceTest extends TestSupport {
 
     @Test
     public void putIfAbsent_Missing() {
-        if (cache == null) return;
-
         long now = System.currentTimeMillis();
         Date key = new Date(now);
         Date value = new Date(now);
@@ -219,8 +189,6 @@ public class CacheStoreByReferenceTest extends TestSupport {
 
     @Test
     public void putIfAbsent_There() {
-        if (cache == null) return;
-
         long now = System.currentTimeMillis();
         Date key = new Date(now);
         Date value = new Date(now);
@@ -232,8 +200,6 @@ public class CacheStoreByReferenceTest extends TestSupport {
 
     @Test
     public void replace_3arg() throws Exception {
-        if (cache == null) return;
-
         long now = System.currentTimeMillis();
         Date key = new Date(now);
         Date value = new Date(now);
@@ -245,8 +211,6 @@ public class CacheStoreByReferenceTest extends TestSupport {
 
     @Test
     public void getAndReplace() {
-        if (cache == null) return;
-
         long now = System.currentTimeMillis();
         Date key = new Date(now);
         Date value = new Date(now);
@@ -258,20 +222,7 @@ public class CacheStoreByReferenceTest extends TestSupport {
 
     // ---------- utilities ----------
 
-    private LinkedHashMap<Date, Date> createData(int count, long now) {
-        LinkedHashMap<Date, Date> map = new LinkedHashMap<Date, Date>(count);
-        for (int i = 0; i < count; i++) {
-            map.put(new Date(now + i), new Date(now + 1000 + i));
-        }
-        return map;
-    }
-
-    private LinkedHashMap<Date, Date> createData(int count) {
-        return createData(count, System.currentTimeMillis());
-    }
-
-    private <A, B> Cache<A, B> createByReferenceCache() {
-        CacheManager cacheManager = getCacheManager();
-        return cacheManager.<A, B>createCacheBuilder(CACHE_NAME).setStoreByValue(false).build();
+    protected <A, B> CacheBuilder<A, B> extraSetup(CacheBuilder<A, B> builder) {
+        return super.extraSetup(builder).setStoreByValue(false);
     }
 }

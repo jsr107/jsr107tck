@@ -7,14 +7,9 @@ import org.junit.rules.MethodRule;
 
 import javax.cache.util.ExcludeListExcluder;
 import java.util.Date;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Cache implementations must support storeByValue.
@@ -25,14 +20,7 @@ import static org.junit.Assert.assertTrue;
  * @author Greg Luck
  * @since 1.0
  */
-public class CacheStoreByValueTest extends TestSupport {
-    /**
-     * the default test cache name
-     */
-    private static final String CACHE_NAME = CacheTest.class.getName();
-
-    Cache<Date, Date> cache;
-
+public class StoreByValueTest extends CacheTestSupport<Date, Date> {
     /**
      * Rule used to exclude tests
      */
@@ -42,7 +30,7 @@ public class CacheStoreByValueTest extends TestSupport {
     @Before
     public void setUp() {
         CacheManagerFactory.close();
-        cache = getCacheManager().<Date, Date>createCacheBuilder(CACHE_NAME).build();
+        super.setUp();
     }
 
     @Test
@@ -71,7 +59,7 @@ public class CacheStoreByValueTest extends TestSupport {
         // Note: we lie - Date is mutable
         cacheManager.addImmutableClass(Date.class);
         Cache<Date, Date> cache = cacheManager.
-                <Date, Date>createCacheBuilder(CACHE_NAME).build();
+                <Date, Date>createCacheBuilder(getTestCacheName()).build();
 
         long now = System.currentTimeMillis();
         Date existingKey = new Date(now);

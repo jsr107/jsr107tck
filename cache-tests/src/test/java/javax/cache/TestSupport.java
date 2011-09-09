@@ -16,14 +16,7 @@
  */
 package javax.cache;
 
-import org.junit.Before;
-
-import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.logging.Logger;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
 
 /**
  * Unit test support base class
@@ -32,7 +25,7 @@ import static org.junit.Assert.assertSame;
  * @author Yannis Cosmadopoulos
  * @since 1.0
  */
-class TestSupport {
+public class TestSupport {
 
     /**
      * The logger
@@ -40,6 +33,14 @@ class TestSupport {
     protected static final Logger LOG = Logger.getLogger(TestSupport.class.getName());
 
     protected CacheManager getCacheManager() {
-        return CacheManagerFactory.getCacheManager(getClass().getName());
+        return CacheManagerFactory.getCacheManager(getTestCacheManagerName());
+    }
+
+    protected String getTestCacheManagerName() {
+        return getClass().getName();
+    }
+
+    protected String getTestCacheName() {
+        return getClass().getName();
     }
 }
