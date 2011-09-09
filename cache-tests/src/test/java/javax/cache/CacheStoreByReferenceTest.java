@@ -16,17 +16,20 @@
  */
 package javax.cache;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 
 import javax.cache.util.AllTestExcluder;
 import javax.cache.util.ExcludeListExcluder;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TimerTask;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
@@ -50,6 +53,8 @@ public class CacheStoreByReferenceTest extends TestSupport {
      */
     private static final String CACHE_NAME = CacheTest.class.getName();
 
+    Cache<Date, Date> cache;
+
     /**
      * Rule used to exclude tests
      */
@@ -59,29 +64,36 @@ public class CacheStoreByReferenceTest extends TestSupport {
                     new ExcludeListExcluder(this.getClass()) :
                     new AllTestExcluder();
 
-    @Test
-    public void get_Existing_ByReference() {
-        Cache<String, Integer> cache = createByReferenceCache();
-        if (cache == null) return;
-
-        String existingKey = "key1";
-        Integer existingValue = 1;
-        cache.put(existingKey, existingValue);
-        assertSame(existingValue, cache.get(existingKey));
+    @Before
+    public void setUp() {
+        CacheManagerFactory.close();
+        cache = createByReferenceCache();
     }
 
     @Test
-    public void get_ExistingWithEqualButNonSameKey_ByReference() {
-        Cache<Date, Integer> cache = createByReferenceCache();
+    public void get_Existing() {
         if (cache == null) return;
 
         long now = System.currentTimeMillis();
         Date existingKey = new Date(now);
-        Integer existingValue = 1;
+        Date existingValue = new Date(now);
         cache.put(existingKey, existingValue);
-        Date newKey = new Date(now);
-        assertNotSame(existingKey, newKey);
-        assertSame(existingValue, cache.get(newKey));
+        // unnecessary since after we test for same (not equals), but "advertises" consequence
+        existingValue.setTime(now + 1);
+        assertSame(existingValue, cache.get(existingKey));
+    }
+
+    @Test
+    public void get_Existing_NotSameKey() {
+        if (cache == null) return;
+
+        long now = System.currentTimeMillis();
+        Date existingKey = new Date(now);
+        Date existingValue = new Date(now);
+        cache.put(existingKey, existingValue);
+        // unnecessary since after we test for same (not equals), but "advertises" consequence
+        existingValue.setTime(now + 1);
+        assertSame(existingValue, cache.get(new Date(now)));
     }
 
     /**
@@ -89,17 +101,17 @@ public class CacheStoreByReferenceTest extends TestSupport {
      * Which causes lookups to fail.
      * In fact the entry get lost and cannot be retrieved.
      * This is also how Map behaves.
+     * TODO: don't think we should dictate semantics for key mutation
      */
     @Test
-    public void test_ExistingWithMutableKey_ByReference() {
-        Cache<Date, Integer> cache = createByReferenceCache();
+    public void get_Existing_MutateKey() {
         if (cache == null) return;
 
         long now = System.currentTimeMillis();
         Date key1 = new Date(now);
         LOG.info(key1.toString());
         Date key1OriginalValue = (Date) key1.clone();
-        Integer existingValue = 1;
+        Date existingValue = new Date(now);
         cache.put(key1, existingValue);
         long later = now + 5000;
         assertTrue(cache.containsKey(key1));
@@ -116,7 +128,7 @@ public class CacheStoreByReferenceTest extends TestSupport {
         assertNull(cache.get(key1OriginalValue));
 
         //Entry is there but is irretrievable
-        for (Cache.Entry<Date, Integer> entry: cache){
+        for (Cache.Entry<Date, Date> entry: cache){
             LOG.info(entry.getKey().toString());
         }
 
@@ -127,113 +139,64 @@ public class CacheStoreByReferenceTest extends TestSupport {
     }
 
     @Test
-    public void put_ExistingWithEqualButNonSameKey_ByReference() throws Exception {
-        Cache<Date, Integer> cache = createByReferenceCache();
+    public void put_Existing_NotSameKey() throws Exception {
         if (cache == null) return;
 
         long now = System.currentTimeMillis();
         Date key1 = new Date(now);
-        Integer value1 = 1;
+        Date value1 = new Date(now);
         cache.put(key1, value1);
         Date key2 = new Date(now);
-        Integer value2 = value1 + 1;
+        Date value2 = new Date(now);
         cache.put(key2, value2);
+        // unnecessary since after we test for same (not equals), but "advertises" consequence
+        value2.setTime(now + 1);
         assertSame(value2, cache.get(key2));
     }
 
     @Test
-    public void put_Mutable_ByReference() {
-        Cache<Integer, Date> cache = createByReferenceCache();
+    public void getAndPut_NotThere() {
         if (cache == null) return;
 
         long now = System.currentTimeMillis();
-        Date value1 = new Date(now);
-        Integer key = 1;
-        cache.put(key, value1);
-        Date value2 = cache.get(key);
-        assertSame(value1, value2);
+        Date existingKey = new Date(now);
+        Date existingValue = new Date(now);
+        assertNull(cache.getAndPut(existingKey, existingValue));
+        // unnecessary since after we test for same (not equals), but "advertises" consequence
+        existingValue.setTime(now + 1);
+        assertSame(existingValue, cache.get(existingKey));
     }
 
     @Test
-    public void getAndPut_ExistingWithEqualButNonSameKey_ByReference() throws Exception {
-        Cache<Date, Integer> cache = createByReferenceCache();
+    public void getAndPut_Existing() {
+        if (cache == null) return;
+
+        long now = System.currentTimeMillis();
+        Date existingKey = new Date(now);
+        Date value1 = new Date(now);
+        cache.getAndPut(existingKey, value1);
+        Date value2 = new Date(now + 1);
+        assertSame(value1, cache.getAndPut(existingKey, value2));
+        assertSame(value2, cache.get(existingKey));
+    }
+
+    @Test
+    public void getAndPut_Existing_NotSameKey() {
         if (cache == null) return;
 
         long now = System.currentTimeMillis();
         Date key1 = new Date(now);
-        Integer value1 = 1;
-        assertNull(cache.getAndPut(key1, value1));
+        Date value1 = new Date(now);
+        cache.getAndPut(key1, value1);
         Date key2 = new Date(now);
-        Integer value2 = value1 + 1;
+        Date value2 = new Date(now + 1);
         assertSame(value1, cache.getAndPut(key2, value2));
+        assertSame(value2, cache.get(key1));
         assertSame(value2, cache.get(key2));
     }
 
     @Test
-    public void getAndPut_Mutable_ByReference() {
-        Cache<Long, Date> cache = createByReferenceCache();
-        if (cache == null) return;
-
-        long key = System.currentTimeMillis();
-        Date value = new Date(key);
-        assertNull(cache.getAndPut(key, value));
-        assertSame(value, cache.get(key));
-    }
-
-    @Test
-    public void getAndRemove_ByReference() {
-        final Cache<Long, Date> cache = createByReferenceCache();
-        if (cache == null) return;
-
-        final Long key = System.currentTimeMillis();
-        final Date value = new Date(key);
-        cache.put(key, value);
-        value.setTime(key + 1);
-
-        assertSame(value, cache.getAndRemove(key));
-        assertFalse(cache.containsKey(key));
-    }
-
-    /**
-     * Remove atomic value not changed
-     */
-    @Test
-    public void remove_2arg_ByReference() {
-        final Cache<Long, Date> cache = createByReferenceCache();
-        if (cache == null) return;
-
-        final Long key = System.currentTimeMillis();
-        final Date value = new Date(key);
-        cache.put(key, value);
-        value.setTime(key + 1);
-
-        assertTrue(cache.remove(key, value));
-        assertFalse(cache.containsKey(key));
-    }
-
-
-    /**
-     * Remove atomic value but changed
-     */
-    @Test
-    public void remove_with_change_2arg_ByReference() throws InterruptedException {
-        final Cache<Long, Date> cache = createByReferenceCache();
-        if (cache == null) return;
-
-        final Long key = System.currentTimeMillis();
-        Date value = new Date(key);
-        cache.put(key, value);
-        value.setTime(key + 1);
-        value = new Date(System.currentTimeMillis() + 5000);
-
-        assertFalse(cache.remove(key, value));
-        assertTrue(cache.containsKey(key));
-    }
-
-
-    @Test
-    public void putAll_ByReference() {
-        Cache<Date, Date> cache = createByReferenceCache();
+    public void putAll() {
         if (cache == null) return;
 
         Map<Date, Date> data = createData(3);
@@ -244,51 +207,51 @@ public class CacheStoreByReferenceTest extends TestSupport {
     }
 
     @Test
-    public void putIfAbsent_Missing_ByReference() {
-        Cache<Date, Long> cache = createByReferenceCache();
+    public void putIfAbsent_Missing() {
         if (cache == null) return;
 
-        Date key = new Date();
-        Long value = key.getTime();
+        long now = System.currentTimeMillis();
+        Date key = new Date(now);
+        Date value = new Date(now);
         assertTrue(cache.putIfAbsent(key, value));
         assertSame(value, cache.get(key));
     }
 
     @Test
-    public void putIfAbsent_There_ByReference() {
-        Cache<Date, Long> cache = createByReferenceCache();
+    public void putIfAbsent_There() {
         if (cache == null) return;
 
-        Date key = new Date();
-        Long value = key.getTime();
-        Long oldValue = value + 1;
+        long now = System.currentTimeMillis();
+        Date key = new Date(now);
+        Date value = new Date(now);
+        Date oldValue = new Date(now + 1);
         cache.put(key, oldValue);
         assertFalse(cache.putIfAbsent(key, value));
         assertSame(oldValue, cache.get(key));
     }
 
     @Test
-    public void replace_3arg_ByReference() throws Exception {
-        Cache<Date, Long> cache = createByReferenceCache();
+    public void replace_3arg() throws Exception {
         if (cache == null) return;
 
-        Date key = new Date();
-        Long value = key.getTime();
+        long now = System.currentTimeMillis();
+        Date key = new Date(now);
+        Date value = new Date(now);
         cache.put(key, value);
-        Long nextValue = value + 1;
+        Date nextValue = new Date(now + 1);
         assertTrue(cache.replace(key, value, nextValue));
         assertSame(nextValue, cache.get(key));
     }
 
     @Test
-    public void getAndReplace_ByReference() {
-        Cache<Long, Date> cache = createByReferenceCache();
+    public void getAndReplace() {
         if (cache == null) return;
 
-        Long key = System.currentTimeMillis();
-        Date value = new Date(key);
+        long now = System.currentTimeMillis();
+        Date key = new Date(now);
+        Date value = new Date(now);
         cache.put(key, value);
-        Date nextValue = new Date(key + 1);
+        Date nextValue = new Date(now + 1);
         assertSame(value, cache.getAndReplace(key, nextValue));
         assertSame(nextValue, cache.get(key));
     }

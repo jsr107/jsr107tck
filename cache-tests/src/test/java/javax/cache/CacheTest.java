@@ -22,11 +22,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
+import sun.util.resources.LocaleNames_ko;
 
 import javax.cache.event.CacheEntryReadListener;
 import javax.cache.event.NotificationScope;
 import javax.cache.util.ExcludeListExcluder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -58,7 +60,7 @@ public class CacheTest extends TestSupport {
     Cache<Long, String> cache;
 
     @Before
-    public void startUp() {
+    public void setUp() {
         cache = getCacheManager().<Long, String>createCacheBuilder(CACHE_NAME).build();
     }
 
@@ -74,6 +76,21 @@ public class CacheTest extends TestSupport {
      */
     @Rule
     public MethodRule rule = new ExcludeListExcluder(this.getClass());
+
+    @Test
+    public void simpleAPI() {
+        String cacheName = "sampleCache";
+        CacheManager cacheManager = getCacheManager();
+        Cache<String, Integer> cache = cacheManager.getCache(cacheName);
+        if (cache == null) {
+            cache = cacheManager.<String, Integer>createCacheBuilder(cacheName).build();
+        }
+        String key = "key";
+        Integer value1 = 1;
+        cache.put(key, value1);
+        Integer value2 = cache.get(key);
+        assertEquals(value1, value2);
+    }
 
     @Test
     public void getCacheName() {
@@ -112,11 +129,19 @@ public class CacheTest extends TestSupport {
     }
 
     @Test
-    public void get_Existing_ByValue() {
+    public void get_Existing() {
         Long existingKey = System.currentTimeMillis();
         String existingValue = "value" + existingKey;
         cache.put(existingKey, existingValue);
         assertEquals(existingValue, cache.get(existingKey));
+    }
+
+    @Test
+    public void get_Existing_NotSameKey() {
+        Long existingKey = System.currentTimeMillis();
+        String existingValue = "value" + existingKey;
+        cache.put(existingKey, existingValue);
+        assertEquals(existingValue, cache.get(new Long(existingKey)));
     }
 
     @Test
@@ -150,6 +175,27 @@ public class CacheTest extends TestSupport {
         }
     }
 
+    @Test
+    public void put_Existing_NotSameKey() throws Exception {
+        Long key1 = System.currentTimeMillis();
+        String value1 = "value" + key1;
+        cache.put(key1, value1);
+        Long key2 = new Long(key1);
+        String value2 = "value" + key2;
+        cache.put(key2, value2);
+        assertEquals(value2, cache.get(key2));
+    }
+
+    @Test
+    public void put_Existing_DifferentKey() throws Exception {
+        Long key1 = System.currentTimeMillis();
+        String value1 = "value" + key1;
+        cache.put(key1, value1);
+        Long key2 = key1 + 1;
+        String value2 = "value" + key2;
+        cache.put(key2, value2);
+        assertEquals(value2, cache.get(key2));
+    }
 
     @Test
     public void getAndPut_NotStarted() {
@@ -183,11 +229,33 @@ public class CacheTest extends TestSupport {
     }
 
     @Test
-    public void getAndPut() {
+    public void getAndPut_NotThere() {
         Long existingKey = System.currentTimeMillis();
         String existingValue = "value" + existingKey;
         assertNull(cache.getAndPut(existingKey, existingValue));
         assertEquals(existingValue, cache.get(existingKey));
+    }
+
+    @Test
+    public void getAndPut_Existing() throws Exception {
+        Long existingKey = System.currentTimeMillis();
+        String value1 = "value1";
+        cache.getAndPut(existingKey, value1);
+        String value2 = "value2";
+        assertEquals(value1, cache.getAndPut(existingKey, value2));
+        assertEquals(value2, cache.get(existingKey));
+    }
+
+    @Test
+    public void getAndPut_Existing_NonSameKey() throws Exception {
+        Long key1 = System.currentTimeMillis();
+        String value1 = "value1";
+        assertNull(cache.getAndPut(key1, value1));
+        Long key2 = new Long(key1);
+        String value2 = "value2";
+        assertEquals(value1, cache.getAndPut(key2, value2));
+        assertEquals(value2, cache.get(key1));
+        assertEquals(value2, cache.get(key2));
     }
 
     @Test
@@ -223,9 +291,23 @@ public class CacheTest extends TestSupport {
     }
 
     @Test
-    public void remove_EqualButNotSameKey() {
-        long now = System.currentTimeMillis();
+    public void remove_Existing() {
+        Long key1 = System.currentTimeMillis();
+        String value1 = "value" + key1;
+        cache.put(key1, value1);
 
+        Long key2 = key1 + 1;
+        String value2 = "value" + key2;
+        cache.put(key2, value2);
+
+        assertTrue(cache.remove(key1));
+        assertFalse(cache.containsKey(key1));
+        assertNull(cache.get(key1));
+        assertEquals(value2, cache.get(key2));
+    }
+
+    @Test
+    public void remove_EqualButNotSameKey() {
         Long key1 = System.currentTimeMillis();
         String value1 = "value" + key1;
         cache.put(key1, value1);
@@ -237,8 +319,88 @@ public class CacheTest extends TestSupport {
         Long key3 = new Long(key1);
         assertNotSame(key1, key3);
         assertTrue(cache.remove(key3));
+        assertFalse(cache.containsKey(key1));
         assertNull(cache.get(key1));
+        assertFalse(cache.containsKey(key3));
+        assertNull(cache.get(key3));
         assertEquals(value2, cache.get(key2));
+    }
+
+    @Test
+    public void remove_2arg_NotStarted() {
+        cache.stop();
+        try {
+            cache.remove(null, null);
+            fail("should have thrown an exception - cache not started");
+        } catch (IllegalStateException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void remove_2arg_NullKey() {
+        try {
+            cache.remove(null, "");
+            fail("should have thrown an exception - null key");
+        } catch (NullPointerException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void remove_2arg_NullValue() {
+        try {
+            cache.remove(1L, null);
+            fail("should have thrown an exception - null value");
+        } catch (NullPointerException e) {
+            //good
+        }
+    }
+
+    @Test
+    public void remove_2arg_NotThere() {
+        Long key = System.currentTimeMillis();
+        assertFalse(cache.remove(key, ""));
+    }
+
+    @Test
+    public void remove_2arg_Existing_SameValue() {
+        Long key = System.currentTimeMillis();
+        String value = "value" + key;
+        cache.put(key, value);
+        assertTrue(cache.remove(key, value));
+    }
+
+    @Test
+    public void remove_2arg_Existing_EqualValue() {
+        Long key = System.currentTimeMillis();
+        String value = "value" + key;
+        cache.put(key, value);
+        assertTrue(cache.remove(key, new String(value)));
+    }
+
+    @Test
+    public void remove_2arg_Existing_EqualKey() {
+        Long key = System.currentTimeMillis();
+        String value = "value" + key;
+        cache.put(key, value);
+        assertTrue(cache.remove(new Long(key), value));
+    }
+
+    @Test
+    public void remove_2arg_Existing_EqualKey_EqualValue() {
+        Long key = System.currentTimeMillis();
+        String value = "value" + key;
+        cache.put(key, value);
+        assertTrue(cache.remove(new Long(key), new String(value)));
+    }
+
+    @Test
+    public void remove_2arg_Existing_Different() {
+        Long key = System.currentTimeMillis();
+        String value = "value" + key;
+        cache.put(key, value);
+        assertFalse(cache.remove(key, value + 1));
     }
 
     @Test
@@ -271,6 +433,22 @@ public class CacheTest extends TestSupport {
         Long keyNotExisting = existingKey + 1;
         assertNull(cache.getAndRemove(keyNotExisting));
         assertEquals(existingValue, cache.get(existingKey));
+    }
+
+    @Test
+    public void getAndRemove_Existing() {
+        Long key1 = System.currentTimeMillis();
+        String value1 = "value" + key1;
+        cache.put(key1, value1);
+
+        Long key2 = key1 + 1;
+        String value2 = "value" + key2;
+        cache.put(key2, value2);
+
+        assertEquals(value1, cache.getAndRemove(key1));
+        assertFalse(cache.containsKey(key1));
+        assertNull(cache.get(key1));
+        assertEquals(value2, cache.get(key2));
     }
 
     @Test
@@ -527,6 +705,23 @@ public class CacheTest extends TestSupport {
         }
     }
 
+    @Test
+    public void putIfAbsent_Missing() {
+        Long key = System.currentTimeMillis();
+        String value = "value" + key;
+        assertTrue(cache.putIfAbsent(key, value));
+        assertEquals(value, cache.get(key));
+    }
+
+    @Test
+    public void putIfAbsent_There() {
+        Long key = System.currentTimeMillis();
+        String value = "valueA" + key;
+        String oldValue = "valueB" + key;
+        cache.put(key, oldValue);
+        assertFalse(cache.putIfAbsent(key, value));
+        assertEquals(oldValue, cache.get(key));
+    }
 
     @Test
     public void replace_3arg_NotStarted() {
@@ -574,6 +769,26 @@ public class CacheTest extends TestSupport {
         Long key = System.currentTimeMillis();
         assertFalse(cache.replace(key, "1", "2"));
         assertFalse(cache.containsKey(key));
+    }
+
+    @Test
+    public void replace_3arg() throws Exception {
+        Long key = System.currentTimeMillis();
+        String value = "value" + key;
+        cache.put(key, value);
+        String nextValue = "value" + key + 1;
+        assertTrue(cache.replace(key, value, nextValue));
+        assertEquals(nextValue, cache.get(key));
+    }
+
+    @Test
+    public void replace_3arg_Equal() {
+        Long key = System.currentTimeMillis();
+        String value = "value" + key;
+        cache.put(key, value);
+        String nextValue = "value" + key + 1;
+        assertTrue(cache.replace(new Long(key), new String(value), new String(nextValue)));
+        assertEquals(nextValue, cache.get(key));
     }
 
     @Test
@@ -673,6 +888,15 @@ public class CacheTest extends TestSupport {
         assertFalse(cache.containsKey(key));
     }
 
+    @Test
+    public void getAndReplace() {
+        Long key = System.currentTimeMillis();
+        String value = "value" + key;
+        cache.put(key, value);
+        String nextValue = "valueB" + key;
+        assertEquals(value, cache.getAndReplace(key, nextValue));
+        assertEquals(nextValue, cache.get(key));
+    }
 
     @Test
     public void removeAll_NotStarted() {
@@ -773,21 +997,6 @@ public class CacheTest extends TestSupport {
         } catch (NoSuchElementException e) {
             //good
         }
-    }
-
-    @Test
-    public void simpleAPI() {
-        String cacheName = "sampleCache";
-        CacheManager cacheManager = getCacheManager();
-        Cache<String, Integer> cache = cacheManager.getCache(cacheName);
-        if (cache == null) {
-            cache = cacheManager.<String, Integer>createCacheBuilder(cacheName).build();
-        }
-        String key = "key";
-        Integer value1 = 1;
-        cache.put(key, value1);
-        Integer value2 = cache.get(key);
-        assertEquals(value1, value2);
     }
 
     @Test

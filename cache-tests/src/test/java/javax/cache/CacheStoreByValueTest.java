@@ -13,6 +13,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -30,6 +31,8 @@ public class CacheStoreByValueTest extends TestSupport {
      */
     private static final String CACHE_NAME = CacheTest.class.getName();
 
+    Cache<Date, Date> cache;
+
     /**
      * Rule used to exclude tests
      */
@@ -39,54 +42,27 @@ public class CacheStoreByValueTest extends TestSupport {
     @Before
     public void setUp() {
         CacheManagerFactory.close();
+        cache = getCacheManager().<Date, Date>createCacheBuilder(CACHE_NAME).build();
     }
 
     @Test
-    public void get_Existing_ByValue() {
-        Cache<String, Date> cache = getCacheManager().
-                <String, Date>createCacheBuilder(CACHE_NAME).build();
-
-        long now = System.currentTimeMillis();
-        String existingKey = "key1";
-        Date existingValue = new Date(now);
-        cache.put(existingKey, existingValue);
-        existingValue.setTime(now + 10);
-        assertEquals(new Date(now), cache.get(existingKey));
-    }
-
-    @Test
-    public void get_ExistingWithEqualButNonSameKey_ByValue() {
-        Cache<Date, Date> cache = getCacheManager().
-                <Date, Date>createCacheBuilder(CACHE_NAME).build();
-
+    public void get_Existing_MutateValue() {
         long now = System.currentTimeMillis();
         Date existingKey = new Date(now);
         Date existingValue = new Date(now);
         cache.put(existingKey, existingValue);
-        Date newKey = new Date(now);
-        existingValue.setTime(now + 10);
-        assertEquals(new Date(now), cache.get(newKey));
+        existingValue.setTime(now + 1);
+        assertEquals(new Date(now), cache.get(existingKey));
     }
 
-    /**
-     * We store both the keys and values as value ie no references therefore the key is immune
-     * from mutation
-     */
     @Test
-    public void get_ExistingWithMutableKey_ByValue() {
-        Cache<Date, Integer> cache = getCacheManager().
-                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
-
+    public void get_Existing_MutateKey() {
         long now = System.currentTimeMillis();
-        Date key1 = new Date(now);
-        Date key2 = new Date(now);
-        Integer existingValue = 1;
-        cache.put(key1, existingValue);
-        long later = now + 5;
-        key1.setTime(later);
-        //null because key was stored by value
-        assertNull(cache.get(key1));
-        assertEquals(existingValue, cache.get(key2));
+        Date existingKey = new Date(now);
+        Date existingValue = new Date(now);
+        cache.put(existingKey, existingValue);
+        existingKey.setTime(now + 1);
+        assertEquals(new Date(now), cache.get(new Date(now)));
     }
 
     @Test
@@ -94,11 +70,12 @@ public class CacheStoreByValueTest extends TestSupport {
         CacheManager cacheManager = getCacheManager();
         // Note: we lie - Date is mutable
         cacheManager.addImmutableClass(Date.class);
-        Cache<Integer, Date> cache = cacheManager.
-                <Integer, Date>createCacheBuilder(CACHE_NAME).build();
+        Cache<Date, Date> cache = cacheManager.
+                <Date, Date>createCacheBuilder(CACHE_NAME).build();
 
-        Integer existingKey = 1;
-        Date existingValue = new Date();
+        long now = System.currentTimeMillis();
+        Date existingKey = new Date(now);
+        Date existingValue = new Date(now);
         cache.put(existingKey, existingValue);
 
         if (existingValue == cache.get(existingKey)) {
@@ -110,128 +87,55 @@ public class CacheStoreByValueTest extends TestSupport {
     }
 
     @Test
-    public void put_ExistingWithEqualButNonSameKey_ByValue() throws Exception {
-        Cache<Date, Integer> cache = getCacheManager().
-                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
+    public void getAndPut_NotThere() {
+        if (cache == null) return;
 
         long now = System.currentTimeMillis();
-        Date key1 = new Date(now);
-        Integer value1 = 1;
-        cache.put(key1, value1);
-        Date key2 = new Date(now);
-        Integer value2 = value1 + 1;
-        cache.put(key2, value2);
-        assertEquals(value2, cache.get(key2));
+        Date existingKey = new Date(now);
+        Date existingValue = new Date(now);
+        assertNull(cache.getAndPut(existingKey, existingValue));
+        existingValue.setTime(now + 1);
+        assertEquals(new Date(now), cache.get(existingKey));
     }
 
     @Test
-    public void put_Mutable_ByValue() {
-        Cache<Integer, Date> cache = getCacheManager().
-                <Integer, Date>createCacheBuilder(CACHE_NAME).build();
-        long time1 = System.currentTimeMillis();
-        Date value1 = new Date(time1);
-        Integer key = 1;
-        cache.put(key, value1);
-        long time2 = time1 + 5;
-        value1.setTime(time2);
-        Date value2 = cache.get(key);
-        assertNotSame(value1, value2);
-        assertEquals(time2, value1.getTime());
-        assertEquals(time1, value2.getTime());
+    public void getAndPut_Existing_MutateValue() {
+        long now = System.currentTimeMillis();
+        Date existingKey = new Date(now);
+        Date value1 = new Date(now);
+        cache.getAndPut(existingKey, value1);
+        Date value2 = new Date(now + 1);
+        value1.setTime(now + 2);
+        assertEquals(new Date(now), cache.getAndPut(existingKey, value2));
+        value2.setTime(now + 3);
+        assertEquals(new Date(now + 1), cache.get(existingKey));
     }
 
     @Test
-    public void getAndPut_ExistingWithEqualButNonSameKey_ByValue() throws Exception {
-        Cache<Date, Integer> cache = getCacheManager().
-                <Date, Integer>createCacheBuilder(CACHE_NAME).build();
-
+    public void getAndPut_Existing_NonSameKey_MutateValue() throws Exception {
         long now = System.currentTimeMillis();
         Date key1 = new Date(now);
-        Integer value1 = 1;
-        assertNull(cache.getAndPut(key1, value1));
+        Date value1 = new Date(now);
+        cache.getAndPut(key1, value1);
+        value1.setTime(now + 1);
         Date key2 = new Date(now);
-        Integer value2 = value1 + 1;
-        assertEquals(value1, cache.getAndPut(key2, value2));
-        assertEquals(value2, cache.get(key2));
+        Date value2 = new Date(now + 2);
+        assertEquals(new Date(now), cache.getAndPut(key2, value2));
+        value2.setTime(now + 3);
+        assertEquals(new Date(now + 2), cache.get(key1));
+        assertEquals(new Date(now + 2), cache.get(key2));
     }
 
     @Test
-    public void getAndPut_Mutable_ByValue() {
-        Cache<Long, Date> cache = getCacheManager().
-                <Long, Date>createCacheBuilder(CACHE_NAME).build();
-
-        long key = System.currentTimeMillis();
-        Date value = new Date(key);
-        Date valueOriginal = new Date(key);
-        assertNull(cache.getAndPut(key, value));
-        value.setTime(key + 1);
-        assertEquals(valueOriginal, cache.get(key));
-    }
-
-    @Test
-    public void getAndRemove_ByValue() {
-        final Cache<Long, Date> cache = getCacheManager().
-                <Long, Date>createCacheBuilder(CACHE_NAME).build();
-
-        final Long key = System.currentTimeMillis();
-        final Date value = new Date(key);
-        final Date valueOriginal = new Date(key);
-        cache.put(key, value);
-        value.setTime(key + 1);
-
-        assertEquals(valueOriginal, cache.getAndRemove(key));
-        assertFalse(cache.containsKey(key));
-    }
-
-    @Test
-    public void putIfAbsent_Missing_ByValue() {
-        Cache<Date, Long> cache = getCacheManager().
-                <Date, Long>createCacheBuilder(CACHE_NAME).build();
-
-        Date key = new Date();
-        Long value = key.getTime();
-        assertTrue(cache.putIfAbsent(key, value));
-        assertEquals(value, cache.get(key));
-    }
-
-    @Test
-    public void putIfAbsent_There_ByValue() {
-        Cache<Date, Long> cache = getCacheManager().
-                <Date, Long>createCacheBuilder(CACHE_NAME).build();
-
-        Date key = new Date();
-        Long value = key.getTime();
-        Long oldValue = value + 1;
-        cache.put(key, oldValue);
-        assertFalse(cache.putIfAbsent(key, value));
-        assertEquals(oldValue, cache.get(key));
-    }
-
-    @Test
-    public void replace_3arg_ByValue() throws Exception {
-        Cache<Date, Long> cache = getCacheManager().
-                <Date, Long>createCacheBuilder(CACHE_NAME).build();
-
-        Date key = new Date();
-        Long value = key.getTime();
-        cache.put(key, value);
-        Long nextValue = value + 1;
-        assertTrue(cache.replace(key, value, nextValue));
-        assertEquals(nextValue, cache.get(key));
-    }
-
-    @Test
-    public void getAndReplace_ByValue() {
-        Cache<Long, Date> cache = getCacheManager().
-                <Long, Date>createCacheBuilder(CACHE_NAME).build();
-
-        Long key = System.currentTimeMillis();
-        Date value = new Date(key);
-        Date valueOriginal = new Date(key);
-        cache.put(key, value);
-        Date nextValue = new Date(key + 1);
-        value.setTime(key + 5);
-        assertEquals(valueOriginal, cache.getAndReplace(key, nextValue));
-        assertEquals(nextValue, cache.get(key));
+    public void getAndPut_Existing_NonSameKey_MutateKey() {
+        long now = System.currentTimeMillis();
+        Date key1 = new Date(now);
+        Date value1 = new Date(now);
+        cache.getAndPut(key1, value1);
+        key1.setTime(now + 1);
+        Date key2 = new Date(now);
+        Date value2 = new Date(now + 2);
+        assertEquals(new Date(now), cache.getAndPut(key2, value2));
+        assertEquals(new Date(now + 2), cache.get(key2));
     }
 }
