@@ -47,6 +47,11 @@ import static org.junit.Assert.fail;
  */
 public class CacheLoaderTest extends TestSupport {
     /**
+     * the default test cache name
+     */
+    private static final String CACHE_NAME = CacheTest.class.getName();
+
+    /**
      * Rule used to exclude tests
      */
     @Rule

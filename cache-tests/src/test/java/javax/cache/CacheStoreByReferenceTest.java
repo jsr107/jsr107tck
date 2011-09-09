@@ -45,6 +45,10 @@ import static org.junit.Assert.assertTrue;
  * @since 1.0
  */
 public class CacheStoreByReferenceTest extends TestSupport {
+    /**
+     * the default test cache name
+     */
+    private static final String CACHE_NAME = CacheTest.class.getName();
 
     /**
      * Rule used to exclude tests

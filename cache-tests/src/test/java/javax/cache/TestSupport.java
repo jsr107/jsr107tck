@@ -39,16 +39,7 @@ class TestSupport {
      */
     protected static final Logger LOG = Logger.getLogger(TestSupport.class.getName());
 
-    /**
-     * the default test cache name
-     */
-    protected static final String CACHE_NAME = "testCache";
-
     protected CacheManager getCacheManager() {
-        return CacheManagerFactory.getCacheManager();
-    }
-
-    protected CacheManager getCacheManager(String name) {
-        return CacheManagerFactory.getCacheManager(name);
+        return CacheManagerFactory.getCacheManager(getClass().getName());
     }
 }
