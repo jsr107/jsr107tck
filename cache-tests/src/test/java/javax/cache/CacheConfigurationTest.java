@@ -46,7 +46,7 @@ public class CacheConfigurationTest {
 
     @Before
     public void startUp() {
-        CacheManagerFactory.close();
+        Caching.close();
     }
 
     @Test
@@ -99,6 +99,6 @@ public class CacheConfigurationTest {
     }
 
     private static CacheManager getCacheManager() {
-        return CacheManagerFactory.getCacheManager();
+        return Caching.getCacheManager();
     }
 }

@@ -51,7 +51,7 @@ public class CacheManagerTest extends TestSupport {
 
     @Before
     public void startUp() {
-        CacheManagerFactory.close();
+        Caching.close();
     }
 
     @Test
@@ -211,7 +211,7 @@ public class CacheManagerTest extends TestSupport {
 
     @Test
     public void getUserTransaction() {
-        boolean transactions = CacheManagerFactory.isSupported(OptionalFeature.JTA);
+        boolean transactions = Caching.isSupported(OptionalFeature.JTA);
         try {
             getCacheManager().getUserTransaction();
             if (!transactions) {
@@ -321,7 +321,7 @@ public class CacheManagerTest extends TestSupport {
         CacheManager cacheManager = getCacheManager();
 
         for (OptionalFeature feature : OptionalFeature.values()) {
-            assertSame(CacheManagerFactory.isSupported(feature), cacheManager.isSupported(feature));
+            assertSame(Caching.isSupported(feature), cacheManager.isSupported(feature));
         }
     }
 

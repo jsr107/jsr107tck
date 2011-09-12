@@ -29,7 +29,7 @@ public class StoreByValueTest extends CacheTestSupport<Date, Date> {
 
     @Before
     public void setUp() {
-        CacheManagerFactory.close();
+        Caching.close();
         super.setUp();
     }
 

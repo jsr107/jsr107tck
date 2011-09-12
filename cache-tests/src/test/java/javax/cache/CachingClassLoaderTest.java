@@ -34,16 +34,16 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Tests the {@link CacheManagerFactory} class.
+ * Tests the {@link Caching} class.
  * The tests here implicitly also test the {@link javax.cache.spi.CachingProvider} used by the
  * CacheManagerFactory to create instances of {@link CacheManager}
  *
  * @author Yannis Cosmadopoulos
  * @since 1.0
  *
- * @see CacheManagerFactory
+ * @see Caching
  */
-public class CacheManagerFactoryClassLoaderTest {
+public class CachingClassLoaderTest {
 
     /**
      * Rule used to exclude tests
@@ -58,7 +58,7 @@ public class CacheManagerFactoryClassLoaderTest {
     }
 
     /**
-     * Multiple invocations of {@link CacheManagerFactory#getCacheManager()} return the same CacheManager
+     * Multiple invocations of {@link Caching#getCacheManager()} return the same CacheManager
      */
     @Test
     public void getCacheManager_singleton() {
@@ -75,25 +75,25 @@ public class CacheManagerFactoryClassLoaderTest {
     }
 
     /**
-     * {@link CacheManagerFactory#getCacheManager()} returns a default CacheManager with the name
-     * {@link CacheManagerFactory#DEFAULT_CACHE_MANAGER_NAME}
+     * {@link Caching#getCacheManager()} returns a default CacheManager with the name
+     * {@link Caching#DEFAULT_CACHE_MANAGER_NAME}
      *
      */
     @Test
     public void getCacheManager_name() {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         CacheManager defaultCacheManager = getCacheManager(cl);
-        assertSame(CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME, defaultCacheManager.getName());
+        assertSame(Caching.DEFAULT_CACHE_MANAGER_NAME, defaultCacheManager.getName());
     }
 
     /**
-     * {@link CacheManagerFactory#getCacheManager(ClassLoader, String)} invoked with {@link CacheManagerFactory#DEFAULT_CACHE_MANAGER_NAME}
+     * {@link Caching#getCacheManager(ClassLoader, String)} invoked with {@link Caching#DEFAULT_CACHE_MANAGER_NAME}
      * returns the default CacheManager
      */
     @Test
     public void getCacheManager_named_default() {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        String name = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME;
+        String name = Caching.DEFAULT_CACHE_MANAGER_NAME;
         assertSame(getCacheManager(cl), getCacheManager(cl, name));
 
         // is different for different class loader
@@ -103,13 +103,13 @@ public class CacheManagerFactoryClassLoaderTest {
     }
 
     /**
-     * Multiple invocations of {@link CacheManagerFactory#getCacheManager(ClassLoader, String)} with the same name
+     * Multiple invocations of {@link Caching#getCacheManager(ClassLoader, String)} with the same name
      * return the same CacheManager instance
      */
     @Test
     public void getCacheManager_named() {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        String name = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "1";
+        String name = Caching.DEFAULT_CACHE_MANAGER_NAME + "1";
         CacheManager cacheManager = getCacheManager(cl, name);
         assertNotNull(cacheManager);
         assertSame(cacheManager, getCacheManager(cl, name));
@@ -122,36 +122,36 @@ public class CacheManagerFactoryClassLoaderTest {
     }
 
     /**
-     * The name of the CacheManager returned by {@link CacheManagerFactory#getCacheManager(ClassLoader, String)} is the same
+     * The name of the CacheManager returned by {@link Caching#getCacheManager(ClassLoader, String)} is the same
      * as the name used in the invocation
      */
     @Test
     public void getCacheManager_named_name() {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        String name = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "1";
+        String name = Caching.DEFAULT_CACHE_MANAGER_NAME + "1";
         assertEquals(name, getCacheManager(cl, name).getName());
     }
 
     /**
-     * Invocations of {@link CacheManagerFactory#getCacheManager(ClassLoader, String)} using a names other
+     * Invocations of {@link Caching#getCacheManager(ClassLoader, String)} using a names other
      * than the default returns a CacheManager other than the default
      */
     @Test
     public void getCacheManager_named_notDefault() {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        String name = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "1";
+        String name = Caching.DEFAULT_CACHE_MANAGER_NAME + "1";
         assertNotSame(getCacheManager(cl), getCacheManager(cl, name));
     }
 
     /**
-     * Invocations of {@link CacheManagerFactory#getCacheManager(ClassLoader, String)} using different names return
+     * Invocations of {@link Caching#getCacheManager(ClassLoader, String)} using different names return
      * different instances
      */
     @Test
     public void getCacheManager_named_different() {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        String name1 = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "1";
-        String name2 = CacheManagerFactory.DEFAULT_CACHE_MANAGER_NAME + "2";
+        String name1 = Caching.DEFAULT_CACHE_MANAGER_NAME + "1";
+        String name2 = Caching.DEFAULT_CACHE_MANAGER_NAME + "2";
         assertNotSame(getCacheManager(cl, name1), getCacheManager(cl, name2));
     }
 
@@ -273,23 +273,23 @@ public class CacheManagerFactoryClassLoaderTest {
     // utilities --------------------------------------------------------------
 
     private static CacheManager getCacheManager(ClassLoader classLoader) {
-        return CacheManagerFactory.getCacheManager(classLoader);
+        return Caching.getCacheManager(classLoader);
     }
 
     private static CacheManager getCacheManager(ClassLoader classLoader, String name) {
-        return CacheManagerFactory.getCacheManager(classLoader, name);
+        return Caching.getCacheManager(classLoader, name);
     }
 
     private static boolean shutdown() {
-        return CacheManagerFactory.close();
+        return Caching.close();
     }
 
     private static boolean shutdown(ClassLoader classLoader) {
-        return CacheManagerFactory.close(classLoader);
+        return Caching.close(classLoader);
     }
 
     private static boolean shutdown(ClassLoader classLoader, String name) {
-        return CacheManagerFactory.close(classLoader, name);
+        return Caching.close(classLoader, name);
     }
 
     /**
@@ -318,7 +318,7 @@ public class CacheManagerFactoryClassLoaderTest {
         }
 
         private Cache<Integer, Object> createCache() {
-            return CacheManagerFactory.getCacheManager(classLoader).<Integer, Object>createCacheBuilder("c1").build();
+            return Caching.getCacheManager(classLoader).<Integer, Object>createCacheBuilder("c1").build();
         }
 
         public Class getClassForDomainClass() throws ClassNotFoundException {

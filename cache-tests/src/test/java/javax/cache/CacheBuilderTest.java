@@ -115,10 +115,10 @@ public class CacheBuilderTest {
     // ---------- utilities ----------
 
     protected <K, V> CacheBuilder<K, V> getCacheBuilder() {
-        return CacheManagerFactory.getCacheManager().createCacheBuilder(CACHE_NAME);
+        return Caching.getCacheManager().createCacheBuilder(CACHE_NAME);
     }
 
     protected boolean isSupported(OptionalFeature feature) {
-        return CacheManagerFactory.isSupported(feature);
+        return Caching.isSupported(feature);
     }
 }

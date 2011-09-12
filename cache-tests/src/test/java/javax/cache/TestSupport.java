@@ -33,7 +33,7 @@ public class TestSupport {
     protected static final Logger LOG = Logger.getLogger(TestSupport.class.getName());
 
     protected CacheManager getCacheManager() {
-        return CacheManagerFactory.getCacheManager(getTestCacheManagerName());
+        return Caching.getCacheManager(getTestCacheManagerName());
     }
 
     protected String getTestCacheManagerName() {

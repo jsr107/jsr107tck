@@ -24,9 +24,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.cache.Cache;
-import javax.cache.CacheConfiguration;
 import javax.cache.CacheManager;
-import javax.cache.CacheManagerFactory;
+import javax.cache.Caching;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -53,7 +52,7 @@ public class JMXTest {
      */
     @Before
     public void setUp() throws Exception {
-        cacheManager = CacheManagerFactory.getCacheManager(this.getClass().getName());
+        cacheManager = Caching.getCacheManager(this.getClass().getName());
     }
 
     @After

@@ -48,13 +48,13 @@ public class StoreByReferenceTest extends CacheTestSupport<Date, Date> {
      */
     @Rule
     public MethodRule rule =
-            CacheManagerFactory.isSupported(OptionalFeature.STORE_BY_REFERENCE) ?
+            Caching.isSupported(OptionalFeature.STORE_BY_REFERENCE) ?
                     new ExcludeListExcluder(this.getClass()) :
                     new AllTestExcluder();
 
     @Before
     public void setUp() {
-        CacheManagerFactory.close();
+        Caching.close();
         super.setUp();
     }
 

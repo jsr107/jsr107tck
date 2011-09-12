@@ -16,28 +16,26 @@
  */
 package javax.cache.annotation;
 
-import static org.junit.Assert.*;
+import domain.Blog;
+import manager.BlogManager;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.MethodRule;
 
-import javax.cache.cdiutils.BeanManagerLocatorFactory;
-
-import java.lang.annotation.Annotation;
-import java.util.Set;
-
-import javax.cache.CacheManagerFactory;
+import javax.cache.Caching;
 import javax.cache.OptionalFeature;
+import javax.cache.cdiutils.BeanManagerLocatorFactory;
 import javax.cache.util.AllTestExcluder;
 import javax.cache.util.ExcludeListExcluder;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
+import java.lang.annotation.Annotation;
+import java.util.Set;
 
-import manager.BlogManager;
-
-import org.junit.Rule;
-import org.junit.Test;
-
-import domain.Blog;
-import org.junit.rules.MethodRule;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * todo use a factory to lookup a CDI implementation rather than hardcoding in Weld.  - Rick
@@ -52,7 +50,7 @@ public abstract class AbstractInterceptionTest {
      */
     @Rule
     public MethodRule rule =
-            CacheManagerFactory.isSupported(OptionalFeature.ANNOTATIONS) ?
+            Caching.isSupported(OptionalFeature.ANNOTATIONS) ?
                     new ExcludeListExcluder(this.getClass()) :
                     new AllTestExcluder();
 
@@ -69,7 +67,7 @@ public abstract class AbstractInterceptionTest {
      * @param <T>
      * @param type
      * @param qualifiers
-     * @return
+     * @return the bean type
      */
     public <T> T getBeanByType(Class<T> type, Annotation... qualifiers) {
         if (type == null) {
@@ -95,7 +93,7 @@ public abstract class AbstractInterceptionTest {
     }
 
     /**
-     * @return
+     * @return the blog manager
      */
     public abstract BlogManager getBlogManager();
 
