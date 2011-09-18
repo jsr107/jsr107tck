@@ -4,7 +4,7 @@
 
     <groupId>javax.cache</groupId>
     <artifactId>test-domain</artifactId>
-    <version>${parent.version}</version>
+    <version>${project.parent.version}</version>
     <packaging>jar</packaging>
     <parent>
         <groupId>javax.cache</groupId>
@@ -27,7 +27,7 @@
         <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 

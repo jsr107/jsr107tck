@@ -4,7 +4,7 @@
 
     <groupId>javax.cache</groupId>
     <artifactId>app-domain</artifactId>
-    <version>${parent.version}</version>
+    <version>${project.parent.version}</version>
     <packaging>jar</packaging>
     <parent>
         <groupId>javax.cache</groupId>

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>javax.cache</groupId>
     <artifactId>cache-tests</artifactId>
-    <version>${parent.version}</version>
+    <version>${project.parent.version}</version>
     <packaging>jar</packaging>
     <parent>
         <groupId>javax.cache</groupId>
@@ -34,25 +34,25 @@
         <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>test-domain</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 <!-- 
         <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>cdi-utils-api</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>cdi-utils-weld</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
  -->
         <dependency>
@@ -133,7 +133,7 @@
                 <dependency>
                     <groupId>javax.cache.implementation</groupId>
                     <artifactId>cache-ri</artifactId>
-                    <version>${parent.version}</version>
+                    <version>${project.parent.version}</version>
                 </dependency>
             </dependencies>
         </profile>

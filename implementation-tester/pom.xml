@@ -4,7 +4,7 @@
 
     <groupId>javax.cache</groupId>
     <artifactId>implementation-tester</artifactId>
-    <version>${parent.version}</version>
+    <version>${project.parent.version}</version>
     <packaging>jar</packaging>
     <parent>
         <groupId>javax.cache</groupId>
@@ -30,11 +30,12 @@
                                 -Dimplementation-version=0.2-->
         <implementation-groupId>javax.cache.implementation</implementation-groupId>
         <implementation-artifactId>cache-ri-impl</implementation-artifactId>
-        <implementation-version>${parent.version}</implementation-version>
+        <implementation-version>${project.parent.version}</implementation-version>
         
         <annotation-harness-groupId>javax.cache</annotation-harness-groupId>
-        <annotation-harness-artifactId>spring-annotations-test-harness</annotation-harness-artifactId>
-        <annotation-harness-version>${parent.version}</annotation-harness-version>
+        <annotation-harness-artifactId>cdi-weld-annotations-test-harness</annotation-harness-artifactId>
+        <!-- <annotation-harness-artifactId>spring-annotations-test-harness</annotation-harness-artifactId> -->
+        <annotation-harness-version>${project.parent.version}</annotation-harness-version>
     </properties>
 
     <dependencies>
@@ -60,9 +61,34 @@
             <artifactId>cache-tests</artifactId>
             <classifier>tests</classifier>
             <scope>test</scope>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
+        <!-- Logging to figure out what the heck is going on -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.5.11</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>1.5.11</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jul-to-slf4j</artifactId>
+            <version>1.5.11</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -94,7 +120,7 @@
                                 <artifactItem>
                                     <groupId>javax.cache</groupId>
                                     <artifactId>app-domain</artifactId>
-                                    <version>${parent.version}</version>
+                                    <version>${project.parent.version}</version>
                                     <outputDirectory>${domain-lib-dir}</outputDirectory>
                                     <destFileName>${domain-jar}</destFileName>
                                 </artifactItem>
