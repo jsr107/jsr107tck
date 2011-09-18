@@ -83,7 +83,8 @@ public class UsingDefaultCacheNameBlogManagerImpl implements BlogManager {
     }
     
     /**
-     * 
+     * Have to specify the cache name here, the generated name is:
+     * manager.UsingDefaultCacheNameBlogManagerImpl.getEntryCached(java.lang.String,java.lang.String,java.lang.String)
      */
     @CacheResult(cacheName="manager.UsingDefaultCacheNameBlogManagerImpl.getEntryCached(java.lang.String)")
     public Blog getEntryCached(String randomArg, @CacheKeyParam String title, String randomArg2) {
