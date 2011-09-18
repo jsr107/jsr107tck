@@ -42,7 +42,7 @@
             <artifactId>cache-api</artifactId>
             <version>${parent.version}</version>
         </dependency>
-
+<!-- 
         <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>cdi-utils-api</artifactId>
@@ -54,7 +54,7 @@
             <artifactId>cdi-utils-weld</artifactId>
             <version>${parent.version}</version>
         </dependency>
-
+ -->
         <dependency>
             <groupId>javax.transaction</groupId>
             <artifactId>jta</artifactId>

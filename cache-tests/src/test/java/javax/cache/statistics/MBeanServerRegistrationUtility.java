@@ -60,9 +60,8 @@ public class MBeanServerRegistrationUtility {
         status = Status.UNINITIALISED;
 
         try {
-
-            Set<? extends Cache> caches = this.cacheManager.getCaches();
-            for (Cache cache : caches) {
+            final Set<Cache<Object, Object>> caches = this.cacheManager.getCaches();
+            for (Cache<Object, Object> cache : caches) {
                 //todo some caches may not be capturing statistics
                 registerCacheStatistics(cache);
             }

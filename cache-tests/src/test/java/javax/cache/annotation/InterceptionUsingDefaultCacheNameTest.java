@@ -25,17 +25,14 @@ import manager.UsingDefaultCacheNameBlogManagerImpl;
  * 
  */
 public class InterceptionUsingDefaultCacheNameTest extends
-    AbstractInterceptionTest {
+    AbstractBlogManagerInterceptionTest {
 
     /**
      * 
      */
     @Override
-    public BlogManager getBlogManager() {
-        if (blogManager == null) {
-            blogManager = getBeanByType(UsingDefaultCacheNameBlogManagerImpl.class);
-        }
-        return blogManager;
+    protected BlogManager getBlogManager() {
+        return getBeanByType(UsingDefaultCacheNameBlogManagerImpl.class);
     }
 
 }

@@ -23,6 +23,7 @@
         <module>test-domain</module>
         <module>cache-tests</module>
         <module>implementation-tester</module>
+        <module>spring-annotations-test-harness</module>
     </modules>
 
 

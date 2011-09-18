@@ -85,7 +85,7 @@ public class UsingDefaultCacheNameBlogManagerImpl implements BlogManager {
     /**
      * 
      */
-    @CacheResult
+    @CacheResult(cacheName="manager.UsingDefaultCacheNameBlogManagerImpl.getEntryCached(java.lang.String)")
     public Blog getEntryCached(String randomArg, @CacheKeyParam String title, String randomArg2) {
         return map.get(title);
     }

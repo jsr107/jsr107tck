@@ -25,17 +25,14 @@ import manager.CacheNameOnEachMethodBlogManagerImpl;
  * 
  */
 public class InterceptionCacheNameOnEachMethodTest extends
-    AbstractInterceptionTest {
+    AbstractBlogManagerInterceptionTest {
 
     /**
      * 
      */
     @Override
-    public BlogManager getBlogManager() {
-        if (blogManager == null) {
-            blogManager = getBeanByType(CacheNameOnEachMethodBlogManagerImpl.class);
-        }
-        return blogManager;
+    protected BlogManager getBlogManager() {
+        return getBeanByType(CacheNameOnEachMethodBlogManagerImpl.class);
     }
 
 }

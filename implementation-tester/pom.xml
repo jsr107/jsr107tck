@@ -29,18 +29,30 @@
                                 -Dimplementation-artifactId=cache-ri
                                 -Dimplementation-version=0.2-->
         <implementation-groupId>javax.cache.implementation</implementation-groupId>
-        <implementation-artifactId>cache-ri</implementation-artifactId>
+        <implementation-artifactId>cache-ri-impl</implementation-artifactId>
         <implementation-version>${parent.version}</implementation-version>
-
-
+        
+        <annotation-harness-groupId>javax.cache</annotation-harness-groupId>
+        <annotation-harness-artifactId>spring-annotations-test-harness</annotation-harness-artifactId>
+        <annotation-harness-version>${parent.version}</annotation-harness-version>
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>${implementation-groupId}</groupId>
             <artifactId>${implementation-artifactId}</artifactId>
             <version>${implementation-version}</version>
+        </dependency>
+        
+        <!-- 
+            Is there a way to have the cache RI impl check if one of the annotations RIs is available
+            before stating it supports annotations?
+         -->
+
+        <dependency>
+            <groupId>${annotation-harness-groupId}</groupId>
+            <artifactId>${annotation-harness-artifactId}</artifactId>
+            <version>${annotation-harness-version}</version>
         </dependency>
 
         <dependency>
