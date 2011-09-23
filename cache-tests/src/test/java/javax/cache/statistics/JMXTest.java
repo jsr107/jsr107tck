@@ -21,11 +21,13 @@ package javax.cache.statistics;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
+import javax.cache.util.ExcludeListExcluder;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -46,6 +48,9 @@ public class JMXTest {
     private MBeanServerRegistrationUtility mBeanServerRegistrationUtility;
     private Cache<Integer, String> cache1;
     private Cache<Integer, String> cache2;
+    
+    @Rule
+    public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
 
     /**
      * setup test
