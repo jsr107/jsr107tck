@@ -16,7 +16,10 @@
  */
 package javax.cache;
 
+import org.junit.Rule;
 import org.junit.Test;
+
+import javax.cache.util.ExcludeListExcluder;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -31,6 +34,12 @@ import static org.junit.Assert.fail;
  */
 public class CacheBuilderTest {
     protected static final String CACHE_NAME = "testCache";
+
+    /**
+     * Rule used to exclude tests
+     */
+    @Rule
+    public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
 
     @Test
     public void setCacheLoader_Null() {
