@@ -17,22 +17,24 @@
 
 package javax.cache;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-
-import javax.cache.util.ExcludeListExcluder;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Set;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Set;
+import java.util.logging.Logger;
+
+import javax.cache.util.ExcludeListExcluder;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
 /**
  * Unit tests for CacheManager
@@ -42,12 +44,26 @@ import static org.junit.Assert.fail;
  * @since 1.0
  */
 public class CacheManagerTest extends TestSupport {
+    protected final Logger logger = Logger.getLogger(getClass().getName());
+    
     /**
      * Rule used to exclude tests
      */
     @Rule
-    public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
+    public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass()) {
 
+        /* (non-Javadoc)
+         * @see javax.cache.util.ExcludeListExcluder#isExcluded(java.lang.String)
+         */
+        @Override
+        protected boolean isExcluded(String methodName) {
+            if ("testUnwrap".equals(methodName) && getUnwrapClass(CacheManager.class) == null) {
+                return true;
+            }
+            
+            return super.isExcluded(methodName);
+        }
+    };
 
     @Before
     public void startUp() {
@@ -341,6 +357,16 @@ public class CacheManagerTest extends TestSupport {
         CacheManager cacheManager = getCacheManager();
         // Note: we lie - Date is mutable
         cacheManager.addImmutableClass(Date.class);
+    }
+    
+    @Test
+    public void testUnwrap() {
+        //Assumes rule will exclude this test when no unwrapClass is specified
+        final Class<?> unwrapClass = getUnwrapClass(CacheManager.class);
+        final CacheManager cacheManager = getCacheManager();
+        final Object unwrappedCacheManager = cacheManager.unwrap(unwrapClass);
+        
+        assertTrue(unwrapClass.isAssignableFrom(unwrappedCacheManager.getClass()));
     }
 
     // ---------- utilities ----------

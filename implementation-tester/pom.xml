@@ -36,6 +36,11 @@
         <annotation-harness-artifactId>cdi-weld-annotations-test-harness</annotation-harness-artifactId>
         <!-- <annotation-harness-artifactId>spring-annotations-test-harness</annotation-harness-artifactId> -->
         <annotation-harness-version>${project.parent.version}</annotation-harness-version>
+        
+        <!-- Used by the unwrap tests, leave blank and the tests will be ignored -->
+        <CacheManagerImpl>javax.cache.implementation.RICacheManager</CacheManagerImpl>
+        <CacheImpl>javax.cache.implementation.RICache</CacheImpl>
+        <CacheInvocationContextImpl>javax.cache.annotation.impl.cdi.CdiCacheKeyInvocationContextImpl</CacheInvocationContextImpl>
     </properties>
 
     <dependencies>
@@ -92,8 +97,13 @@
     </dependencies>
 
     <build>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -108,6 +118,7 @@
                             <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
                             <includeArtifactIds>cache-tests</includeArtifactIds>
                             <includeScope>test</includeScope>
+                            <excludes>**/unwrap.properties</excludes>
                         </configuration>
                     </execution>
                     <execution>
