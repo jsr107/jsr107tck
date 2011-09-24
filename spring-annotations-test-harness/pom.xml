@@ -28,11 +28,6 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>javax.cache</groupId>
-            <artifactId>cache-tests</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
             <groupId>javax.cache.implementation</groupId>
             <artifactId>cache-annotations-ri-spring</artifactId>
             <version>${project.parent.version}</version>
