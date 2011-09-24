@@ -121,6 +121,30 @@ public class CacheBuilderTest {
         }
     }
 
+    @Test
+    //TODO: fixme
+    public void setExpiry() {
+        CacheBuilder<Integer, String> builder = getCacheBuilder();
+        try {
+            builder.setExpiry(null);
+            fail();
+        } catch(UnsupportedOperationException e) {
+            //
+        }
+    }
+
+    @Test
+    //TODO: fixme
+    public void setSize() {
+        CacheBuilder<Integer, String> builder = getCacheBuilder();
+        try {
+            builder.setSize(null);
+            fail();
+        } catch(UnsupportedOperationException e) {
+            //
+        }
+    }
+
     // ---------- utilities ----------
 
     protected <K, V> CacheBuilder<K, V> getCacheBuilder() {

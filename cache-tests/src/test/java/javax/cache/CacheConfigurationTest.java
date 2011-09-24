@@ -27,6 +27,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Unit tests for CacheBuilder
@@ -86,6 +87,30 @@ public class CacheConfigurationTest {
         boolean flag = config.isStatisticsEnabled();
         config.setStatisticsEnabled(!flag);
         assertEquals(!flag, config.isStatisticsEnabled());
+    }
+
+    @Test
+    //TODO: fixme
+    public void setExpiry() {
+        CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
+        try {
+            config.setExpiry(null);
+            fail();
+        } catch(UnsupportedOperationException e) {
+            //
+        }
+    }
+
+    @Test
+    //TODO: fixme
+    public void setSize() {
+        CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
+        try {
+            config.setSize(null);
+            fail();
+        } catch(UnsupportedOperationException e) {
+            //
+        }
     }
 
     // ---------- utilities ----------
