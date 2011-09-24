@@ -21,6 +21,9 @@ import org.junit.Test;
 
 import javax.cache.util.ExcludeListExcluder;
 
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -122,27 +125,43 @@ public class CacheBuilderTest {
     }
 
     @Test
-    //TODO: fixme
-    public void setExpiry() {
+    public void setExpiry_null() {
         CacheBuilder<Integer, String> builder = getCacheBuilder();
         try {
             builder.setExpiry(null);
             fail();
-        } catch(UnsupportedOperationException e) {
+        } catch(NullPointerException e) {
             //
         }
     }
 
     @Test
-    //TODO: fixme
-    public void setSize() {
+    public void setExpiry() {
+        CacheBuilder<Integer, String> builder = getCacheBuilder();
+        CacheConfiguration.Duration duration = new CacheConfiguration.Duration(TimeUnit.SECONDS, 4L);
+        builder.setExpiry(duration);
+        CacheConfiguration.Duration duration1 = builder.build().getConfiguration().getExpiry();
+        assertEquals(duration, duration1);
+    }
+
+    @Test
+    public void setSize_null() {
         CacheBuilder<Integer, String> builder = getCacheBuilder();
         try {
             builder.setSize(null);
             fail();
-        } catch(UnsupportedOperationException e) {
+        } catch(NullPointerException e) {
             //
         }
+    }
+
+    @Test
+    public void setSize() {
+        CacheBuilder<Integer, String> builder = getCacheBuilder();
+        CacheConfiguration.Size size = new CacheConfiguration.Size(CacheConfiguration.SizeUnit.MEGABYTES, 4L);
+        builder.setSize(size);
+        CacheConfiguration.Size size1 = builder.build().getConfiguration().getSize();
+        assertEquals(size, size1);
     }
 
     // ---------- utilities ----------
