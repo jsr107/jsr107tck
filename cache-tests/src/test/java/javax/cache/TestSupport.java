@@ -16,6 +16,11 @@
  */
 package javax.cache;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 /**
@@ -31,6 +36,9 @@ public class TestSupport {
      * The logger
      */
     protected static final Logger LOG = Logger.getLogger(TestSupport.class.getName());
+    
+    private final Map<Class<?>, Class<?>> unwrapClasses = Collections.synchronizedMap(new HashMap<Class<?>, Class<?>>());
+    private Properties unwrapProperties;
 
     protected CacheManager getCacheManager() {
         return Caching.getCacheManager(getTestCacheManagerName());
@@ -42,5 +50,48 @@ public class TestSupport {
 
     protected String getTestCacheName() {
         return getClass().getName();
+    }
+    
+    protected Class<?> getUnwrapClass(Class<?> unwrappableClass) {
+        //contains check since null values are allowed
+        if (this.unwrapClasses.containsKey(unwrappableClass)) {
+            return this.unwrapClasses.get(unwrappableClass);
+        }
+        
+        final Properties unwrapProperties = getUnwrapProperties();
+        final String unwrapClassName = unwrapProperties.getProperty(unwrappableClass.getName());
+        if (unwrapClassName == null || unwrapClassName.trim().length() == 0) {
+            this.unwrapClasses.put(unwrappableClass, null);
+            return null;
+        }
+        
+        try {
+            final Class<?> unwrapClass = Class.forName(unwrapClassName);
+            this.unwrapClasses.put(unwrappableClass, unwrapClass);
+            return unwrapClass;
+        }
+        catch (ClassNotFoundException e) {
+            LOG.warning("Failed to load unwrap class " + unwrapClassName + " for unwrappable class: " + unwrappableClass);
+            this.unwrapClasses.put(unwrappableClass, null);
+            return null;
+        }
+        
+    }
+    
+    private Properties getUnwrapProperties() {
+        if (this.unwrapProperties != null) {
+            return this.unwrapProperties;
+        }
+        
+        final Properties unwrapProperties = new Properties();
+        try {
+            unwrapProperties.load(getClass().getResourceAsStream("/unwrap.properties"));
+        }
+        catch (IOException e) {
+            LOG.warning("Failed to load unwrap.properties from classpath");
+        }
+        
+        this.unwrapProperties = unwrapProperties;
+        return unwrapProperties;
     }
 }

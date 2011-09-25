@@ -47,13 +47,26 @@ import static org.junit.Assert.fail;
  * @author Yannis Cosmadopoulos
  * @since 1.0
  */
-public class CacheTest extends CacheTestSupport {
+public class CacheTest extends CacheTestSupport<Long, String> {
 
     /**
      * Rule used to exclude tests
      */
     @Rule
-    public MethodRule rule = new ExcludeListExcluder(this.getClass());
+    public MethodRule rule = new ExcludeListExcluder(this.getClass()) {
+
+        /* (non-Javadoc)
+         * @see javax.cache.util.ExcludeListExcluder#isExcluded(java.lang.String)
+         */
+        @Override
+        protected boolean isExcluded(String methodName) {
+            if ("testUnwrap".equals(methodName) && getUnwrapClass(CacheManager.class) == null) {
+                return true;
+            }
+            
+            return super.isExcluded(methodName);
+        }
+    };
 
     @Test
     public void simpleAPI() {
@@ -218,6 +231,15 @@ public class CacheTest extends CacheTestSupport {
     public void stop() {
         cache.stop();
         assertEquals(Status.STOPPED, cache.getStatus());
+    }
+    
+    @Test
+    public void testUnwrap() {
+        //Assumes rule will exclude this test when no unwrapClass is specified
+        final Class<?> unwrapClass = getUnwrapClass(Cache.class);
+        final Object unwrappedCache = cache.unwrap(unwrapClass);
+        
+        assertTrue(unwrapClass.isAssignableFrom(unwrappedCache.getClass()));
     }
 
     // ---------- utilities ----------
