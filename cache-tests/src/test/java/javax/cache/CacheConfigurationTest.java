@@ -22,6 +22,9 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import javax.cache.util.ExcludeListExcluder;
+import javax.xml.datatype.Duration;
+
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -56,6 +59,8 @@ public class CacheConfigurationTest {
         assertFalse(config.isReadThrough());
         assertFalse(config.isWriteThrough());
         assertFalse(config.isStatisticsEnabled());
+        assertEquals(CacheConfiguration.Duration.ETERNAL, config.getExpiry());
+        assertEquals(CacheConfiguration.Size.UNLIMITED, config.getSize());
         assertTrue(config.isStoreByValue());
     }
 
@@ -90,25 +95,57 @@ public class CacheConfigurationTest {
     }
 
     @Test
-    //TODO: fixme
+    public void setReadThrough() {
+        CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
+        boolean flag = config.isReadThrough();
+        config.setReadThrough(!flag);
+        assertEquals(!flag, config.isReadThrough());
+    }
+
+    @Test
+    public void setWriteThrough() {
+        CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
+        boolean flag = config.isWriteThrough();
+        config.setWriteThrough(!flag);
+        assertEquals(!flag, config.isWriteThrough());
+    }
+
+    @Test
     public void setExpiry() {
+        CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
+        CacheConfiguration.Duration duration = new CacheConfiguration.Duration(TimeUnit.MINUTES, 666);
+        config.setExpiry(duration);
+        CacheConfiguration.Duration duration1 = config.getExpiry();
+        assertEquals(duration, duration1);
+    }
+
+    @Test
+    public void setExpiry_null() {
         CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
         try {
             config.setExpiry(null);
             fail();
-        } catch(UnsupportedOperationException e) {
+        } catch(NullPointerException e) {
             //
         }
     }
 
     @Test
-    //TODO: fixme
     public void setSize() {
+        CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
+        CacheConfiguration.Size size = new CacheConfiguration.Size(CacheConfiguration.SizeUnit.MEGABYTES, 666);
+        config.setSize(size);
+        CacheConfiguration.Size size1 = config.getSize();
+        assertEquals(size, size1);
+    }
+
+    @Test
+    public void setSize_null() {
         CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
         try {
             config.setSize(null);
             fail();
-        } catch(UnsupportedOperationException e) {
+        } catch(NullPointerException e) {
             //
         }
     }
