@@ -40,7 +40,7 @@ public class CacheManagerTransactionTest extends TestSupport {
      */
     @Rule
     public MethodRule rule =
-            Caching.isSupported(OptionalFeature.JTA) ?
+            Caching.isSupported(OptionalFeature.TRANSACTIONS) ?
                     new ExcludeListExcluder(this.getClass()) :
                     new AllTestExcluder();
 

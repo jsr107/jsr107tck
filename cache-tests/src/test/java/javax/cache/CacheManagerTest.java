@@ -227,7 +227,7 @@ public class CacheManagerTest extends TestSupport {
 
     @Test
     public void getUserTransaction() {
-        boolean transactions = Caching.isSupported(OptionalFeature.JTA);
+        boolean transactions = Caching.isSupported(OptionalFeature.TRANSACTIONS);
         try {
             getCacheManager().getUserTransaction();
             if (!transactions) {

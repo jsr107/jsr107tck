@@ -95,7 +95,7 @@ public class CacheBuilderTest {
     @Test
     public void setTransactionEnabled_true() {
         CacheBuilder<Integer, String> builder = getCacheBuilder();
-        if (isSupported(OptionalFeature.JTA)) {
+        if (isSupported(OptionalFeature.TRANSACTIONS)) {
             Cache<Integer, String> cache = builder.setTransactionEnabled(true).build();
             assertTrue(cache.getConfiguration().isTransactionEnabled());
         } else {
