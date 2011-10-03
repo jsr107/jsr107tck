@@ -158,7 +158,7 @@ public class CacheBuilderTest {
     @Test
     public void setSize() {
         CacheBuilder<Integer, String> builder = getCacheBuilder();
-        CacheConfiguration.Size size = new CacheConfiguration.Size(CacheConfiguration.SizeUnit.MEGABYTES, 4L);
+        CacheConfiguration.Size size = new CacheConfiguration.Size(CacheConfiguration.Size.Unit.MEGABYTES, 4L);
         builder.setSize(size);
         CacheConfiguration.Size size1 = builder.build().getConfiguration().getSize();
         assertEquals(size, size1);

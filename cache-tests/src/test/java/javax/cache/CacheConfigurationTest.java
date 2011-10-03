@@ -133,7 +133,7 @@ public class CacheConfigurationTest {
     @Test
     public void setSize() {
         CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
-        CacheConfiguration.Size size = new CacheConfiguration.Size(CacheConfiguration.SizeUnit.MEGABYTES, 666);
+        CacheConfiguration.Size size = new CacheConfiguration.Size(CacheConfiguration.Size.Unit.GIGABYTES, 666);
         config.setSize(size);
         CacheConfiguration.Size size1 = config.getSize();
         assertEquals(size, size1);
