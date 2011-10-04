@@ -142,7 +142,7 @@ public class CacheBuilderTest {
     @Test
     public void setExpiry() {
         CacheBuilder<Integer, String> builder = getCacheBuilder();
-        CacheConfiguration.Duration duration = new CacheConfiguration.Duration(TimeUnit.SECONDS, 4L);
+        CacheConfiguration.Duration duration = new CacheConfiguration.Duration(CacheConfiguration.Duration.Type.MODIFIED, TimeUnit.SECONDS, 4L);
         builder.setExpiry(duration);
         CacheConfiguration.Duration duration1 = builder.build().getConfiguration().getExpiry();
         assertEquals(duration, duration1);

@@ -113,7 +113,7 @@ public class CacheConfigurationTest {
     @Test
     public void setExpiry() {
         CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
-        CacheConfiguration.Duration duration = new CacheConfiguration.Duration(TimeUnit.MINUTES, 666);
+        CacheConfiguration.Duration duration = new CacheConfiguration.Duration(CacheConfiguration.Duration.Type.ACCESSED, TimeUnit.MINUTES, 666);
         config.setExpiry(duration);
         CacheConfiguration.Duration duration1 = config.getExpiry();
         assertEquals(duration, duration1);
