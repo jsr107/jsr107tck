@@ -19,6 +19,8 @@ package javax.cache;
 import org.junit.Rule;
 import org.junit.Test;
 
+import javax.cache.transaction.IsolationLevel;
+import javax.cache.transaction.Mode;
 import javax.cache.util.ExcludeListExcluder;
 
 import java.util.concurrent.TimeUnit;
@@ -93,14 +95,16 @@ public class CacheBuilderTest {
     }
 
     @Test
-    public void setTransactionEnabled_true() {
+    public void setTransactionEnabled() {
         CacheBuilder<Integer, String> builder = getCacheBuilder();
+        IsolationLevel isolationLevel = null;
+        Mode mode = null;
         if (isSupported(OptionalFeature.TRANSACTIONS)) {
-            Cache<Integer, String> cache = builder.setTransactionEnabled(true).build();
+            Cache<Integer, String> cache = builder.setTransactionEnabled(isolationLevel, mode).build();
             assertTrue(cache.getConfiguration().isTransactionEnabled());
         } else {
             try {
-                builder.setTransactionEnabled(true);
+                builder.setTransactionEnabled(isolationLevel, mode);
                 fail();
             } catch (InvalidConfigurationException e) {
                 //
