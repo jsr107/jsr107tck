@@ -59,7 +59,9 @@ public class CacheConfigurationTest {
         assertFalse(config.isReadThrough());
         assertFalse(config.isWriteThrough());
         assertFalse(config.isStatisticsEnabled());
-        assertEquals(CacheConfiguration.Duration.ETERNAL, config.getExpiry());
+        for (CacheConfiguration.Duration.TTLType type : CacheConfiguration.Duration.TTLType.values()) {
+            assertEquals(CacheConfiguration.Duration.ETERNAL, config.getExpiry(type));
+        }
         assertEquals(CacheConfiguration.Size.UNLIMITED, config.getSize());
         assertTrue(config.isStoreByValue());
     }
@@ -111,19 +113,55 @@ public class CacheConfigurationTest {
     }
 
     @Test
-    public void setExpiry() {
+    public void setExpiry_modified() {
         CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
-        CacheConfiguration.Duration duration = new CacheConfiguration.Duration(CacheConfiguration.Duration.Type.ACCESSED, TimeUnit.MINUTES, 666);
-        config.setExpiry(duration);
-        CacheConfiguration.Duration duration1 = config.getExpiry();
-        assertEquals(duration, duration1);
+        CacheConfiguration.Duration duration = new CacheConfiguration.Duration(TimeUnit.MINUTES, 666);
+        CacheConfiguration.Duration.TTLType type = CacheConfiguration.Duration.TTLType.MODIFIED;
+        config.setExpiry(type, duration);
+        assertEquals(duration, config.getExpiry(type));
+        assertEquals(CacheConfiguration.Duration.ETERNAL, config.getExpiry(CacheConfiguration.Duration.TTLType.ACCESSED));
     }
 
     @Test
-    public void setExpiry_null() {
+    public void setExpiry_accessed() {
+        CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
+        CacheConfiguration.Duration duration = new CacheConfiguration.Duration(TimeUnit.MINUTES, 667);
+        CacheConfiguration.Duration.TTLType type = CacheConfiguration.Duration.TTLType.ACCESSED;
+        config.setExpiry(type, duration);
+        assertEquals(duration, config.getExpiry(type));
+        assertEquals(CacheConfiguration.Duration.ETERNAL, config.getExpiry(CacheConfiguration.Duration.TTLType.MODIFIED));
+    }
+
+    @Test
+    public void setExpiry_all() {
+        CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
+        CacheConfiguration.Duration[] durations = new CacheConfiguration.Duration[CacheConfiguration.Duration.TTLType.values().length];
+        for (CacheConfiguration.Duration.TTLType type : CacheConfiguration.Duration.TTLType.values()) {
+            CacheConfiguration.Duration duration = new CacheConfiguration.Duration(TimeUnit.MINUTES, 999 + type.ordinal());
+            config.setExpiry(type, duration);
+            durations[type.ordinal()] = duration;
+        }
+        for (CacheConfiguration.Duration.TTLType type : CacheConfiguration.Duration.TTLType.values()) {
+            assertEquals(durations[type.ordinal()], config.getExpiry(type));
+        }
+    }
+
+    @Test
+    public void setExpiry_null_good() {
         CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
         try {
-            config.setExpiry(null);
+            config.setExpiry(null, CacheConfiguration.Duration.ETERNAL);
+            fail();
+        } catch(NullPointerException e) {
+            //
+        }
+    }
+
+    @Test
+    public void setExpiry_good_null() {
+        CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
+        try {
+            config.setExpiry(CacheConfiguration.Duration.TTLType.MODIFIED, null);
             fail();
         } catch(NullPointerException e) {
             //

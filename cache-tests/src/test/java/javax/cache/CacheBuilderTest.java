@@ -129,10 +129,10 @@ public class CacheBuilderTest {
     }
 
     @Test
-    public void setExpiry_null() {
+    public void setExpiry_null_good() {
         CacheBuilder<Integer, String> builder = getCacheBuilder();
         try {
-            builder.setExpiry(null);
+            builder.setExpiry(null, CacheConfiguration.Duration.ETERNAL);
             fail();
         } catch(NullPointerException e) {
             //
@@ -140,12 +140,60 @@ public class CacheBuilderTest {
     }
 
     @Test
-    public void setExpiry() {
+    public void setExpiry_good_null() {
         CacheBuilder<Integer, String> builder = getCacheBuilder();
-        CacheConfiguration.Duration duration = new CacheConfiguration.Duration(CacheConfiguration.Duration.Type.MODIFIED, TimeUnit.SECONDS, 4L);
-        builder.setExpiry(duration);
-        CacheConfiguration.Duration duration1 = builder.build().getConfiguration().getExpiry();
-        assertEquals(duration, duration1);
+        try {
+            builder.setExpiry(CacheConfiguration.Duration.TTLType.MODIFIED, null);
+            fail();
+        } catch(NullPointerException e) {
+            //
+        }
+    }
+
+    @Test
+    public void getExpiry_default() {
+        CacheBuilder<Integer, String> builder = getCacheBuilder();
+        CacheConfiguration configuration = builder.build().getConfiguration();
+        for (CacheConfiguration.Duration.TTLType type : CacheConfiguration.Duration.TTLType.values()) {
+            assertEquals(CacheConfiguration.Duration.ETERNAL, configuration.getExpiry(type));
+        }
+    }
+
+    @Test
+    public void setExpiry_accessed() {
+        CacheBuilder<Integer, String> builder = getCacheBuilder();
+        CacheConfiguration.Duration.TTLType type = CacheConfiguration.Duration.TTLType.ACCESSED;
+        CacheConfiguration.Duration duration = new CacheConfiguration.Duration(TimeUnit.MINUTES, 4L);
+        builder.setExpiry(type, duration);
+        CacheConfiguration configuration = builder.build().getConfiguration();
+        assertEquals(duration, configuration.getExpiry(type));
+        assertEquals(CacheConfiguration.Duration.ETERNAL, configuration.getExpiry(CacheConfiguration.Duration.TTLType.MODIFIED));
+    }
+
+    @Test
+    public void setExpiry_modified() {
+        CacheBuilder<Integer, String> builder = getCacheBuilder();
+        CacheConfiguration.Duration.TTLType type = CacheConfiguration.Duration.TTLType.MODIFIED;
+        CacheConfiguration.Duration duration = new CacheConfiguration.Duration(TimeUnit.HOURS, 4L);
+        builder.setExpiry(type, duration);
+        CacheConfiguration configuration = builder.build().getConfiguration();
+        assertEquals(duration, configuration.getExpiry(type));
+        assertEquals(CacheConfiguration.Duration.ETERNAL, configuration.getExpiry(CacheConfiguration.Duration.TTLType.ACCESSED));
+    }
+
+    @Test
+    public void setExpiry_both() {
+        CacheBuilder<Integer, String> builder = getCacheBuilder();
+        CacheConfiguration.Duration[] durations = new CacheConfiguration.Duration[CacheConfiguration.Duration.TTLType.values().length];
+        for (CacheConfiguration.Duration.TTLType type : CacheConfiguration.Duration.TTLType.values()) {
+            CacheConfiguration.Duration duration = new CacheConfiguration.Duration(TimeUnit.DAYS, 4L + type.ordinal());
+            builder.setExpiry(type, duration);
+            durations[type.ordinal()] = duration;
+        }
+        CacheConfiguration configuration = builder.build().getConfiguration();
+        for (CacheConfiguration.Duration.TTLType type : CacheConfiguration.Duration.TTLType.values()) {
+            assertEquals(durations[type.ordinal()], configuration.getExpiry(type));
+        }
     }
 
     @Test
