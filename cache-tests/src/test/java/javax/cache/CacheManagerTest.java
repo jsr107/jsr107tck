@@ -381,12 +381,12 @@ public class CacheManagerTest extends TestSupport {
     private void checkStarted(Cache cache) {
         Status status = cache.getStatus();
         //may be asynchronous
-        assertTrue(status == Status.STARTED || status == Status.STARTING);
+        assertTrue(status == Status.STARTED);
     }
 
     private void checkStopped(Cache cache) {
         Status status = cache.getStatus();
         //may be asynchronous
-        assertTrue(status == Status.STOPPED || status == Status.STOPPING);
+        assertTrue(status == Status.STOPPED);
     }
 }
