@@ -196,26 +196,6 @@ public class CacheBuilderTest {
         }
     }
 
-    @Test
-    public void setSize_null() {
-        CacheBuilder<Integer, String> builder = getCacheBuilder();
-        try {
-            builder.setSize(null);
-            fail();
-        } catch(NullPointerException e) {
-            //
-        }
-    }
-
-    @Test
-    public void setSize() {
-        CacheBuilder<Integer, String> builder = getCacheBuilder();
-        CacheConfiguration.Size size = new CacheConfiguration.Size(CacheConfiguration.Size.Unit.MEGABYTES, 4L);
-        builder.setSize(size);
-        CacheConfiguration.Size size1 = builder.build().getConfiguration().getSize();
-        assertEquals(size, size1);
-    }
-
     // ---------- utilities ----------
 
     protected <K, V> CacheBuilder<K, V> getCacheBuilder() {

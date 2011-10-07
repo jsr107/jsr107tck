@@ -61,7 +61,6 @@ public class CacheConfigurationTest {
         for (CacheConfiguration.ExpiryType type : CacheConfiguration.ExpiryType.values()) {
             assertEquals(CacheConfiguration.Duration.ETERNAL, config.getExpiry(type));
         }
-        assertEquals(CacheConfiguration.Size.UNLIMITED, config.getSize());
         assertTrue(config.isStoreByValue());
     }
 
@@ -161,26 +160,6 @@ public class CacheConfigurationTest {
         CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
         try {
             config.setExpiry(CacheConfiguration.ExpiryType.MODIFIED, null);
-            fail();
-        } catch(NullPointerException e) {
-            //
-        }
-    }
-
-    @Test
-    public void setSize() {
-        CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
-        CacheConfiguration.Size size = new CacheConfiguration.Size(CacheConfiguration.Size.Unit.GIGABYTES, 666);
-        config.setSize(size);
-        CacheConfiguration.Size size1 = config.getSize();
-        assertEquals(size, size1);
-    }
-
-    @Test
-    public void setSize_null() {
-        CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
-        try {
-            config.setSize(null);
             fail();
         } catch(NullPointerException e) {
             //
