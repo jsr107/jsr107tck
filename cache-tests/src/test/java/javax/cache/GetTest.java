@@ -35,8 +35,8 @@ import static org.junit.Assert.fail;
  * <p/>
  * Testing
  * <pre>
- * V get(Object key) throws CacheException;
- * Map<K, V> getAll(Collection<? extends K> keys) throws CacheException;
+ * V get(Object key);
+ * Map<K, V> getAll(Collection<? extends K> keys);
  * </pre>
  * <p/>
  * When it matters whether the cache is stored by reference or by value, see {@link StoreByValueTest} and

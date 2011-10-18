@@ -37,11 +37,11 @@ import static org.junit.Assert.fail;
  * <p/>
  * Testing
  * <pre>
- * boolean remove(Object key) throws CacheException;
- * boolean remove(Object key, V oldValue) throws CacheException;
- * V getAndRemove(Object key) throws CacheException;
- * void removeAll(Collection<? extends K> keys) throws CacheException;
- * void removeAll() throws CacheException;
+ * boolean remove(Object key);
+ * boolean remove(Object key, V oldValue);
+ * V getAndRemove(Object key);
+ * void removeAll(Collection<? extends K> keys);
+ * void removeAll();
  * </pre>
  * <p/>
  * When it matters whether the cache is stored by reference or by value, see {@link StoreByValueTest} and

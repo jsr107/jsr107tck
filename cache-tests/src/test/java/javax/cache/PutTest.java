@@ -34,10 +34,10 @@ import static org.junit.Assert.fail;
  * <p/>
  * Testing
  * <pre>
- * void put(K key, V value) throws CacheException;
- * V getAndPut(K key, V value) throws CacheException;
- * boolean putIfAbsent(K key, V value) throws CacheException;
- * void putAll(java.util.Map<? extends K, ? extends V> map) throws CacheException;
+ * void put(K key, V value);
+ * V getAndPut(K key, V value);
+ * boolean putIfAbsent(K key, V value);
+ * void putAll(java.util.Map<? extends K, ? extends V> map);
  * </pre>
  * <p/>
  * When it matters whether the cache is stored by reference or by value, see {@link StoreByValueTest} and

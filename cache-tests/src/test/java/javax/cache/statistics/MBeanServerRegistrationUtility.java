@@ -119,7 +119,7 @@ public class MBeanServerRegistrationUtility {
      *
      * @throws CacheException - all exceptions are wrapped in CacheException
      */
-    public void dispose() throws CacheException {
+    public void dispose() {
 
         Set<ObjectName> registeredObjectNames = null;
 
