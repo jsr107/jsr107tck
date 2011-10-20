@@ -95,22 +95,6 @@ public class CacheConfigurationTest {
     }
 
     @Test
-    public void setReadThrough() {
-        CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
-        boolean flag = config.isReadThrough();
-        config.setReadThrough(!flag);
-        assertEquals(!flag, config.isReadThrough());
-    }
-
-    @Test
-    public void setWriteThrough() {
-        CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
-        boolean flag = config.isWriteThrough();
-        config.setWriteThrough(!flag);
-        assertEquals(!flag, config.isWriteThrough());
-    }
-
-    @Test
     public void setExpiry_modified() {
         CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
         CacheConfiguration.Duration duration = new CacheConfiguration.Duration(TimeUnit.MINUTES, 666);
