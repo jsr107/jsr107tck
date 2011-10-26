@@ -94,6 +94,58 @@ public class CacheConfigurationTest {
         assertEquals(!flag, config.isStatisticsEnabled());
     }
 
+    @Test
+    public void DurationEquals() {
+        CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(TimeUnit.DAYS, 2);
+        CacheConfiguration.Duration duration2 = new CacheConfiguration.Duration(TimeUnit.DAYS, 2);
+        assertEquals(duration1, duration2);
+    }
+
+
+    @Test
+    public void DurationNotEqualsAmount() {
+        CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(TimeUnit.DAYS, 2);
+        CacheConfiguration.Duration duration2 = new CacheConfiguration.Duration(TimeUnit.DAYS, 3);
+        assertNotSame(duration1, duration2);
+    }
+
+    @Test
+    public void DurationNotEqualsUnit() {
+        CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(TimeUnit.DAYS, 2);
+        CacheConfiguration.Duration duration2 = new CacheConfiguration.Duration(TimeUnit.MINUTES, 2);
+        assertNotSame(duration1, duration2);
+    }
+
+
+    @Test
+    public void DurationExceptions() {
+        try {
+            CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(null, 2);
+        } catch (NullPointerException e) {
+            //expected
+        }
+
+        try {
+            CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(TimeUnit.MINUTES, 0);
+        } catch (NullPointerException e) {
+            //expected
+        }
+
+
+        try {
+            CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(TimeUnit.MICROSECONDS, 10);
+        } catch (IllegalArgumentException e) {
+            //expected
+        }
+
+        try {
+            CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(TimeUnit.MILLISECONDS, -10);
+        } catch (IllegalArgumentException e) {
+            //expected
+        }
+    }
+
+
     // ---------- utilities ----------
 
     private CacheConfiguration getCacheConfiguration(String cacheName) {
