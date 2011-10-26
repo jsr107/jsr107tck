@@ -94,62 +94,6 @@ public class CacheConfigurationTest {
         assertEquals(!flag, config.isStatisticsEnabled());
     }
 
-    @Test
-    public void setExpiry_modified() {
-        CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
-        CacheConfiguration.Duration duration = new CacheConfiguration.Duration(TimeUnit.MINUTES, 666);
-        CacheConfiguration.ExpiryType type = CacheConfiguration.ExpiryType.MODIFIED;
-        config.setExpiry(type, duration);
-        assertEquals(duration, config.getExpiry(type));
-        assertEquals(CacheConfiguration.Duration.ETERNAL, config.getExpiry(CacheConfiguration.ExpiryType.ACCESSED));
-    }
-
-    @Test
-    public void setExpiry_accessed() {
-        CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
-        CacheConfiguration.Duration duration = new CacheConfiguration.Duration(TimeUnit.MINUTES, 667);
-        CacheConfiguration.ExpiryType type = CacheConfiguration.ExpiryType.ACCESSED;
-        config.setExpiry(type, duration);
-        assertEquals(duration, config.getExpiry(type));
-        assertEquals(CacheConfiguration.Duration.ETERNAL, config.getExpiry(CacheConfiguration.ExpiryType.MODIFIED));
-    }
-
-    @Test
-    public void setExpiry_all() {
-        CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
-        CacheConfiguration.Duration[] durations = new CacheConfiguration.Duration[CacheConfiguration.ExpiryType.values().length];
-        for (CacheConfiguration.ExpiryType type : CacheConfiguration.ExpiryType.values()) {
-            CacheConfiguration.Duration duration = new CacheConfiguration.Duration(TimeUnit.MINUTES, 999 + type.ordinal());
-            config.setExpiry(type, duration);
-            durations[type.ordinal()] = duration;
-        }
-        for (CacheConfiguration.ExpiryType type : CacheConfiguration.ExpiryType.values()) {
-            assertEquals(durations[type.ordinal()], config.getExpiry(type));
-        }
-    }
-
-    @Test
-    public void setExpiry_null_good() {
-        CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
-        try {
-            config.setExpiry(null, CacheConfiguration.Duration.ETERNAL);
-            fail();
-        } catch(NullPointerException e) {
-            //
-        }
-    }
-
-    @Test
-    public void setExpiry_good_null() {
-        CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
-        try {
-            config.setExpiry(CacheConfiguration.ExpiryType.MODIFIED, null);
-            fail();
-        } catch(NullPointerException e) {
-            //
-        }
-    }
-
     // ---------- utilities ----------
 
     private CacheConfiguration getCacheConfiguration(String cacheName) {
