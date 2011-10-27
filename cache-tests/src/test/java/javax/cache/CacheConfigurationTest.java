@@ -106,14 +106,35 @@ public class CacheConfigurationTest {
     public void DurationNotEqualsAmount() {
         CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(TimeUnit.DAYS, 2);
         CacheConfiguration.Duration duration2 = new CacheConfiguration.Duration(TimeUnit.DAYS, 3);
+        //TODO: bogus test, see below (should test not equals, NOT not same
         assertNotSame(duration1, duration2);
+        assertNotSame(new CacheConfiguration.Duration(TimeUnit.DAYS, 2),
+                new CacheConfiguration.Duration(TimeUnit.DAYS, 2));
     }
 
     @Test
     public void DurationNotEqualsUnit() {
         CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(TimeUnit.DAYS, 2);
         CacheConfiguration.Duration duration2 = new CacheConfiguration.Duration(TimeUnit.MINUTES, 2);
+        //TODO: bogus test, see below (should test not equals, NOT not same
         assertNotSame(duration1, duration2);
+        assertNotSame(new CacheConfiguration.Duration(TimeUnit.DAYS, 2),
+                new CacheConfiguration.Duration(TimeUnit.DAYS, 2));
+    }
+
+    @Test
+    public void DurationNotEqualsUnitEquals() {
+        long time = 2;
+        CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(TimeUnit.HOURS, time);
+        time *= 60;
+        CacheConfiguration.Duration duration2 = new CacheConfiguration.Duration(TimeUnit.MINUTES, time);
+        assertFalse(duration1.equals(duration2)); //TODO don't think this is right
+        time *= 60;
+        duration2 = new CacheConfiguration.Duration(TimeUnit.MINUTES, time);
+        assertFalse(duration1.equals(duration2)); //TODO don't think this is right
+        time *= 1000;
+        duration2 = new CacheConfiguration.Duration(TimeUnit.MILLISECONDS, time);
+        assertFalse(duration1.equals(duration2)); //TODO don't think this is right
     }
 
 
