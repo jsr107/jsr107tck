@@ -1,5 +1,6 @@
 package javax.cache;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,6 +34,12 @@ public class StoreByValueTest extends CacheTestSupport<Date, Date> {
         super.setUp();
     }
 
+    @After
+    public void teardown() {
+        getCacheManager().removeCache(getTestCacheName());
+    }
+
+
     @Test
     public void get_Existing_MutateValue() {
         long now = System.currentTimeMillis();
@@ -58,8 +65,8 @@ public class StoreByValueTest extends CacheTestSupport<Date, Date> {
         CacheManager cacheManager = getCacheManager();
         // Note: we lie - Date is mutable
         cacheManager.addImmutableClass(Date.class);
-        Cache<Date, Date> cache = cacheManager.
-                <Date, Date>createCacheBuilder(getTestCacheName()).build();
+        cacheManager.removeCache(getTestCacheName());
+        Cache<Date, Date> cache = cacheManager.<Date, Date>createCacheBuilder(getTestCacheName()).build();
 
         long now = System.currentTimeMillis();
         Date existingKey = new Date(now);

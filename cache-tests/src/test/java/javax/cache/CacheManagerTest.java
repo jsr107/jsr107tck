@@ -126,10 +126,11 @@ public class CacheManagerTest extends TestSupport {
         assertEquals(cache1, cacheManager.getCache(name1));
         checkStarted(cache1);
 
-        Cache cache2 = cacheManager.createCacheBuilder(name1).build();
-        assertEquals(cache2, cacheManager.getCache(name1));
-        checkStarted(cache2);
-        checkStopped(cache1);
+        try {
+            Cache cache2 = cacheManager.createCacheBuilder(name1).build();
+        } catch (CacheException e) {
+            //expected
+        }
     }
 
     @Test

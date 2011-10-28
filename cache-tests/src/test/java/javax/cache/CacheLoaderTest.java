@@ -17,6 +17,7 @@
 
 package javax.cache;
 
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -27,6 +28,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -46,6 +48,16 @@ import static org.junit.Assert.fail;
  * @since 1.0
  */
 public class CacheLoaderTest extends TestSupport {
+
+
+    @After
+    public void cleanup() {
+        Set<Cache<Object, Object>> caches = getCacheManager().getCaches();
+        for (Cache cache : caches) {
+            getCacheManager().removeCache(cache.getName());
+        }
+    }
+
 
     /**
      * Rule used to exclude tests
@@ -396,7 +408,7 @@ public class CacheLoaderTest extends TestSupport {
         Cache<Integer, Integer> cache = getCacheManager().
                 <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
         Integer key = 1;
-        Integer value = key  + 1;
+        Integer value = key + 1;
         cache.put(key, value);
         assertEquals(value, cache.getAndRemove(key));
         assertFalse(cache.containsKey(key));
@@ -419,7 +431,7 @@ public class CacheLoaderTest extends TestSupport {
         Cache<Integer, Integer> cache = getCacheManager().
                 <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
         Integer key = 1;
-        Integer value1 = key  + 1;
+        Integer value1 = key + 1;
         Integer value2 = value1 + 1;
         Integer value3 = value2 + 1;
         cache.put(key, value1);
@@ -433,7 +445,7 @@ public class CacheLoaderTest extends TestSupport {
         Cache<Integer, Integer> cache = getCacheManager().
                 <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
         Integer key = 1;
-        Integer value1 = key  + 1;
+        Integer value1 = key + 1;
         Integer value2 = value1 + 1;
         Integer value3 = value2 + 1;
         cache.put(key, value2);
@@ -457,7 +469,7 @@ public class CacheLoaderTest extends TestSupport {
         Cache<Integer, Integer> cache = getCacheManager().
                 <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
         Integer key = 1;
-        Integer value1 = key  + 1;
+        Integer value1 = key + 1;
         Integer value2 = value1 + 1;
         Integer value3 = value2 + 1;
         cache.put(key, value2);
@@ -495,6 +507,7 @@ public class CacheLoaderTest extends TestSupport {
 
     /**
      * A mock CacheLoader which simply throws UnsupportedOperationException on all methods.
+     *
      * @param <K>
      * @param <V>
      */
@@ -518,6 +531,7 @@ public class CacheLoaderTest extends TestSupport {
 
     /**
      * A simple example of a Cache Loader which simply adds the key as the value.
+     *
      * @param <K>
      */
     private static class SimpleCacheLoader<K> implements CacheLoader<K, K> {
@@ -536,7 +550,7 @@ public class CacheLoaderTest extends TestSupport {
             this(null, exception);
         }
 
-        public SimpleCacheLoader(K value, RuntimeException exception){
+        public SimpleCacheLoader(K value, RuntimeException exception) {
             this.value = value;
             this.exception = exception;
 

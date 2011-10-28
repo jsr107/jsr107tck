@@ -16,6 +16,7 @@
  */
 package javax.cache;
 
+import org.junit.After;
 import org.junit.Before;
 
 import java.util.Date;
@@ -35,6 +36,11 @@ public abstract class CacheTestSupport<K,V> extends TestSupport {
     @Before
     public void setUp() {
         cache = extraSetup(getCacheManager().<K,V>createCacheBuilder(getTestCacheName())).build();
+    }
+
+    @After
+    public void teardown() {
+        getCacheManager().removeCache(getTestCacheName());
     }
 
     protected <A, B> CacheBuilder<A, B> extraSetup(CacheBuilder<A, B> builder) {

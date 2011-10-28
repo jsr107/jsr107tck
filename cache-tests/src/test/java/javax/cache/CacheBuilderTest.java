@@ -16,6 +16,7 @@
  */
 package javax.cache;
 
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -39,6 +40,11 @@ import static org.junit.Assert.fail;
  */
 public class CacheBuilderTest {
     protected static final String CACHE_NAME = "testCache";
+
+    @After
+    public void cleanup() {
+        Caching.getCacheManager().removeCache(CACHE_NAME);
+    }
 
     /**
      * Rule used to exclude tests
