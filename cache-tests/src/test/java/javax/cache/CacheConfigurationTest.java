@@ -107,6 +107,7 @@ public class CacheConfigurationTest {
         CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(TimeUnit.DAYS, 2);
         CacheConfiguration.Duration duration2 = new CacheConfiguration.Duration(TimeUnit.DAYS, 3);
         assertFalse(duration1.equals(duration2));
+        assertFalse(duration1.hashCode() == duration2.hashCode());
     }
 
     @Test
@@ -114,13 +115,32 @@ public class CacheConfigurationTest {
         CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(TimeUnit.DAYS, 2);
         CacheConfiguration.Duration duration2 = new CacheConfiguration.Duration(TimeUnit.MINUTES, 2);
         assertFalse(duration1.equals(duration2));
+        assertFalse(duration1.hashCode() == duration2.hashCode());
+
     }
 
+    /**
+     * Checks that equals() is semantically meaningful.
+     *
+     * Also verifies the second requirement in the contract of hashcode:
+     * * <li>If two objects are equal according to the <tt>equals(Object)</tt>
+     *     method, then calling the <code>hashCode</code> method on each of
+     *     the two objects must produce the same integer result.
+     */
     @Test
     public void durationEqualsWhenSemanticallyEqualsButExpressedDifferentUnits() {
         CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(TimeUnit.SECONDS, 120);
         CacheConfiguration.Duration duration2 = new CacheConfiguration.Duration(TimeUnit.MINUTES, 2);
         assertEquals(duration1, duration2);
+        assertEquals(duration1.hashCode(), duration2.hashCode());
+    }
+
+    @Test
+    public void durationEqualsWhenSemanticallyEqualsButExpressedDifferentUnitsHashCode() {
+        CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(TimeUnit.SECONDS, 120);
+        CacheConfiguration.Duration duration2 = new CacheConfiguration.Duration(TimeUnit.MINUTES, 2);
+        assertEquals(duration1, duration2);
+        assertEquals(duration1.hashCode(), duration2.hashCode());
     }
 
 
@@ -137,7 +157,6 @@ public class CacheConfigurationTest {
         time *= 1000;
         duration2 = new CacheConfiguration.Duration(TimeUnit.MILLISECONDS, time);
         assertEquals(duration1, duration2);
-
     }
 
 
