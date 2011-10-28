@@ -85,7 +85,6 @@ public class StoreByReferenceTest extends CacheTestSupport<Date, Date> {
      * Which causes lookups to fail.
      * In fact the entry get lost and cannot be retrieved.
      * This is also how Map behaves.
-     * TODO: don't think we should dictate semantics for key mutation
      */
     @Test
     public void get_Existing_MutateKey() {

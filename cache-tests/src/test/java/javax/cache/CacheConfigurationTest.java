@@ -103,38 +103,41 @@ public class CacheConfigurationTest {
 
 
     @Test
-    public void DurationNotEqualsAmount() {
+    public void durationNotEqualsAmount() {
         CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(TimeUnit.DAYS, 2);
         CacheConfiguration.Duration duration2 = new CacheConfiguration.Duration(TimeUnit.DAYS, 3);
-        //TODO: bogus test, see below (should test not equals, NOT not same
-        assertNotSame(duration1, duration2);
-        assertNotSame(new CacheConfiguration.Duration(TimeUnit.DAYS, 2),
-                new CacheConfiguration.Duration(TimeUnit.DAYS, 2));
+        assertFalse(duration1.equals(duration2));
     }
 
     @Test
-    public void DurationNotEqualsUnit() {
+    public void durationNotEqualsUnit() {
         CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(TimeUnit.DAYS, 2);
         CacheConfiguration.Duration duration2 = new CacheConfiguration.Duration(TimeUnit.MINUTES, 2);
-        //TODO: bogus test, see below (should test not equals, NOT not same
-        assertNotSame(duration1, duration2);
-        assertNotSame(new CacheConfiguration.Duration(TimeUnit.DAYS, 2),
-                new CacheConfiguration.Duration(TimeUnit.DAYS, 2));
+        assertFalse(duration1.equals(duration2));
     }
 
     @Test
-    public void DurationNotEqualsUnitEquals() {
+    public void durationEqualsWhenSemanticallyEqualsButExpressedDifferentUnits() {
+        CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(TimeUnit.SECONDS, 120);
+        CacheConfiguration.Duration duration2 = new CacheConfiguration.Duration(TimeUnit.MINUTES, 2);
+        assertEquals(duration1, duration2);
+    }
+
+
+    @Test
+    public void durationNotEqualsUnitEquals() {
         long time = 2;
-        CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(TimeUnit.HOURS, time);
+        CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(TimeUnit.HOURS, 2);
         time *= 60;
-        CacheConfiguration.Duration duration2 = new CacheConfiguration.Duration(TimeUnit.MINUTES, time);
-        assertFalse(duration1.equals(duration2)); //TODO don't think this is right
+        CacheConfiguration.Duration duration2 = new CacheConfiguration.Duration(TimeUnit.MINUTES, 120);
+        assertEquals(duration1, duration2);
         time *= 60;
-        duration2 = new CacheConfiguration.Duration(TimeUnit.MINUTES, time);
-        assertFalse(duration1.equals(duration2)); //TODO don't think this is right
+        duration2 = new CacheConfiguration.Duration(TimeUnit.SECONDS, time);
+        assertEquals(duration1, duration2);
         time *= 1000;
         duration2 = new CacheConfiguration.Duration(TimeUnit.MILLISECONDS, time);
-        assertFalse(duration1.equals(duration2)); //TODO don't think this is right
+        assertEquals(duration1, duration2);
+
     }
 
 
