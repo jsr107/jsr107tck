@@ -17,6 +17,8 @@
 
 package javax.cache;
 
+import domain.Beagle;
+import domain.Identifier;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -63,7 +65,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
             if ("testUnwrap".equals(methodName) && getUnwrapClass(CacheManager.class) == null) {
                 return true;
             }
-            
+
             return super.isExcluded(methodName);
         }
     };
@@ -73,15 +75,33 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         String cacheName = "sampleCache";
         CacheManager cacheManager = getCacheManager();
         Cache<String, Integer> cache = cacheManager.getCache(cacheName);
-        if (cache == null) {
-            cache = cacheManager.<String, Integer>createCacheBuilder(cacheName).build();
-        }
+        cache = cacheManager.<String, Integer>createCacheBuilder(cacheName).setStoreByValue(false).build();
+
         String key = "key";
         Integer value1 = 1;
         cache.put(key, value1);
         Integer value2 = cache.get(key);
         assertEquals(value1, value2);
     }
+
+    @Test
+    public void genericsTest() {
+
+        String cacheName = "genericsCache";
+        CacheManager cacheManager = getCacheManager();
+        Cache<Identifier, Beagle> cacheGeneric = cacheManager.getCache(cacheName);
+        cacheGeneric = cacheManager.<Identifier, Beagle>createCacheBuilder(cacheName).setStoreByValue(false).build();
+        Beagle pistachio = new Beagle();
+        cacheGeneric.put(new Identifier("Pistachio"), pistachio);
+
+
+        Cache cacheNonGeneric = cacheManager.getCache(cacheName);
+        Object value = cacheNonGeneric.get(new Identifier("Pistachio"));
+        assertNotNull(value);
+
+
+    }
+
 
     @Test
     public void getCacheName() {
@@ -232,13 +252,13 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         cache.stop();
         assertEquals(Status.STOPPED, cache.getStatus());
     }
-    
+
     @Test
     public void testUnwrap() {
         //Assumes rule will exclude this test when no unwrapClass is specified
         final Class<?> unwrapClass = getUnwrapClass(Cache.class);
         final Object unwrappedCache = cache.unwrap(unwrapClass);
-        
+
         assertTrue(unwrapClass.isAssignableFrom(unwrappedCache.getClass()));
     }
 
@@ -246,6 +266,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
 
     /**
      * Test listener
+     *
      * @param <K>
      * @param <V>
      */

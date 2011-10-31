@@ -23,6 +23,46 @@ package domain;
  */
 public class Dog {
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Dog)) return false;
+
+        Dog dog = (Dog) o;
+
+        if (heightInCm != dog.heightInCm) return false;
+        if (lengthInCm != dog.lengthInCm) return false;
+        if (neutered != dog.neutered) return false;
+        if (weighInKg != dog.weighInKg) return false;
+        if (color != null ? !color.equals(dog.color) : dog.color != null) return false;
+        if (name != null ? !name.equals(dog.name) : dog.name != null) return false;
+        if (sex != dog.sex) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (color != null ? color.hashCode() : 0);
+        result = 31 * result + weighInKg;
+        result = 31 * result + (int) (lengthInCm ^ (lengthInCm >>> 32));
+        result = 31 * result + (int) (heightInCm ^ (heightInCm >>> 32));
+        result = 31 * result + (sex != null ? sex.hashCode() : 0);
+        result = 31 * result + (neutered ? 1 : 0);
+        return result;
+    }
+
+    public Identifier getName() {
+
+        return name;
+    }
+
+    public void setName(Identifier name) {
+        this.name = name;
+    }
+
+    private Identifier name;
     private String color;
     private int weighInKg;
     private long lengthInCm;
@@ -79,31 +119,4 @@ public class Dog {
         this.neutered = neutered;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Dog dog = (Dog) o;
-
-        if (heightInCm != dog.heightInCm) return false;
-        if (lengthInCm != dog.lengthInCm) return false;
-        if (neutered != dog.neutered) return false;
-        if (weighInKg != dog.weighInKg) return false;
-        if (color != null ? !color.equals(dog.color) : dog.color != null) return false;
-        if (sex != dog.sex) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = color != null ? color.hashCode() : 0;
-        result = 31 * result + weighInKg;
-        result = 31 * result + (int) (lengthInCm ^ (lengthInCm >>> 32));
-        result = 31 * result + (int) (heightInCm ^ (heightInCm >>> 32));
-        result = 31 * result + (sex != null ? sex.hashCode() : 0);
-        result = 31 * result + (neutered ? 1 : 0);
-        return result;
-    }
 }
