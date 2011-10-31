@@ -18,6 +18,7 @@
 package domain;
 
 /**
+ *
  * @author Greg Luck
  */
 public class Identifier {
@@ -32,20 +33,26 @@ public class Identifier {
         this.name = name;
     }
 
+    /**
+     * Implemented without class checking
+     * @param o
+     * @return
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Identifier)) return false;
 
-        Identifier that = (Identifier) o;
-
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-
-        return true;
+        return o.toString().equals(this.toString());
     }
 
     @Override
     public int hashCode() {
         return name != null ? name.hashCode() : 0;
+    }
+
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

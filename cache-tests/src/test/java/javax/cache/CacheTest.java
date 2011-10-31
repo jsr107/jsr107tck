@@ -93,11 +93,14 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         cacheGeneric = cacheManager.<Identifier, Beagle>createCacheBuilder(cacheName).setStoreByValue(false).build();
         Beagle pistachio = new Beagle();
         cacheGeneric.put(new Identifier("Pistachio"), pistachio);
-
-
-        Cache cacheNonGeneric = cacheManager.getCache(cacheName);
-        Object value = cacheNonGeneric.get(new Identifier("Pistachio"));
+        Object value = cacheGeneric.get(new Identifier("Pistachio"));
         assertNotNull(value);
+
+
+
+//        Cache cacheNonGeneric = cacheManager.getCache(cacheName);
+//        value = cacheNonGeneric.get("Pistachio");
+//        assertNotNull(value);
 
 
     }
