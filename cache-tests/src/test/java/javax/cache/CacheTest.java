@@ -19,6 +19,7 @@ package javax.cache;
 
 import domain.Beagle;
 import domain.Identifier;
+import domain.Identifier2;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -84,6 +85,9 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         assertEquals(value1, value2);
     }
 
+    /**
+     * All these work with get(Object)
+     */
     @Test
     public void genericsTest() {
 
@@ -93,15 +97,24 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         cacheGeneric = cacheManager.<Identifier, Beagle>createCacheBuilder(cacheName).setStoreByValue(false).build();
         Beagle pistachio = new Beagle();
         cacheGeneric.put(new Identifier("Pistachio"), pistachio);
-        Object value = cacheGeneric.get(new Identifier("Pistachio"));
+        Object value = cacheGeneric.get(new Identifier2("Pistachio"));
         assertNotNull(value);
 
 
 
-//        Cache cacheNonGeneric = cacheManager.getCache(cacheName);
-//        value = cacheNonGeneric.get("Pistachio");
-//        assertNotNull(value);
+        Cache cacheNonGeneric = cacheManager.getCache(cacheName);
+        value = cacheNonGeneric.get(new Identifier2("Pistachio"));
+        assertNotNull(value);
 
+
+    }
+
+    @Test
+    public void hashcode() {
+
+        Identifier identifier = new Identifier("Pistachio");
+        System.out.println(identifier.hashCode());
+        System.out.println("Pistachio".hashCode());
 
     }
 

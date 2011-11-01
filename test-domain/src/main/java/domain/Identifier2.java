@@ -21,7 +21,7 @@ package domain;
  *
  * @author Greg Luck
  */
-public class Identifier {
+public class Identifier2 {
 
     private final String name;
 
@@ -29,7 +29,7 @@ public class Identifier {
      * Constructor
      * @param name
      */
-    public Identifier(String name) {
+    public Identifier2(String name) {
         this.name = name;
     }
 
