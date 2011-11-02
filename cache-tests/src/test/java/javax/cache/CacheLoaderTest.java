@@ -115,7 +115,7 @@ public class CacheLoaderTest extends TestSupport {
         final Integer valueDefault = null;
         CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>() {
             @Override
-            public Cache.Entry<Integer, Integer> load(final Object key) {
+            public Cache.Entry<Integer, Integer> load(final Integer key) {
                 return new Cache.Entry<Integer, Integer>() {
                     public Integer getKey() {
                         return (Integer) key;
@@ -217,7 +217,7 @@ public class CacheLoaderTest extends TestSupport {
     public void loadAll_NullValue() throws Exception {
         CacheLoader<Integer, Integer> cl = new MockCacheLoader<Integer, Integer>() {
             @Override
-            public Map<Integer, Integer> loadAll(Collection<? extends Integer> keys) {
+            public Map<Integer, Integer> loadAll(Iterable<? extends Integer> keys) {
                 Map<Integer, Integer> map = new HashMap<Integer, Integer>();
                 for (Integer key : keys) {
                     map.put(key, null);
@@ -295,7 +295,7 @@ public class CacheLoaderTest extends TestSupport {
         final RuntimeException expectedException = new RuntimeException("expected");
         CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>() {
             @Override
-            public Map<Integer, Integer> loadAll(Collection<? extends Integer> keys) {
+            public Map<Integer, Integer> loadAll(Iterable<? extends Integer> keys) {
                 throw expectedException;
             }
         };
@@ -515,17 +515,17 @@ public class CacheLoaderTest extends TestSupport {
     protected static class MockCacheLoader<K, V> implements CacheLoader<K, V> {
 
         @Override
-        public Cache.Entry<K, V> load(Object key) {
+        public Cache.Entry<K, V> load(K key) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public Map<K, V> loadAll(Collection<? extends K> keys) {
+        public Map<K, V> loadAll(Iterable<? extends K> keys) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public boolean canLoad(Object key) {
+        public boolean canLoad(K key) {
             throw new UnsupportedOperationException();
         }
     }
@@ -576,7 +576,7 @@ public class CacheLoaderTest extends TestSupport {
         }
 
         @Override
-        public Map<K, K> loadAll(Collection<? extends K> keys) {
+        public Map<K, K> loadAll(Iterable<? extends K> keys) {
             Map<K, K> map = new HashMap<K, K>();
             for (K key : keys) {
                 map.put(key, key);
@@ -596,11 +596,11 @@ public class CacheLoaderTest extends TestSupport {
     private static class ArrayListCacheLoader implements CacheLoader<ArrayList<Integer>, String> {
 
         @Override
-        public Cache.Entry<ArrayList<Integer>, String> load(final Object key) {
+        public Cache.Entry<ArrayList<Integer>, String> load(final ArrayList<Integer> key) {
             return new Cache.Entry<ArrayList<Integer>, String>() {
                 @Override
                 public ArrayList<Integer> getKey() {
-                    return new ArrayList<Integer>((List) key);
+                    return new ArrayList<Integer>(key);
                 }
 
                 @Override
@@ -611,12 +611,12 @@ public class CacheLoaderTest extends TestSupport {
         }
 
         @Override
-        public Map<ArrayList<Integer>, String> loadAll(Collection<? extends ArrayList<Integer>> keys) {
+        public Map<ArrayList<Integer>, String> loadAll(Iterable<? extends ArrayList<Integer>> keys) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public boolean canLoad(Object key) {
+        public boolean canLoad(ArrayList<Integer> key) {
             return true;
         }
     }
