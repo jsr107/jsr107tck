@@ -493,14 +493,15 @@ public class CacheLoaderTest extends TestSupport {
         ArrayList<Integer> key1 = new ArrayList<Integer>();
         key1.add(1);
         key1.add(2);
+        //Illegal now with get(K)
         LinkedList<Integer> key2 = new LinkedList<Integer>(key1);
 
         CacheLoader<ArrayList<Integer>, String> cacheLoader = new ArrayListCacheLoader();
         Cache<ArrayList<Integer>, String> cache = getCacheManager().
                 <ArrayList<Integer>, String>createCacheBuilder(getTestCacheName()).setCacheLoader(cacheLoader).build();
 
-        String value = cache.get(key2);
-        assertEquals(cacheLoader.load(key2).getValue(), value);
+//        String value = cache.get(key2);
+//        assertEquals(cacheLoader.load(key2).getValue(), value);
     }
 
     // ---------- utilities ----------

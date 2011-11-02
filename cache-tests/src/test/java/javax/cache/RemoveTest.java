@@ -316,7 +316,7 @@ public class RemoveTest extends CacheTestSupport<Long, String> {
         for (Long key : data.keySet()) {
             assertFalse(cache.containsKey(key));
         }
-        assertEquals(removedEntry.getValue(), cache.get(removedEntry.getKey()));
+        assertEquals(removedEntry.getValue(), cache.get((Long)removedEntry.getKey()));
     }
 
     @Test
