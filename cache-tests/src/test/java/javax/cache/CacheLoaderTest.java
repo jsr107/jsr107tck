@@ -524,10 +524,6 @@ public class CacheLoaderTest extends TestSupport {
             throw new UnsupportedOperationException();
         }
 
-        @Override
-        public boolean canLoad(K key) {
-            throw new UnsupportedOperationException();
-        }
     }
 
     /**
@@ -584,10 +580,6 @@ public class CacheLoaderTest extends TestSupport {
             return map;
         }
 
-        @Override
-        public boolean canLoad(Object key) {
-            return true;
-        }
     }
 
     /**
@@ -613,11 +605,6 @@ public class CacheLoaderTest extends TestSupport {
         @Override
         public Map<ArrayList<Integer>, String> loadAll(Iterable<? extends ArrayList<Integer>> keys) {
             throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean canLoad(ArrayList<Integer> key) {
-            return true;
         }
     }
 }
