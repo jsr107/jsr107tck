@@ -64,7 +64,7 @@ public class StoreByValueTest extends CacheTestSupport<Date, Date> {
     public void get_DeclaredImmutable() {
         CacheManager cacheManager = getCacheManager();
         // Note: we lie - Date is mutable
-        cacheManager.addImmutableClass(Date.class);
+        cacheManager.registerImmutableClass(Date.class);
         cacheManager.removeCache(getTestCacheName());
         Cache<Date, Date> cache = cacheManager.<Date, Date>createCacheBuilder(getTestCacheName()).build();
 

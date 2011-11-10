@@ -346,7 +346,7 @@ public class CacheManagerTest extends TestSupport {
     public void addImmutableClass_Null() {
         CacheManager cacheManager = getCacheManager();
         try {
-            cacheManager.addImmutableClass(null);
+            cacheManager.registerImmutableClass(null);
             fail();
         } catch (NullPointerException e) {
             //good
@@ -357,7 +357,7 @@ public class CacheManagerTest extends TestSupport {
     public void addImmutableClass_NotImmutable() {
         CacheManager cacheManager = getCacheManager();
         // Note: we lie - Date is mutable
-        cacheManager.addImmutableClass(Date.class);
+        cacheManager.registerImmutableClass(Date.class);
     }
     
     @Test
