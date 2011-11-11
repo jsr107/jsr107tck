@@ -157,7 +157,8 @@ public class CachingClassLoaderTest {
 
     @Test
     public void shutdown_0_Empty() {
-        assertFalse(shutdown());
+        //will fail if an exception thrown
+        shutdown();
     }
 
     @Test
@@ -171,7 +172,8 @@ public class CachingClassLoaderTest {
         CacheManager cacheManager2 = getCacheManager(cl2);
         CacheManager cacheManager3 = getCacheManager(cl3, name);
 
-        assertTrue(shutdown());
+        //will fail if an exception thrown
+        shutdown();
 
         assertNotSame(cacheManager1, getCacheManager(cl1));
         assertNotSame(cacheManager2, getCacheManager(cl2));
@@ -280,8 +282,8 @@ public class CachingClassLoaderTest {
         return Caching.getCacheManager(classLoader, name);
     }
 
-    private static boolean shutdown() {
-        return Caching.close();
+    private static void shutdown() {
+        Caching.close();
     }
 
     private static boolean shutdown(ClassLoader classLoader) {

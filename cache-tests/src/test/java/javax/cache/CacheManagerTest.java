@@ -67,7 +67,11 @@ public class CacheManagerTest extends TestSupport {
 
     @Before
     public void startUp() {
-        Caching.close();
+        try {
+            Caching.close();
+        }   catch (CachingShutdownException e) {
+            //this will happen if we call close twice in a row.
+        }
     }
 
     @Test

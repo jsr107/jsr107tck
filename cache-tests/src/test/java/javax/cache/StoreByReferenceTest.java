@@ -16,6 +16,7 @@
  */
 package javax.cache;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,7 +35,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * Implementations can optionally support storeByReference.
- *
+ * <p/>
  * Tests aspects where storeByReference makes a difference
  * <p/>
  *
@@ -54,8 +55,16 @@ public class StoreByReferenceTest extends CacheTestSupport<Date, Date> {
 
     @Before
     public void setUp() {
-        Caching.close();
         super.setUp();
+    }
+
+    @After
+    public void teardown() {
+        try {
+            Caching.close();
+        } catch (CachingShutdownException e) {
+            //expected
+        }
     }
 
     @Test
@@ -109,7 +118,7 @@ public class StoreByReferenceTest extends CacheTestSupport<Date, Date> {
         assertNull(cache.get(key1OriginalValue));
 
         //Entry is there but is irretrievable
-        for (Cache.Entry<Date, Date> entry: cache){
+        for (Cache.Entry<Date, Date> entry : cache) {
             LOG.info(entry.getKey().toString());
         }
 
