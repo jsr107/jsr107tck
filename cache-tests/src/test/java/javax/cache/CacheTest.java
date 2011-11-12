@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 
+import javax.cache.event.CacheEntryEvent;
 import javax.cache.event.CacheEntryReadListener;
 import javax.cache.event.NotificationScope;
 import javax.cache.util.ExcludeListExcluder;
@@ -290,27 +291,6 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     static class MyCacheEntryListener<K, V> implements CacheEntryReadListener<K, V> {
 
 
-        /**
-         * Called after the entry has been read. If no entry existed for the key the event is not called.
-         * This method is not called if a batch operation was performed.
-         *
-         * @param entry The entry just read.
-         * @see #onReadAll(Iterable)
-         */
-        @Override
-        public void onRead(Cache.Entry<K, V> entry) {
-            //noop
-        }
-
-        /**
-         * Called after the entries have been read. Only entries which existed in the cache are passed in.
-         *
-         * @param entries The entry just read.
-         */
-        @Override
-        public void onReadAll(Iterable<Cache.Entry<K, V>> entries) {
-            //noop
-        }
 
         /**
          * @return the notification scope for this listener
@@ -318,6 +298,29 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         @Override
         public NotificationScope getNotificationScope() {
             return NotificationScope.LOCAL;
+        }
+
+
+        /**
+         * Called after the entry has been read. If no entry existed for the key the event is not called.
+         * This method is not called if a batch operation was performed.
+         *
+         * @param event The event just read.
+         * @see #entriesRead(Iterable)
+         */
+        @Override
+        public void entryRead(CacheEntryEvent<? extends K, ? extends V> event) {
+            //
+        }
+
+        /**
+         * Called after the entries have been read. Only entries which existed in the cache are passed in.
+         *
+         * @param events The events just read.
+         */
+        @Override
+        public void entriesRead(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) {
+            //
         }
     }
 }
