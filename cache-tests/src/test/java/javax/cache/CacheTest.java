@@ -291,16 +291,6 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     static class MyCacheEntryListener<K, V> implements CacheEntryReadListener<K, V> {
 
 
-
-        /**
-         * @return the notification scope for this listener
-         */
-        @Override
-        public NotificationScope getNotificationScope() {
-            return NotificationScope.LOCAL;
-        }
-
-
         /**
          * Called after the entry has been read. If no entry existed for the key the event is not called.
          * This method is not called if a batch operation was performed.
