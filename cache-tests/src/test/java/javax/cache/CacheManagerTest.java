@@ -344,7 +344,7 @@ public class CacheManagerTest extends TestSupport {
         for (Cache<?, ?> c : it) {
             size++;
         }
-        assertEquals(3, size);
+        assertEquals(2, size);
         checkCollections(caches1, it);
     }
 
