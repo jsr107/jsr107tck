@@ -25,6 +25,8 @@ import javax.cache.transaction.Mode;
 import javax.cache.util.ExcludeListExcluder;
 
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -98,7 +100,54 @@ public class CacheBuilderTest {
         } catch (InvalidConfigurationException e) {
             // good
         }
+
+
     }
+
+    @Test
+    public void testValidCacheNames() {
+
+        try {
+            Caching.getCacheManager().createCacheBuilder(null).build();
+        } catch (NullPointerException e) {
+            //expected
+        }
+
+
+        try {
+            Caching.getCacheManager().createCacheBuilder("").build();
+        } catch (IllegalArgumentException e) {
+            //expected
+        }
+
+        try {
+            Caching.getCacheManager().createCacheBuilder(" ").build();
+        } catch (IllegalArgumentException e) {
+            //expected
+        }
+
+
+        try {
+            Caching.getCacheManager().createCacheBuilder("    ").build();
+        } catch (IllegalArgumentException e) {
+            //expected
+        }
+
+        //all the whitespace characters except carriage return.
+        try {
+            Caching.getCacheManager().createCacheBuilder("\u0009\u000B\u000C\u001D\u001E\u001F").build();
+        } catch (IllegalArgumentException e) {
+            //expected
+        }
+
+        //and now a valid one
+        Caching.getCacheManager().createCacheBuilder("Greg Luck's Cache").build();
+        Caching.getCacheManager().createCacheBuilder("G").build();
+        Caching.getCacheManager().createCacheBuilder(" G ").build();
+
+
+    }
+
 
     @Test
     public void setTransactionEnabled() {
