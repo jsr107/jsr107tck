@@ -17,24 +17,22 @@
 
 package javax.cache;
 
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+
+import javax.cache.util.ExcludeListExcluder;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.logging.Logger;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Set;
-import java.util.logging.Logger;
-
-import javax.cache.util.ExcludeListExcluder;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
 
 /**
  * Unit tests for CacheManager
@@ -154,7 +152,7 @@ public class CacheManagerTest extends TestSupport {
         String name1 = "c1";
         cacheManager.createCacheBuilder(name1).build();
         assertTrue(cacheManager.removeCache(name1));
-        assertTrue(cacheManager.getCaches().isEmpty());
+        assertFalse(cacheManager.getCaches().iterator().hasNext());
     }
 
     @Test
@@ -227,7 +225,7 @@ public class CacheManagerTest extends TestSupport {
         cacheManager.createCacheBuilder("c2").build();
 
         cacheManager.shutdown();
-        assertTrue(cacheManager.getCaches().isEmpty());
+        assertFalse(cacheManager.getCaches().iterator().hasNext());
     }
 
     @Test
@@ -286,7 +284,7 @@ public class CacheManagerTest extends TestSupport {
     @Test
     public void getCaches_Empty() {
         CacheManager cacheManager = getCacheManager();
-        assertTrue(cacheManager.getCaches().isEmpty());
+        assertFalse(cacheManager.getCaches().iterator().hasNext());
     }
 
     @Test
@@ -298,8 +296,7 @@ public class CacheManagerTest extends TestSupport {
         caches1.add(cacheManager.createCacheBuilder("c2").build());
         caches1.add(cacheManager.createCacheBuilder("c3").build());
 
-        Set caches2 = cacheManager.getCaches();
-        checkCollections(caches1, caches2);
+        checkCollections(caches1, cacheManager.getCaches());
     }
 
     @Test
@@ -308,9 +305,8 @@ public class CacheManagerTest extends TestSupport {
 
         cacheManager.createCacheBuilder("c1").build();
 
-        Set caches2 = cacheManager.getCaches();
         try {
-            caches2.clear();
+            cacheManager.getCaches().iterator().remove();
             fail();
         } catch (UnsupportedOperationException e) {
             // immutable
@@ -327,14 +323,29 @@ public class CacheManagerTest extends TestSupport {
         cacheManager.createCacheBuilder(removeName).build();
         caches1.add(cacheManager.createCacheBuilder("c3").build());
 
-        Set caches2 = cacheManager.getCaches();
-        assertEquals(3, caches2.size());
-        cacheManager.removeCache(removeName);
-        assertEquals(3, caches2.size());
+        Iterable<Cache<?, ?>> it;
+        int size;
 
-        Set caches3 = cacheManager.getCaches();
-        assertEquals(2, caches3.size());
-        checkCollections(caches1, caches3);
+        it = cacheManager.getCaches();
+        size = 0;
+        for (Cache<?, ?> c : it) {
+            size++;
+        }
+        assertEquals(3, size);
+        cacheManager.removeCache(removeName);
+        size = 0;
+        for (Cache<?, ?> c : it) {
+            size++;
+        }
+        assertEquals(3, size);
+
+        it = cacheManager.getCaches();
+        size = 0;
+        for (Cache<?, ?> c : it) {
+            size++;
+        }
+        assertEquals(3, size);
+        checkCollections(caches1, it);
     }
 
     @Test
@@ -376,8 +387,13 @@ public class CacheManagerTest extends TestSupport {
 
     // ---------- utilities ----------
 
-    private <T> void  checkCollections(Collection<T> collection1, Collection<T> collection2) {
-        assertEquals(collection1.size(), collection1.size());
+    private <T> void  checkCollections(Collection<T> collection1, Iterable<?> iterable2) {
+        ArrayList<Object> collection2 = new ArrayList<Object>();
+        for (Object element : iterable2) {
+            assertTrue(collection1.contains(element));
+            collection2.add(element);
+        }
+        assertEquals(collection1.size(), collection2.size());
         for (T element : collection1) {
             assertTrue(collection2.contains(element));
         }

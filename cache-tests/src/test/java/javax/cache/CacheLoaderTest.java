@@ -52,8 +52,7 @@ public class CacheLoaderTest extends TestSupport {
 
     @After
     public void cleanup() {
-        Set<Cache<Object, Object>> caches = getCacheManager().getCaches();
-        for (Cache cache : caches) {
+        for (Cache<?, ?> cache : getCacheManager().getCaches()) {
             getCacheManager().removeCache(cache.getName());
         }
     }
