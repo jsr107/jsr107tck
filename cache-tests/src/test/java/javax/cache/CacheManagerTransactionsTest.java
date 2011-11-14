@@ -20,6 +20,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 
+import javax.cache.transaction.IsolationLevel;
 import javax.cache.util.AllTestExcluder;
 import javax.cache.util.ExcludeListExcluder;
 import javax.transaction.UserTransaction;
@@ -27,13 +28,13 @@ import javax.transaction.UserTransaction;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Unit tests for Transactions
+ * Unit tests for CacheManagers that support transactions
  * <p/>
  *
- * @author Yannis Cosmadopoulos
+ * @author Greg Luck
  * @since 1.0
  */
-public class CacheManagerTransactionTest extends TestSupport {
+public class CacheManagerTransactionsTest extends TestSupport {
 
     /**
      * Rule used to exclude tests that do not implement Transactions
@@ -44,10 +45,25 @@ public class CacheManagerTransactionTest extends TestSupport {
                     new ExcludeListExcluder(this.getClass()) :
                     new AllTestExcluder();
 
+
     @Test
-    public void getUserTransaction() throws Exception {
-        CacheManager cm = getCacheManager();
-        UserTransaction userTrans = (UserTransaction) cm.getUserTransaction();
+    public void transactionalStatusWhenNoUserTransaction() throws Exception {
+        CacheManager cacheManager = getCacheManager();
+        UserTransaction userTrans = cacheManager.getUserTransaction();
         assertEquals(javax.transaction.Status.STATUS_NO_TRANSACTION , userTrans.getStatus());
     }
+
+    /**
+     * The isolation level returned by a non-transactional cache
+     */
+    @Test
+    public void isolationLevelForNonTransactionalCache() throws Exception {
+        CacheManager cacheManager = getCacheManager();
+        Cache cache = cacheManager.createCacheBuilder("test").build();
+        assertEquals(IsolationLevel.NONE, cache.getConfiguration().getTransactionIsolationLevel());
+    }
+
+
+
+
 }
