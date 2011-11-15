@@ -29,6 +29,8 @@ import javax.cache.event.CacheEntryEvent;
 import javax.cache.event.CacheEntryReadListener;
 import javax.cache.event.NotificationScope;
 import javax.cache.util.ExcludeListExcluder;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -37,7 +39,9 @@ import java.util.NoSuchElementException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -278,6 +282,23 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         final Object unwrappedCache = cache.unwrap(unwrapClass);
 
         assertTrue(unwrapClass.isAssignableFrom(unwrappedCache.getClass()));
+    }
+
+    @Test
+    public void testGetCacheManager() {
+        String cacheName = "sampleCache";
+        ClassLoader cl1 = Thread.currentThread().getContextClassLoader();
+        ClassLoader cl2 = URLClassLoader.newInstance(new URL[]{}, cl1);
+
+        CacheManager cacheManager1 = Caching.getCacheManager(cl1);
+        CacheManager cacheManager2 = Caching.getCacheManager(cl2);
+        assertNotSame(cacheManager1, cacheManager2);
+
+        Cache cache1 = cacheManager1.createCacheBuilder(cacheName).build();
+        Cache cache2 = cacheManager2.createCacheBuilder(cacheName).build();
+
+        assertSame(cacheManager1, cache1.getCacheManager());
+        assertSame(cacheManager2, cache2.getCacheManager());
     }
 
     // ---------- utilities ----------
