@@ -131,9 +131,15 @@
             </activation>
             <dependencies>
                 <dependency>
+
                     <groupId>javax.cache.implementation</groupId>
                     <artifactId>cache-ri-impl</artifactId>
                     <version>${project.parent.version}</version>
+
+                    <!--<groupId>oracle</groupId>-->
+                    <!--<artifactId>coherence.jsr107</artifactId>-->
+                    <!--<version>0.1-SNAPSHOT</version>-->
+
                 </dependency>
                 <dependency>
                     <groupId>javax.cache</groupId>
