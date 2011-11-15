@@ -160,7 +160,7 @@ public class CacheBuilderTest {
         } else {
             try {
                 builder.setTransactionEnabled(isolationLevel, mode);
-                fail();
+                fail("expected InvalidConfigurationException");
             } catch (InvalidConfigurationException e) {
                 //
             }

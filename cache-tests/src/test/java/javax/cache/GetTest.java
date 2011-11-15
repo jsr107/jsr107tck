@@ -148,17 +148,15 @@ public class GetTest extends CacheTestSupport<Long, String> {
         keysToGet.add(2L);
         keysToGet.add(3L);
 
+        ArrayList<Long> keysExpected = new ArrayList<Long>();
+        keysExpected.add(2L);
+
         Map<Long, String> map = cache.getAll(keysToGet);
-        assertEquals(keysToGet.size(), map.size());
-        for (Long key : keysToGet) {
+        assertEquals("size", keysExpected.size(), map.size());
+        for (Long key : keysExpected) {
             assertTrue(map.containsKey(key));
-            if (keysInCache.contains(key)) {
-                assertEquals(cache.get(key), map.get(key));
-                assertEquals("value" + key, map.get(key));
-            } else {
-                assertFalse(cache.containsKey(key));
-                assertNull(map.get(key));
-            }
+            assertEquals("key  : key=" + key, cache.get(key), map.get(key));
+            assertEquals("value: key=" + key, "value" + key, map.get(key));
         }
     }
 }

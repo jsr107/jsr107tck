@@ -155,12 +155,12 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     public void containsKey() {
         Map<Long, String> data = createLSData(3);
         for (Map.Entry<Long, String> entry : data.entrySet()) {
-            assertFalse(cache.containsKey(entry.getKey()));
+            assertFalse("before put", cache.containsKey(entry.getKey()));
             cache.put(entry.getKey(), entry.getValue());
-            assertTrue(cache.containsKey(entry.getKey()));
+            assertTrue("after put", cache.containsKey(entry.getKey()));
         }
         for (Long key : data.keySet()) {
-            assertTrue(cache.containsKey(key));
+            assertTrue("finally", cache.containsKey(key));
         }
     }
 

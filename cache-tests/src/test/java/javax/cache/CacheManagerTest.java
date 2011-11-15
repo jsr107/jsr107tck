@@ -353,7 +353,7 @@ public class CacheManagerTest extends TestSupport {
         CacheManager cacheManager = getCacheManager();
 
         for (OptionalFeature feature : OptionalFeature.values()) {
-            assertSame(Caching.isSupported(feature), cacheManager.isSupported(feature));
+            assertSame(feature.toString(), Caching.isSupported(feature), cacheManager.isSupported(feature));
         }
     }
 
