@@ -89,44 +89,7 @@ public class StoreByReferenceTest extends CacheTestSupport<Date, Date> {
         assertSame(existingValue, cache.get(new Date(now)));
     }
 
-    /**
-     * We know that values can get mutated but so can keys!
-     * Which causes lookups to fail.
-     * In fact the entry get lost and cannot be retrieved.
-     * This is also how Map behaves.
-     */
-    @Test
-    public void get_Existing_MutateKey() {
-        long now = System.currentTimeMillis();
-        Date key1 = new Date(now);
-        LOG.info(key1.toString());
-        Date key1OriginalValue = (Date) key1.clone();
-        Date existingValue = new Date(now);
-        cache.put(key1, existingValue);
-        long later = now + 5000;
-        assertTrue(cache.containsKey(key1));
-        assertNotNull(cache.get(key1));
 
-        //now mutate the key
-        key1.setTime(later);
-        LOG.info(key1.toString());
-        assertFalse(cache.containsKey(key1));
-        assertNull(cache.get(key1));
-
-        //now test with the original key value
-        assertFalse(cache.containsKey(key1OriginalValue));
-        assertNull(cache.get(key1OriginalValue));
-
-        //Entry is there but is irretrievable
-        for (Cache.Entry<Date, Date> entry : cache) {
-            LOG.info(entry.getKey().toString());
-        }
-
-        //try to remove it, but it cannot be found!
-        assertFalse(cache.remove(key1));
-        assertFalse(cache.remove(key1OriginalValue));
-
-    }
 
     @Test
     public void put_Existing_NotSameKey() throws Exception {
