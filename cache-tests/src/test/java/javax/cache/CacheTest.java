@@ -307,7 +307,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
      */
     @Test
     public void testAnnotations() {
-        Object value = CacheNameOnEachMethodBlogManagerImpl.class.getDeclaredAnnotations();
+        Object value = new CacheNameOnEachMethodBlogManagerImpl();
         boolean foundRemoveAllAnnotation = false;
         for (Method m : value.getClass().getMethods()) {
             if (m.isAnnotationPresent(CacheRemoveAll.class)) {
@@ -315,7 +315,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
                 foundRemoveAllAnnotation = true;
             }
         }
-        assertTrue(foundRemoveAllAnnotation);
+       assertTrue(foundRemoveAllAnnotation);
     }
 
 
