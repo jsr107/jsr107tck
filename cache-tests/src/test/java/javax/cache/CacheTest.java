@@ -19,16 +19,18 @@ package javax.cache;
 
 import domain.Beagle;
 import domain.Identifier;
-import domain.Identifier2;
+import manager.CacheNameOnEachMethodBlogManagerImpl;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 
+import javax.cache.annotation.CacheRemoveAll;
 import javax.cache.event.CacheEntryEvent;
 import javax.cache.event.CacheEntryReadListener;
 import javax.cache.event.NotificationScope;
 import javax.cache.util.ExcludeListExcluder;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Iterator;
@@ -104,7 +106,6 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         cacheGeneric.put(new Identifier("Pistachio"), pistachio);
         //Illegal with change to get(K)
         //Object value = cacheGeneric.get(new Identifier2("Pistachio"));
-
 
 
         Cache cacheNonGeneric = cacheManager.getCache(cacheName);
@@ -300,6 +301,23 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         assertSame(cacheManager1, cache1.getCacheManager());
         assertSame(cacheManager2, cache2.getCacheManager());
     }
+
+    /**
+     * todo this just illustrates how easily we could discover a runtime annotation. Remove eventually.
+     */
+    @Test
+    public void testAnnotations() {
+        Object value = CacheNameOnEachMethodBlogManagerImpl.class.getDeclaredAnnotations();
+        boolean foundRemoveAllAnnotation = false;
+        for (Method m : value.getClass().getMethods()) {
+            if (m.isAnnotationPresent(CacheRemoveAll.class)) {
+                System.out.println(m.getName());
+                foundRemoveAllAnnotation = true;
+            }
+        }
+        assertTrue(foundRemoveAllAnnotation);
+    }
+
 
     // ---------- utilities ----------
 
