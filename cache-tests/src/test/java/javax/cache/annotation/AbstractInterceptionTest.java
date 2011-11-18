@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import javax.cache.Caching;
-import javax.cache.OptionalFeature;
 import javax.cache.util.AbstractTestExcluder;
 
 import org.junit.Rule;
@@ -63,7 +62,7 @@ public class AbstractInterceptionTest {
             @Override
             protected boolean isExcluded(String methodName) {
                 //Exclude all tests if annotations are not supported or no beanProvider has been set
-                return beanProvider == null || !Caching.isSupported(OptionalFeature.ANNOTATIONS);
+                return beanProvider == null || !Caching.isAnnotationsSupported();
             }
         };
 
