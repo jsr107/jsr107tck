@@ -83,7 +83,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         String cacheName = "sampleCache";
         CacheManager cacheManager = getCacheManager();
         Cache<String, Integer> cache = cacheManager.getCache(cacheName);
-        cache = cacheManager.<String, Integer>createCacheBuilder(cacheName).setStoreByValue(false).build();
+        cache = cacheManager.<String, Integer>createCacheBuilder(cacheName).setStoreByValue(true).build();
 
         String key = "key";
         Integer value1 = 1;
@@ -101,30 +101,24 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         String cacheName = "genericsCache";
         CacheManager cacheManager = getCacheManager();
         Cache<Identifier, Beagle> cacheGeneric = cacheManager.getCache(cacheName);
-        cacheGeneric = cacheManager.<Identifier, Beagle>createCacheBuilder(cacheName).setStoreByValue(false).build();
+        cacheGeneric = cacheManager.<Identifier, Beagle>createCacheBuilder(cacheName).build();
         Beagle pistachio = new Beagle();
         cacheGeneric.put(new Identifier("Pistachio"), pistachio);
         //Illegal with change to get(K)
         //Object value = cacheGeneric.get(new Identifier2("Pistachio"));
 
-
         Cache cacheNonGeneric = cacheManager.getCache(cacheName);
         //Illegal with change to get(K)
         //value = cacheNonGeneric.get(new Identifier2("Pistachio"));
         //assertNotNull(value);
-
-
     }
 
     @Test
     public void hashcode() {
-
         Identifier identifier = new Identifier("Pistachio");
         System.out.println(identifier.hashCode());
         System.out.println("Pistachio".hashCode());
-
     }
-
 
     @Test
     public void getCacheName() {

@@ -17,11 +17,13 @@
 
 package domain;
 
+import java.io.Serializable;
+
 /**
  * A Beagle is a Dog and a type of hound.
  * @author Greg Luck
  */
-public class Beagle extends Dog implements Hound {
+public class Beagle extends Dog implements Hound, Serializable {
 
     /**
      * Tells the hound to bay

@@ -17,11 +17,13 @@
 
 package domain;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Greg Luck
  */
-public class Identifier {
+public class Identifier implements Serializable {
 
     private final String name;
 
