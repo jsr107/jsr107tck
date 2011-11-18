@@ -12,7 +12,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>Spring Annotations Test Harness</name>
+    <name>CDI/Weld Annotations Test Harness</name>
     <url>https://github.com/jsr107/jsr107tck</url>
     <description>Test harness for Spring annotations RI</description>
 
