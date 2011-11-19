@@ -142,23 +142,21 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void load_DefaultCacheLoader() throws Exception {
-        final Integer valueDefault = 123;
-        CacheLoader<Integer, Integer> clDefault = new SimpleCacheLoader<Integer>(valueDefault);
+        CacheLoader<Integer, Integer> clDefault = new SimpleCacheLoader<Integer>();
         Cache<Integer, Integer> cache = getCacheManager().
                 <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
 
-        Integer key = 1;
+        Integer key = 123;
         Future<Integer> future = cache.load(key);
         assertNotNull(future);
-        assertEquals(valueDefault, future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS));
+        assertEquals(key, future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS));
         assertTrue(cache.containsKey(key));
-        assertEquals(valueDefault, cache.get(key));
+        assertEquals(key, cache.get(key));
     }
 
     @Test
     public void load_ExceptionPropagation() throws Exception {
-        final RuntimeException expectedException = new RuntimeException("expected");
-        CacheLoader<Integer, Integer> clDefault = new SimpleCacheLoader<Integer>(expectedException);
+        CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>();
         Cache<Integer, Integer> cache = getCacheManager().
                 <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
         Integer key = 1;
@@ -168,7 +166,7 @@ public class CacheLoaderTest extends TestSupport {
             future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
             fail("expected exception");
         } catch (ExecutionException e) {
-            assertEquals(expectedException, e.getCause());
+            assertEquals(UnsupportedOperationException.class, e.getCause().getClass());
         }
     }
 
@@ -511,7 +509,7 @@ public class CacheLoaderTest extends TestSupport {
      * @param <K>
      * @param <V>
      */
-    protected static class MockCacheLoader<K, V> implements CacheLoader<K, V> {
+    public static class MockCacheLoader<K, V> implements CacheLoader<K, V> {
 
         @Override
         public Cache.Entry<K, V> load(K key) {
@@ -530,42 +528,23 @@ public class CacheLoaderTest extends TestSupport {
      *
      * @param <K>
      */
-    private static class SimpleCacheLoader<K> implements CacheLoader<K, K> {
+    public static class SimpleCacheLoader<K> implements CacheLoader<K, K> {
         private RuntimeException exception = null;
-        private final K value;
-
-        public SimpleCacheLoader() {
-            this(null, null);
-        }
-
-        public SimpleCacheLoader(K value) {
-            this(value, null);
-        }
-
-        public SimpleCacheLoader(RuntimeException exception) {
-            this(null, exception);
-        }
-
-        public SimpleCacheLoader(K value, RuntimeException exception) {
-            this.value = value;
-            this.exception = exception;
-
-        }
 
         @Override
-        public Cache.Entry<K, K> load(final Object key) {
+        public Cache.Entry<K, K> load(final K key) {
             if (exception != null) {
                 throw exception;
             }
             return new Cache.Entry<K, K>() {
                 @Override
                 public K getKey() {
-                    return (K) key;
+                    return key;
                 }
 
                 @Override
                 public K getValue() {
-                    return value == null ? (K) key : value;
+                    return key;
                 }
             };
         }
@@ -584,7 +563,7 @@ public class CacheLoaderTest extends TestSupport {
     /**
      * A simple example of a Cache Loader
      */
-    private static class ArrayListCacheLoader implements CacheLoader<ArrayList<Integer>, String> {
+    public static class ArrayListCacheLoader implements CacheLoader<ArrayList<Integer>, String> {
 
         @Override
         public Cache.Entry<ArrayList<Integer>, String> load(final ArrayList<Integer> key) {
