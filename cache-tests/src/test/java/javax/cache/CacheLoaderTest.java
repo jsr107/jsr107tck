@@ -197,7 +197,7 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void loadAll_NullKey() throws Exception {
-        CacheLoader<Integer, Integer> cl = new SimpleCacheLoader<Integer>();
+        CacheLoader<Integer, Integer> cl =  new SimpleCacheLoader<Integer>();
         Cache<Integer, Integer> cache = getCacheManager().
                 <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(cl).build();
         ArrayList<Integer> keys = new ArrayList<Integer>();
@@ -320,25 +320,20 @@ public class CacheLoaderTest extends TestSupport {
         assertFalse(cache.containsKey(key));
         assertEquals(key, cache.get(key));
         assertTrue(cache.containsKey(key));
-
-        // Confirm that result is stored (no 2nd load)
-        clDefault.exception = new NullPointerException();
-        assertEquals(key, cache.get(key));
     }
 
     @Test
     public void get_Exception() {
-        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
+        CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>();
         Cache<Integer, Integer> cache = getCacheManager().
                 <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
 
         Integer key = 1;
-        clDefault.exception = new NullPointerException();
         try {
             cache.get(key);
             fail("should have got an exception ");
-        } catch (RuntimeException e) {
-            assertEquals(clDefault.exception, e);
+        } catch (UnsupportedOperationException e) {
+            //
         }
     }
 
@@ -529,13 +524,8 @@ public class CacheLoaderTest extends TestSupport {
      * @param <K>
      */
     public static class SimpleCacheLoader<K> implements CacheLoader<K, K> {
-        private RuntimeException exception = null;
-
         @Override
         public Cache.Entry<K, K> load(final K key) {
-            if (exception != null) {
-                throw exception;
-            }
             return new Cache.Entry<K, K>() {
                 @Override
                 public K getKey() {
@@ -557,7 +547,6 @@ public class CacheLoaderTest extends TestSupport {
             }
             return map;
         }
-
     }
 
     /**
