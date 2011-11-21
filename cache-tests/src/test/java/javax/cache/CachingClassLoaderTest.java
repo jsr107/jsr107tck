@@ -314,7 +314,11 @@ public class CachingClassLoaderTest {
 
         private ClassLoader createClassLoader() throws MalformedURLException {
             String domainJar = System.getProperty(DOMAINJAR, DEFAULT_DOMAINJAR);
-            URL urls[] = new URL[]{new File(domainJar).toURI().toURL()};
+            File file = new File(domainJar);
+            if (! file.canRead()) {
+                throw new IllegalArgumentException("can't find domain jar: " + domainJar);
+            }
+            URL urls[] = new URL[]{file.toURI().toURL()};
             ClassLoader parent = Thread.currentThread().getContextClassLoader();
             return new URLClassLoader(urls, parent);
         }
