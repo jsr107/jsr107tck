@@ -16,12 +16,17 @@
  */
 package javax.cache;
 
+import com.sun.org.apache.bcel.internal.generic.RETURN;
 import org.junit.Rule;
 import org.junit.Test;
 
 import javax.cache.util.ExcludeListExcluder;
+import java.security.Key;
 import java.util.Collection;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -40,21 +45,8 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
 
     @Test
     public void nullKey() {
-        Cache.EntryProcessor<Integer, String> processor = new Cache.EntryProcessor<Integer, String>() {
-
-            @Override
-            public Object processAll(Collection<Cache.MutableEntry<? extends Integer, ? extends String>> mutableEntries) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public Object process(Cache.MutableEntry<Integer, String> integerStringMutableEntry) {
-                throw new UnsupportedOperationException();
-            }
-        };
-
         try {
-            cache.invokeEntryProcessor(null, processor);
+            cache.invokeEntryProcessor(null, new MockEntryProcessor<Integer, String>());
             fail("null key");
         } catch (NullPointerException e) {
             //
@@ -75,10 +67,126 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     public void notStarted() {
         cache.stop();
         try {
-            cache.invokeEntryProcessor(null, null);
+            cache.invokeEntryProcessor(123, new MockEntryProcessor<Integer, String>());
             fail("null key");
         } catch (IllegalStateException e) {
             //
+        }
+    }
+
+    @Test
+    public void noValueNoMutation() {
+        final Integer key = 123;
+        final Integer ret = 456;
+        Cache.EntryProcessor<Integer, String> processor = new MockEntryProcessor<Integer, String>() {
+            @Override
+            public Object process(Cache.MutableEntry<Integer, String> entry) {
+                assertFalse(entry.exists());
+                return ret;
+            }
+        };
+        assertEquals(ret, cache.invokeEntryProcessor(key, processor));
+        assertFalse(cache.containsKey(key));
+    }
+
+    @Test
+    public void noValueSetValue() {
+        final Integer key = 123;
+        final Integer ret = 456;
+        final String newValue = "abc";
+        Cache.EntryProcessor<Integer, String> processor = new MockEntryProcessor<Integer, String>() {
+            @Override
+            public Object process(Cache.MutableEntry<Integer, String> entry) {
+                assertFalse(entry.exists());
+                entry.setValue(newValue);
+                assertTrue(entry.exists());
+                return ret;
+            }
+        };
+        assertEquals(ret, cache.invokeEntryProcessor(key, processor));
+        assertEquals(newValue, cache.get(key));
+    }
+
+    @Test
+    public void noValueException() {
+        final Integer key = 123;
+        final String setValue = "abc";
+        Cache.EntryProcessor<Integer, String> processor = new MockEntryProcessor<Integer, String>() {
+            @Override
+            public Object process(Cache.MutableEntry<Integer, String> entry) {
+                assertFalse(entry.exists());
+                entry.setValue(setValue);
+                assertTrue(entry.exists());
+                throw new IllegalAccessError();
+            }
+        };
+        try {
+            cache.invokeEntryProcessor(key, processor);
+            fail();
+        } catch (IllegalAccessError e) {
+            //
+        }
+        assertFalse(cache.containsKey(key));
+    }
+
+    @Test
+    public void existingReplace() {
+        final Integer key = 123;
+        final String oldValue = "abc";
+        final String newValue = "def";
+        Cache.EntryProcessor<Integer, String> processor = new MockEntryProcessor<Integer, String>() {
+            @Override
+            public Object process(Cache.MutableEntry<Integer, String> entry) {
+                assertTrue(entry.exists());
+                String value1 = entry.getValue();
+                assertEquals(oldValue, entry.getValue());
+                entry.setValue(newValue);
+                assertTrue(entry.exists());
+                assertEquals(newValue, entry.getValue());
+                return value1;
+            }
+        };
+        cache.put(key, oldValue);
+        assertEquals(oldValue, cache.invokeEntryProcessor(key, processor));
+        assertEquals(newValue, cache.get(key));
+    }
+
+    @Test
+    public void existingException() {
+        final Integer key = 123;
+        final String oldValue = "abc";
+        final String newValue = "def";
+        Cache.EntryProcessor<Integer, String> processor = new MockEntryProcessor<Integer, String>() {
+            @Override
+            public Object process(Cache.MutableEntry<Integer, String> entry) {
+                assertTrue(entry.exists());
+                String value1 = entry.getValue();
+                assertEquals(oldValue, entry.getValue());
+                entry.setValue(newValue);
+                assertTrue(entry.exists());
+                assertEquals(newValue, entry.getValue());
+                throw new IllegalAccessError();
+            }
+        };
+        cache.put(key, oldValue);
+        try {
+            cache.invokeEntryProcessor(key, processor);
+            fail();
+        } catch (IllegalAccessError e) {
+            //
+        }
+        assertEquals(oldValue, cache.get(key));
+    }
+
+    private static class MockEntryProcessor<K, V> implements Cache.EntryProcessor<K, V> {
+        @Override
+        public Object processAll(Collection<Cache.MutableEntry<? extends K, ? extends V>> mutableEntries) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Object process(Cache.MutableEntry<K, V> kvMutableEntry) {
+            throw new UnsupportedOperationException();
         }
     }
 }
