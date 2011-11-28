@@ -178,6 +178,85 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         assertEquals(oldValue, cache.get(key));
     }
 
+    @Test
+    public void removeMissing() {
+        final Integer key = 123;
+        final Integer ret = 456;
+        Cache.EntryProcessor<Integer, String> processor = new MockEntryProcessor<Integer, String>() {
+            @Override
+            public Object process(Cache.MutableEntry<Integer, String> entry) {
+                assertFalse(entry.exists());
+                entry.setValue("aba");
+                assertTrue(entry.exists());
+                entry.remove();
+                assertFalse(entry.exists());
+                return ret;
+            }
+        };
+        assertEquals(ret, cache.invokeEntryProcessor(key, processor));
+        assertFalse(cache.containsKey(key));
+    }
+
+    @Test
+    public void removeThere() {
+        final Integer key = 123;
+        final String oldValue = "abc";
+        Cache.EntryProcessor<Integer, String> processor = new MockEntryProcessor<Integer, String>() {
+            @Override
+            public Object process(Cache.MutableEntry<Integer, String> entry) {
+                assertTrue(entry.exists());
+                String oldValue = entry.getValue();
+                entry.remove();
+                assertFalse(entry.exists());
+                return oldValue;
+            }
+        };
+        cache.put(key, oldValue);
+        assertEquals(oldValue, cache.invokeEntryProcessor(key, processor));
+        assertFalse(cache.containsKey(key));
+    }
+
+    @Test
+    public void removeException() {
+        final Integer key = 123;
+        final String oldValue = "abc";
+        Cache.EntryProcessor<Integer, String> processor = new MockEntryProcessor<Integer, String>() {
+            @Override
+            public Object process(Cache.MutableEntry<Integer, String> entry) {
+                assertTrue(entry.exists());
+                entry.remove();
+                assertFalse(entry.exists());
+                throw new IllegalAccessError();
+            }
+        };
+        cache.put(key, oldValue);
+        try {
+            cache.invokeEntryProcessor(key, processor);
+            fail();
+        } catch (IllegalAccessError e) {
+            //
+        }
+        assertEquals(oldValue, cache.get(key));
+    }
+
+    @Test
+    public void twoThreads() throws Exception {
+        final Integer key = 123;
+        final String value1 = "a1";
+        final String value2 = "a2";
+        final String value3 = "a3";
+
+        cache.put(key, value1);
+        Thread t1 = new Thread(new MyRunnable<Integer, String>(cache, key, value1, value2, 100L));
+        Thread t2 = new Thread(new MyRunnable<Integer, String>(cache, key, value2, value3, 1L));
+        t1.start();
+        Thread.sleep(10L);
+        t2.start();
+        t1.join();
+        t2.join();
+        assertEquals(value3, cache.get(key));
+    }
+
     private static class MockEntryProcessor<K, V> implements Cache.EntryProcessor<K, V> {
         @Override
         public Object processAll(Collection<Cache.MutableEntry<? extends K, ? extends V>> mutableEntries) {
@@ -187,6 +266,41 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         @Override
         public Object process(Cache.MutableEntry<K, V> kvMutableEntry) {
             throw new UnsupportedOperationException();
+        }
+    }
+
+    private static class MyRunnable<K, V> implements Runnable {
+        private final Cache<K,V> cache;
+        private final K key;
+        private final V oldValue;
+        private final V newValue;
+        private final long sleep;
+
+        public MyRunnable(Cache<K, V> cache, K key, V oldValue, V newValue, long sleep) {
+            this.cache = cache;
+            this.key = key;
+            this.oldValue = oldValue;
+            this.newValue = newValue;
+            this.sleep = sleep;
+        }
+
+        @Override
+        public void run() {
+            Cache.EntryProcessor<K, V> processor = new MockEntryProcessor<K, V>() {
+
+                @Override
+                public Object process(Cache.MutableEntry<K, V> entry) {
+                    assertEquals(oldValue, entry.getValue());
+                    try {
+                        Thread.sleep(sleep);
+                    } catch (InterruptedException e) {
+                        //
+                    }
+                    entry.setValue(newValue);
+                    return oldValue;
+                }
+            };
+            cache.invokeEntryProcessor(key, processor);
         }
     }
 }
