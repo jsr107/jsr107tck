@@ -16,12 +16,10 @@
  */
 package javax.cache;
 
-import com.sun.org.apache.bcel.internal.generic.RETURN;
 import org.junit.Rule;
 import org.junit.Test;
 
 import javax.cache.util.ExcludeListExcluder;
-import java.security.Key;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
