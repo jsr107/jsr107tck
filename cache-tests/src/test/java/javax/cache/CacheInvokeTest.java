@@ -18,10 +18,11 @@ package javax.cache;
 
 import org.junit.Rule;
 import org.junit.Test;
-import sun.security.krb5.internal.KdcErrException;
 
 import javax.cache.util.ExcludeListExcluder;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -246,9 +247,9 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value3 = "a3";
 
         cache.put(key, value1);
-        AbstractRunnable<Integer, String> r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, 100L);
+        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, 100L);
         Thread t1 = new Thread(r1);
-        AbstractRunnable<Integer, String> r2 = new MyProcessorRunnable<Integer, String>(cache, key, value2, value3, 1L);
+        AbstractRunnable r2 = new MyProcessorRunnable<Integer, String>(cache, key, value2, value3, 1L);
         Thread t2 = new Thread(r2);
         t1.start();
         Thread.sleep(10L);
@@ -267,9 +268,9 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value2 = "a2";
 
         cache.put(key, value1);
-        AbstractRunnable<Integer, String> r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, 100L);
+        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, 100L);
         Thread t1 = new Thread(r1);
-        AbstractRunnable<Integer, String> r2 = new AbstractRunnable<Integer, String>(cache, key, value2, null, 1L) {
+        AbstractRunnable r2 = new AbstractRunnable() {
             @Override
             protected Object internalRun() {
                 return cache.get(key);
@@ -286,6 +287,167 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
     }
 
+    @Test
+    public void processorGetAll() throws Exception {
+        final Integer key1 = 123;
+        final String value1 = "a1";
+        final String value2 = "a2";
+
+        cache.put(key1, value1);
+        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key1, value1, value2, 100L);
+        Thread t1 = new Thread(r1);
+        AbstractRunnable r2 = new AbstractRunnable() {
+            @Override
+            protected Object internalRun() {
+                return cache.getAll(Arrays.asList(key1));
+            }
+        };
+        Thread t2 = new Thread(r2);
+        t1.start();
+        Thread.sleep(10L);
+        t2.start();
+        t1.join();
+        t2.join();
+        assertEquals(value2, cache.get(key1));
+        assertEquals(value2, ((Map)r2.asynchResult.ret).get(key1));
+        assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
+    }
+
+    @Test
+    public void processorContainsKey() throws Exception {
+        final Integer key = 123;
+        final String value1 = "a1";
+
+        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, null, value1, 100L);
+        Thread t1 = new Thread(r1);
+        AbstractRunnable r2 = new AbstractRunnable() {
+            @Override
+            protected Object internalRun() {
+                return cache.containsKey(key);
+            }
+        };
+        Thread t2 = new Thread(r2);
+        t1.start();
+        Thread.sleep(10L);
+        t2.start();
+        t1.join();
+        t2.join();
+        assertEquals(value1, cache.get(key));
+        assertEquals(true, r2.asynchResult.ret);
+        assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
+    }
+
+    @Test
+    public void processorPut() throws Exception {
+        final Integer key = 123;
+        final String value1 = "a1";
+        final String value2 = "a2";
+        final String value3 = "a3";
+
+        cache.put(key, value1);
+        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, 100L);
+        Thread t1 = new Thread(r1);
+        AbstractRunnable r2 = new AbstractRunnable() {
+            @Override
+            protected Object internalRun() {
+                cache.put(key, value3);
+                return value2;
+            }
+        };
+        Thread t2 = new Thread(r2);
+        t1.start();
+        Thread.sleep(10L);
+        t2.start();
+        t1.join();
+        t2.join();
+        assertEquals(value3, cache.get(key));
+        assertEquals(value2, r2.asynchResult.ret);
+        assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
+    }
+
+    @Test
+    public void putProcessor() throws Exception {
+        final Integer key = 123;
+        final String value1 = "a1";
+        final String value2 = "a2";
+        final String value3 = "a3";
+
+        AbstractRunnable r1 = new AbstractRunnable() {
+            @Override
+            protected Object internalRun() {
+                cache.put(key, value2);
+                return value1;
+            }
+        };
+        Thread t1 = new Thread(r1);
+        AbstractRunnable r2 = new MyProcessorRunnable<Integer, String>(cache, key, value2, value3, 1L);
+        Thread t2 = new Thread(r2);
+        t1.start();
+        Thread.sleep(10L);
+        t2.start();
+        t1.join();
+        t2.join();
+        assertEquals(value3, cache.get(key));
+        assertEquals(value1, r1.asynchResult.ret);
+        assertEquals(value2, r2.asynchResult.ret);
+        assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
+    }
+
+    @Test
+    public void processorGetAndPut() throws Exception {
+        final Integer key = 123;
+        final String value1 = "a1";
+        final String value2 = "a2";
+        final String value3 = "a3";
+
+        cache.put(key, value1);
+        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, 100L);
+        Thread t1 = new Thread(r1);
+        AbstractRunnable r2 = new AbstractRunnable() {
+            @Override
+            protected Object internalRun() {
+                return cache.getAndPut(key, value3);
+            }
+        };
+        Thread t2 = new Thread(r2);
+        t1.start();
+        Thread.sleep(10L);
+        t2.start();
+        t1.join();
+        t2.join();
+        assertEquals(value3, cache.get(key));
+        assertEquals(value2, r2.asynchResult.ret);
+        assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
+    }
+
+    @Test
+    public void getAndPutProcessor() throws Exception {
+        final Integer key = 123;
+        final String value1 = "a1";
+        final String value2 = "a2";
+        final String value3 = "a3";
+
+        cache.put(key, value1);
+        AbstractRunnable r1 = new AbstractRunnable() {
+            @Override
+            protected Object internalRun() {
+                return cache.getAndPut(key, value2);
+            }
+        };
+        Thread t1 = new Thread(r1);
+        AbstractRunnable r2 = new MyProcessorRunnable<Integer, String>(cache, key, value2, value3, 1L);
+        Thread t2 = new Thread(r2);
+        t1.start();
+        Thread.sleep(10L);
+        t2.start();
+        t1.join();
+        t2.join();
+        assertEquals(value3, cache.get(key));
+        assertEquals(value1, r1.asynchResult.ret);
+        assertEquals(value2, r2.asynchResult.ret);
+        assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
+    }
+
     private static class MockEntryProcessor<K, V> implements Cache.EntryProcessor<K, V> {
         @Override
         public Object processAll(Collection<Cache.MutableEntry<? extends K, ? extends V>> mutableEntries) {
@@ -298,10 +460,19 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         }
     }
 
-    private static class MyProcessorRunnable<K, V> extends AbstractRunnable<K, V> {
+    private static class MyProcessorRunnable<K, V> extends AbstractRunnable {
+        protected final Cache<K,V> cache;
+        protected final K key;
+        protected final V oldValue;
+        protected final V newValue;
+        protected final long sleep;
 
         public MyProcessorRunnable(Cache<K, V> cache, K key, V oldValue, V newValue, long sleep) {
-            super(cache, key, oldValue, newValue, sleep);
+            this.cache = cache;
+            this.key = key;
+            this.oldValue = oldValue;
+            this.newValue = newValue;
+            this.sleep = sleep;
         }
 
         @Override
@@ -325,22 +496,8 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         }
     }
 
-    private abstract static class AbstractRunnable<K, V> implements Runnable {
-        protected final Cache<K,V> cache;
-        protected final K key;
-        protected final V oldValue;
-        protected final V newValue;
-        protected final long sleep;
+    private abstract static class AbstractRunnable implements Runnable {
         protected final AsynchResult asynchResult = new AsynchResult();
-
-
-        public AbstractRunnable(Cache<K, V> cache, K key, V oldValue, V newValue, long sleep) {
-            this.cache = cache;
-            this.key = key;
-            this.oldValue = oldValue;
-            this.newValue = newValue;
-            this.sleep = sleep;
-        }
 
         @Override
         public void run() {
