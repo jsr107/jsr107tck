@@ -16,15 +16,13 @@
  */
 package javax.cache.annotation;
 
+import domain.Blog;
+import manager.BlogManager;
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-
-import manager.BlogManager;
-
-import org.junit.Test;
-
-import domain.Blog;
 
 /**
  * todo use a factory to lookup a CDI implementation rather than hardcoding in Weld.  - Rick

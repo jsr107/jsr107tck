@@ -23,10 +23,7 @@ import org.junit.Test;
 import javax.cache.transaction.IsolationLevel;
 import javax.cache.transaction.Mode;
 import javax.cache.util.ExcludeListExcluder;
-
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

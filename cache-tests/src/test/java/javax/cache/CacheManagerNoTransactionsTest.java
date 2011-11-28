@@ -19,11 +19,9 @@ package javax.cache;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
 
 import javax.cache.transaction.IsolationLevel;
 import javax.cache.transaction.Mode;
-import javax.cache.util.AllTestExcluder;
 import javax.cache.util.ExcludeListExcluder;
 import javax.transaction.UserTransaction;
 

@@ -20,13 +20,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 
-import javax.cache.annotation.CachePut;
 import javax.cache.util.ExcludeListExcluder;
 import java.util.ArrayList;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;

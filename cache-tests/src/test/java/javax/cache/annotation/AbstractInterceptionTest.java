@@ -19,14 +19,13 @@
 
 package javax.cache.annotation;
 
-import java.util.Iterator;
-import java.util.ServiceLoader;
+import org.junit.Rule;
+import org.junit.rules.MethodRule;
 
 import javax.cache.Caching;
 import javax.cache.util.AbstractTestExcluder;
-
-import org.junit.Rule;
-import org.junit.rules.MethodRule;
+import java.util.Iterator;
+import java.util.ServiceLoader;
 
 /**
  * Base class that ALL annotation/interceptor tests MUST extend from
