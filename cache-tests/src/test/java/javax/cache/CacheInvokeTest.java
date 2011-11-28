@@ -18,11 +18,14 @@ package javax.cache;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.internal.ArrayComparisonFailure;
 
 import javax.cache.util.ExcludeListExcluder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -258,6 +261,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         t1.join();
         t2.join();
         assertEquals(value3, cache.get(key));
+        assertEquals(value1, r1.asynchResult.ret);
         assertEquals(value2, r2.asynchResult.ret);
         assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
     }
@@ -284,6 +288,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         t1.join();
         t2.join();
         assertEquals(value2, cache.get(key));
+        assertEquals(value1, r1.asynchResult.ret);
         assertEquals(value2, r2.asynchResult.ret);
         assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
     }
@@ -310,6 +315,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         t1.join();
         t2.join();
         assertEquals(value2, cache.get(key1));
+        assertEquals(value1, r1.asynchResult.ret);
         assertEquals(value2, ((Map)r2.asynchResult.ret).get(key1));
         assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
     }
@@ -317,9 +323,10 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     @Test
     public void processorContainsKey() throws Exception {
         final Integer key = 123;
-        final String value1 = "a1";
+        final String value1 = null;
+        final String value2 = "a1";
 
-        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, null, value1, 100L);
+        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, 100L);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -333,7 +340,8 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         t2.start();
         t1.join();
         t2.join();
-        assertEquals(value1, cache.get(key));
+        assertEquals(value2, cache.get(key));
+        assertEquals(value1, r1.asynchResult.ret);
         assertEquals(true, r2.asynchResult.ret);
         assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
     }
@@ -362,6 +370,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         t1.join();
         t2.join();
         assertEquals(value3, cache.get(key));
+        assertEquals(value1, r1.asynchResult.ret);
         assertEquals(value2, r2.asynchResult.ret);
         assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
     }
@@ -417,6 +426,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         t1.join();
         t2.join();
         assertEquals(value3, cache.get(key));
+        assertEquals(value1, r1.asynchResult.ret);
         assertEquals(value2, r2.asynchResult.ret);
         assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
     }
@@ -475,6 +485,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         t1.join();
         t2.join();
         assertEquals(value3, cache.get(key));
+        assertEquals(value1, r1.asynchResult.ret);
         assertEquals(value2, r2.asynchResult.ret);
         assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
     }
@@ -501,6 +512,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         t1.join();
         t2.join();
         assertEquals(value2, cache.get(key));
+        assertEquals(value1, r1.asynchResult.ret);
         assertEquals(false, r2.asynchResult.ret);
         assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
     }
@@ -526,6 +538,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         t1.join();
         t2.join();
         assertFalse(cache.containsKey(key));
+        assertEquals(value1, r1.asynchResult.ret);
         assertEquals(true, r2.asynchResult.ret);
         assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
     }
@@ -551,6 +564,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         t1.join();
         t2.join();
         assertFalse(cache.containsKey(key));
+        assertEquals(value1, r1.asynchResult.ret);
         assertEquals(true, r2.asynchResult.ret);
         assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
     }
@@ -576,6 +590,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         t1.join();
         t2.join();
         assertFalse(cache.containsKey(key));
+        assertEquals(value1, r1.asynchResult.ret);
         assertEquals(value2, r2.asynchResult.ret);
         assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
     }
@@ -602,6 +617,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         t1.join();
         t2.join();
         assertEquals(value3, cache.get(key));
+        assertEquals(value1, r1.asynchResult.ret);
         assertEquals(true, r2.asynchResult.ret);
         assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
     }
@@ -628,6 +644,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         t1.join();
         t2.join();
         assertEquals(value3, cache.get(key));
+        assertEquals(value1, r1.asynchResult.ret);
         assertEquals(true, r2.asynchResult.ret);
         assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
     }
@@ -654,6 +671,62 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         t1.join();
         t2.join();
         assertEquals(value3, cache.get(key));
+        assertEquals(value1, r1.asynchResult.ret);
+        assertEquals(value2, r2.asynchResult.ret);
+        assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
+    }
+
+    @Test
+    public void processorRemoveAll1() throws Exception {
+        final Integer key = 123;
+        final String value1 = null;
+        final String value2 = "a2";
+
+        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, 100L);
+        Thread t1 = new Thread(r1);
+        AbstractRunnable r2 = new AbstractRunnable() {
+            @Override
+            protected Object internalRun() {
+                cache.removeAll(Arrays.asList(key));
+                return value2;
+            }
+        };
+        Thread t2 = new Thread(r2);
+        t1.start();
+        Thread.sleep(10L);
+        t2.start();
+        t1.join();
+        t2.join();
+        assertFalse(cache.containsKey(key));
+        assertEquals(value1, r1.asynchResult.ret);
+        assertEquals(value2, r2.asynchResult.ret);
+        assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
+    }
+
+    @Test
+    public void processorRemoveAll0() throws Exception {
+        final Integer key = 123;
+        final String value1 = "a1";
+        final String value2 = "a2";
+
+        cache.put(key, value1);
+        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, 100L);
+        Thread t1 = new Thread(r1);
+        AbstractRunnable r2 = new AbstractRunnable() {
+            @Override
+            protected Object internalRun() {
+                cache.removeAll();
+                return value2;
+            }
+        };
+        Thread t2 = new Thread(r2);
+        t1.start();
+        Thread.sleep(10L);
+        t2.start();
+        t1.join();
+        t2.join();
+        assertFalse(cache.containsKey(key));
+        assertEquals(value1, r1.asynchResult.ret);
         assertEquals(value2, r2.asynchResult.ret);
         assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
     }
@@ -691,7 +764,6 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
 
                 @Override
                 public Object process(Cache.MutableEntry<K, V> entry) {
-                    assertEquals(oldValue, entry.getValue());
                     try {
                         Thread.sleep(sleep);
                     } catch (InterruptedException e) {
