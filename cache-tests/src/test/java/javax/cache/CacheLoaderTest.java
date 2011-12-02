@@ -70,7 +70,6 @@ public class CacheLoaderTest extends TestSupport {
     public void load_NullKey() {
         Cache<Integer, Integer> cache = getCacheManager().
                 <Integer, Integer>createCacheBuilder(getTestCacheName()).build();
-        CacheLoader<Integer, Integer> cl = new MockCacheLoader<Integer, Integer>();
         try {
             cache.load(null);
             fail("should have thrown an exception - null key not allowed");
@@ -224,9 +223,9 @@ public class CacheLoaderTest extends TestSupport {
         ArrayList<Integer> keys = new ArrayList<Integer>();
         keys.add(1);
         keys.add(2);
-        Future<Map<Integer, Integer>> future = cache.loadAll(keys);
+        Future<Map<Integer, ? extends Integer>> future = cache.loadAll(keys);
         try {
-            Map<Integer, Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+            Map<Integer, ? extends Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
             assertEquals(keys.size(), map.size());
             fail("should have thrown an exception - null value");
         } catch (ExecutionException e) {
@@ -245,8 +244,8 @@ public class CacheLoaderTest extends TestSupport {
         ArrayList<Integer> keys = new ArrayList<Integer>();
         keys.add(keyThere);
         keys.add(keyNotThere);
-        Future<Map<Integer, Integer>> future = cache.loadAll(keys);
-        Map<Integer, Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+        Future<Map<Integer, ? extends Integer>> future = cache.loadAll(keys);
+        Map<Integer, ? extends Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
         assertEquals(1, map.size());
         assertEquals(keyNotThere, map.get(keyNotThere));
         assertEquals(keyThere, cache.get(keyThere));
@@ -275,8 +274,8 @@ public class CacheLoaderTest extends TestSupport {
         Cache<Integer, Integer> cache = getCacheManager().
                 <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
 
-        Future<Map<Integer, Integer>> future = cache.loadAll(keys);
-        Map<Integer, Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+        Future<Map<Integer, ? extends Integer>> future = cache.loadAll(keys);
+        Map<Integer, ? extends Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
         assertEquals(keys.size(), map.size());
         for (Integer key : keys) {
             assertEquals(key, map.get(key));
@@ -297,7 +296,7 @@ public class CacheLoaderTest extends TestSupport {
                 <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
         ArrayList<Integer> keys = new ArrayList<Integer>();
         keys.add(1);
-        Future<Map<Integer, Integer>> future = cache.loadAll(keys);
+        Future<Map<Integer, ? extends Integer>> future = cache.loadAll(keys);
         assertNotNull(future);
         try {
             future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
