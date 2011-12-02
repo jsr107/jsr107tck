@@ -84,5 +84,28 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
         assertEquals(Mode.NONE , cache.getConfiguration().getTransactionMode());
     }
 
+    /**
+     * Test various illegal combinations
+     */
+    @Test
+    public void setIncorrectIsolationLevelForTransactionalCache() throws Exception {
+        CacheManager cacheManager = getCacheManager();
+        try {
+            cacheManager.createCacheBuilder("test").setTransactionEnabled(IsolationLevel.NONE, Mode.NONE).build();
+        } catch (IllegalArgumentException e) {
+            //expected
+        }
+        try {
+            cacheManager.createCacheBuilder("test").setTransactionEnabled(IsolationLevel.READ_COMMITTED, Mode.NONE).build();
+        } catch (IllegalArgumentException e) {
+            //expected
+        }
+        try {
+            cacheManager.createCacheBuilder("test").setTransactionEnabled(IsolationLevel.NONE, Mode.LOCAL).build();
+        } catch (IllegalArgumentException e) {
+            //expected
+        }
+    }
+
     
 }

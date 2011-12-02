@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.junit.rules.MethodRule;
 
 import javax.cache.transaction.IsolationLevel;
+import javax.cache.transaction.Mode;
 import javax.cache.util.AllTestExcluder;
 import javax.cache.util.ExcludeListExcluder;
 import javax.transaction.UserTransaction;
@@ -61,6 +62,29 @@ public class CacheManagerTransactionsTest extends TestSupport {
         CacheManager cacheManager = getCacheManager();
         Cache cache = cacheManager.createCacheBuilder("test").build();
         assertEquals(IsolationLevel.NONE, cache.getConfiguration().getTransactionIsolationLevel());
+    }
+
+    /**
+     * Test various illegal combinations
+     */
+    @Test
+    public void setIncorrectIsolationLevelForTransactionalCache() throws Exception {
+        CacheManager cacheManager = getCacheManager();
+        try {
+            cacheManager.createCacheBuilder("test").setTransactionEnabled(IsolationLevel.NONE, Mode.NONE).build();
+        } catch (IllegalArgumentException e) {
+            //expected
+        }
+        try {
+            cacheManager.createCacheBuilder("test").setTransactionEnabled(IsolationLevel.READ_COMMITTED, Mode.NONE).build();
+        } catch (IllegalArgumentException e) {
+            //expected
+        }
+        try {
+            cacheManager.createCacheBuilder("test").setTransactionEnabled(IsolationLevel.NONE, Mode.LOCAL).build();
+        } catch (IllegalArgumentException e) {
+            //expected
+        }
     }
 
 
