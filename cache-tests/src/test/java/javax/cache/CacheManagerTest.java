@@ -358,24 +358,6 @@ public class CacheManagerTest extends TestSupport {
     }
 
     @Test
-    public void addImmutableClass_Null() {
-        CacheManager cacheManager = getCacheManager();
-        try {
-            cacheManager.registerImmutableClass(null);
-            fail();
-        } catch (NullPointerException e) {
-            //good
-        }
-    }
-
-    @Test
-    public void addImmutableClass_NotImmutable() {
-        CacheManager cacheManager = getCacheManager();
-        // Note: we lie - Date is mutable
-        cacheManager.registerImmutableClass(Date.class);
-    }
-    
-    @Test
     public void testUnwrap() {
         //Assumes rule will exclude this test when no unwrapClass is specified
         final Class<?> unwrapClass = getUnwrapClass(CacheManager.class);

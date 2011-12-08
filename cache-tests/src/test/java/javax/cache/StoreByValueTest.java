@@ -65,27 +65,6 @@ public class StoreByValueTest extends CacheTestSupport<Date, Date> {
     }
 
     @Test
-    public void get_DeclaredImmutable() {
-        CacheManager cacheManager = getCacheManager();
-        // Note: we lie - Date is mutable
-        cacheManager.registerImmutableClass(Date.class);
-        cacheManager.removeCache(getTestCacheName());
-        Cache<Date, Date> cache = cacheManager.<Date, Date>createCacheBuilder(getTestCacheName()).build();
-
-        long now = System.currentTimeMillis();
-        Date existingKey = new Date(now);
-        Date existingValue = new Date(now);
-        cache.put(existingKey, existingValue);
-
-        if (existingValue == cache.get(existingKey)) {
-            // we can't actually do an assertion as impl may not store by ref
-            LOG.info("Immutable was stored by reference");
-        } else {
-            assertEquals(existingValue, cache.get(existingKey));
-        }
-    }
-
-    @Test
     public void getAndPut_NotThere() {
         if (cache == null) return;
 
