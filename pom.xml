@@ -15,7 +15,6 @@
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
         <version>7</version>
-        <relativePath/>
     </parent>
 
     <modules>
@@ -24,6 +23,7 @@
         <module>cache-tests</module>
         <module>implementation-tester</module>
         <module>spring-annotations-test-harness</module>
+        <module>guice-annotations-test-harness</module>
         <module>cdi-weld-annotations-test-harness</module>
     </modules>
 
