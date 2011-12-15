@@ -24,6 +24,7 @@ import org.junit.Test;
 import javax.cache.util.ExcludeListExcluder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -196,7 +197,7 @@ public class CacheLoaderTest extends TestSupport {
         CacheLoader<Integer, Integer> cl =  new SimpleCacheLoader<Integer>();
         Cache<Integer, Integer> cache = getCacheManager().
                 <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(cl).build();
-        ArrayList<Integer> keys = new ArrayList<Integer>();
+        HashSet<Integer> keys = new HashSet<Integer>();
         keys.add(null);
         try {
             cache.loadAll(keys);
@@ -220,7 +221,7 @@ public class CacheLoaderTest extends TestSupport {
         };
         Cache<Integer, Integer> cache = getCacheManager().
                 <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(cl).build();
-        ArrayList<Integer> keys = new ArrayList<Integer>();
+        HashSet<Integer> keys = new HashSet<Integer>();
         keys.add(1);
         keys.add(2);
         Future<Map<Integer, ? extends Integer>> future = cache.loadAll(keys);
@@ -241,7 +242,7 @@ public class CacheLoaderTest extends TestSupport {
         Integer keyThere = 1;
         cache.put(keyThere, keyThere);
         Integer keyNotThere = keyThere + 1;
-        ArrayList<Integer> keys = new ArrayList<Integer>();
+        HashSet<Integer> keys = new HashSet<Integer>();
         keys.add(keyThere);
         keys.add(keyNotThere);
         Future<Map<Integer, ? extends Integer>> future = cache.loadAll(keys);
@@ -256,7 +257,7 @@ public class CacheLoaderTest extends TestSupport {
     public void loadAll_NoCacheLoader() throws Exception {
         Cache<Integer, Integer> cache = getCacheManager().
                 <Integer, Integer>createCacheBuilder(getTestCacheName()).build();
-        ArrayList<Integer> keys = new ArrayList<Integer>();
+        HashSet<Integer> keys = new HashSet<Integer>();
         keys.add(1);
         try {
             assertNull(cache.loadAll(keys));
@@ -267,9 +268,10 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void loadAll_DefaultCacheLoader() throws Exception {
-        ArrayList<Integer> keys = new ArrayList<Integer>();
+        HashSet<Integer> keys = new HashSet<Integer>();
         keys.add(1);
         keys.add(2);
+
         CacheLoader<Integer, Integer> clDefault = new SimpleCacheLoader<Integer>();
         Cache<Integer, Integer> cache = getCacheManager().
                 <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
@@ -294,7 +296,7 @@ public class CacheLoaderTest extends TestSupport {
         };
         Cache<Integer, Integer> cache = getCacheManager().
                 <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
-        ArrayList<Integer> keys = new ArrayList<Integer>();
+        HashSet<Integer> keys = new HashSet<Integer>();
         keys.add(1);
         Future<Map<Integer, ? extends Integer>> future = cache.loadAll(keys);
         assertNotNull(future);
