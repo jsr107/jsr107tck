@@ -733,10 +733,6 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     }
 
     private static class MockEntryProcessor<K, V> implements Cache.EntryProcessor<K, V> {
-        @Override
-        public Object processAll(Collection<Cache.MutableEntry<? extends K, ? extends V>> mutableEntries) {
-            throw new UnsupportedOperationException();
-        }
 
         @Override
         public Object process(Cache.MutableEntry<K, V> kvMutableEntry) {
