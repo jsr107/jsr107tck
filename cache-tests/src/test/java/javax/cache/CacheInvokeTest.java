@@ -23,7 +23,9 @@ import javax.cache.util.ExcludeListExcluder;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -302,7 +304,9 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
             protected Object internalRun() {
-                return cache.getAll(Arrays.asList(key1));
+                Set<Integer> keys = new HashSet<Integer>();
+                keys.add(key1);
+                return cache.getAll(keys);
             }
         };
         Thread t2 = new Thread(r2);

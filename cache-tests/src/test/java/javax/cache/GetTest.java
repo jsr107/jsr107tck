@@ -22,6 +22,7 @@ import org.junit.rules.MethodRule;
 
 import javax.cache.util.ExcludeListExcluder;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -122,7 +123,7 @@ public class GetTest extends CacheTestSupport<Long, String> {
 
     @Test
     public void getAll_NullKey() {
-        ArrayList<Long> keys = new ArrayList<Long>();
+        HashSet<Long> keys = new HashSet<Long>();
         keys.add(1L);
         keys.add(null);
         keys.add(2L);
@@ -143,11 +144,11 @@ public class GetTest extends CacheTestSupport<Long, String> {
             cache.put(k, "value" + k);
         }
 
-        ArrayList<Long> keysToGet = new ArrayList<Long>();
+        HashSet<Long> keysToGet = new HashSet<Long>();
         keysToGet.add(2L);
         keysToGet.add(3L);
 
-        ArrayList<Long> keysExpected = new ArrayList<Long>();
+        HashSet<Long> keysExpected = new HashSet<Long>();
         keysExpected.add(2L);
 
         Map<Long, String> map = cache.getAll(keysToGet);

@@ -341,7 +341,7 @@ public class CacheLoaderTest extends TestSupport {
         Cache<Integer, Integer> cache = getCacheManager().
                 <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
 
-        ArrayList<Integer> keysToGet = new ArrayList<Integer>();
+        HashSet<Integer> keysToGet = new HashSet<Integer>();
         keysToGet.add(1);
         keysToGet.add(2);
         keysToGet.add(3);
