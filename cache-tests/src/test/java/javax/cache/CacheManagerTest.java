@@ -24,7 +24,6 @@ import org.junit.Test;
 import javax.cache.util.ExcludeListExcluder;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
