@@ -90,8 +90,8 @@ public class JMXTest {
     /*
         TEST_CLASSES=jsr107tck/cache-tests/target/test-classes
         API_JAR=jsr107spec/target/cache-api-0.5-SNAPSHOT.jar
-        RI_JAR=jsr107ri/cache-ri-impl/target/cache-ri-impl-0.5-SNAPSHOT.jar
-        RI_COMMON_JAR=jsr107ri/cache-ri-common/target/cache-ri-common-0.5-SNAPSHOT.jar
+        RI_JAR=RI/cache-ri-impl/target/cache-ri-impl-0.5-SNAPSHOT.jar
+        RI_COMMON_JAR=RI/cache-ri-common/target/cache-ri-common-0.5-SNAPSHOT.jar
 
         TEST=javax.cache.statistics.JMXTest
 
