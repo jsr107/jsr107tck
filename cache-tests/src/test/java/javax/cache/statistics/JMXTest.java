@@ -87,9 +87,36 @@ public class JMXTest {
         Assert.assertTrue((mBeanServer.queryNames(new ObjectName("javax.cache:*"), null).size()) >= 2);
     }
 
+    /*
+        TEST_CLASSES=jsr107tck/cache-tests/target/test-classes
+        API_JAR=jsr107spec/target/cache-api-0.5-SNAPSHOT.jar
+        RI_JAR=jsr107ri/cache-ri-impl/target/cache-ri-impl-0.5-SNAPSHOT.jar
+        RI_COMMON_JAR=jsr107ri/cache-ri-common/target/cache-ri-common-0.5-SNAPSHOT.jar
 
+        TEST=javax.cache.statistics.JMXTest
 
+        CP="$TEST_CLASSES;$API_JAR;$RI_JAR;$RI_COMMON_JAR"
 
+        java -cp $CP -Dcom.sun.management.jmxremote $TEST
+    */
+    public static void main(String[] args) throws Exception {
+        System.out.println("Starting -----------------");
+        CacheManager cacheManager = Caching.getCacheManager("Yannis");
+        MBeanServerRegistrationUtility mBeanServerRegistrationUtility = null;
+        try {
+            MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+            cacheManager.createCacheBuilder("cache1").setStatisticsEnabled(true).build();
+            cacheManager.createCacheBuilder("cache2").setStatisticsEnabled(true).build();
+            mBeanServerRegistrationUtility = new MBeanServerRegistrationUtility(cacheManager, mBeanServer);
 
+            ObjectName search = new ObjectName("javax.cache:*");
+            System.out.println("size=" + mBeanServer.queryNames(search, null).size());
+            Thread.sleep(60 * 1000);
+            System.out.println("Done -----------------");
+        } finally {
+            if (mBeanServerRegistrationUtility != null) mBeanServerRegistrationUtility.dispose();
+            cacheManager.shutdown();
+        }
+    }
 }
 

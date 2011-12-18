@@ -20,8 +20,8 @@ package javax.cache.statistics;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
+import javax.cache.mbeans.CacheMXBean;
 import javax.cache.CacheManager;
-import javax.cache.CacheStatistics;
 import javax.cache.Status;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanRegistrationException;
@@ -96,9 +96,10 @@ public class MBeanServerRegistrationUtility {
 
     private void registerCacheStatistics(Cache cache) throws InstanceAlreadyExistsException,
             MBeanRegistrationException, NotCompliantMBeanException {
-        CacheStatistics cacheStatistics = cache.getStatistics();
-        if (cacheStatistics != null) {
-            mBeanServer.registerMBean(cacheStatistics, calculateObjectName(cacheManager.getName(), cacheStatistics.getName()));
+        CacheMXBean mBean = cache.getMBean();
+        if (mBean != null) {
+            //mBeanServer.registerMBean(mBean, calculateObjectName(cacheManager.getName(), mBean.getName()));
+            mBeanServer.registerMBean(mBean, mBean.getObjectName());
         }
     }
 
