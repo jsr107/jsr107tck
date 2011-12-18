@@ -98,8 +98,7 @@ public class MBeanServerRegistrationUtility {
             MBeanRegistrationException, NotCompliantMBeanException {
         CacheMXBean mBean = cache.getMBean();
         if (mBean != null) {
-            //mBeanServer.registerMBean(mBean, calculateObjectName(cacheManager.getName(), mBean.getName()));
-            mBeanServer.registerMBean(mBean, mBean.getObjectName());
+            mBeanServer.registerMBean(mBean, calculateObjectName(cacheManager.getName(), mBean.getName()));
         }
     }
 
