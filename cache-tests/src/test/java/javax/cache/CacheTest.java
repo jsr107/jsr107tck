@@ -28,7 +28,6 @@ import org.junit.rules.MethodRule;
 import javax.cache.annotation.CacheRemoveAll;
 import javax.cache.event.CacheEntryEvent;
 import javax.cache.event.CacheEntryReadListener;
-import javax.cache.event.NotificationScope;
 import javax.cache.util.ExcludeListExcluder;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -190,7 +189,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     @Test
     public void registerCacheEntryListener() {
         CacheEntryReadListener<Long, String> listener = new MyCacheEntryListener<Long, String>();
-        cache.registerCacheEntryListener(listener, NotificationScope.LOCAL, false);
+        cache.registerCacheEntryListener(listener, false);
         //TODO: more
         //todo prevent null listener
     }
@@ -199,7 +198,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     @Test
     public void unregisterCacheEntryListener() {
         CacheEntryReadListener<Long, String> listener = new MyCacheEntryListener<Long, String>();
-        cache.registerCacheEntryListener(listener, NotificationScope.LOCAL, false);
+        cache.registerCacheEntryListener(listener, false);
         cache.unregisterCacheEntryListener(null);
         cache.unregisterCacheEntryListener(listener);
         //TODO: more
