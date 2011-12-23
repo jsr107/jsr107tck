@@ -19,6 +19,7 @@ package javax.cache;
 import org.junit.Rule;
 import org.junit.Test;
 
+import javax.cache.spi.CacheManagerFactory;
 import javax.cache.util.ExcludeListExcluder;
 import java.util.logging.Logger;
 
@@ -50,9 +51,19 @@ public class CachingTest {
      */
     @Test
     public void getCacheManager_singleton() {
-        CacheManager defaultCacheManager = getCacheManager();
+        CacheManager defaultCacheManager = Caching.getCacheManager();
         assertNotNull(defaultCacheManager);
-        assertSame(defaultCacheManager, getCacheManager());
+        assertSame(defaultCacheManager, Caching.getCacheManager());
+    }
+
+    @Test
+    public void getCacheManager_defaultName() {
+        assertSame(Caching.getCacheManager(),
+            Caching.getCacheManagerFactory().getCacheManager(Caching.DEFAULT_CACHE_MANAGER_NAME));
+
+        ClassLoader cl = getClass().getClassLoader();
+        assertSame(Caching.getCacheManager(cl),
+            Caching.getCacheManagerFactory().getCacheManager(cl, Caching.DEFAULT_CACHE_MANAGER_NAME));
     }
 
     /**
@@ -62,7 +73,7 @@ public class CachingTest {
      */
     @Test
     public void getCacheManager_name() {
-        CacheManager defaultCacheManager = getCacheManager();
+        CacheManager defaultCacheManager = Caching.getCacheManager();
         assertSame(Caching.DEFAULT_CACHE_MANAGER_NAME, defaultCacheManager.getName());
     }
 
@@ -73,7 +84,7 @@ public class CachingTest {
     @Test
     public void getCacheManager_named_default() {
         String name = Caching.DEFAULT_CACHE_MANAGER_NAME;
-        assertSame(getCacheManager(), getCacheManager(name));
+        assertSame(Caching.getCacheManager(), Caching.getCacheManager(name));
     }
 
     /**
@@ -83,9 +94,9 @@ public class CachingTest {
     @Test
     public void getCacheManager_named() {
         String name = Caching.DEFAULT_CACHE_MANAGER_NAME + "1";
-        CacheManager cacheManager = getCacheManager(name);
+        CacheManager cacheManager = Caching.getCacheManager(name);
         assertNotNull(cacheManager);
-        assertSame(cacheManager, getCacheManager(name));
+        assertSame(cacheManager, Caching.getCacheManager(name));
     }
 
     /**
@@ -95,7 +106,7 @@ public class CachingTest {
     @Test
     public void getCacheManager_named_name() {
         String name = Caching.DEFAULT_CACHE_MANAGER_NAME + "1";
-        assertEquals(name, getCacheManager(name).getName());
+        assertEquals(name, Caching.getCacheManager(name).getName());
     }
 
     /**
@@ -105,7 +116,7 @@ public class CachingTest {
     @Test
     public void getCacheManager_named_notDefault() {
         String name = Caching.DEFAULT_CACHE_MANAGER_NAME + "1";
-        assertNotSame(getCacheManager(), getCacheManager(name));
+        assertNotSame(Caching.getCacheManager(), Caching.getCacheManager(name));
     }
 
     /**
@@ -116,24 +127,32 @@ public class CachingTest {
     public void getCacheManager_named_different() {
         String name1 = Caching.DEFAULT_CACHE_MANAGER_NAME + "1";
         String name2 = Caching.DEFAULT_CACHE_MANAGER_NAME + "2";
-        assertNotSame(getCacheManager(name1), getCacheManager(name2));
+        assertNotSame(Caching.getCacheManager(name1), Caching.getCacheManager(name2));
     }
 
     @Test
     public void isSupported() {
         OptionalFeature[] features = OptionalFeature.values();
         for (OptionalFeature feature:features) {
-            boolean value = isSupported(feature);
+            boolean value = Caching.isSupported(feature);
             Logger.getLogger(getClass().getName()).info("Optional feature " + feature + " supported=" + value);
         }
     }
 
     @Test
-    public void release() {
-        CacheManager cacheManager = getCacheManager();
-        assertSame(cacheManager, getCacheManager());
-        shutdown();
-        assertNotSame(cacheManager, getCacheManager());
+    public void close() {
+        CacheManager cacheManager = Caching.getCacheManager();
+        assertSame(cacheManager, Caching.getCacheManager());
+        Caching.close();
+        assertNotSame(cacheManager, Caching.getCacheManager());
+    }
+
+    @Test
+    public void getCacheManagerFactory() {
+        CacheManagerFactory cacheManagerFactory1 = Caching.getCacheManagerFactory();
+        assertNotNull(cacheManagerFactory1);
+        CacheManagerFactory cacheManagerFactory2 = Caching.getCacheManagerFactory();
+        assertSame(cacheManagerFactory1, cacheManagerFactory2);
     }
 
     /**
@@ -143,23 +162,5 @@ public class CachingTest {
     @Test
     public void dummyTest() {
         fail();
-    }
-
-    // utilities --------------------------------------------------------------
-
-    private static CacheManager getCacheManager() {
-        return Caching.getCacheManager();
-    }
-
-    private static CacheManager getCacheManager(String name) {
-        return Caching.getCacheManager(name);
-    }
-
-    private static void shutdown() {
-        Caching.close();
-    }
-
-    private static boolean isSupported(OptionalFeature optionalFeature) {
-        return Caching.isSupported(optionalFeature);
     }
 }
