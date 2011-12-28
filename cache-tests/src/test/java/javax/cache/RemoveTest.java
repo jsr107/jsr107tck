@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.junit.rules.MethodRule;
 
 import javax.cache.util.ExcludeListExcluder;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -291,7 +291,7 @@ public class RemoveTest extends CacheTestSupport<Long, String> {
 
     @Test
     public void removeAll_1arg_NullKey() {
-        ArrayList<Long> keys = new ArrayList<Long>();
+        HashSet<Long> keys = new HashSet<Long>();
         keys.add(null);
 
         try {

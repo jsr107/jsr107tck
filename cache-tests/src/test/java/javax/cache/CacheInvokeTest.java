@@ -20,7 +20,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import javax.cache.util.ExcludeListExcluder;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -633,7 +632,9 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
             protected Object internalRun() {
-                cache.removeAll(Arrays.asList(key));
+                HashSet<Integer> keys = new HashSet<Integer>();
+                keys.add(key);
+                cache.removeAll(keys);
                 return value2;
             }
         };
