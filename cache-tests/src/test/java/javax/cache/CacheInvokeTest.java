@@ -39,9 +39,8 @@ import static org.junit.Assert.fail;
  * @since 1.0
  */
 public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
-    private static long SLEEP_HIGH = 100L;
+    private static long SLEEP_HIGH = 10L;
     private static long SLEEP_LOW = 1L;
-    private static long SLEEP_MID = SLEEP_HIGH/2;
 
     /**
      * Rule used to exclude tests
@@ -166,7 +165,6 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
             @Override
             public Object process(Cache.MutableEntry<Integer, String> entry) {
                 assertTrue(entry.exists());
-                String value1 = entry.getValue();
                 assertEquals(oldValue, entry.getValue());
                 entry.setValue(newValue);
                 assertTrue(entry.exists());
@@ -253,12 +251,12 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value3 = "a3";
 
         cache.put(key, value1);
-        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new MyProcessorRunnable<Integer, String>(cache, key, value2, value3, SLEEP_LOW);
         Thread t2 = new Thread(r2);
         t1.start();
-        Thread.sleep(SLEEP_MID);
+        r1.waitForStarted();
         t2.start();
         t1.join();
         t2.join();
@@ -275,7 +273,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value2 = "a2";
 
         cache.put(key, value1);
-        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -285,7 +283,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         };
         Thread t2 = new Thread(r2);
         t1.start();
-        Thread.sleep(SLEEP_MID);
+        r1.waitForStarted();
         t2.start();
         t1.join();
         t2.join();
@@ -302,7 +300,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value2 = "a2";
 
         cache.put(key1, value1);
-        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key1, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key1, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -314,7 +312,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         };
         Thread t2 = new Thread(r2);
         t1.start();
-        Thread.sleep(SLEEP_MID);
+        r1.waitForStarted();
         t2.start();
         t1.join();
         t2.join();
@@ -330,7 +328,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value1 = null;
         final String value2 = "a1";
 
-        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -340,7 +338,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         };
         Thread t2 = new Thread(r2);
         t1.start();
-        Thread.sleep(SLEEP_MID);
+        r1.waitForStarted();
         t2.start();
         t1.join();
         t2.join();
@@ -358,7 +356,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value3 = "a3";
 
         cache.put(key, value1);
-        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -369,35 +367,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         };
         Thread t2 = new Thread(r2);
         t1.start();
-        Thread.sleep(SLEEP_MID);
-        t2.start();
-        t1.join();
-        t2.join();
-        assertEquals(value3, cache.get(key));
-        assertEquals(value1, r1.asynchResult.ret);
-        assertEquals(value2, r2.asynchResult.ret);
-        assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
-    }
-
-    @Test
-    public void putProcessor() throws Exception {
-        final Integer key = 123;
-        final String value1 = "a1";
-        final String value2 = "a2";
-        final String value3 = "a3";
-
-        AbstractRunnable r1 = new AbstractRunnable() {
-            @Override
-            protected Object internalRun() {
-                cache.put(key, value2);
-                return value1;
-            }
-        };
-        Thread t1 = new Thread(r1);
-        AbstractRunnable r2 = new MyProcessorRunnable<Integer, String>(cache, key, value2, value3, SLEEP_LOW);
-        Thread t2 = new Thread(r2);
-        t1.start();
-        Thread.sleep(SLEEP_MID);
+        r1.waitForStarted();
         t2.start();
         t1.join();
         t2.join();
@@ -415,7 +385,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value3 = "a3";
 
         cache.put(key, value1);
-        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -425,35 +395,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         };
         Thread t2 = new Thread(r2);
         t1.start();
-        Thread.sleep(SLEEP_MID);
-        t2.start();
-        t1.join();
-        t2.join();
-        assertEquals(value3, cache.get(key));
-        assertEquals(value1, r1.asynchResult.ret);
-        assertEquals(value2, r2.asynchResult.ret);
-        assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
-    }
-
-    @Test
-    public void getAndPutProcessor() throws Exception {
-        final Integer key = 123;
-        final String value1 = "a1";
-        final String value2 = "a2";
-        final String value3 = "a3";
-
-        cache.put(key, value1);
-        AbstractRunnable r1 = new AbstractRunnable() {
-            @Override
-            protected Object internalRun() {
-                return cache.getAndPut(key, value2);
-            }
-        };
-        Thread t1 = new Thread(r1);
-        AbstractRunnable r2 = new MyProcessorRunnable<Integer, String>(cache, key, value2, value3, SLEEP_LOW);
-        Thread t2 = new Thread(r2);
-        t1.start();
-        Thread.sleep(SLEEP_MID);
+        r1.waitForStarted();
         t2.start();
         t1.join();
         t2.join();
@@ -471,7 +413,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value3 = "a3";
 
         cache.put(key, value1);
-        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -484,7 +426,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         };
         Thread t2 = new Thread(r2);
         t1.start();
-        Thread.sleep(SLEEP_MID);
+        r1.waitForStarted();
         t2.start();
         t1.join();
         t2.join();
@@ -501,7 +443,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value2 = "a2";
         final String value3 = "a3";
 
-        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -511,7 +453,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         };
         Thread t2 = new Thread(r2);
         t1.start();
-        Thread.sleep(SLEEP_MID);
+        r1.waitForStarted();
         t2.start();
         t1.join();
         t2.join();
@@ -527,7 +469,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value1 = null;
         final String value2 = "a2";
 
-        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -537,7 +479,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         };
         Thread t2 = new Thread(r2);
         t1.start();
-        Thread.sleep(SLEEP_MID);
+        r1.waitForStarted();
         t2.start();
         t1.join();
         t2.join();
@@ -553,7 +495,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value1 = null;
         final String value2 = "a2";
 
-        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -563,7 +505,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         };
         Thread t2 = new Thread(r2);
         t1.start();
-        Thread.sleep(SLEEP_MID);
+        r1.waitForStarted();
         t2.start();
         t1.join();
         t2.join();
@@ -579,7 +521,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value1 = null;
         final String value2 = "a2";
 
-        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -589,7 +531,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         };
         Thread t2 = new Thread(r2);
         t1.start();
-        Thread.sleep(SLEEP_MID);
+        r1.waitForStarted();
         t2.start();
         t1.join();
         t2.join();
@@ -606,7 +548,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value2 = "a2";
         final String value3 = "a3";
 
-        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -616,7 +558,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         };
         Thread t2 = new Thread(r2);
         t1.start();
-        Thread.sleep(SLEEP_MID);
+        r1.waitForStarted();
         t2.start();
         t1.join();
         t2.join();
@@ -633,7 +575,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value2 = "a2";
         final String value3 = "a3";
 
-        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -643,7 +585,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         };
         Thread t2 = new Thread(r2);
         t1.start();
-        Thread.sleep(SLEEP_MID);
+        r1.waitForStarted();
         t2.start();
         t1.join();
         t2.join();
@@ -660,7 +602,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value2 = "a2";
         final String value3 = "a3";
 
-        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -670,7 +612,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         };
         Thread t2 = new Thread(r2);
         t1.start();
-        Thread.sleep(SLEEP_MID);
+        r1.waitForStarted();
         t2.start();
         t1.join();
         t2.join();
@@ -686,7 +628,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value1 = null;
         final String value2 = "a2";
 
-        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -697,7 +639,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         };
         Thread t2 = new Thread(r2);
         t1.start();
-        Thread.sleep(SLEEP_MID);
+        r1.waitForStarted();
         t2.start();
         t1.join();
         t2.join();
@@ -714,7 +656,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value2 = "a2";
 
         cache.put(key, value1);
-        AbstractRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -725,7 +667,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         };
         Thread t2 = new Thread(r2);
         t1.start();
-        Thread.sleep(SLEEP_MID);
+        r1.waitForStarted();
         t2.start();
         t1.join();
         t2.join();
@@ -749,6 +691,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         protected final V oldValue;
         protected final V newValue;
         protected final long sleep;
+        private final Synchronizer synchronizer;
 
         public MyProcessorRunnable(Cache<K, V> cache, K key, V oldValue, V newValue, long sleep) {
             this.cache = cache;
@@ -756,6 +699,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
             this.oldValue = oldValue;
             this.newValue = newValue;
             this.sleep = sleep;
+            this.synchronizer = new Synchronizer();
         }
 
         @Override
@@ -765,6 +709,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
                 @Override
                 public Object process(Cache.MutableEntry<K, V> entry) {
                     try {
+                        synchronizer.setReady(true);
                         Thread.sleep(sleep);
                     } catch (InterruptedException e) {
                         //
@@ -775,6 +720,10 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
             };
             cache.invokeEntryProcessor(key, processor);
             return oldValue;
+        }
+
+        public void waitForStarted() throws InterruptedException {
+            synchronizer.waitForReady();
         }
     }
 
@@ -801,5 +750,20 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         public long outTime;
         public Object ret;
         public Throwable throwable;
+    }
+
+    private static class Synchronizer {
+        private boolean ready = false;
+
+        public synchronized void setReady(boolean ready) {
+            this.ready = ready;
+            notifyAll();
+        }
+        
+        public synchronized void waitForReady() throws InterruptedException {
+            while (!ready) {
+                this.wait(SLEEP_HIGH);
+            }
+        }
     }
 }
