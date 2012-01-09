@@ -39,6 +39,7 @@ import java.util.logging.Logger;
 /**
  * Tests the Cache Statistics using the platform MBeanServer
  * @author Greg Luck
+ * @since 1.0
  */
 public class JMXTest {
 
