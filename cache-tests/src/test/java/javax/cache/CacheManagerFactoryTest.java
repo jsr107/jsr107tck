@@ -18,8 +18,6 @@ package javax.cache;
 
 import org.junit.Test;
 
-import javax.cache.spi.CacheManagerFactory;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
@@ -27,12 +25,12 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
 /**
- * Tests the {@link javax.cache.spi.CacheManagerFactory} class.
+ * Tests the {@link CacheManagerFactory} class.
  *
  * @author Yannis Cosmadopoulos
  * @since 1.0
  *
- * @see javax.cache.spi.CacheManagerFactory
+ * @see CacheManagerFactory
  */
 public class CacheManagerFactoryTest {
     private static final String CACHE_MANAGER_NAME = CacheManagerFactoryTest.class.getName();

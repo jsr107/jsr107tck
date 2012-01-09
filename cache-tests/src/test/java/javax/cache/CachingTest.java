@@ -19,7 +19,6 @@ package javax.cache;
 import org.junit.Rule;
 import org.junit.Test;
 
-import javax.cache.spi.CacheManagerFactory;
 import javax.cache.util.ExcludeListExcluder;
 import java.util.logging.Logger;
 
