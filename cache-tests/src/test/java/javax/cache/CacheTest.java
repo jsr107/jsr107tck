@@ -189,7 +189,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     @Test
     public void registerCacheEntryListener() {
         CacheEntryReadListener<Long, String> listener = new MyCacheEntryListener<Long, String>();
-        cache.registerCacheEntryListener(listener, false);
+        cache.registerCacheEntryListener(listener, null);
         //TODO: more
         //todo prevent null listener
     }
@@ -198,7 +198,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     @Test
     public void unregisterCacheEntryListener() {
         CacheEntryReadListener<Long, String> listener = new MyCacheEntryListener<Long, String>();
-        cache.registerCacheEntryListener(listener, false);
+        cache.registerCacheEntryListener(listener, null);
         cache.unregisterCacheEntryListener(null);
         cache.unregisterCacheEntryListener(listener);
         //TODO: more
