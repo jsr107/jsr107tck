@@ -189,7 +189,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     @Test
     public void registerCacheEntryListener() {
         CacheEntryReadListener<Long, String> listener = new MyCacheEntryListener<Long, String>();
-        cache.registerCacheEntryListener(listener, null);
+        cache.registerCacheEntryListener(listener);
         //TODO: more
         //todo prevent null listener
     }
@@ -198,7 +198,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     @Test
     public void unregisterCacheEntryListener() {
         CacheEntryReadListener<Long, String> listener = new MyCacheEntryListener<Long, String>();
-        cache.registerCacheEntryListener(listener, null);
+        cache.registerCacheEntryListener(listener);
         cache.unregisterCacheEntryListener(null);
         cache.unregisterCacheEntryListener(listener);
         //TODO: more
@@ -332,16 +332,6 @@ public class CacheTest extends CacheTestSupport<Long, String> {
          */
         @Override
         public void entryRead(CacheEntryEvent<? extends K, ? extends V> event) {
-            //
-        }
-
-        /**
-         * Called after the entries have been read. Only entries which existed in the cache are passed in.
-         *
-         * @param events The events just read.
-         */
-        @Override
-        public void entriesRead(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) {
             //
         }
     }
