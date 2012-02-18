@@ -18,6 +18,8 @@ package javax.cache.annotation;
 
 import domain.Blog;
 import manager.BlogManager;
+
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -32,6 +34,11 @@ import static org.junit.Assert.assertNull;
  */
 public abstract class AbstractBlogManagerInterceptionTest extends AbstractInterceptionTest {
     protected abstract BlogManager getBlogManager();
+    
+    @Before
+    public void before() {
+        this.getBlogManager().clearCache();
+    }
     
     /**
      *

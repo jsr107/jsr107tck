@@ -33,9 +33,11 @@
         <implementation-version>${project.parent.version}</implementation-version>
         
         <annotation-harness-groupId>javax.cache</annotation-harness-groupId>
-        <!-- <annotation-harness-artifactId>cdi-weld-annotations-test-harness</annotation-harness-artifactId>-->
-        <!-- <annotation-harness-artifactId>spring-annotations-test-harness</annotation-harness-artifactId> -->
         <annotation-harness-artifactId>guice-annotations-test-harness</annotation-harness-artifactId>
+        <!-- 
+        <annotation-harness-artifactId>cdi-weld-annotations-test-harness</annotation-harness-artifactId>
+        <annotation-harness-artifactId>spring-annotations-test-harness</annotation-harness-artifactId>
+        -->
         <annotation-harness-version>${project.parent.version}</annotation-harness-version>
         
         <!-- Used by the unwrap tests, leave blank and the tests will be ignored -->

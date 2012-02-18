@@ -141,16 +141,13 @@
                     <!--<version>0.1-SNAPSHOT</version>-->
 
                 </dependency>
-<!--
                 <dependency>
                     <groupId>javax.cache</groupId>
                     <artifactId>spring-annotations-test-harness</artifactId>
-                    <version>${project.parent.version}</version>
-                </dependency>
--->
-                <dependency>
-                    <groupId>javax.cache</groupId>
+<!--
                     <artifactId>guice-annotations-test-harness</artifactId>
+                    <artifactId>cdi-annotations-test-harness</artifactId>
+-->
                     <version>${project.parent.version}</version>
                 </dependency>
             </dependencies>
