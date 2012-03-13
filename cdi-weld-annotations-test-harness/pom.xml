@@ -9,7 +9,7 @@
     <parent>
         <groupId>javax.cache</groupId>
         <artifactId>tck-parent</artifactId>
-        <version>0.5-SNAPSHOT</version>
+        <version>0.5</version>
     </parent>
 
     <name>CDI/Weld Annotations Test Harness</name>
