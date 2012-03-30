@@ -18,7 +18,7 @@
 package domain;
 
 /**
- *  A hound which is a dog most characterised by it's sound, a cross between a howl and a bark.
+ *  A hound which is a dog most characterised by its sound, a cross between a howl and a bark.
  *
  *  @author Greg Luck
  */

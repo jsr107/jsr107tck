@@ -13,7 +13,7 @@
     </parent>
     <name>App Domain</name>
     <url>https://github.com/jsr107/jsr107tck</url>
-    <description>This is a simple domain used for testing javax.cache. It is in it's own module so that classloading
+    <description>This is a simple domain used for testing javax.cache. It is in its own module so that classloading
         nuances can be tested.
 
         The app domain is not loaded by maven into the test system classpath.

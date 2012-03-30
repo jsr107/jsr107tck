@@ -18,7 +18,7 @@
 package domain;
 
 /**
- *  A Collie which is can be characterised by it's herding instinct.
+ *  A Collie which is can be characterised by its herding instinct.
  *
  *  @author Greg Luck
  */
