@@ -51,7 +51,7 @@ Finally, to run a single test class:
         -Dimplementation-groupId=javax.cache.implementation \
         -Dimplementation-artifactId=cache-ri \
         -Dimplementation-version=0.2 \
-        -Dtest=CacheManagerFactoryTest \
+        -Dtest=CachingTest \
         test
 
 An example for something other than the RI, a cache implementation by the fictional Acme company,
@@ -63,11 +63,11 @@ illustrates Acme cache failing to pass the TCK:
         -Dimplementation-version=0.1 \
         test
 
-The single class CacheManagerFactoryTest passes for Acme cache
+The single class CachingTest passes for Acme cache
 
     mvn \
         -Dimplementation-groupId=acme.cache \
         -Dimplementation-artifactId=acme-cache \
         -Dimplementation-version=0.1 \
-        -Dtest=CacheManagerFactoryTest \
+        -Dtest=CachingTest \
         test

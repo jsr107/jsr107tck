@@ -21,7 +21,7 @@
  The tests use JUnit and should run both from an IDE and Maven using the supplied pom.xml.
 
  All optional features are in their own test classes with a MethodRule used to exclude them if the
- implementation does not support the feature as interrogated by a capabilities on CacheManagerFactoryProvider.
+ implementation does not support the feature as interrogated by a capabilities on CachingProvider
 
 
  @author Yannis Cosmadopoulos
