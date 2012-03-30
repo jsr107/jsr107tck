@@ -24,11 +24,11 @@ import com.google.inject.Provider;
 import manager.CacheNameOnEachMethodBlogManagerImpl;
 import manager.ClassLevelCacheConfigBlogManagerImpl;
 import manager.UsingDefaultCacheNameBlogManagerImpl;
+import org.jsr107.ri.annotations.guice.module.CacheAnnotationsModule;
 
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.annotation.BeanProvider;
-import javax.cache.annotation.impl.guice.module.CacheAnnotationsModule;
 import java.util.logging.Logger;
 
 /**
