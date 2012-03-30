@@ -1,1 +1,1 @@
-javax.cache.annotation.impl.cdi.test.CdiBeanProvider
+org.jsr107.tck.annotations.cdi.test.CdiBeanProvider

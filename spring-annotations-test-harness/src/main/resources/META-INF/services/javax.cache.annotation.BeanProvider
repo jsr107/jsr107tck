@@ -1,1 +1,1 @@
-javax.cache.annotation.impl.spring.test.SpringBeanProvider
+org.jsr107.tck.annotations.spring.test.SpringBeanProvider
