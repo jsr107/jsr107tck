@@ -42,19 +42,6 @@
             <artifactId>cache-api</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-<!-- 
-        <dependency>
-            <groupId>javax.cache</groupId>
-            <artifactId>cdi-utils-api</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.cache</groupId>
-            <artifactId>cdi-utils-weld</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
- -->
         <dependency>
             <groupId>javax.transaction</groupId>
             <artifactId>jta</artifactId>
