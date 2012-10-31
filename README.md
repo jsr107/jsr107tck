@@ -30,7 +30,7 @@ The following commands should be run from the implementation-tester directory:
 To run basic tests on the RI:
 
     mvn \
-        -Dimplementation-groupId=javax.cache.implementation \
+        -Dimplementation-groupId=org.jsr107.ri \
         -Dimplementation-artifactId=cache-ri \
         -Dimplementation-version=0.2 \
         -P test-basic-cache \
@@ -39,7 +39,7 @@ To run basic tests on the RI:
 The optional features are JTA and Annotations. To run optional tests:
 
     mvn \
-        -Dimplementation-groupId=javax.cache.implementation \
+        -Dimplementation-groupId=org.jsr107.ri \
         -Dimplementation-artifactId=cache-ri \
         -Dimplementation-version=0.2 \
         -P test-optional-cache \
@@ -48,7 +48,7 @@ The optional features are JTA and Annotations. To run optional tests:
 Finally, to run a single test class:
 
     mvn \
-        -Dimplementation-groupId=javax.cache.implementation \
+        -Dimplementation-groupId=org.jsr107.ri \
         -Dimplementation-artifactId=cache-ri \
         -Dimplementation-version=0.2 \
         -Dtest=CacheManagerFactoryTest \

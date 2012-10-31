@@ -11,7 +11,7 @@ The exclude list for the TCK is here:
 
 Please note that the exclude list is part of the formal TCK and cannot be modified by implementers.
 
-## Running tests against a javax.cache implementation
+## Running tests against a org.jsr107.ri
 
 For implementations hosted in a maven repository, the TCK can be run directly from this directory using maven.
 No file modifications are necessary, the dependency to the implementation under test being provided using
