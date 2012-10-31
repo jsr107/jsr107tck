@@ -119,7 +119,7 @@
             <dependencies>
                 <dependency>
 
-                    <groupId>javax.cache.implementation</groupId>
+                    <groupId>org.jsr107.ri</groupId>
                     <artifactId>cache-ri-impl</artifactId>
                     <version>${project.parent.version}</version>
 

@@ -28,7 +28,7 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>javax.cache.implementation</groupId>
+            <groupId>org.jsr107.ri</groupId>
             <artifactId>cache-annotations-ri-cdi</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
