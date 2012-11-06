@@ -108,36 +108,33 @@
         </repository>
 
     </repositories>
-    
+
     <profiles>
-        <!-- Profile to be used by an IDE environment to make the tests work in the IDE -->
+        <!-- Turn this on to run TCK tests from the IDE. Without it no caching provider will be found. -->
         <profile>
-            <id>ide-test-deps</id>
+            <id>run_tests_from_ide</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
+
             <dependencies>
                 <dependency>
-
                     <groupId>org.jsr107.ri</groupId>
                     <artifactId>cache-ri-impl</artifactId>
                     <version>${project.parent.version}</version>
-
                     <!--<groupId>oracle</groupId>-->
                     <!--<artifactId>coherence.jsr107</artifactId>-->
                     <!--<version>0.1-SNAPSHOT</version>-->
-
                 </dependency>
                 <dependency>
                     <groupId>javax.cache</groupId>
-                    <artifactId>spring-annotations-test-harness</artifactId>
-<!--
-                    <artifactId>guice-annotations-test-harness</artifactId>
-                    <artifactId>cdi-annotations-test-harness</artifactId>
--->
+                    <!--<artifactId>spring-annotations-test-harness</artifactId>-->
+                    <!--<artifactId>guice-annotations-test-harness</artifactId>-->
+                    <artifactId>cdi-weld-annotations-test-harness</artifactId>
                     <version>${project.parent.version}</version>
                 </dependency>
             </dependencies>
         </profile>
     </profiles>
+
 </project>
