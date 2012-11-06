@@ -33,14 +33,17 @@ import javax.cache.Caching;
 import javax.cache.Status;
 import javax.cache.annotation.CacheRemoveAll;
 import javax.cache.event.CacheEntryEvent;
+import javax.cache.event.CacheEntryListenerException;
 import javax.cache.event.CacheEntryReadListener;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -52,13 +55,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
- * Unit tests for Cache.
+ * Unit tests for Cache Listeners.
  * <p/>
- * When it matters whether the cache is stored by reference or by value,
- * see {@link org.jsr107.tck.StoreByValueTest} and
- * {@link org.jsr107.tck.StoreByReferenceTest}.
- *
- * @author Yannis Cosmadopoulos
+ * @author Greg Luck
  * @since 1.0
  */
 public class CacheListenerTest extends CacheTestSupport<Long, String> {
@@ -83,13 +82,29 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     };
 
 
+    /**
+     * Null listeners are not allowed
+     */
+    @Test
+    public void registerNullCacheEntryListener() {
 
+        try {
+            cache.registerCacheEntryListener(null, false, null, true);
+        } catch (CacheEntryListenerException e) {
+            //expected
+        }
+    }
+
+    /**
+     * Check the listener is getting reads
+     */
     @Test
     public void registerCacheEntryListener() {
-        CacheEntryReadListener<Long, String> listener = new MyCacheEntryListener<Long, String>();
+        MyCacheEntryListener<Long, String> listener = new MyCacheEntryListener<Long, String>();
         cache.registerCacheEntryListener(listener, false, null, true);
-        //TODO: more
-        //todo prevent null listener
+        cache.put(1l, "dog");
+        cache.get(1l);
+        assertEquals(1, listener.getReads());
     }
 
 
@@ -114,17 +129,28 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
      */
     static class MyCacheEntryListener<K, V> implements CacheEntryReadListener<K, V> {
 
+        AtomicInteger reads = new AtomicInteger();
+
+        ArrayList<CacheEntryEvent<K,V>> entries = new ArrayList<CacheEntryEvent<K, V>>();
+
 
         /**
          * Called after the entry has been read. If no entry existed for the key the event is not called.
          * This method is not called if a batch operation was performed.
          *
          * @param event The event just read.
-         * @see #entriesRead(Iterable)
          */
         @Override
         public void entryRead(CacheEntryEvent<? extends K, ? extends V> event) {
-            //
+            reads.incrementAndGet();
+        }
+
+        public int getReads() {
+            return reads.get();
+        }
+
+        public ArrayList<CacheEntryEvent<K, V>> getEntries() {
+            return entries;
         }
     }
 }
