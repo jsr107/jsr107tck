@@ -192,24 +192,6 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     }
 
     @Test
-    public void registerCacheEntryListener() {
-        CacheEntryReadListener<Long, String> listener = new MyCacheEntryListener<Long, String>();
-        cache.registerCacheEntryListener(listener, false, null, true);
-        //TODO: more
-        //todo prevent null listener
-    }
-
-
-    @Test
-    public void unregisterCacheEntryListener() {
-        CacheEntryReadListener<Long, String> listener = new MyCacheEntryListener<Long, String>();
-        cache.registerCacheEntryListener(listener, false, null, true);
-        cache.unregisterCacheEntryListener(null);
-        cache.unregisterCacheEntryListener(listener);
-        //TODO: more
-    }
-
-    @Test
     public void getConfiguration_Mutation() {
         CacheConfiguration config = cache.getConfiguration();
 
@@ -316,28 +298,4 @@ public class CacheTest extends CacheTestSupport<Long, String> {
        assertTrue(foundRemoveAllAnnotation);
     }
 
-
-    // ---------- utilities ----------
-
-    /**
-     * Test listener
-     *
-     * @param <K>
-     * @param <V>
-     */
-    static class MyCacheEntryListener<K, V> implements CacheEntryReadListener<K, V> {
-
-
-        /**
-         * Called after the entry has been read. If no entry existed for the key the event is not called.
-         * This method is not called if a batch operation was performed.
-         *
-         * @param event The event just read.
-         * @see #entriesRead(Iterable)
-         */
-        @Override
-        public void entryRead(CacheEntryEvent<? extends K, ? extends V> event) {
-            //
-        }
-    }
 }
