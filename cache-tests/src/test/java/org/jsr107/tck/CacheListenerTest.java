@@ -112,9 +112,9 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     public void unregisterCacheEntryListener() {
         CacheEntryReadListener<Long, String> listener = new MyCacheEntryListener<Long, String>();
         cache.registerCacheEntryListener(listener, false, null, true);
-        cache.unregisterCacheEntryListener(null);
-        cache.unregisterCacheEntryListener(listener);
-        //TODO: more
+        assertFalse(cache.unregisterCacheEntryListener(null));
+        assertTrue(cache.unregisterCacheEntryListener(listener));
+        assertFalse(cache.unregisterCacheEntryListener(listener));
     }
 
 
