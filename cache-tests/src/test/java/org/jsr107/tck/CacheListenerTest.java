@@ -31,6 +31,8 @@ import javax.cache.event.CacheEntryReadListener;
 import javax.cache.event.CacheEntryRemovedListener;
 import javax.cache.event.CacheEntryUpdatedListener;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
@@ -91,15 +93,26 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
 
-        cache.put(1l, "dog");
+        cache.put(1l, "Sooty");
         assertEquals(1, listener.getCreated());
         assertEquals(0, listener.getUpdated());
         assertEquals(0, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
 
+
+        Map<Long, String> entries = new HashMap<Long, String>();
+        entries.put(2l, "Lucky");
+        entries.put(3l, "Prince");
+        cache.putAll(entries);
+        assertEquals(3, listener.getCreated());
+        assertEquals(0, listener.getUpdated());
+        assertEquals(0, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(0, listener.getRemoved());
+
         cache.get(1l);
-        assertEquals(1, listener.getCreated());
+        assertEquals(3, listener.getCreated());
         assertEquals(0, listener.getUpdated());
         assertEquals(1, listener.getReads());
         assertEquals(0, listener.getExpired());
@@ -163,8 +176,10 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         }
 
         @Override
-        public void onCreated(Iterable iterable) throws CacheEntryListenerException {
-            created.incrementAndGet();
+        public void onCreated(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
+            for (CacheEntryEvent<? extends K, ? extends V> event : events) {
+                created.incrementAndGet();
+            }
         }
 
         @Override
