@@ -23,4 +23,4 @@
 
  @author Greg Luck
  */
-package javax.cache.annotation;
+package org.jsr107.tck.annotation;

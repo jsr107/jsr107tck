@@ -18,12 +18,12 @@
 package org.jsr107.tck;
 
 import org.jsr107.tck.util.ExcludeListExcluder;
+import org.jsr107.tck.util.TCKCacheConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import javax.cache.Cache;
-import javax.cache.CacheException;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.CachingShutdownException;
@@ -79,11 +79,22 @@ public class CacheManagerTest extends TestSupport {
     }
 
     @Test
-    public void createCacheBuilder_NullCacheName() {
+    public void configureCache_NullCacheName() {
         CacheManager cacheManager = getCacheManager();
         try {
-            cacheManager.createCacheBuilder(null);
+            cacheManager.configureCache(null, new TCKCacheConfiguration());
             fail("should have thrown an exception - null cache name not allowed");
+        } catch (NullPointerException e) {
+            //good
+        }
+    }
+    
+    @Test
+    public void configureCache_NullCacheConfiguration() {
+        CacheManager cacheManager = getCacheManager();
+        try {
+            cacheManager.configureCache("cache", null);
+            fail("should have thrown an exception - null cache configuration not allowed");
         } catch (NullPointerException e) {
             //good
         }
@@ -93,21 +104,21 @@ public class CacheManagerTest extends TestSupport {
     public void createCache_Same() {
         String name = "c1";
         CacheManager cacheManager = getCacheManager();
-        Cache cache = cacheManager.createCacheBuilder(name).build();
+        Cache cache = cacheManager.configureCache(name, new TCKCacheConfiguration());
         assertSame(cache, cacheManager.getCache(name));
     }
 
     @Test
     public void createCache_NameOK() {
         String name = "c1";
-        Cache cache = getCacheManager().createCacheBuilder(name).build();
+        Cache cache = getCacheManager().configureCache(name, new TCKCacheConfiguration());
         assertEquals(name, cache.getName());
     }
 
     @Test
     public void createCache_StatusOK() {
         String name = "c1";
-        Cache cache = getCacheManager().createCacheBuilder(name).build();
+        Cache cache = getCacheManager().configureCache(name, new TCKCacheConfiguration());
         assertSame(Status.STARTED, cache.getStatus());
     }
 
@@ -115,11 +126,11 @@ public class CacheManagerTest extends TestSupport {
     public void createCache_Different() {
         String name1 = "c1";
         CacheManager cacheManager = getCacheManager();
-        Cache cache1 = cacheManager.createCacheBuilder(name1).build();
+        Cache cache1 = cacheManager.configureCache(name1, new TCKCacheConfiguration());
         assertEquals(Status.STARTED, cache1.getStatus());
 
         String name2 = "c2";
-        Cache cache2 = cacheManager.createCacheBuilder(name2).build();
+        Cache cache2 = cacheManager.configureCache(name2, new TCKCacheConfiguration());
         assertEquals(Status.STARTED, cache2.getStatus());
 
         assertEquals(cache1, cacheManager.getCache(name1));
@@ -130,15 +141,12 @@ public class CacheManagerTest extends TestSupport {
     public void createCache_DifferentSameName() {
         CacheManager cacheManager = getCacheManager();
         String name1 = "c1";
-        Cache cache1 = cacheManager.createCacheBuilder(name1).build();
+        Cache cache1 = cacheManager.configureCache(name1, new TCKCacheConfiguration());
         assertEquals(cache1, cacheManager.getCache(name1));
         checkStarted(cache1);
 
-        try {
-            Cache cache2 = cacheManager.createCacheBuilder(name1).build();
-        } catch (CacheException e) {
-            //expected
-        }
+        Cache cache2 = cacheManager.configureCache(name1, new TCKCacheConfiguration());
+        assertSame(cache1, cache2);
     }
 
     @Test
@@ -156,7 +164,7 @@ public class CacheManagerTest extends TestSupport {
     public void removeCache_There() {
         CacheManager cacheManager = getCacheManager();
         String name1 = "c1";
-        cacheManager.createCacheBuilder(name1).build();
+        cacheManager.configureCache(name1, new TCKCacheConfiguration());
         assertTrue(cacheManager.removeCache(name1));
         assertFalse(cacheManager.getCaches().iterator().hasNext());
     }
@@ -165,7 +173,7 @@ public class CacheManagerTest extends TestSupport {
     public void removeCache_CacheStopped() {
         CacheManager cacheManager = getCacheManager();
         String name1 = "c1";
-        Cache cache1 = cacheManager.createCacheBuilder(name1).build();
+        Cache cache1 = cacheManager.configureCache(name1, new TCKCacheConfiguration());
         cacheManager.removeCache(name1);
         checkStopped(cache1);
     }
@@ -192,8 +200,8 @@ public class CacheManagerTest extends TestSupport {
     public void shutdown_stopCalled() {
         CacheManager cacheManager = getCacheManager();
 
-        Cache cache1 = cacheManager.createCacheBuilder("c1").build();
-        Cache cache2 = cacheManager.createCacheBuilder("c2").build();
+        Cache cache1 = cacheManager.configureCache("c1", new TCKCacheConfiguration());
+        Cache cache2 = cacheManager.configureCache("c2", new TCKCacheConfiguration());
 
         cacheManager.shutdown();
 
@@ -227,8 +235,8 @@ public class CacheManagerTest extends TestSupport {
     public void shutdown_cachesEmpty() {
         CacheManager cacheManager = getCacheManager();
 
-        cacheManager.createCacheBuilder("c1").build();
-        cacheManager.createCacheBuilder("c2").build();
+        cacheManager.configureCache("c1", new TCKCacheConfiguration());
+        cacheManager.configureCache("c2", new TCKCacheConfiguration());
 
         cacheManager.shutdown();
         assertFalse(cacheManager.getCaches().iterator().hasNext());
@@ -257,7 +265,7 @@ public class CacheManagerTest extends TestSupport {
     public void getCache_There() {
         String name = this.toString();
         CacheManager cacheManager = getCacheManager();
-        Cache cache = cacheManager.createCacheBuilder(name).build();
+        Cache cache = cacheManager.configureCache(name, new TCKCacheConfiguration());
         assertSame(cache, cacheManager.getCache(name));
     }
 
@@ -277,7 +285,7 @@ public class CacheManagerTest extends TestSupport {
     public void getCache_There_Stopped() {
         String name = this.toString();
         CacheManager cacheManager = getCacheManager();
-        cacheManager.createCacheBuilder(name).build();
+        cacheManager.configureCache(name, new TCKCacheConfiguration());
         cacheManager.shutdown();
         try {
             cacheManager.getCache(name);
@@ -298,9 +306,9 @@ public class CacheManagerTest extends TestSupport {
         CacheManager cacheManager = getCacheManager();
 
         ArrayList<Cache> caches1 = new ArrayList<Cache>();
-        caches1.add(cacheManager.createCacheBuilder("c1").build());
-        caches1.add(cacheManager.createCacheBuilder("c2").build());
-        caches1.add(cacheManager.createCacheBuilder("c3").build());
+        caches1.add(cacheManager.configureCache("c1", new TCKCacheConfiguration()));
+        caches1.add(cacheManager.configureCache("c2", new TCKCacheConfiguration()));
+        caches1.add(cacheManager.configureCache("c3", new TCKCacheConfiguration()));
 
         checkCollections(caches1, cacheManager.getCaches());
     }
@@ -309,7 +317,7 @@ public class CacheManagerTest extends TestSupport {
     public void getCaches_MutateReturn() {
         CacheManager cacheManager = getCacheManager();
 
-        cacheManager.createCacheBuilder("c1").build();
+        cacheManager.configureCache("c1", new TCKCacheConfiguration());
 
         try {
             cacheManager.getCaches().iterator().remove();
@@ -325,9 +333,9 @@ public class CacheManagerTest extends TestSupport {
 
         String removeName = "c2";
         ArrayList<Cache> caches1 = new ArrayList<Cache>();
-        caches1.add(cacheManager.createCacheBuilder("c1").build());
-        cacheManager.createCacheBuilder(removeName).build();
-        caches1.add(cacheManager.createCacheBuilder("c3").build());
+        caches1.add(cacheManager.configureCache("c1", new TCKCacheConfiguration()));
+        cacheManager.configureCache(removeName, new TCKCacheConfiguration());
+        caches1.add(cacheManager.configureCache("c3", new TCKCacheConfiguration()));
 
         Iterable<Cache<?, ?>> it;
         int size;

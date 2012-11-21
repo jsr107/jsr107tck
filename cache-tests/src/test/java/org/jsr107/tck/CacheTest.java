@@ -21,6 +21,7 @@ import domain.Beagle;
 import domain.Identifier;
 import manager.CacheNameOnEachMethodBlogManagerImpl;
 import org.jsr107.tck.util.ExcludeListExcluder;
+import org.jsr107.tck.util.TCKCacheConfiguration;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -87,7 +88,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         String cacheName = "sampleCache";
         CacheManager cacheManager = getCacheManager();
         Cache<String, Integer> cache = cacheManager.getCache(cacheName);
-        cache = cacheManager.<String, Integer>createCacheBuilder(cacheName).setStoreByValue(true).build();
+        cache = cacheManager.configureCache(cacheName, new TCKCacheConfiguration<String, Integer>().setStoreByValue(true));;
 
         String key = "key";
         Integer value1 = 1;
@@ -105,7 +106,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         String cacheName = "genericsCache";
         CacheManager cacheManager = getCacheManager();
         Cache<Identifier, Beagle> cacheGeneric = cacheManager.getCache(cacheName);
-        cacheGeneric = cacheManager.<Identifier, Beagle>createCacheBuilder(cacheName).build();
+        cacheGeneric = cacheManager.configureCache(cacheName, new TCKCacheConfiguration<Identifier, Beagle>());
         Beagle pistachio = new Beagle();
         cacheGeneric.put(new Identifier("Pistachio"), pistachio);
         //Illegal with change to get(K)
@@ -275,8 +276,8 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         CacheManager cacheManager2 = Caching.getCacheManager(cl2);
         assertNotSame(cacheManager1, cacheManager2);
 
-        Cache cache1 = cacheManager1.createCacheBuilder(cacheName).build();
-        Cache cache2 = cacheManager2.createCacheBuilder(cacheName).build();
+        Cache cache1 = cacheManager1.configureCache(cacheName, new TCKCacheConfiguration());
+        Cache cache2 = cacheManager2.configureCache(cacheName, new TCKCacheConfiguration());
 
         assertSame(cacheManager1, cache1.getCacheManager());
         assertSame(cacheManager2, cache2.getCacheManager());

@@ -16,13 +16,14 @@
  */
 package org.jsr107.tck;
 
-import org.junit.After;
-import org.junit.Before;
-
-import javax.cache.Cache;
-import javax.cache.CacheBuilder;
 import java.util.Date;
 import java.util.LinkedHashMap;
+
+import javax.cache.Cache;
+
+import org.jsr107.tck.util.TCKCacheConfiguration;
+import org.junit.After;
+import org.junit.Before;
 
 /**
  * Unit test support base class
@@ -37,7 +38,7 @@ public abstract class CacheTestSupport<K,V> extends TestSupport {
 
     @Before
     public void setUp() {
-        cache = extraSetup(getCacheManager().<K,V>createCacheBuilder(getTestCacheName())).build();
+        cache = getCacheManager().configureCache(getTestCacheName(), extraSetup(new TCKCacheConfiguration<K, V>()));
     }
 
     @After
@@ -45,8 +46,8 @@ public abstract class CacheTestSupport<K,V> extends TestSupport {
         getCacheManager().removeCache(getTestCacheName());
     }
 
-    protected <A, B> CacheBuilder<A, B> extraSetup(CacheBuilder<A, B> builder) {
-        return builder;
+    protected <A, B> TCKCacheConfiguration<A, B> extraSetup(TCKCacheConfiguration<A, B> configuration) {
+        return configuration;
     }
 
     private LinkedHashMap<Long, String> createLSData(int count, long now) {

@@ -17,6 +17,7 @@
 package org.jsr107.tck;
 
 import org.jsr107.tck.util.ExcludeListExcluder;
+import org.jsr107.tck.util.TCKCacheConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -327,7 +328,7 @@ public class CachingClassLoaderTest {
         }
 
         private Cache<Integer, Object> createCache() {
-            return Caching.getCacheManager(classLoader).<Integer, Object>createCacheBuilder("c1").build();
+            return Caching.getCacheManager(classLoader).configureCache("c1", new TCKCacheConfiguration<Integer, Object>());
         }
 
         public Class getClassForDomainClass() throws ClassNotFoundException {

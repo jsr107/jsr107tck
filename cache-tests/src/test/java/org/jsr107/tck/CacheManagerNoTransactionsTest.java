@@ -17,6 +17,7 @@
 package org.jsr107.tck;
 
 import org.jsr107.tck.util.ExcludeListExcluder;
+import org.jsr107.tck.util.TCKCacheConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,6 +29,8 @@ import javax.cache.CachingShutdownException;
 import javax.cache.transaction.IsolationLevel;
 import javax.cache.transaction.Mode;
 import javax.transaction.UserTransaction;
+
+import junit.framework.Assert;
 
 import static org.junit.Assert.assertEquals;
 
@@ -62,7 +65,7 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
     public void transactionalStatusWhenNoUserTransaction() throws Exception {
         CacheManager cacheManager = getCacheManager();
         try {
-        UserTransaction userTrans = cacheManager.getUserTransaction();
+        UserTransaction transaction = cacheManager.getUserTransaction();
         } catch (UnsupportedOperationException e) {
             //expected
         }
@@ -74,7 +77,7 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
     @Test
     public void isolationLevelForNonTransactionalCache() throws Exception {
         CacheManager cacheManager = getCacheManager();
-        Cache cache = cacheManager.createCacheBuilder("test").build();
+        Cache<?, ?> cache = cacheManager.configureCache("test", new TCKCacheConfiguration());
         assertEquals(IsolationLevel.NONE , cache.getConfiguration().getTransactionIsolationLevel());
     }
 
@@ -84,7 +87,7 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
     @Test
     public void modeForNonTransactionalCache() throws Exception {
         CacheManager cacheManager = getCacheManager();
-        Cache cache = cacheManager.createCacheBuilder("test").build();
+        Cache<?, ?> cache = cacheManager.configureCache("test", new TCKCacheConfiguration());
         assertEquals(Mode.NONE , cache.getConfiguration().getTransactionMode());
     }
 
@@ -94,22 +97,18 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
     @Test
     public void setIncorrectIsolationLevelForTransactionalCache() throws Exception {
         CacheManager cacheManager = getCacheManager();
+        
         try {
-            cacheManager.createCacheBuilder("test").setTransactionEnabled(IsolationLevel.NONE, Mode.NONE).build();
+            cacheManager.configureCache("test", new TCKCacheConfiguration().setTransactions(IsolationLevel.READ_COMMITTED, Mode.NONE));
+            Assert.fail("read_committed must have a valid mode");
         } catch (IllegalArgumentException e) {
             //expected
         }
         try {
-            cacheManager.createCacheBuilder("test").setTransactionEnabled(IsolationLevel.READ_COMMITTED, Mode.NONE).build();
-        } catch (IllegalArgumentException e) {
-            //expected
-        }
-        try {
-            cacheManager.createCacheBuilder("test").setTransactionEnabled(IsolationLevel.NONE, Mode.LOCAL).build();
+            cacheManager.configureCache("test", new TCKCacheConfiguration().setTransactions(IsolationLevel.NONE, Mode.LOCAL));
+            Assert.fail("failed to provide an isolation level");
         } catch (IllegalArgumentException e) {
             //expected
         }
     }
-
-    
 }

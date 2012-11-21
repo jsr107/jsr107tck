@@ -18,6 +18,7 @@ package org.jsr107.tck;
 
 import org.jsr107.tck.util.AllTestExcluder;
 import org.jsr107.tck.util.ExcludeListExcluder;
+import org.jsr107.tck.util.TCKCacheConfiguration;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
@@ -64,7 +65,7 @@ public class CacheManagerTransactionsTest extends TestSupport {
     @Test
     public void isolationLevelForNonTransactionalCache() throws Exception {
         CacheManager cacheManager = getCacheManager();
-        Cache cache = cacheManager.createCacheBuilder("test").build();
+        Cache cache = cacheManager.configureCache("test", new TCKCacheConfiguration());
         assertEquals(IsolationLevel.NONE, cache.getConfiguration().getTransactionIsolationLevel());
     }
 
@@ -75,23 +76,19 @@ public class CacheManagerTransactionsTest extends TestSupport {
     public void setIncorrectIsolationLevelForTransactionalCache() throws Exception {
         CacheManager cacheManager = getCacheManager();
         try {
-            cacheManager.createCacheBuilder("test").setTransactionEnabled(IsolationLevel.NONE, Mode.NONE).build();
+            cacheManager.configureCache("test", new TCKCacheConfiguration().setTransactions(IsolationLevel.NONE, Mode.NONE));
         } catch (IllegalArgumentException e) {
             //expected
         }
         try {
-            cacheManager.createCacheBuilder("test").setTransactionEnabled(IsolationLevel.READ_COMMITTED, Mode.NONE).build();
+            cacheManager.configureCache("test", new TCKCacheConfiguration().setTransactions(IsolationLevel.READ_COMMITTED, Mode.NONE));
         } catch (IllegalArgumentException e) {
             //expected
         }
         try {
-            cacheManager.createCacheBuilder("test").setTransactionEnabled(IsolationLevel.NONE, Mode.LOCAL).build();
+            cacheManager.configureCache("test", new TCKCacheConfiguration().setTransactions(IsolationLevel.NONE, Mode.LOCAL));
         } catch (IllegalArgumentException e) {
             //expected
         }
     }
-
-
-
-
 }

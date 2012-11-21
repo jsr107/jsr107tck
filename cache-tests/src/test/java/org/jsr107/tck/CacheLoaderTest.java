@@ -18,6 +18,7 @@
 package org.jsr107.tck;
 
 import org.jsr107.tck.util.ExcludeListExcluder;
+import org.jsr107.tck.util.TCKCacheConfiguration;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,13 +42,26 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
- * Unit test for Cache.
- * <p/>
+ * Unit test for {@link CacheLoader}s.
  *
  * @author Yannis Cosmadopoulos
+ * @author Brian Oliver
+ * 
  * @since 1.0
  */
 public class CacheLoaderTest extends TestSupport {
+
+    /**
+     * the time to wait for a future
+     */
+    protected static final long FUTURE_WAIT_MILLIS = 100;
+
+
+    /**
+     * Rule used to exclude tests
+     */
+    @Rule
+    public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
 
 
     @After
@@ -57,22 +71,11 @@ public class CacheLoaderTest extends TestSupport {
         }
     }
 
-
-    /**
-     * Rule used to exclude tests
-     */
-    @Rule
-    public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
-
-    /**
-     * the time to wait for a future
-     */
-    protected static final long FUTURE_WAIT_MILLIS = 100;
-
     @Test
     public void load_NullKey() {
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).build();
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(
+        		getTestCacheName(), new TCKCacheConfiguration<Integer, Integer>());
+
         try {
             cache.load(null);
             fail("should have thrown an exception - null key not allowed");
@@ -83,10 +86,9 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void load_Found() {
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).build();
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(
+        		getTestCacheName(), new TCKCacheConfiguration<Integer, Integer>());
 
-        CacheLoader<Integer, Integer> cl = new MockCacheLoader<Integer, Integer>();
         Integer key = 1;
         cache.put(key, key);
         try {
@@ -98,8 +100,9 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void load_NoCacheLoader() {
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).build();
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(
+        		getTestCacheName(), new TCKCacheConfiguration<Integer, Integer>());
+        
         Integer key = 1;
         try {
             assertNull(cache.load(key));
@@ -125,8 +128,10 @@ public class CacheLoaderTest extends TestSupport {
                 };
             }
         };
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
+
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<Integer, Integer>().setCacheLoader(clDefault));
+
         Integer key = 1;
         Future<Integer> future = cache.load(key);
         assertNotNull(future);
@@ -142,8 +147,9 @@ public class CacheLoaderTest extends TestSupport {
     @Test
     public void load_DefaultCacheLoader() throws Exception {
         CacheLoader<Integer, Integer> clDefault = new SimpleCacheLoader<Integer>();
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
+        
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<Integer, Integer>().setCacheLoader(clDefault));
 
         Integer key = 123;
         Future<Integer> future = cache.load(key);
@@ -156,8 +162,10 @@ public class CacheLoaderTest extends TestSupport {
     @Test
     public void load_ExceptionPropagation() throws Exception {
         CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>();
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
+        
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<Integer, Integer>().setCacheLoader(clDefault));
+        
         Integer key = 1;
         Future<Integer> future = cache.load(key);
         assertNotNull(future);
@@ -171,8 +179,9 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void loadAll_NotStarted() {
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).build();
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(
+        		getTestCacheName(), new TCKCacheConfiguration<Integer, Integer>());
+        
         cache.stop();
         try {
             cache.loadAll(null);
@@ -184,8 +193,9 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void loadAll_NullKeys() {
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).build();
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(
+        		getTestCacheName(), new TCKCacheConfiguration<Integer, Integer>());
+        
         try {
             cache.loadAll(null);
             fail("should have thrown an exception - keys null");
@@ -196,9 +206,11 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void loadAll_NullKey() throws Exception {
-        CacheLoader<Integer, Integer> cl =  new SimpleCacheLoader<Integer>();
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(cl).build();
+        CacheLoader<Integer, Integer> loader =  new SimpleCacheLoader<Integer>();
+        
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<Integer, Integer>().setCacheLoader(loader));
+        
         HashSet<Integer> keys = new HashSet<Integer>();
         keys.add(null);
         try {
@@ -211,7 +223,7 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void loadAll_NullValue() throws Exception {
-        CacheLoader<Integer, Integer> cl = new MockCacheLoader<Integer, Integer>() {
+        CacheLoader<Integer, Integer> loader = new MockCacheLoader<Integer, Integer>() {
             @Override
             public Map<Integer, Integer> loadAll(Iterable<? extends Integer> keys) {
                 Map<Integer, Integer> map = new HashMap<Integer, Integer>();
@@ -221,8 +233,10 @@ public class CacheLoaderTest extends TestSupport {
                 return map;
             }
         };
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(cl).build();
+        
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<Integer, Integer>().setCacheLoader(loader));
+        
         HashSet<Integer> keys = new HashSet<Integer>();
         keys.add(1);
         keys.add(2);
@@ -238,9 +252,11 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void loadAll_1Found1Not() throws Exception {
-        CacheLoader<Integer, Integer> cl = new SimpleCacheLoader<Integer>();
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(cl).build();
+        CacheLoader<Integer, Integer> loader = new SimpleCacheLoader<Integer>();
+        
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<Integer, Integer>().setCacheLoader(loader));
+        
         Integer keyThere = 1;
         cache.put(keyThere, keyThere);
         Integer keyNotThere = keyThere + 1;
@@ -257,8 +273,9 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void loadAll_NoCacheLoader() throws Exception {
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).build();
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(
+        		getTestCacheName(), new TCKCacheConfiguration<Integer, Integer>());
+        
         HashSet<Integer> keys = new HashSet<Integer>();
         keys.add(1);
         try {
@@ -274,9 +291,10 @@ public class CacheLoaderTest extends TestSupport {
         keys.add(1);
         keys.add(2);
 
-        CacheLoader<Integer, Integer> clDefault = new SimpleCacheLoader<Integer>();
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
+        CacheLoader<Integer, Integer> loader = new SimpleCacheLoader<Integer>();
+        
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<Integer, Integer>().setCacheLoader(loader));
 
         Future<Map<Integer, ? extends Integer>> future = cache.loadAll(keys);
         Map<Integer, ? extends Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
@@ -290,14 +308,17 @@ public class CacheLoaderTest extends TestSupport {
     @Test
     public void loadAll_ExceptionPropagation() throws Exception {
         final RuntimeException expectedException = new RuntimeException("expected");
-        CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>() {
+        
+        CacheLoader<Integer, Integer> loader = new MockCacheLoader<Integer, Integer>() {
             @Override
             public Map<Integer, Integer> loadAll(Iterable<? extends Integer> keys) {
                 throw expectedException;
             }
         };
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
+        
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<Integer, Integer>().setCacheLoader(loader));
+        
         HashSet<Integer> keys = new HashSet<Integer>();
         keys.add(1);
         Future<Map<Integer, ? extends Integer>> future = cache.loadAll(keys);
@@ -312,9 +333,10 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void get_Stored() {
-        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
+        SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
+        
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<Integer, Integer>().setCacheLoader(loader));
 
         Integer key = 1;
         assertFalse(cache.containsKey(key));
@@ -324,9 +346,10 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void get_Exception() {
-        CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>();
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
+        CacheLoader<Integer, Integer> loader = new MockCacheLoader<Integer, Integer>();
+        
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<Integer, Integer>().setCacheLoader(loader));
 
         Integer key = 1;
         try {
@@ -339,9 +362,10 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void getAll() {
-        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
+        SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
+        
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<Integer, Integer>().setCacheLoader(loader));
 
         HashSet<Integer> keysToGet = new HashSet<Integer>();
         keysToGet.add(1);
@@ -364,9 +388,11 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void containsKey() {
-        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
+        SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
+        
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<Integer, Integer>().setCacheLoader(loader));
+        
         Integer key = 1;
         assertFalse(cache.containsKey(key));
         assertEquals(key, cache.get(key));
@@ -375,9 +401,11 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void putIfAbsent() {
-        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
+        SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
+        
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<Integer, Integer>().setCacheLoader(loader));
+        
         Integer key = 1;
         Integer value = key + 1;
         assertTrue(cache.putIfAbsent(key, value));
@@ -386,9 +414,11 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void getAndRemove_NotExistent() {
-        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
+        SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
+        
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<Integer, Integer>().setCacheLoader(loader));
+        
         Integer key = 1;
         assertNull(cache.getAndRemove(key));
         assertFalse(cache.containsKey(key));
@@ -396,9 +426,11 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void getAndRemove_There() {
-        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
+        SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
+        
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<Integer, Integer>().setCacheLoader(loader));
+        
         Integer key = 1;
         Integer value = key + 1;
         cache.put(key, value);
@@ -408,9 +440,11 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void replace_3arg_Missing() {
-        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
+        SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
+        
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<Integer, Integer>().setCacheLoader(loader));
+        
         Integer key = 1;
         Integer newValue = key + 1;
         assertFalse(cache.replace(key, key, newValue));
@@ -419,9 +453,11 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void replace_3arg_Different() {
-        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
+        SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
+        
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<Integer, Integer>().setCacheLoader(loader));
+        
         Integer key = 1;
         Integer value1 = key + 1;
         Integer value2 = value1 + 1;
@@ -433,9 +469,11 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void replace_3arg() {
-        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
+        SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
+        
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<Integer, Integer>().setCacheLoader(loader));
+        
         Integer key = 1;
         Integer value1 = key + 1;
         Integer value2 = value1 + 1;
@@ -447,9 +485,11 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void replace_2arg_Missing() {
-        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
+        SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
+        
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<Integer, Integer>().setCacheLoader(loader));
+        
         Integer key = 1;
         assertFalse(cache.replace(key, key));
         assertFalse(cache.containsKey(key));
@@ -457,9 +497,11 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void replace_2arg() {
-        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
+        SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
+        
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<Integer, Integer>().setCacheLoader(loader));
+        
         Integer key = 1;
         Integer value1 = key + 1;
         Integer value2 = value1 + 1;
@@ -471,9 +513,11 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void getAndReplace() {
-        SimpleCacheLoader<Integer> clDefault = new SimpleCacheLoader<Integer>();
-        Cache<Integer, Integer> cache = getCacheManager().
-                <Integer, Integer>createCacheBuilder(getTestCacheName()).setCacheLoader(clDefault).build();
+        SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
+        
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<Integer, Integer>().setCacheLoader(loader));
+        
         Integer key = 1;
         Integer newValue = key + 1;
         assertNull(cache.getAndReplace(key, newValue));
@@ -488,9 +532,10 @@ public class CacheLoaderTest extends TestSupport {
         //Illegal now with get(K)
         LinkedList<Integer> key2 = new LinkedList<Integer>(key1);
 
-        CacheLoader<ArrayList<Integer>, String> cacheLoader = new ArrayListCacheLoader();
-        Cache<ArrayList<Integer>, String> cache = getCacheManager().
-                <ArrayList<Integer>, String>createCacheBuilder(getTestCacheName()).setCacheLoader(cacheLoader).build();
+        CacheLoader<ArrayList<Integer>, String> loader = new ArrayListCacheLoader();
+        
+        Cache<ArrayList<Integer>, String> cache = getCacheManager().configureCache(getTestCacheName(), 
+        		new TCKCacheConfiguration<ArrayList<Integer>, String>().setCacheLoader(loader));
 
 //        String value = cache.get(key2);
 //        assertEquals(cacheLoader.load(key2).getValue(), value);

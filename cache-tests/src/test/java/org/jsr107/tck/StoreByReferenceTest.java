@@ -16,25 +16,26 @@
  */
 package org.jsr107.tck;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Date;
+import java.util.Map;
+
+import javax.cache.Caching;
+import javax.cache.CachingShutdownException;
+import javax.cache.OptionalFeature;
+
 import org.jsr107.tck.util.AllTestExcluder;
 import org.jsr107.tck.util.ExcludeListExcluder;
+import org.jsr107.tck.util.TCKCacheConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
-
-import javax.cache.CacheBuilder;
-import javax.cache.Caching;
-import javax.cache.CachingShutdownException;
-import javax.cache.OptionalFeature;
-import java.util.Date;
-import java.util.Map;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Implementations can optionally support storeByReference.
@@ -193,10 +194,12 @@ public class StoreByReferenceTest extends CacheTestSupport<Date, Date> {
         assertSame(value, cache.getAndReplace(key, nextValue));
         assertSame(nextValue, cache.get(key));
     }
-
-    // ---------- utilities ----------
-
-    protected <A, B> CacheBuilder<A, B> extraSetup(CacheBuilder<A, B> builder) {
-        return super.extraSetup(builder).setStoreByValue(false);
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected <A, B> TCKCacheConfiguration<A, B> extraSetup(TCKCacheConfiguration<A, B> configuration) {
+    	return super.extraSetup(configuration).setStoreByValue(false);
     }
 }

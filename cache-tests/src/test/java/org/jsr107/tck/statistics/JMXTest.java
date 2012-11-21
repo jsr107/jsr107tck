@@ -19,6 +19,7 @@
 package org.jsr107.tck.statistics;
 
 import org.jsr107.tck.util.ExcludeListExcluder;
+import org.jsr107.tck.util.TCKCacheConfiguration;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -81,8 +82,11 @@ public class JMXTest {
 
     @Test
     public void testCacheStatisticsWhereStatisticsTurnedOn() throws Exception {
-        cacheManager.createCacheBuilder("cache1").setStatisticsEnabled(true).build();
-        cacheManager.createCacheBuilder("cache2").setStatisticsEnabled(true).build();
+    	TCKCacheConfiguration configuration = new TCKCacheConfiguration();
+    	configuration.setStatisticsEnabled(false);
+    	
+        cacheManager.configureCache("cache1", configuration);
+        cacheManager.configureCache("cache2", configuration);
 
         mBeanServerRegistrationUtility = new MBeanServerRegistrationUtility(cacheManager, mBeanServer);
         Assert.assertTrue((mBeanServer.queryNames(new ObjectName("javax.cache:*"), null).size()) >= 2);
@@ -106,8 +110,12 @@ public class JMXTest {
         MBeanServerRegistrationUtility mBeanServerRegistrationUtility = null;
         try {
             MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-            cacheManager.createCacheBuilder("cache1").setStatisticsEnabled(true).build();
-            cacheManager.createCacheBuilder("cache2").setStatisticsEnabled(true).build();
+        	TCKCacheConfiguration configuration = new TCKCacheConfiguration();
+        	configuration.setStatisticsEnabled(false);
+        	
+            cacheManager.configureCache("cache1", configuration);
+            cacheManager.configureCache("cache2", configuration);
+            
             mBeanServerRegistrationUtility = new MBeanServerRegistrationUtility(cacheManager, mBeanServer);
 
             ObjectName search = new ObjectName("javax.cache:*");

@@ -1,6 +1,6 @@
 /**
- *  Copyright 2011 Terracotta, Inc.
- *  Copyright 2011 Oracle, Inc.
+ *  Copyright 2012 Terracotta, Inc.
+ *  Copyright 2012 Oracle, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,83 +17,77 @@
 
 package org.jsr107.tck;
 
-import org.jsr107.tck.util.ExcludeListExcluder;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-
-import javax.cache.Cache;
-import javax.cache.CacheConfiguration;
-import javax.cache.CacheManager;
-import javax.cache.Caching;
-import java.util.concurrent.TimeUnit;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
+import java.util.concurrent.TimeUnit;
+
+import javax.cache.CacheConfiguration;
+
+import org.jsr107.tck.util.TCKCacheConfiguration;
+import org.junit.Test;
+
 /**
- * Unit tests for CacheBuilder
- * <p/>
+ * Unit tests for a {@link CacheConfiguration}.
  *
- * @author Yannis Cosmadopoulos
+ * @author Brian Oliver
+ * 
  * @since 1.0
  */
-public class CacheConfigurationTest {
-    private static final String CACHE_NAME = "testCache";
-
-    /**
-     * Rule used to exclude tests
-     */
-    @Rule
-    public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
-
-    @Before
-    public void startUp() {
-        Caching.close();
-    }
-
+public class TCKCacheConfigurationTest {
+	
+	/**
+	 * Obtains the {@link CacheConfiguration} implementation to use for testing
+	 * 
+	 * @return a new {@link CacheConfiguration} instance
+	 */
+	public <K, V> CacheConfiguration<K, V> getCacheConfiguration()
+	{
+		return new TCKCacheConfiguration<K, V>();
+	}
+	
     @Test
     public void checkDefaults() {
-        CacheConfiguration config = getCacheConfiguration(CACHE_NAME + "0");
+        CacheConfiguration<?, ?> config = getCacheConfiguration();
         assertFalse(config.isReadThrough());
         assertFalse(config.isWriteThrough());
         assertFalse(config.isStatisticsEnabled());
-        for (CacheConfiguration.ExpiryType type : CacheConfiguration.ExpiryType.values()) {
-            assertEquals(CacheConfiguration.Duration.ETERNAL, config.getExpiry(type));
-        }
         assertTrue(config.isStoreByValue());
+        assertEquals(CacheConfiguration.Duration.ETERNAL, config.getExpiryDuration());
+        assertEquals(CacheConfiguration.ExpiryType.MODIFIED, config.getExpiryType());
     }
 
     @Test
     public void notSame() {
-        CacheConfiguration config1 = getCacheConfiguration(CACHE_NAME + "1");
-        CacheConfiguration config2 = getCacheConfiguration(CACHE_NAME + "2");
+        CacheConfiguration<?, ?> config1 = getCacheConfiguration();
+        CacheConfiguration<?, ?> config2 = getCacheConfiguration();
         assertNotSame(config1, config2);
     }
 
     @Test
     public void equals() {
-        CacheConfiguration config1 = getCacheConfiguration(CACHE_NAME + "1");
-        CacheConfiguration config2 = getCacheConfiguration(CACHE_NAME + "2");
+        CacheConfiguration<?, ?> config1 = getCacheConfiguration();
+        CacheConfiguration<?, ?> config2 = getCacheConfiguration();
         assertEquals(config1, config2);
     }
 
     @Test
     public void equalsNotEquals() {
-        CacheConfiguration config1 = getCacheConfiguration(CACHE_NAME + "1");
+        CacheConfiguration<?, ?> config1 = getCacheConfiguration();
         config1.setStatisticsEnabled(!config1.isStatisticsEnabled());
-        CacheConfiguration config2 = getCacheConfiguration(CACHE_NAME + "2");
+        
+        CacheConfiguration<?, ?> config2 = getCacheConfiguration();
         assertFalse(config1.equals(config2));
     }
 
     @Test
     public void setStatisticsEnabled() {
-        CacheConfiguration config = getCacheConfiguration(CACHE_NAME);
-        boolean flag = config.isStatisticsEnabled();
-        config.setStatisticsEnabled(!flag);
-        assertEquals(!flag, config.isStatisticsEnabled());
+        CacheConfiguration<?, ?> config = getCacheConfiguration();
+        boolean isStatisticsEnabled = config.isStatisticsEnabled();
+        config.setStatisticsEnabled(!isStatisticsEnabled);
+        assertEquals(!isStatisticsEnabled, config.isStatisticsEnabled());
     }
 
     @Test
@@ -165,43 +159,28 @@ public class CacheConfigurationTest {
     @Test
     public void DurationExceptions() {
         try {
-            CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(null, 2);
+            new CacheConfiguration.Duration(null, 2);
         } catch (NullPointerException e) {
             //expected
         }
 
         try {
-            CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(TimeUnit.MINUTES, 0);
+            new CacheConfiguration.Duration(TimeUnit.MINUTES, 0);
         } catch (NullPointerException e) {
             //expected
         }
 
 
         try {
-            CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(TimeUnit.MICROSECONDS, 10);
+            new CacheConfiguration.Duration(TimeUnit.MICROSECONDS, 10);
         } catch (IllegalArgumentException e) {
             //expected
         }
 
         try {
-            CacheConfiguration.Duration duration1 = new CacheConfiguration.Duration(TimeUnit.MILLISECONDS, -10);
+            new CacheConfiguration.Duration(TimeUnit.MILLISECONDS, -10);
         } catch (IllegalArgumentException e) {
             //expected
         }
-    }
-
-
-    // ---------- utilities ----------
-
-    private CacheConfiguration getCacheConfiguration(String cacheName) {
-        Cache cache = getCacheManager().getCache(cacheName);
-        if (cache == null) {
-            cache = getCacheManager().createCacheBuilder(cacheName).build();
-        }
-        return cache.getConfiguration();
-    }
-
-    private static CacheManager getCacheManager() {
-        return Caching.getCacheManager();
     }
 }
