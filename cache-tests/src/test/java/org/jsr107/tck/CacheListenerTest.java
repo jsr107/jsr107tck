@@ -111,19 +111,44 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
 
-        cache.get(1l);
+        cache.put(1l, "Sooty");
         assertEquals(3, listener.getCreated());
-        assertEquals(0, listener.getUpdated());
+        assertEquals(1, listener.getUpdated());
+        assertEquals(0, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(0, listener.getRemoved());
+
+        cache.putAll(entries);
+        assertEquals(3, listener.getCreated());
+        assertEquals(3, listener.getUpdated());
+        assertEquals(0, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(0, listener.getRemoved());
+
+        cache.getAndPut(4l, "Cody");
+        assertEquals(4, listener.getCreated());
+        assertEquals(3, listener.getUpdated());
+        assertEquals(0, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(0, listener.getRemoved());
+
+        cache.getAndPut(4l, "Cody");
+        assertEquals(4, listener.getCreated());
+        assertEquals(4, listener.getUpdated());
+        assertEquals(0, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(0, listener.getRemoved());
+
+
+        cache.get(1l);
+        assertEquals(4, listener.getCreated());
+        assertEquals(4, listener.getUpdated());
         assertEquals(1, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
 
-        cache.put(1l, "Sooty");
-        assertEquals(3, listener.getCreated());
-        assertEquals(1, listener.getUpdated());
-        assertEquals(1, listener.getReads());
-        assertEquals(0, listener.getExpired());
-        assertEquals(0, listener.getRemoved());
+
+
 
 
     }
@@ -200,8 +225,10 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         }
 
         @Override
-        public void onUpdated(Iterable iterable) throws CacheEntryListenerException {
-            updated.incrementAndGet();
+        public void onUpdated(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
+            for (CacheEntryEvent<? extends K, ? extends V> event : events) {
+                updated.incrementAndGet();
+            }
         }
 
         @Override
