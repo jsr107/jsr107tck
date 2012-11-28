@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.concurrent.TimeUnit;
 
 import javax.cache.CacheConfiguration;
+import javax.cache.CacheEntryExpiryPolicy;
 
 import org.jsr107.tck.util.TCKCacheConfiguration;
 import org.junit.Test;
@@ -55,8 +56,7 @@ public class TCKCacheConfigurationTest {
         assertFalse(config.isWriteThrough());
         assertFalse(config.isStatisticsEnabled());
         assertTrue(config.isStoreByValue());
-        assertEquals(CacheConfiguration.Duration.ETERNAL, config.getExpiryDuration());
-        assertEquals(CacheConfiguration.ExpiryType.MODIFIED, config.getExpiryType());
+        assertEquals(CacheEntryExpiryPolicy.DEFAULT, config.getCacheEntryExpiryPolicy());
     }
 
     @Test

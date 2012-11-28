@@ -135,22 +135,16 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         cache.getAndPut(4l, "Cody");
         assertEquals(4, listener.getCreated());
         assertEquals(4, listener.getUpdated());
-        assertEquals(0, listener.getReads());
-        assertEquals(0, listener.getExpired());
-        assertEquals(0, listener.getRemoved());
-
-
-        cache.get(1l);
-        assertEquals(4, listener.getCreated());
-        assertEquals(4, listener.getUpdated());
         assertEquals(1, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
 
-
-
-
-
+        cache.get(1l);
+        assertEquals(4, listener.getCreated());
+        assertEquals(4, listener.getUpdated());
+        assertEquals(2, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(0, listener.getRemoved());
     }
 
 
