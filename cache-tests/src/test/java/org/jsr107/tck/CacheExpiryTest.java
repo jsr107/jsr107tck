@@ -65,7 +65,7 @@ public class CacheExpiryTest extends TestSupport {
     @Test
     public void expire_whenCreated() {
         TCKCacheConfiguration<Integer, Integer> config = new TCKCacheConfiguration<Integer, Integer>();
-        config.setCacheEntryExpiryPolicy(new ParameterizedExpiryPolicy(Duration.ZERO, null, null));
+        config.setCacheEntryExpiryPolicy(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ZERO, null, null));
         
         Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), config);
 
@@ -105,7 +105,7 @@ public class CacheExpiryTest extends TestSupport {
     @Test
     public void expire_whenAccessed() {
         TCKCacheConfiguration<Integer, Integer> config = new TCKCacheConfiguration<Integer, Integer>();
-        config.setCacheEntryExpiryPolicy(new ParameterizedExpiryPolicy(Duration.ETERNAL, Duration.ZERO, null));
+        config.setCacheEntryExpiryPolicy(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ETERNAL, Duration.ZERO, null));
         
         Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), config);
 
@@ -179,7 +179,7 @@ public class CacheExpiryTest extends TestSupport {
     @Test
     public void expire_whenModified() {
         TCKCacheConfiguration<Integer, Integer> config = new TCKCacheConfiguration<Integer, Integer>();
-        config.setCacheEntryExpiryPolicy(new ParameterizedExpiryPolicy(Duration.ETERNAL, null, Duration.ZERO));
+        config.setCacheEntryExpiryPolicy(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ETERNAL, null, Duration.ZERO));
         
         Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), config);
 

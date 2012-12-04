@@ -209,13 +209,17 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         }
 
         @Override
-        public void onExpired(Iterable iterable) throws CacheEntryListenerException {
-            expired.incrementAndGet();
+        public void onExpired(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
+            for (CacheEntryEvent<? extends K, ? extends V> event : events) {
+                expired.incrementAndGet();
+            }
         }
 
         @Override
-        public void onRemoved(Iterable iterable) throws CacheEntryListenerException {
-            removed.incrementAndGet();
+        public void onRemoved(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
+            for (CacheEntryEvent<? extends K, ? extends V> event : events) {
+                removed.incrementAndGet();
+            }
         }
 
         @Override
@@ -226,8 +230,10 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         }
 
         @Override
-        public void onRead(Iterable<CacheEntryEvent<? extends K, ? extends V>> cacheEntryEvents) throws CacheEntryListenerException {
-            reads.incrementAndGet();
+        public void onRead(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
+            for (CacheEntryEvent<? extends K, ? extends V> event : events) {
+                reads.incrementAndGet();
+            }
         }
     }
 }
