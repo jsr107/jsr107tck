@@ -1,8 +1,6 @@
 package org.jsr107.tck.util;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-
 import javax.cache.Cache;
 import javax.cache.CacheConfiguration;
 import javax.cache.CacheEntryExpiryPolicy;
@@ -89,7 +87,7 @@ public class TCKCacheConfiguration<K, V> implements CacheConfiguration<K, V> {
      * default {@link CacheConfiguration} options.
      */
     public TCKCacheConfiguration() {
-        this.cacheEntryListenerRegistrations = new ArrayList<CacheEntryListenerRegistration<? super K,? super V>>();
+        this.cacheEntryListenerRegistrations = new ArrayList<CacheEntryListenerRegistration<? super K, ? super V>>();
         this.cacheLoader = null;
         this.cacheWriter = null;
         this.cacheEntryExpiryPolicy = DEFAULT_CACHE_ENTRY_EXPIRY_POLICY;
@@ -112,13 +110,13 @@ public class TCKCacheConfiguration<K, V> implements CacheConfiguration<K, V> {
      * 
      * @return a {@link TCKCacheConfiguration}
      */
-    public TCKCacheConfiguration<K, V> addCacheEntryListener(CacheEntryListener<? super K, ? super V> listener,
+    public TCKCacheConfiguration<K, V> addCacheEntryListener(CacheEntryListener<K, V> listener,
                                                              boolean requireOldValue, 
                                                              CacheEntryFilter<K, V> filter,
                                                              boolean synchronous) {
         
-        TCKCacheEntryListenerRegistration<? super K, ? super V> registration = 
-                new TCKCacheEntryListenerRegistration(listener,  filter, requireOldValue, synchronous);
+        TCKCacheEntryListenerRegistration<K, V> registration = 
+                new TCKCacheEntryListenerRegistration<K, V>(listener,  filter, requireOldValue, synchronous);
         cacheEntryListenerRegistrations.add(registration);        
         return this;
     }
