@@ -22,6 +22,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 
+import javax.cache.Cache;
+import javax.cache.Cache.MutableEntry;
 import javax.cache.CacheManager;
 import javax.cache.event.CacheEntryCreatedListener;
 import javax.cache.event.CacheEntryEvent;
@@ -38,6 +40,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -142,12 +145,67 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
 
-        cache.get(1l);
+        String value = cache.get(1l);
         assertEquals(4, listener.getCreated());
         assertEquals(4, listener.getUpdated());
         assertEquals(2, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
+        
+        String result = (String)cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String>() {
+            @Override
+            public Object process(MutableEntry<Long, String> entry) {
+                return entry.getValue();
+            }
+        });
+        assertEquals(value, result);
+        assertEquals(4, listener.getCreated());
+        assertEquals(4, listener.getUpdated());
+        assertEquals(3, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(0, listener.getRemoved());        
+        
+        result = (String)cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String>() {
+            @Override
+            public Object process(MutableEntry<Long, String> entry) {
+                entry.setValue("Zoot");
+                return entry.getValue();
+            }
+        });
+        assertEquals("Zoot", result);
+        assertEquals(4, listener.getCreated());
+        assertEquals(5, listener.getUpdated());
+        assertEquals(3, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(0, listener.getRemoved());        
+        
+        result = (String)cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String>() {
+            @Override
+            public Object process(MutableEntry<Long, String> entry) {
+                entry.remove();
+                return entry.getValue();
+            }
+        });
+        assertNull(result);
+        assertEquals(4, listener.getCreated());
+        assertEquals(5, listener.getUpdated());
+        assertEquals(3, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(1, listener.getRemoved());        
+        
+        result = (String)cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String>() {
+            @Override
+            public Object process(MutableEntry<Long, String> entry) {
+                entry.setValue("Moose");
+                return entry.getValue();
+            }
+        });
+        assertEquals("Moose", result);
+        assertEquals(5, listener.getCreated());
+        assertEquals(5, listener.getUpdated());
+        assertEquals(3, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(1, listener.getRemoved());        
     }
 
 
