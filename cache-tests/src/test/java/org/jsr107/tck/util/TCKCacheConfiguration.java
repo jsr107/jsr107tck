@@ -24,7 +24,6 @@ import javax.cache.transaction.Mode;
  */
 public class TCKCacheConfiguration<K, V> implements CacheConfiguration<K, V> {
 
-    private static final CacheEntryExpiryPolicy DEFAULT_CACHE_ENTRY_EXPIRY_POLICY = CacheEntryExpiryPolicy.DEFAULT;
     private static final boolean DEFAULT_IS_READ_THROUGH = false;
     private static final boolean DEFAULT_IS_WRITE_THROUGH = false;
     private static final boolean DEFAULT_IS_STATISTICS_ENABLED = false;
@@ -90,7 +89,7 @@ public class TCKCacheConfiguration<K, V> implements CacheConfiguration<K, V> {
         this.cacheEntryListenerRegistrations = new ArrayList<CacheEntryListenerRegistration<? super K, ? super V>>();
         this.cacheLoader = null;
         this.cacheWriter = null;
-        this.cacheEntryExpiryPolicy = DEFAULT_CACHE_ENTRY_EXPIRY_POLICY;
+        this.cacheEntryExpiryPolicy = new CacheEntryExpiryPolicy.Default<K, V>();
         this.isReadThrough = DEFAULT_IS_READ_THROUGH;
         this.isWriteThrough = DEFAULT_IS_WRITE_THROUGH;
         this.isStatisticsEnabled = DEFAULT_IS_STATISTICS_ENABLED;

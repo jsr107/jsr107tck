@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.concurrent.TimeUnit;
 
 import javax.cache.CacheConfiguration;
-import javax.cache.CacheEntryExpiryPolicy;
+import javax.cache.CacheConfiguration.Duration;
 
 import org.jsr107.tck.util.TCKCacheConfiguration;
 import org.junit.Test;
@@ -38,17 +38,17 @@ import org.junit.Test;
  * @since 1.0
  */
 public class TCKCacheConfigurationTest {
-	
-	/**
-	 * Obtains the {@link CacheConfiguration} implementation to use for testing
-	 * 
-	 * @return a new {@link CacheConfiguration} instance
-	 */
-	public <K, V> CacheConfiguration<K, V> getCacheConfiguration()
-	{
-		return new TCKCacheConfiguration<K, V>();
-	}
-	
+    
+    /**
+     * Obtains the {@link CacheConfiguration} implementation to use for testing
+     * 
+     * @return a new {@link CacheConfiguration} instance
+     */
+    public <K, V> CacheConfiguration<K, V> getCacheConfiguration()
+    {
+        return new TCKCacheConfiguration<K, V>();
+    }
+    
     @Test
     public void checkDefaults() {
         CacheConfiguration<?, ?> config = getCacheConfiguration();
@@ -56,7 +56,11 @@ public class TCKCacheConfigurationTest {
         assertFalse(config.isWriteThrough());
         assertFalse(config.isStatisticsEnabled());
         assertTrue(config.isStoreByValue());
-        assertEquals(CacheEntryExpiryPolicy.DEFAULT, config.getCacheEntryExpiryPolicy());
+        
+        Duration duration = new Duration(TimeUnit.MINUTES, 10);
+        assertEquals(Duration.ETERNAL, config.getCacheEntryExpiryPolicy().getTTLForCreatedEntry(null));
+        assertEquals(duration, config.getCacheEntryExpiryPolicy().getTTLForAccessedEntry(null, duration));
+        assertEquals(duration, config.getCacheEntryExpiryPolicy().getTTLForModifiedEntry(null, duration));
     }
 
     @Test
