@@ -7,7 +7,7 @@ import javax.cache.CacheEntryExpiryPolicy;
 import javax.cache.CacheLoader;
 import javax.cache.CacheWriter;
 import javax.cache.InvalidConfigurationException;
-import javax.cache.event.CacheEntryFilter;
+import javax.cache.event.CacheEntryEventFilter;
 import javax.cache.event.CacheEntryListener;
 import javax.cache.event.CacheEntryListenerRegistration;
 import javax.cache.transaction.IsolationLevel;
@@ -112,7 +112,7 @@ public class TCKCacheConfiguration<K, V> implements CacheConfiguration<K, V> {
      */
     public TCKCacheConfiguration<K, V> addCacheEntryListener(CacheEntryListener<K, V> listener,
                                                              boolean requireOldValue, 
-                                                             CacheEntryFilter<K, V> filter,
+                                                             CacheEntryEventFilter<K, V> filter,
                                                              boolean synchronous) {
         
         TCKCacheEntryListenerRegistration<K, V> registration = 

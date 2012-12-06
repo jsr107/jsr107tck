@@ -25,6 +25,7 @@ import org.junit.rules.MethodRule;
 import javax.cache.CacheManager;
 import javax.cache.event.CacheEntryCreatedListener;
 import javax.cache.event.CacheEntryEvent;
+import javax.cache.event.CacheEntryEventFilter;
 import javax.cache.event.CacheEntryExpiredListener;
 import javax.cache.event.CacheEntryListenerException;
 import javax.cache.event.CacheEntryReadListener;
@@ -43,6 +44,7 @@ import static org.junit.Assert.assertTrue;
  * Unit tests for Cache Listeners.
  * <p/>
  * @author Greg Luck
+ * @author Brian Oliver
  * @since 1.0
  */
 public class CacheListenerTest extends CacheTestSupport<Long, String> {
@@ -87,6 +89,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     public void testCacheEntryListener() {
         MyCacheEntryListener<Long, String> listener = new MyCacheEntryListener<Long, String>();
         cache.registerCacheEntryListener(listener, false, null, true);
+        
         assertEquals(0, listener.getCreated());
         assertEquals(0, listener.getUpdated());
         assertEquals(0, listener.getReads());
@@ -157,6 +160,76 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         assertFalse(cache.unregisterCacheEntryListener(listener));
     }
 
+    
+    @Test
+    public void testFilteredListener() {
+        MyCacheEntryListener<Long, String> listener = new MyCacheEntryListener<Long, String>();
+        
+        CacheEntryEventFilter<Long, String> filter = new CacheEntryEventFilter<Long, String>() {
+            @Override
+            public boolean evaluate(
+                    CacheEntryEvent<? extends Long, ? extends String> event)
+                    throws CacheEntryListenerException {
+                return event.getValue().contains("a") ||
+                       event.getValue().contains("e") ||
+                       event.getValue().contains("i") ||
+                       event.getValue().contains("o") ||
+                       event.getValue().contains("u");
+            }
+        };
+        cache.registerCacheEntryListener(listener, false, filter, true);
+
+        assertEquals(0, listener.getCreated());
+        assertEquals(0, listener.getUpdated());
+        assertEquals(0, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(0, listener.getRemoved());
+
+        cache.put(1l, "Sooty");
+        assertEquals(1, listener.getCreated());
+        assertEquals(0, listener.getUpdated());
+        assertEquals(0, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(0, listener.getRemoved());
+
+        Map<Long, String> entries = new HashMap<Long, String>();
+        entries.put(2l, "Lucky");
+        entries.put(3l, "Bryn");
+        cache.putAll(entries);
+        assertEquals(2, listener.getCreated());
+        assertEquals(0, listener.getUpdated());
+        assertEquals(0, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(0, listener.getRemoved());
+        
+        cache.put(1l, "Zyn");
+        assertEquals(2, listener.getCreated());
+        assertEquals(0, listener.getUpdated());
+        assertEquals(0, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(0, listener.getRemoved());
+        
+        cache.remove(2l);
+        assertEquals(2, listener.getCreated());
+        assertEquals(0, listener.getUpdated());
+        assertEquals(0, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(1, listener.getRemoved());
+        
+        cache.replace(1l, "Fred");
+        assertEquals(2, listener.getCreated());
+        assertEquals(1, listener.getUpdated());
+        assertEquals(0, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(1, listener.getRemoved());
+        
+        cache.replace(3l, "Bryn", "Sooty");
+        assertEquals(2, listener.getCreated());
+        assertEquals(2, listener.getUpdated());
+        assertEquals(0, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(1, listener.getRemoved());
+    }
 
 
 

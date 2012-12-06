@@ -1,6 +1,6 @@
 package org.jsr107.tck.util;
 
-import javax.cache.event.CacheEntryFilter;
+import javax.cache.event.CacheEntryEventFilter;
 import javax.cache.event.CacheEntryListener;
 import javax.cache.event.CacheEntryListenerRegistration;
 
@@ -15,7 +15,7 @@ import javax.cache.event.CacheEntryListenerRegistration;
 public class TCKCacheEntryListenerRegistration<K, V> implements CacheEntryListenerRegistration<K, V> {
 
     private CacheEntryListener<K, V> listener;
-    private CacheEntryFilter<K, V> filter;
+    private CacheEntryEventFilter<K, V> filter;
     private boolean isOldValueRequired;
     private boolean isSynchronous;
     
@@ -23,12 +23,12 @@ public class TCKCacheEntryListenerRegistration<K, V> implements CacheEntryListen
      * Constructs an {@link TCKCacheEntryListenerRegistration}.
      * 
      * @param listener            the {@link CacheEntryListener}
-     * @param filter              the optional {@link CacheEntryFilter}
+     * @param filter              the optional {@link CacheEntryEventFilter}
      * @param isOldValueRequired  if the old value is required for events with this listener
      * @param isSynchronous       if the listener should block the thread causing the event
      */
     public TCKCacheEntryListenerRegistration(CacheEntryListener<K, V> listener, 
-                                             CacheEntryFilter<K, V> filter, 
+                                             CacheEntryEventFilter<K, V> filter, 
                                              boolean isOldValueRequired, 
                                              boolean isSynchronous) {
         this.listener = listener;
@@ -42,7 +42,7 @@ public class TCKCacheEntryListenerRegistration<K, V> implements CacheEntryListen
      * {@inheritDoc}
      */
     @Override
-    public CacheEntryFilter<K, V> getCacheEntryFilter() {
+    public CacheEntryEventFilter<K, V> getCacheEntryFilter() {
         return filter;
     }
     
