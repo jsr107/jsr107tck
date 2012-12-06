@@ -20,8 +20,8 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 
 import javax.cache.Cache;
+import javax.cache.SimpleCacheConfiguration;
 
-import org.jsr107.tck.util.TCKCacheConfiguration;
 import org.junit.After;
 import org.junit.Before;
 
@@ -38,7 +38,7 @@ public abstract class CacheTestSupport<K,V> extends TestSupport {
 
     @Before
     public void setUp() {
-        cache = getCacheManager().configureCache(getTestCacheName(), extraSetup(new TCKCacheConfiguration<K, V>()));
+        cache = getCacheManager().configureCache(getTestCacheName(), extraSetup(new SimpleCacheConfiguration<K, V>()));
     }
 
     @After
@@ -46,7 +46,7 @@ public abstract class CacheTestSupport<K,V> extends TestSupport {
         getCacheManager().removeCache(getTestCacheName());
     }
 
-    protected <A, B> TCKCacheConfiguration<A, B> extraSetup(TCKCacheConfiguration<A, B> configuration) {
+    protected <A, B> SimpleCacheConfiguration<A, B> extraSetup(SimpleCacheConfiguration<A, B> configuration) {
         return configuration;
     }
 

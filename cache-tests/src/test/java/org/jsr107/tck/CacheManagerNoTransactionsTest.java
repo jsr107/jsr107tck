@@ -17,7 +17,6 @@
 package org.jsr107.tck;
 
 import org.jsr107.tck.util.ExcludeListExcluder;
-import org.jsr107.tck.util.TCKCacheConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,6 +25,7 @@ import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.CachingShutdownException;
+import javax.cache.SimpleCacheConfiguration;
 import javax.cache.transaction.IsolationLevel;
 import javax.cache.transaction.Mode;
 import javax.transaction.UserTransaction;
@@ -77,7 +77,7 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
     @Test
     public void isolationLevelForNonTransactionalCache() throws Exception {
         CacheManager cacheManager = getCacheManager();
-        Cache<?, ?> cache = cacheManager.configureCache("test", new TCKCacheConfiguration());
+        Cache<?, ?> cache = cacheManager.configureCache("test", new SimpleCacheConfiguration());
         assertEquals(IsolationLevel.NONE , cache.getConfiguration().getTransactionIsolationLevel());
     }
 
@@ -87,7 +87,7 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
     @Test
     public void modeForNonTransactionalCache() throws Exception {
         CacheManager cacheManager = getCacheManager();
-        Cache<?, ?> cache = cacheManager.configureCache("test", new TCKCacheConfiguration());
+        Cache<?, ?> cache = cacheManager.configureCache("test", new SimpleCacheConfiguration());
         assertEquals(Mode.NONE , cache.getConfiguration().getTransactionMode());
     }
 
@@ -99,13 +99,22 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
         CacheManager cacheManager = getCacheManager();
         
         try {
-            cacheManager.configureCache("test", new TCKCacheConfiguration().setTransactions(IsolationLevel.READ_COMMITTED, Mode.NONE));
+            SimpleCacheConfiguration<?, ?> config = new SimpleCacheConfiguration();
+            config.setTransactions(IsolationLevel.READ_COMMITTED, Mode.NONE)
+                  .setTransactionsEnabled(true);
+            
+            cacheManager.configureCache("test", config);
             Assert.fail("read_committed must have a valid mode");
         } catch (IllegalArgumentException e) {
             //expected
         }
+        
         try {
-            cacheManager.configureCache("test", new TCKCacheConfiguration().setTransactions(IsolationLevel.NONE, Mode.LOCAL));
+            SimpleCacheConfiguration<?, ?> config = new SimpleCacheConfiguration();
+            config.setTransactions(IsolationLevel.NONE, Mode.LOCAL)
+                  .setTransactionsEnabled(true);
+            
+            cacheManager.configureCache("test", config);
             Assert.fail("failed to provide an isolation level");
         } catch (IllegalArgumentException e) {
             //expected

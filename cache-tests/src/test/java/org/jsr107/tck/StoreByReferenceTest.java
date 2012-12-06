@@ -27,10 +27,10 @@ import java.util.Map;
 import javax.cache.Caching;
 import javax.cache.CachingShutdownException;
 import javax.cache.OptionalFeature;
+import javax.cache.SimpleCacheConfiguration;
 
 import org.jsr107.tck.util.AllTestExcluder;
 import org.jsr107.tck.util.ExcludeListExcluder;
-import org.jsr107.tck.util.TCKCacheConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -199,7 +199,7 @@ public class StoreByReferenceTest extends CacheTestSupport<Date, Date> {
      * {@inheritDoc}
      */
     @Override
-    protected <A, B> TCKCacheConfiguration<A, B> extraSetup(TCKCacheConfiguration<A, B> configuration) {
+    protected <A, B> SimpleCacheConfiguration<A, B> extraSetup(SimpleCacheConfiguration<A, B> configuration) {
     	return super.extraSetup(configuration).setStoreByValue(false);
     }
 }

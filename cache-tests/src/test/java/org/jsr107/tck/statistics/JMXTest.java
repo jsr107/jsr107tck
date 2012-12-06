@@ -19,7 +19,6 @@
 package org.jsr107.tck.statistics;
 
 import org.jsr107.tck.util.ExcludeListExcluder;
-import org.jsr107.tck.util.TCKCacheConfiguration;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,6 +28,7 @@ import org.junit.Test;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
+import javax.cache.SimpleCacheConfiguration;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -82,7 +82,7 @@ public class JMXTest {
 
     @Test
     public void testCacheStatisticsWhereStatisticsTurnedOn() throws Exception {
-    	TCKCacheConfiguration configuration = new TCKCacheConfiguration();
+    	SimpleCacheConfiguration configuration = new SimpleCacheConfiguration();
     	configuration.setStatisticsEnabled(false);
     	
         cacheManager.configureCache("cache1", configuration);
@@ -110,7 +110,7 @@ public class JMXTest {
         MBeanServerRegistrationUtility mBeanServerRegistrationUtility = null;
         try {
             MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-        	TCKCacheConfiguration configuration = new TCKCacheConfiguration();
+            SimpleCacheConfiguration configuration = new SimpleCacheConfiguration();
         	configuration.setStatisticsEnabled(false);
         	
             cacheManager.configureCache("cache1", configuration);

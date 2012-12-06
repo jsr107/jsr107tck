@@ -26,8 +26,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.cache.CacheConfiguration;
 import javax.cache.CacheConfiguration.Duration;
+import javax.cache.SimpleCacheConfiguration;
 
-import org.jsr107.tck.util.TCKCacheConfiguration;
 import org.junit.Test;
 
 /**
@@ -46,7 +46,7 @@ public class TCKCacheConfigurationTest {
      */
     public <K, V> CacheConfiguration<K, V> getCacheConfiguration()
     {
-        return new TCKCacheConfiguration<K, V>();
+        return new SimpleCacheConfiguration<K, V>();
     }
     
     @Test

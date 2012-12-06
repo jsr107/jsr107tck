@@ -17,7 +17,6 @@
 package org.jsr107.tck;
 
 import org.jsr107.tck.util.ExcludeListExcluder;
-import org.jsr107.tck.util.TCKCacheConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,6 +24,8 @@ import org.junit.Test;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
+import javax.cache.SimpleCacheConfiguration;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -328,7 +329,7 @@ public class CachingClassLoaderTest {
         }
 
         private Cache<Integer, Object> createCache() {
-            return Caching.getCacheManager(classLoader).configureCache("c1", new TCKCacheConfiguration<Integer, Object>());
+            return Caching.getCacheManager(classLoader).configureCache("c1", new SimpleCacheConfiguration<Integer, Object>());
         }
 
         public Class getClassForDomainClass() throws ClassNotFoundException {
