@@ -152,9 +152,9 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
         
-        String result = (String)cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String>() {
+        String result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
             @Override
-            public Object process(MutableEntry<Long, String> entry) {
+            public String process(MutableEntry<Long, String> entry) {
                 return entry.getValue();
             }
         });
@@ -165,9 +165,9 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());        
         
-        result = (String)cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String>() {
+        result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
             @Override
-            public Object process(MutableEntry<Long, String> entry) {
+            public String process(MutableEntry<Long, String> entry) {
                 entry.setValue("Zoot");
                 return entry.getValue();
             }
@@ -179,9 +179,9 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());        
         
-        result = (String)cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String>() {
+        result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
             @Override
-            public Object process(MutableEntry<Long, String> entry) {
+            public String process(MutableEntry<Long, String> entry) {
                 entry.remove();
                 return entry.getValue();
             }
@@ -193,9 +193,9 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         assertEquals(0, listener.getExpired());
         assertEquals(1, listener.getRemoved());        
         
-        result = (String)cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String>() {
+        result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
             @Override
-            public Object process(MutableEntry<Long, String> entry) {
+            public String process(MutableEntry<Long, String> entry) {
                 entry.setValue("Moose");
                 return entry.getValue();
             }

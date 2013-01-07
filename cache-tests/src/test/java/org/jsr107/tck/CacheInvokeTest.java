@@ -51,7 +51,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     @Test
     public void nullKey() {
         try {
-            cache.invokeEntryProcessor(null, new MockEntryProcessor<Integer, String>());
+            cache.invokeEntryProcessor(null, new MockEntryProcessor<Integer, String, Void>());
             fail("null key");
         } catch (NullPointerException e) {
             //
@@ -72,7 +72,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     public void notStarted() {
         cache.stop();
         try {
-            cache.invokeEntryProcessor(123, new MockEntryProcessor<Integer, String>());
+            cache.invokeEntryProcessor(123, new MockEntryProcessor<Integer, String, Void>());
             fail("null key");
         } catch (IllegalStateException e) {
             //
@@ -83,9 +83,9 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     public void noValueNoMutation() {
         final Integer key = 123;
         final Integer ret = 456;
-        Cache.EntryProcessor<Integer, String> processor = new MockEntryProcessor<Integer, String>() {
+        Cache.EntryProcessor<Integer, String, Integer> processor = new MockEntryProcessor<Integer, String, Integer>() {
             @Override
-            public Object process(Cache.MutableEntry<Integer, String> entry) {
+            public Integer process(Cache.MutableEntry<Integer, String> entry) {
                 assertFalse(entry.exists());
                 return ret;
             }
@@ -99,9 +99,9 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final Integer key = 123;
         final Integer ret = 456;
         final String newValue = "abc";
-        Cache.EntryProcessor<Integer, String> processor = new MockEntryProcessor<Integer, String>() {
+        Cache.EntryProcessor<Integer, String, Integer> processor = new MockEntryProcessor<Integer, String, Integer>() {
             @Override
-            public Object process(Cache.MutableEntry<Integer, String> entry) {
+            public Integer process(Cache.MutableEntry<Integer, String> entry) {
                 assertFalse(entry.exists());
                 entry.setValue(newValue);
                 assertTrue(entry.exists());
@@ -116,9 +116,9 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     public void noValueException() {
         final Integer key = 123;
         final String setValue = "abc";
-        Cache.EntryProcessor<Integer, String> processor = new MockEntryProcessor<Integer, String>() {
+        Cache.EntryProcessor<Integer, String, Void> processor = new MockEntryProcessor<Integer, String, Void>() {
             @Override
-            public Object process(Cache.MutableEntry<Integer, String> entry) {
+            public Void process(Cache.MutableEntry<Integer, String> entry) {
                 assertFalse(entry.exists());
                 entry.setValue(setValue);
                 assertTrue(entry.exists());
@@ -139,9 +139,9 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final Integer key = 123;
         final String oldValue = "abc";
         final String newValue = "def";
-        Cache.EntryProcessor<Integer, String> processor = new MockEntryProcessor<Integer, String>() {
+        Cache.EntryProcessor<Integer, String, String> processor = new MockEntryProcessor<Integer, String, String>() {
             @Override
-            public Object process(Cache.MutableEntry<Integer, String> entry) {
+            public String process(Cache.MutableEntry<Integer, String> entry) {
                 assertTrue(entry.exists());
                 String value1 = entry.getValue();
                 assertEquals(oldValue, entry.getValue());
@@ -161,9 +161,9 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final Integer key = 123;
         final String oldValue = "abc";
         final String newValue = "def";
-        Cache.EntryProcessor<Integer, String> processor = new MockEntryProcessor<Integer, String>() {
+        Cache.EntryProcessor<Integer, String, String> processor = new MockEntryProcessor<Integer, String, String>() {
             @Override
-            public Object process(Cache.MutableEntry<Integer, String> entry) {
+            public String process(Cache.MutableEntry<Integer, String> entry) {
                 assertTrue(entry.exists());
                 assertEquals(oldValue, entry.getValue());
                 entry.setValue(newValue);
@@ -186,9 +186,9 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     public void removeMissing() {
         final Integer key = 123;
         final Integer ret = 456;
-        Cache.EntryProcessor<Integer, String> processor = new MockEntryProcessor<Integer, String>() {
+        Cache.EntryProcessor<Integer, String, Integer> processor = new MockEntryProcessor<Integer, String, Integer>() {
             @Override
-            public Object process(Cache.MutableEntry<Integer, String> entry) {
+            public Integer process(Cache.MutableEntry<Integer, String> entry) {
                 assertFalse(entry.exists());
                 entry.setValue("aba");
                 assertTrue(entry.exists());
@@ -205,9 +205,9 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     public void removeThere() {
         final Integer key = 123;
         final String oldValue = "abc";
-        Cache.EntryProcessor<Integer, String> processor = new MockEntryProcessor<Integer, String>() {
+        Cache.EntryProcessor<Integer, String, String> processor = new MockEntryProcessor<Integer, String, String>() {
             @Override
-            public Object process(Cache.MutableEntry<Integer, String> entry) {
+            public String process(Cache.MutableEntry<Integer, String> entry) {
                 assertTrue(entry.exists());
                 String oldValue = entry.getValue();
                 entry.remove();
@@ -224,9 +224,9 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     public void removeException() {
         final Integer key = 123;
         final String oldValue = "abc";
-        Cache.EntryProcessor<Integer, String> processor = new MockEntryProcessor<Integer, String>() {
+        Cache.EntryProcessor<Integer, String, Void> processor = new MockEntryProcessor<Integer, String, Void>() {
             @Override
-            public Object process(Cache.MutableEntry<Integer, String> entry) {
+            public Void process(Cache.MutableEntry<Integer, String> entry) {
                 assertTrue(entry.exists());
                 entry.remove();
                 assertFalse(entry.exists());
@@ -251,7 +251,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value3 = "a3";
 
         cache.put(key, value1);
-        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable<Integer, String> r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new MyProcessorRunnable<Integer, String>(cache, key, value2, value3, SLEEP_LOW);
         Thread t2 = new Thread(r2);
@@ -273,7 +273,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value2 = "a2";
 
         cache.put(key, value1);
-        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable<Integer, String> r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -300,7 +300,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value2 = "a2";
 
         cache.put(key1, value1);
-        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key1, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable<Integer, String> r1 = new MyProcessorRunnable<Integer, String>(cache, key1, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -328,7 +328,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value1 = null;
         final String value2 = "a1";
 
-        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable<Integer, String> r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -356,7 +356,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value3 = "a3";
 
         cache.put(key, value1);
-        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable<Integer, String> r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -385,7 +385,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value3 = "a3";
 
         cache.put(key, value1);
-        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable<Integer, String> r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -413,7 +413,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value3 = "a3";
 
         cache.put(key, value1);
-        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable<Integer, String> r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -443,7 +443,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value2 = "a2";
         final String value3 = "a3";
 
-        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable<Integer, String> r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -469,7 +469,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value1 = null;
         final String value2 = "a2";
 
-        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable<Integer, String> r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -495,7 +495,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value1 = null;
         final String value2 = "a2";
 
-        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable<Integer, String> r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -521,7 +521,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value1 = null;
         final String value2 = "a2";
 
-        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable<Integer, String> r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -548,7 +548,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value2 = "a2";
         final String value3 = "a3";
 
-        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable<Integer, String> r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -575,7 +575,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value2 = "a2";
         final String value3 = "a3";
 
-        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable<Integer, String> r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -602,7 +602,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value2 = "a2";
         final String value3 = "a3";
 
-        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable<Integer, String> r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -628,7 +628,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value1 = null;
         final String value2 = "a2";
 
-        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable<Integer, String> r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -658,7 +658,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String value2 = "a2";
 
         cache.put(key, value1);
-        MyProcessorRunnable r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
+        MyProcessorRunnable<Integer, String> r1 = new MyProcessorRunnable<Integer, String>(cache, key, value1, value2, SLEEP_HIGH);
         Thread t1 = new Thread(r1);
         AbstractRunnable r2 = new AbstractRunnable() {
             @Override
@@ -679,10 +679,10 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         assertTrue(r2.asynchResult.outTime >= r1.asynchResult.outTime);
     }
 
-    private static class MockEntryProcessor<K, V> implements Cache.EntryProcessor<K, V> {
+    private static class MockEntryProcessor<K, V, T> implements Cache.EntryProcessor<K, V, T> {
 
         @Override
-        public Object process(Cache.MutableEntry<K, V> kvMutableEntry) {
+        public T process(Cache.MutableEntry<K, V> kvMutableEntry) {
             throw new UnsupportedOperationException();
         }
     }
@@ -706,10 +706,10 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
 
         @Override
         public Object internalRun() {
-            Cache.EntryProcessor<K, V> processor = new MockEntryProcessor<K, V>() {
+            Cache.EntryProcessor<K, V, V> processor = new MockEntryProcessor<K, V, V>() {
 
                 @Override
-                public Object process(Cache.MutableEntry<K, V> entry) {
+                public V process(Cache.MutableEntry<K, V> entry) {
                     try {
                         synchronizer.setReady(true);
                         Thread.sleep(sleep);
