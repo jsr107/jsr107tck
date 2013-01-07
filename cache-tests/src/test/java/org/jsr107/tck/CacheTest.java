@@ -101,6 +101,22 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         assertEquals(value1, value2);
     }
 
+    @Test()
+    public void clearTest() {
+        String cacheName = "sampleCache";
+        CacheManager cacheManager = getCacheManager();
+        Cache<String, Integer> cache = cacheManager.getCache(cacheName);
+        cache = cacheManager.configureCache(cacheName, new SimpleCacheConfiguration<String, Integer>().setStoreByValue(true));;
+
+        String key = "key";
+        Integer value1 = 1;
+        cache.put(key, value1);
+        Integer value2 = cache.get(key);
+        assertEquals(value1, value2);
+        cache.clear();
+        assertNull(cache.get(key));
+    }
+
     /**
      * All these work with get(Object)
      */

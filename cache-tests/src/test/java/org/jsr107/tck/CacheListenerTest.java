@@ -106,7 +106,6 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
 
-
         Map<Long, String> entries = new HashMap<Long, String>();
         entries.put(2l, "Lucky");
         entries.put(3l, "Prince");
@@ -208,6 +207,36 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         assertEquals(1, listener.getRemoved());        
     }
 
+    /**
+     * Check the listener doesn't get removes from a cache.clear
+     */
+    @Test
+    public void testCacheClearListener() {
+        MyCacheEntryListener<Long, String> listener = new MyCacheEntryListener<Long, String>();
+        cache.registerCacheEntryListener(listener, false, null, true);
+
+        assertEquals(0, listener.getCreated());
+        assertEquals(0, listener.getUpdated());
+        assertEquals(0, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(0, listener.getRemoved());
+
+        cache.put(1l, "Sooty");
+        assertEquals(1, listener.getCreated());
+        assertEquals(0, listener.getUpdated());
+        assertEquals(0, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(0, listener.getRemoved());
+
+        cache.clear();
+
+        //there should be no change in events!
+        assertEquals(1, listener.getCreated());
+        assertEquals(0, listener.getUpdated());
+        assertEquals(0, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(0, listener.getRemoved());
+    }
 
     @Test
     public void unregisterCacheEntryListener() {
