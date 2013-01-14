@@ -25,6 +25,9 @@ import org.junit.rules.MethodRule;
 import javax.cache.Cache;
 import javax.cache.Cache.MutableEntry;
 import javax.cache.CacheManager;
+import javax.cache.Configuration;
+import javax.cache.ExpiryPolicy;
+import javax.cache.SimpleConfiguration;
 import javax.cache.event.CacheEntryCreatedListener;
 import javax.cache.event.CacheEntryEvent;
 import javax.cache.event.CacheEntryEventFilter;
@@ -36,6 +39,7 @@ import javax.cache.event.CacheEntryUpdatedListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
@@ -71,6 +75,9 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         }
     };
 
+    protected <A, B> SimpleConfiguration<A, B> extraSetup(SimpleConfiguration<A, B> configuration) {
+        return configuration.setExpiryPolicy(new ExpiryPolicy.Modified(new Configuration.Duration(TimeUnit.MILLISECONDS, 20)));
+    }
 
     /**
      * Null listeners are not allowed
@@ -249,7 +256,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
 
     
     @Test
-    public void testFilteredListener() {
+    public void testFilteredListener() throws InterruptedException {
         MyCacheEntryListener<Long, String> listener = new MyCacheEntryListener<Long, String>();
         
         CacheEntryEventFilter<Long, String> filter = new CacheEntryEventFilter<Long, String>() {
@@ -316,6 +323,13 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         assertEquals(0, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(1, listener.getRemoved());
+
+        Thread.sleep(50);
+        assertEquals(null, cache.get(3L));
+        assertEquals(1, listener.getExpired());
+
+
+
     }
 
 
