@@ -16,17 +16,15 @@
  */
 package manager;
 
-import java.util.HashMap;
-import java.util.Map;
+import domain.Blog;
 
 import javax.cache.annotation.CacheDefaults;
+import javax.cache.annotation.CacheKeyParam;
 import javax.cache.annotation.CacheRemoveAll;
 import javax.cache.annotation.CacheRemoveEntry;
 import javax.cache.annotation.CacheResult;
-import javax.cache.annotation.CacheKeyParam;
-
-
-import domain.Blog;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 

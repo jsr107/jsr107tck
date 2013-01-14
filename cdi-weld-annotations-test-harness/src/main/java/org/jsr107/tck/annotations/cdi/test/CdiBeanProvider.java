@@ -17,15 +17,14 @@
 
 package org.jsr107.tck.annotations.cdi.test;
 
-import java.util.Set;
+import org.jboss.weld.environment.se.Weld;
+import org.jboss.weld.environment.se.WeldContainer;
 
 import javax.cache.annotation.BeanProvider;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
-
-import org.jboss.weld.environment.se.Weld;
-import org.jboss.weld.environment.se.WeldContainer;
+import java.util.Set;
 
 /**
  * Weld specific bean provider that loads up the CDI BeanManager when constructed

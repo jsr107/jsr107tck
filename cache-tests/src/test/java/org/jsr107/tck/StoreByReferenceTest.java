@@ -16,19 +16,6 @@
  */
 package org.jsr107.tck;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Date;
-import java.util.Map;
-
-import javax.cache.Caching;
-import javax.cache.CachingShutdownException;
-import javax.cache.OptionalFeature;
-import javax.cache.SimpleCacheConfiguration;
-
 import org.jsr107.tck.util.AllTestExcluder;
 import org.jsr107.tck.util.ExcludeListExcluder;
 import org.junit.After;
@@ -36,6 +23,18 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
+
+import javax.cache.Caching;
+import javax.cache.CachingShutdownException;
+import javax.cache.OptionalFeature;
+import javax.cache.SimpleConfiguration;
+import java.util.Date;
+import java.util.Map;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Implementations can optionally support storeByReference.
@@ -199,7 +198,7 @@ public class StoreByReferenceTest extends CacheTestSupport<Date, Date> {
      * {@inheritDoc}
      */
     @Override
-    protected <A, B> SimpleCacheConfiguration<A, B> extraSetup(SimpleCacheConfiguration<A, B> configuration) {
+    protected <A, B> SimpleConfiguration<A, B> extraSetup(SimpleConfiguration<A, B> configuration) {
     	return super.extraSetup(configuration).setStoreByValue(false);
     }
 }

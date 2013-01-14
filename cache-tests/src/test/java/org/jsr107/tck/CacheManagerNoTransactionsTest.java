@@ -16,6 +16,7 @@
  */
 package org.jsr107.tck;
 
+import junit.framework.Assert;
 import org.jsr107.tck.util.ExcludeListExcluder;
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,12 +26,10 @@ import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.CachingShutdownException;
-import javax.cache.SimpleCacheConfiguration;
+import javax.cache.SimpleConfiguration;
 import javax.cache.transaction.IsolationLevel;
 import javax.cache.transaction.Mode;
 import javax.transaction.UserTransaction;
-
-import junit.framework.Assert;
 
 import static org.junit.Assert.assertEquals;
 
@@ -77,7 +76,7 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
     @Test
     public void isolationLevelForNonTransactionalCache() throws Exception {
         CacheManager cacheManager = getCacheManager();
-        Cache<?, ?> cache = cacheManager.configureCache("test", new SimpleCacheConfiguration());
+        Cache<?, ?> cache = cacheManager.configureCache("test", new SimpleConfiguration());
         assertEquals(IsolationLevel.NONE , cache.getConfiguration().getTransactionIsolationLevel());
     }
 
@@ -87,7 +86,7 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
     @Test
     public void modeForNonTransactionalCache() throws Exception {
         CacheManager cacheManager = getCacheManager();
-        Cache<?, ?> cache = cacheManager.configureCache("test", new SimpleCacheConfiguration());
+        Cache<?, ?> cache = cacheManager.configureCache("test", new SimpleConfiguration());
         assertEquals(Mode.NONE , cache.getConfiguration().getTransactionMode());
     }
 
@@ -99,7 +98,7 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
         CacheManager cacheManager = getCacheManager();
         
         try {
-            SimpleCacheConfiguration<?, ?> config = new SimpleCacheConfiguration();
+            SimpleConfiguration<?, ?> config = new SimpleConfiguration();
             config.setTransactions(IsolationLevel.READ_COMMITTED, Mode.NONE)
                   .setTransactionsEnabled(true);
             
@@ -110,7 +109,7 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
         }
         
         try {
-            SimpleCacheConfiguration<?, ?> config = new SimpleCacheConfiguration();
+            SimpleConfiguration<?, ?> config = new SimpleConfiguration();
             config.setTransactions(IsolationLevel.NONE, Mode.LOCAL)
                   .setTransactionsEnabled(true);
             

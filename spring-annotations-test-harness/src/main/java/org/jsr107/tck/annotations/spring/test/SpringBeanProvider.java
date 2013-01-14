@@ -17,10 +17,10 @@
 
 package org.jsr107.tck.annotations.spring.test;
 
-import javax.cache.annotation.BeanProvider;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import javax.cache.annotation.BeanProvider;
 
 /**
  * Spring specific bean provider that loads up the spring app context when constructed

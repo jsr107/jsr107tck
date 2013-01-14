@@ -17,27 +17,26 @@
 
 package org.jsr107.tck;
 
-import java.util.HashMap;
-
-import javax.cache.Cache;
-import javax.cache.CacheEntryExpiryPolicy;
-import javax.cache.Cache.Entry;
-import javax.cache.CacheConfiguration.Duration;
-import javax.cache.SimpleCacheConfiguration;
-
 import org.jsr107.tck.util.ExcludeListExcluder;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 
+import javax.cache.Cache;
+import javax.cache.Cache.Entry;
+import javax.cache.Configuration.Duration;
+import javax.cache.ExpiryPolicy;
+import javax.cache.SimpleConfiguration;
+import java.util.HashMap;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Unit Tests for expiring cache entries with {@link CacheEntryExpiryPolicy}s.
+ * Unit Tests for expiring cache entries with {@link javax.cache.ExpiryPolicy}s.
  * 
  * @author Brian Oliver
  */
@@ -58,14 +57,14 @@ public class CacheExpiryTest extends TestSupport {
     }
     
     /**
-     * Ensure that a cache using a {@link CacheEntryExpiryPolicy} configured to 
+     * Ensure that a cache using a {@link javax.cache.ExpiryPolicy} configured to
      * return a {@link Duration#ZERO} for newly created entries will immediately 
      * expire said entries.
      */
     @Test
     public void expire_whenCreated() {
-        SimpleCacheConfiguration<Integer, Integer> config = new SimpleCacheConfiguration<Integer, Integer>();
-        config.setCacheEntryExpiryPolicy(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ZERO, null, null));
+        SimpleConfiguration<Integer, Integer> config = new SimpleConfiguration<Integer, Integer>();
+        config.setExpiryPolicy(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ZERO, null, null));
         
         Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), config);
 
@@ -98,14 +97,14 @@ public class CacheExpiryTest extends TestSupport {
     }
     
     /**
-     * Ensure that a cache using a {@link CacheEntryExpiryPolicy} configured to 
+     * Ensure that a cache using a {@link javax.cache.ExpiryPolicy} configured to
      * return a {@link Duration#ZERO} after accessing entries will immediately 
      * expire said entries.
      */
     @Test
     public void expire_whenAccessed() {
-        SimpleCacheConfiguration<Integer, Integer> config = new SimpleCacheConfiguration<Integer, Integer>();
-        config.setCacheEntryExpiryPolicy(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ETERNAL, Duration.ZERO, null));
+        SimpleConfiguration<Integer, Integer> config = new SimpleConfiguration<Integer, Integer>();
+        config.setExpiryPolicy(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ETERNAL, Duration.ZERO, null));
         
         Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), config);
 
@@ -172,14 +171,14 @@ public class CacheExpiryTest extends TestSupport {
     }
     
     /**
-     * Ensure that a cache using a {@link CacheEntryExpiryPolicy} configured to 
+     * Ensure that a cache using a {@link javax.cache.ExpiryPolicy} configured to
      * return a {@link Duration#ZERO} after modifying entries will immediately 
      * expire said entries.
      */
     @Test
     public void expire_whenModified() {
-        SimpleCacheConfiguration<Integer, Integer> config = new SimpleCacheConfiguration<Integer, Integer>();
-        config.setCacheEntryExpiryPolicy(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ETERNAL, null, Duration.ZERO));
+        SimpleConfiguration<Integer, Integer> config = new SimpleConfiguration<Integer, Integer>();
+        config.setExpiryPolicy(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ETERNAL, null, Duration.ZERO));
         
         Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), config);
 
@@ -250,10 +249,10 @@ public class CacheExpiryTest extends TestSupport {
     }
     
     /**
-     * A {@link CacheEntryExpiryPolicy} that updates the expiry time based on 
+     * A {@link javax.cache.ExpiryPolicy} that updates the expiry time based on
      * defined parameters.
      */
-    public static class ParameterizedExpiryPolicy<K, V> implements CacheEntryExpiryPolicy<K, V> {
+    public static class ParameterizedExpiryPolicy<K, V> implements ExpiryPolicy<K, V> {
         
         /**
          * The {@link Duration} after which a Cache Entry will expire when created.

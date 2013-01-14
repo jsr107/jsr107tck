@@ -27,10 +27,10 @@ import org.junit.Test;
 import org.junit.rules.MethodRule;
 
 import javax.cache.Cache;
-import javax.cache.CacheConfiguration;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
-import javax.cache.SimpleCacheConfiguration;
+import javax.cache.Configuration;
+import javax.cache.SimpleConfiguration;
 import javax.cache.Status;
 import javax.cache.annotation.CacheRemoveAll;
 import java.lang.reflect.Method;
@@ -82,8 +82,8 @@ public class CacheTest extends CacheTestSupport<Long, String> {
 
     @Test
     public void sameConfiguration() {
-        CacheConfiguration<Integer, Integer> config1 = new SimpleCacheConfiguration<Integer, Integer>();
-        CacheConfiguration<Integer, Integer> config2 = new SimpleCacheConfiguration<Integer, Integer>();
+        Configuration<Integer, Integer> config1 = new SimpleConfiguration<Integer, Integer>();
+        Configuration<Integer, Integer> config2 = new SimpleConfiguration<Integer, Integer>();
         assertEquals(config1, config2);
     }
     
@@ -92,7 +92,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         String cacheName = "sampleCache";
         CacheManager cacheManager = getCacheManager();
         Cache<String, Integer> cache = cacheManager.getCache(cacheName);
-        cache = cacheManager.configureCache(cacheName, new SimpleCacheConfiguration<String, Integer>().setStoreByValue(true));;
+        cache = cacheManager.configureCache(cacheName, new SimpleConfiguration<String, Integer>().setStoreByValue(true));;
 
         String key = "key";
         Integer value1 = 1;
@@ -106,7 +106,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         String cacheName = "sampleCache";
         CacheManager cacheManager = getCacheManager();
         Cache<String, Integer> cache = cacheManager.getCache(cacheName);
-        cache = cacheManager.configureCache(cacheName, new SimpleCacheConfiguration<String, Integer>().setStoreByValue(true));;
+        cache = cacheManager.configureCache(cacheName, new SimpleConfiguration<String, Integer>().setStoreByValue(true));;
 
         String key = "key";
         Integer value1 = 1;
@@ -126,7 +126,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         String cacheName = "genericsCache";
         CacheManager cacheManager = getCacheManager();
         Cache<Identifier, Beagle> cacheGeneric = cacheManager.getCache(cacheName);
-        cacheGeneric = cacheManager.configureCache(cacheName, new SimpleCacheConfiguration<Identifier, Beagle>());
+        cacheGeneric = cacheManager.configureCache(cacheName, new SimpleConfiguration<Identifier, Beagle>());
         Beagle pistachio = new Beagle();
         cacheGeneric.put(new Identifier("Pistachio"), pistachio);
         //Illegal with change to get(K)
@@ -214,7 +214,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
 
     @Test
     public void getConfiguration_Mutation() {
-        CacheConfiguration config = cache.getConfiguration();
+        Configuration config = cache.getConfiguration();
 
         boolean enabled = config.isStatisticsEnabled();
         assertEquals(enabled, config.isStatisticsEnabled());
@@ -296,8 +296,8 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         CacheManager cacheManager2 = Caching.getCacheManager(cl2);
         assertNotSame(cacheManager1, cacheManager2);
 
-        Cache cache1 = cacheManager1.configureCache(cacheName, new SimpleCacheConfiguration());
-        Cache cache2 = cacheManager2.configureCache(cacheName, new SimpleCacheConfiguration());
+        Cache cache1 = cacheManager1.configureCache(cacheName, new SimpleConfiguration());
+        Cache cache2 = cacheManager2.configureCache(cacheName, new SimpleConfiguration());
 
         assertSame(cacheManager1, cache1.getCacheManager());
         assertSame(cacheManager2, cache2.getCacheManager());

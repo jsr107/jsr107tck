@@ -16,14 +16,13 @@
  */
 package org.jsr107.tck;
 
-import java.util.Date;
-import java.util.LinkedHashMap;
-
-import javax.cache.Cache;
-import javax.cache.SimpleCacheConfiguration;
-
 import org.junit.After;
 import org.junit.Before;
+
+import javax.cache.Cache;
+import javax.cache.SimpleConfiguration;
+import java.util.Date;
+import java.util.LinkedHashMap;
 
 /**
  * Unit test support base class
@@ -38,7 +37,7 @@ public abstract class CacheTestSupport<K,V> extends TestSupport {
 
     @Before
     public void setUp() {
-        cache = getCacheManager().configureCache(getTestCacheName(), extraSetup(new SimpleCacheConfiguration<K, V>()));
+        cache = getCacheManager().configureCache(getTestCacheName(), extraSetup(new SimpleConfiguration<K, V>()));
     }
 
     @After
@@ -46,7 +45,7 @@ public abstract class CacheTestSupport<K,V> extends TestSupport {
         getCacheManager().removeCache(getTestCacheName());
     }
 
-    protected <A, B> SimpleCacheConfiguration<A, B> extraSetup(SimpleCacheConfiguration<A, B> configuration) {
+    protected <A, B> SimpleConfiguration<A, B> extraSetup(SimpleConfiguration<A, B> configuration) {
         return configuration;
     }
 

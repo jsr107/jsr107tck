@@ -28,7 +28,7 @@ import org.junit.Test;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
-import javax.cache.SimpleCacheConfiguration;
+import javax.cache.SimpleConfiguration;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -82,7 +82,7 @@ public class JMXTest {
 
     @Test
     public void testCacheStatisticsWhereStatisticsTurnedOn() throws Exception {
-    	SimpleCacheConfiguration configuration = new SimpleCacheConfiguration();
+    	SimpleConfiguration configuration = new SimpleConfiguration();
     	configuration.setStatisticsEnabled(false);
     	
         cacheManager.configureCache("cache1", configuration);
@@ -110,7 +110,7 @@ public class JMXTest {
         MBeanServerRegistrationUtility mBeanServerRegistrationUtility = null;
         try {
             MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-            SimpleCacheConfiguration configuration = new SimpleCacheConfiguration();
+            SimpleConfiguration configuration = new SimpleConfiguration();
         	configuration.setStatisticsEnabled(false);
         	
             cacheManager.configureCache("cache1", configuration);
