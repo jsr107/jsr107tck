@@ -38,7 +38,9 @@ import javax.cache.event.CacheEntryRemovedListener;
 import javax.cache.event.CacheEntryUpdatedListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -254,7 +256,10 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         assertFalse(cache.unregisterCacheEntryListener(listener));
     }
 
-    
+    /**
+     * Checks that the correct listeners are called the correct number of times from all of our access and mutation operations.
+     * @throws InterruptedException
+     */
     @Test
     public void testFilteredListener() throws InterruptedException {
         MyCacheEntryListener<Long, String> listener = new MyCacheEntryListener<Long, String>();
@@ -324,11 +329,71 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         assertEquals(0, listener.getExpired());
         assertEquals(1, listener.getRemoved());
 
+        cache.get(1L);
+        assertEquals(2, listener.getCreated());
+        assertEquals(2, listener.getUpdated());
+        assertEquals(1, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(1, listener.getRemoved());
+
+        //containsKey is not a read for listener purposes.
+        cache.containsKey(1L);
+        assertEquals(2, listener.getCreated());
+        assertEquals(2, listener.getUpdated());
+        assertEquals(1, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(1, listener.getRemoved());
+
+        //todo iterating should cause a read. It should also cause any expired entries to expire
+        for (Cache.Entry<Long, String> entry : cache) {
+            String value = entry.getValue();
+            System.out.println(value);
+        }
+        assertEquals(2, listener.getCreated());
+        assertEquals(2, listener.getUpdated());
+        assertEquals(1, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(1, listener.getRemoved());
+
+        cache.getAndPut(1l, "Pistachio");
+        assertEquals(2, listener.getCreated());
+        assertEquals(3, listener.getUpdated());
+        assertEquals(2, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(1, listener.getRemoved());
+
+        Set<Long> keys = new HashSet<Long>();
+        keys.add(1L);
+        cache.getAll(keys);
+        assertEquals(2, listener.getCreated());
+        assertEquals(3, listener.getUpdated());
+        assertEquals(3, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(1, listener.getRemoved());
+
+        cache.getAndReplace(1l, "Prince");
+        assertEquals(2, listener.getCreated());
+        assertEquals(4, listener.getUpdated());
+        assertEquals(4, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(1, listener.getRemoved());
+
+        cache.getAndRemove(1l);
+        assertEquals(2, listener.getCreated());
+        assertEquals(4, listener.getUpdated());
+        assertEquals(5, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(2, listener.getRemoved());
+
+
         Thread.sleep(50);
+        //expiry is lazy
         assertEquals(null, cache.get(3L));
+        assertEquals(2, listener.getCreated());
+        assertEquals(4, listener.getUpdated());
+        assertEquals(5, listener.getReads());
         assertEquals(1, listener.getExpired());
-
-
+        assertEquals(2, listener.getRemoved());
 
     }
 
