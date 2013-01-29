@@ -28,6 +28,7 @@ import javax.cache.Configuration.Duration;
 import javax.cache.ExpiryPolicy;
 import javax.cache.SimpleConfiguration;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -165,8 +166,9 @@ public class CacheExpiryTest extends TestSupport {
         assertNull(cache.get(1));
 
         cache.put(1, 1);
-        assertTrue(cache.iterator().hasNext());
-        assertEquals((Integer)1, cache.iterator().next().getValue());
+        Iterator<Entry<Integer, Integer>> iterator = cache.iterator();
+        assertTrue(iterator.hasNext());
+        assertEquals((Integer)1, iterator.next().getValue());
         assertFalse(cache.iterator().hasNext());
     }
     
