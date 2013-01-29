@@ -36,11 +36,7 @@ import javax.cache.event.CacheEntryListenerException;
 import javax.cache.event.CacheEntryReadListener;
 import javax.cache.event.CacheEntryRemovedListener;
 import javax.cache.event.CacheEntryUpdatedListener;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -213,7 +209,18 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         assertEquals(5, listener.getUpdated());
         assertEquals(3, listener.getReads());
         assertEquals(0, listener.getExpired());
-        assertEquals(1, listener.getRemoved());        
+        assertEquals(1, listener.getRemoved());
+
+        Iterator<Cache.Entry<Long, String>> iterator = cache.iterator();
+        while(iterator.hasNext()) {
+            iterator.next();
+            iterator.remove();
+        }
+        assertEquals(5, listener.getCreated());
+        assertEquals(5, listener.getUpdated());
+        assertEquals(7, listener.getReads());
+        assertEquals(0, listener.getExpired());
+        assertEquals(5, listener.getRemoved());
     }
 
     /**
@@ -384,7 +391,6 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         assertEquals(7, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(2, listener.getRemoved());
-
 
         Thread.sleep(50);
         //expiry is lazy
