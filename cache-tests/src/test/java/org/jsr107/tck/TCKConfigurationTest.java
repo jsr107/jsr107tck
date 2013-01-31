@@ -36,21 +36,21 @@ import static org.junit.Assert.assertTrue;
  * 
  * @since 1.0
  */
-public class TCKCacheConfigurationTest {
+public class TCKConfigurationTest {
     
     /**
      * Obtains the {@link javax.cache.Configuration} implementation to use for testing
      * 
      * @return a new {@link javax.cache.Configuration} instance
      */
-    public <K, V> Configuration<K, V> getCacheConfiguration()
+    public <K, V> Configuration<K, V> getConfiguration()
     {
         return new SimpleConfiguration<K, V>();
     }
     
     @Test
     public void checkDefaults() {
-        Configuration<?, ?> config = getCacheConfiguration();
+        Configuration<?, ?> config = getConfiguration();
         assertFalse(config.isReadThrough());
         assertFalse(config.isWriteThrough());
         assertFalse(config.isStatisticsEnabled());
@@ -64,30 +64,30 @@ public class TCKCacheConfigurationTest {
 
     @Test
     public void notSame() {
-        Configuration<?, ?> config1 = getCacheConfiguration();
-        Configuration<?, ?> config2 = getCacheConfiguration();
+        Configuration<?, ?> config1 = getConfiguration();
+        Configuration<?, ?> config2 = getConfiguration();
         assertNotSame(config1, config2);
     }
 
     @Test
     public void equals() {
-        Configuration<?, ?> config1 = getCacheConfiguration();
-        Configuration<?, ?> config2 = getCacheConfiguration();
+        Configuration<?, ?> config1 = getConfiguration();
+        Configuration<?, ?> config2 = getConfiguration();
         assertEquals(config1, config2);
     }
 
     @Test
     public void equalsNotEquals() {
-        Configuration<?, ?> config1 = getCacheConfiguration();
+        Configuration<?, ?> config1 = getConfiguration();
         config1.setStatisticsEnabled(!config1.isStatisticsEnabled());
         
-        Configuration<?, ?> config2 = getCacheConfiguration();
+        Configuration<?, ?> config2 = getConfiguration();
         assertFalse(config1.equals(config2));
     }
 
     @Test
     public void setStatisticsEnabled() {
-        Configuration<?, ?> config = getCacheConfiguration();
+        Configuration<?, ?> config = getConfiguration();
         boolean isStatisticsEnabled = config.isStatisticsEnabled();
         config.setStatisticsEnabled(!isStatisticsEnabled);
         assertEquals(!isStatisticsEnabled, config.isStatisticsEnabled());
