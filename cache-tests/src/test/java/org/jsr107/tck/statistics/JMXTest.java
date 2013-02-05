@@ -33,6 +33,7 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
+import java.util.Set;
 import java.util.logging.Logger;
 
 
@@ -89,7 +90,8 @@ public class JMXTest {
         cacheManager.configureCache("cache2", configuration);
 
         mBeanServerRegistrationUtility = new MBeanServerRegistrationUtility(cacheManager, mBeanServer);
-        Assert.assertTrue((mBeanServer.queryNames(new ObjectName("javax.cache:*"), null).size()) >= 2);
+        Set names = mBeanServer.queryNames(new ObjectName("javax.cache:*"), null);
+        Assert.assertTrue(names.size() >= 2);
     }
 
     /*
