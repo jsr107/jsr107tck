@@ -22,7 +22,7 @@ import javax.cache.Cache;
 import javax.cache.CacheException;
 import javax.cache.CacheManager;
 import javax.cache.Status;
-import javax.cache.mbeans.CacheMXBean;
+import javax.cache.CacheMXBean;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
