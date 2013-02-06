@@ -20,9 +20,9 @@ package org.jsr107.tck.statistics;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
+import javax.cache.CacheMXBean;
 import javax.cache.CacheManager;
 import javax.cache.Status;
-import javax.cache.CacheMXBean;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
@@ -61,8 +61,9 @@ public class MBeanServerRegistrationUtility {
 
         try {
             for (Cache<?, ?> cache : this.cacheManager.getCaches()) {
-                //todo some caches may not be capturing statistics
-                registerCacheStatistics(cache);
+                if (cache.getConfiguration().isStatisticsEnabled()) {
+                    registerCacheStatistics(cache);
+                }
             }
         } catch (Exception e) {
             throw new CacheException(e);
@@ -96,7 +97,7 @@ public class MBeanServerRegistrationUtility {
 
     private void registerCacheStatistics(Cache cache) throws InstanceAlreadyExistsException,
             MBeanRegistrationException, NotCompliantMBeanException {
-        CacheMXBean mBean = cache.getMBean();
+        CacheMXBean mBean =  cache.getMBean();
         if (mBean != null) {
             mBeanServer.registerMBean(mBean, calculateObjectName(cacheManager.getName(), mBean.getName()));
         }

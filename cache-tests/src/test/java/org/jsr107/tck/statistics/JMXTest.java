@@ -85,12 +85,18 @@ public class JMXTest {
     public void testCacheStatisticsWhereStatisticsTurnedOn() throws Exception {
     	SimpleConfiguration configuration = new SimpleConfiguration();
     	configuration.setStatisticsEnabled(false);
-    	
         cacheManager.configureCache("cache1", configuration);
         cacheManager.configureCache("cache2", configuration);
-
         mBeanServerRegistrationUtility = new MBeanServerRegistrationUtility(cacheManager, mBeanServer);
         Set names = mBeanServer.queryNames(new ObjectName("javax.cache:*"), null);
+        Assert.assertTrue(names.size() == 0);
+
+
+        configuration.setStatisticsEnabled(true);
+        cacheManager.configureCache("cache3", configuration);
+        cacheManager.configureCache("cache4", configuration);
+        mBeanServerRegistrationUtility = new MBeanServerRegistrationUtility(cacheManager, mBeanServer);
+        names = mBeanServer.queryNames(new ObjectName("javax.cache:*"), null);
         Assert.assertTrue(names.size() >= 2);
     }
 
