@@ -27,6 +27,7 @@ import javax.cache.Cache;
 import javax.cache.CacheWriter;
 import javax.cache.SimpleConfiguration;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -363,6 +364,90 @@ public class CacheWriterTest extends TestSupport {
         assertEquals(2, cacheWriter.getDeleteCount());
     }
 
+    @Test
+    public void putAll() {
+        assertEquals(0, cacheWriter.getWriteCount());
+        assertEquals(0, cacheWriter.getDeleteCount());
+
+        HashMap<Integer, String> map = new HashMap<Integer, String>();
+        map.put(1, "Gudday World");
+        map.put(2, "Bonjour World");
+        map.put(3, "Hello World");
+
+        cache.putAll(map);
+
+        assertEquals(3, cacheWriter.getWriteCount());
+        assertEquals(0, cacheWriter.getDeleteCount());
+
+        for(Integer key : map.keySet()) {
+            assertTrue(cacheWriter.containsKey(key));
+            assertEquals(map.get(key), cacheWriter.get(key));
+            assertTrue(cache.containsKey(key));
+            assertEquals(map.get(key), cache.get(key));
+        }
+
+        map.put(4, "Hola World");
+
+        cache.putAll(map);
+
+        assertEquals(7, cacheWriter.getWriteCount());
+        assertEquals(0, cacheWriter.getDeleteCount());
+
+        for(Integer key : map.keySet()) {
+            assertTrue(cacheWriter.containsKey(key));
+            assertEquals(map.get(key), cacheWriter.get(key));
+            assertTrue(cache.containsKey(key));
+            assertEquals(map.get(key), cache.get(key));
+        }
+    }
+
+    @Test
+    public void removeAll() {
+        assertEquals(0, cacheWriter.getWriteCount());
+        assertEquals(0, cacheWriter.getDeleteCount());
+
+        HashMap<Integer, String> map = new HashMap<Integer, String>();
+        map.put(1, "Gudday World");
+        map.put(2, "Bonjour World");
+        map.put(3, "Hello World");
+
+        cache.putAll(map);
+
+        assertEquals(3, cacheWriter.getWriteCount());
+        assertEquals(0, cacheWriter.getDeleteCount());
+
+        for(Integer key : map.keySet()) {
+            assertTrue(cacheWriter.containsKey(key));
+            assertEquals(map.get(key), cacheWriter.get(key));
+            assertTrue(cache.containsKey(key));
+            assertEquals(map.get(key), cache.get(key));
+        }
+
+        cache.removeAll();
+
+        assertEquals(3, cacheWriter.getWriteCount());
+        assertEquals(3, cacheWriter.getDeleteCount());
+
+        for(Integer key : map.keySet()) {
+            assertFalse(cacheWriter.containsKey(key));
+            assertFalse(cache.containsKey(key));
+        }
+
+        map.put(4, "Hola World");
+
+        cache.putAll(map);
+
+        assertEquals(7, cacheWriter.getWriteCount());
+        assertEquals(3, cacheWriter.getDeleteCount());
+
+        for(Integer key : map.keySet()) {
+            assertTrue(cacheWriter.containsKey(key));
+            assertEquals(map.get(key), cacheWriter.get(key));
+            assertTrue(cache.containsKey(key));
+            assertEquals(map.get(key), cache.get(key));
+        }
+    }
+
     /**
      * A CacheWriter implementation that records the entries written to it so
      * that they may be later asserted.
@@ -404,21 +489,25 @@ public class CacheWriterTest extends TestSupport {
 
         @Override
         public void writeAll(Collection<Cache.Entry<? extends K, ? extends V>> entries) {
-            for(Cache.Entry<? extends K, ? extends V> entry : entries) {
-                write(entry);
+            Iterator<Cache.Entry<? extends K, ? extends V>> iterator = entries.iterator();
+
+            while(iterator.hasNext()) {
+                write(iterator.next());
+                iterator.remove();
             }
         }
 
         @Override
         public void delete(Object key) {
-            V previous = map.remove(key);
+            map.remove(key);
             deleteCount.incrementAndGet();
         }
 
         @Override
         public void deleteAll(Collection<?> entries) {
-            for(Object key : entries) {
-                delete(key);
+            for(Iterator<?> keys = entries.iterator(); keys.hasNext();) {
+                delete(keys.next());
+                keys.remove();
             }
         }
 
