@@ -28,6 +28,7 @@ import javax.cache.CacheWriter;
 import javax.cache.SimpleConfiguration;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -446,6 +447,59 @@ public class CacheWriterTest extends TestSupport {
             assertTrue(cache.containsKey(key));
             assertEquals(map.get(key), cache.get(key));
         }
+    }
+
+    @Test
+    public void removeAllSpecific() {
+        assertEquals(0, cacheWriter.getWriteCount());
+        assertEquals(0, cacheWriter.getDeleteCount());
+
+        HashMap<Integer, String> map = new HashMap<Integer, String>();
+        map.put(1, "Gudday World");
+        map.put(2, "Bonjour World");
+        map.put(3, "Hello World");
+        map.put(4, "Hola World");
+
+        cache.putAll(map);
+
+        assertEquals(4, cacheWriter.getWriteCount());
+        assertEquals(0, cacheWriter.getDeleteCount());
+
+        for(Integer key : map.keySet()) {
+            assertTrue(cacheWriter.containsKey(key));
+            assertEquals(map.get(key), cacheWriter.get(key));
+            assertTrue(cache.containsKey(key));
+            assertEquals(map.get(key), cache.get(key));
+        }
+
+        HashSet<Integer> set = new HashSet<Integer>();
+        set.add(1);
+        set.add(4);
+
+        cache.removeAll(set);
+
+        assertEquals(4, cacheWriter.getWriteCount());
+        assertEquals(2, cacheWriter.getDeleteCount());
+
+        for(Integer key : set) {
+            assertFalse(cacheWriter.containsKey(key));
+            assertFalse(cache.containsKey(key));
+        }
+
+        cache.put(4, "Howdy World");
+
+        assertEquals(5, cacheWriter.getWriteCount());
+        assertEquals(2, cacheWriter.getDeleteCount());
+
+        set.clear();
+        set.add(2);
+
+        cache.removeAll(set);
+
+        assertTrue(cacheWriter.containsKey(3));
+        assertTrue(cache.containsKey(3));
+        assertTrue(cacheWriter.containsKey(4));
+        assertTrue(cache.containsKey(4));
     }
 
     /**
