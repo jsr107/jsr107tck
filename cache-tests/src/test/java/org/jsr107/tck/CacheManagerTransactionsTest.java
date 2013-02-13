@@ -25,8 +25,8 @@ import org.junit.rules.MethodRule;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
+import javax.cache.MutableConfiguration;
 import javax.cache.OptionalFeature;
-import javax.cache.SimpleConfiguration;
 import javax.cache.transaction.IsolationLevel;
 import javax.cache.transaction.Mode;
 import javax.transaction.UserTransaction;
@@ -65,7 +65,7 @@ public class CacheManagerTransactionsTest extends TestSupport {
     @Test
     public void isolationLevelForNonTransactionalCache() throws Exception {
         CacheManager cacheManager = getCacheManager();
-        Cache cache = cacheManager.configureCache("test", new SimpleConfiguration());
+        Cache cache = cacheManager.configureCache("test", new MutableConfiguration());
         assertEquals(IsolationLevel.NONE, cache.getConfiguration().getTransactionIsolationLevel());
     }
 
@@ -76,17 +76,17 @@ public class CacheManagerTransactionsTest extends TestSupport {
     public void setIncorrectIsolationLevelForTransactionalCache() throws Exception {
         CacheManager cacheManager = getCacheManager();
         try {
-            cacheManager.configureCache("test", new SimpleConfiguration().setTransactions(IsolationLevel.NONE, Mode.NONE));
+            cacheManager.configureCache("test", new MutableConfiguration().setTransactions(IsolationLevel.NONE, Mode.NONE));
         } catch (IllegalArgumentException e) {
             //expected
         }
         try {
-            cacheManager.configureCache("test", new SimpleConfiguration().setTransactions(IsolationLevel.READ_COMMITTED, Mode.NONE));
+            cacheManager.configureCache("test", new MutableConfiguration().setTransactions(IsolationLevel.READ_COMMITTED, Mode.NONE));
         } catch (IllegalArgumentException e) {
             //expected
         }
         try {
-            cacheManager.configureCache("test", new SimpleConfiguration().setTransactions(IsolationLevel.NONE, Mode.LOCAL));
+            cacheManager.configureCache("test", new MutableConfiguration().setTransactions(IsolationLevel.NONE, Mode.LOCAL));
         } catch (IllegalArgumentException e) {
             //expected
         }

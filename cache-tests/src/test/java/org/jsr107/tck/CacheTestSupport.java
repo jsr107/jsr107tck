@@ -20,7 +20,7 @@ import org.junit.After;
 import org.junit.Before;
 
 import javax.cache.Cache;
-import javax.cache.SimpleConfiguration;
+import javax.cache.MutableConfiguration;
 import java.util.Date;
 import java.util.LinkedHashMap;
 
@@ -37,7 +37,7 @@ public abstract class CacheTestSupport<K,V> extends TestSupport {
 
     @Before
     public void setUp() {
-        cache = getCacheManager().configureCache(getTestCacheName(), extraSetup(new SimpleConfiguration<K, V>()));
+        cache = getCacheManager().configureCache(getTestCacheName(), extraSetup(new MutableConfiguration<K, V>()));
     }
 
     @After
@@ -45,7 +45,7 @@ public abstract class CacheTestSupport<K,V> extends TestSupport {
         getCacheManager().removeCache(getTestCacheName());
     }
 
-    protected <A, B> SimpleConfiguration<A, B> extraSetup(SimpleConfiguration<A, B> configuration) {
+    protected <A, B> MutableConfiguration<A, B> extraSetup(MutableConfiguration<A, B> configuration) {
         return configuration;
     }
 

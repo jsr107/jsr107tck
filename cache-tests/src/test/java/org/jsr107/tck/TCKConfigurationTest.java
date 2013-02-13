@@ -21,7 +21,7 @@ import org.junit.Test;
 
 import javax.cache.Configuration;
 import javax.cache.Configuration.Duration;
-import javax.cache.SimpleConfiguration;
+import javax.cache.MutableConfiguration;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
@@ -45,7 +45,7 @@ public class TCKConfigurationTest {
      */
     public <K, V> Configuration<K, V> getConfiguration()
     {
-        return new SimpleConfiguration<K, V>();
+        return new MutableConfiguration<K, V>();
     }
     
     @Test
@@ -79,8 +79,8 @@ public class TCKConfigurationTest {
     @Test
     public void notEquals() {
         Configuration<?, ?> config1 = getConfiguration();
-        Configuration<?, ?> config2 = new SimpleConfiguration<Object, Object>();
-        ((SimpleConfiguration)config2).setStatisticsEnabled(true);
+        Configuration<?, ?> config2 = new MutableConfiguration<Object, Object>();
+        ((MutableConfiguration)config2).setStatisticsEnabled(true);
         assertFalse(config1.equals(config2));
     }
 

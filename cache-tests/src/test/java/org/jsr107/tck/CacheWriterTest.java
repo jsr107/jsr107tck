@@ -16,7 +16,6 @@
  */
 package org.jsr107.tck;
 
-import junit.framework.Assert;
 import org.jsr107.tck.util.ExcludeListExcluder;
 import org.junit.After;
 import org.junit.Before;
@@ -25,7 +24,7 @@ import org.junit.Test;
 
 import javax.cache.Cache;
 import javax.cache.CacheWriter;
-import javax.cache.SimpleConfiguration;
+import javax.cache.MutableConfiguration;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,8 +33,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for {@link javax.cache.CacheWriter}s.
@@ -64,7 +63,7 @@ public class CacheWriterTest extends TestSupport {
     public void setup() {
         cacheWriter = new RecordingCacheWriter<Integer, String>();
 
-        SimpleConfiguration<Integer, String> config = new SimpleConfiguration<Integer, String>();
+        MutableConfiguration<Integer, String> config = new MutableConfiguration<Integer, String>();
         config.setCacheWriter(cacheWriter);
         config.setWriteThrough(true);
 

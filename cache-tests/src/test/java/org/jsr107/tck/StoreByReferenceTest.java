@@ -26,8 +26,8 @@ import org.junit.rules.MethodRule;
 
 import javax.cache.Caching;
 import javax.cache.CachingShutdownException;
+import javax.cache.MutableConfiguration;
 import javax.cache.OptionalFeature;
-import javax.cache.SimpleConfiguration;
 import java.util.Date;
 import java.util.Map;
 
@@ -198,7 +198,7 @@ public class StoreByReferenceTest extends CacheTestSupport<Date, Date> {
      * {@inheritDoc}
      */
     @Override
-    protected <A, B> SimpleConfiguration<A, B> extraSetup(SimpleConfiguration<A, B> configuration) {
+    protected <A, B> MutableConfiguration<A, B> extraSetup(MutableConfiguration<A, B> configuration) {
     	return super.extraSetup(configuration).setStoreByValue(false);
     }
 }

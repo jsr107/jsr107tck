@@ -26,7 +26,7 @@ import javax.cache.Cache;
 import javax.cache.Cache.Entry;
 import javax.cache.Configuration.Duration;
 import javax.cache.ExpiryPolicy;
-import javax.cache.SimpleConfiguration;
+import javax.cache.MutableConfiguration;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -64,7 +64,7 @@ public class CacheExpiryTest extends TestSupport {
      */
     @Test
     public void expire_whenCreated() {
-        SimpleConfiguration<Integer, Integer> config = new SimpleConfiguration<Integer, Integer>();
+        MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
         config.setExpiryPolicy(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ZERO, null, null));
         
         Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), config);
@@ -104,7 +104,7 @@ public class CacheExpiryTest extends TestSupport {
      */
     @Test
     public void expire_whenAccessed() {
-        SimpleConfiguration<Integer, Integer> config = new SimpleConfiguration<Integer, Integer>();
+        MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
         config.setExpiryPolicy(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ETERNAL, Duration.ZERO, null));
         
         Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), config);
@@ -179,7 +179,7 @@ public class CacheExpiryTest extends TestSupport {
      */
     @Test
     public void expire_whenModified() {
-        SimpleConfiguration<Integer, Integer> config = new SimpleConfiguration<Integer, Integer>();
+        MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
         config.setExpiryPolicy(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ETERNAL, null, Duration.ZERO));
         
         Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), config);

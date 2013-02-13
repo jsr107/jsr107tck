@@ -26,7 +26,7 @@ import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.CachingShutdownException;
-import javax.cache.SimpleConfiguration;
+import javax.cache.MutableConfiguration;
 import javax.cache.transaction.IsolationLevel;
 import javax.cache.transaction.Mode;
 import javax.transaction.UserTransaction;
@@ -76,7 +76,7 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
     @Test
     public void isolationLevelForNonTransactionalCache() throws Exception {
         CacheManager cacheManager = getCacheManager();
-        Cache<?, ?> cache = cacheManager.configureCache("test", new SimpleConfiguration());
+        Cache<?, ?> cache = cacheManager.configureCache("test", new MutableConfiguration());
         assertEquals(IsolationLevel.NONE , cache.getConfiguration().getTransactionIsolationLevel());
     }
 
@@ -86,7 +86,7 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
     @Test
     public void modeForNonTransactionalCache() throws Exception {
         CacheManager cacheManager = getCacheManager();
-        Cache<?, ?> cache = cacheManager.configureCache("test", new SimpleConfiguration());
+        Cache<?, ?> cache = cacheManager.configureCache("test", new MutableConfiguration());
         assertEquals(Mode.NONE , cache.getConfiguration().getTransactionMode());
     }
 
@@ -98,7 +98,7 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
         CacheManager cacheManager = getCacheManager();
         
         try {
-            SimpleConfiguration<?, ?> config = new SimpleConfiguration();
+            MutableConfiguration<?, ?> config = new MutableConfiguration();
             config.setTransactions(IsolationLevel.READ_COMMITTED, Mode.NONE)
                   .setTransactionsEnabled(true);
             
@@ -109,7 +109,7 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
         }
         
         try {
-            SimpleConfiguration<?, ?> config = new SimpleConfiguration();
+            MutableConfiguration<?, ?> config = new MutableConfiguration();
             config.setTransactions(IsolationLevel.NONE, Mode.LOCAL)
                   .setTransactionsEnabled(true);
             

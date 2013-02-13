@@ -27,7 +27,7 @@ import javax.cache.Cache.MutableEntry;
 import javax.cache.CacheManager;
 import javax.cache.Configuration;
 import javax.cache.ExpiryPolicy;
-import javax.cache.SimpleConfiguration;
+import javax.cache.MutableConfiguration;
 import javax.cache.event.CacheEntryCreatedListener;
 import javax.cache.event.CacheEntryEvent;
 import javax.cache.event.CacheEntryEventFilter;
@@ -36,7 +36,12 @@ import javax.cache.event.CacheEntryListenerException;
 import javax.cache.event.CacheEntryReadListener;
 import javax.cache.event.CacheEntryRemovedListener;
 import javax.cache.event.CacheEntryUpdatedListener;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -73,7 +78,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         }
     };
 
-    protected <A, B> SimpleConfiguration<A, B> extraSetup(SimpleConfiguration<A, B> configuration) {
+    protected <A, B> MutableConfiguration<A, B> extraSetup(MutableConfiguration<A, B> configuration) {
         return configuration.setExpiryPolicy(new ExpiryPolicy.Modified(new Configuration.Duration(TimeUnit.MILLISECONDS, 20)));
     }
 

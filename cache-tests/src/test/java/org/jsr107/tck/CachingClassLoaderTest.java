@@ -24,7 +24,7 @@ import org.junit.Test;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
-import javax.cache.SimpleConfiguration;
+import javax.cache.MutableConfiguration;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -328,7 +328,7 @@ public class CachingClassLoaderTest {
         }
 
         private Cache<Integer, Object> createCache() {
-            return Caching.getCacheManager(classLoader).configureCache("c1", new SimpleConfiguration<Integer, Object>());
+            return Caching.getCacheManager(classLoader).configureCache("c1", new MutableConfiguration<Integer, Object>());
         }
 
         public Class getClassForDomainClass() throws ClassNotFoundException {
