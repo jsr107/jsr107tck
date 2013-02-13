@@ -202,25 +202,14 @@ public class CacheTest extends CacheTestSupport<Long, String> {
 
     @Test
     public void getStatistics_NotEnabled() {
-        cache.getConfiguration().setStatisticsEnabled(false);
+        getCacheManager().enableStatistics(cache.getName(), false);
         assertNull(cache.getStatistics());
     }
 
     @Test
     public void getStatistics_Enabled() {
-        cache.getConfiguration().setStatisticsEnabled(true);
+        getCacheManager().enableStatistics(cache.getName(), true);
         assertNotNull(cache.getStatistics());
-    }
-
-    @Test
-    public void getConfiguration_Mutation() {
-        Configuration config = cache.getConfiguration();
-
-        boolean enabled = config.isStatisticsEnabled();
-        assertEquals(enabled, config.isStatisticsEnabled());
-        config.setStatisticsEnabled(!enabled);
-        assertEquals(!enabled, config.isStatisticsEnabled());
-        assertEquals(!enabled, cache.getConfiguration().isStatisticsEnabled());
     }
 
     @Test

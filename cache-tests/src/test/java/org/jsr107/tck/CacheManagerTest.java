@@ -26,6 +26,7 @@ import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.CachingShutdownException;
+import javax.cache.Configuration;
 import javax.cache.OptionalFeature;
 import javax.cache.SimpleConfiguration;
 import javax.cache.Status;
@@ -406,4 +407,13 @@ public class CacheManagerTest extends TestSupport {
         //may be asynchronous
         assertTrue(status == Status.STOPPED);
     }
+
+//    todo GL adapt this test to its new home @Test
+//    public void setStatisticsEnabled() {
+//        Configuration<?, ?> config = getConfiguration();
+//        boolean isStatisticsEnabled = config.isStatisticsEnabled();
+//        config.setStatisticsEnabled(!isStatisticsEnabled);
+//        assertEquals(!isStatisticsEnabled, config.isStatisticsEnabled());
+//    }
+
 }

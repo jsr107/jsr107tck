@@ -77,20 +77,11 @@ public class TCKConfigurationTest {
     }
 
     @Test
-    public void equalsNotEquals() {
+    public void notEquals() {
         Configuration<?, ?> config1 = getConfiguration();
-        config1.setStatisticsEnabled(!config1.isStatisticsEnabled());
-        
-        Configuration<?, ?> config2 = getConfiguration();
+        Configuration<?, ?> config2 = new SimpleConfiguration<Object, Object>();
+        ((SimpleConfiguration)config2).setStatisticsEnabled(true);
         assertFalse(config1.equals(config2));
-    }
-
-    @Test
-    public void setStatisticsEnabled() {
-        Configuration<?, ?> config = getConfiguration();
-        boolean isStatisticsEnabled = config.isStatisticsEnabled();
-        config.setStatisticsEnabled(!isStatisticsEnabled);
-        assertEquals(!isStatisticsEnabled, config.isStatisticsEnabled());
     }
 
     @Test
