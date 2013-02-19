@@ -25,14 +25,19 @@ import org.junit.Test;
 import javax.cache.Cache;
 import javax.cache.CacheLoader;
 import javax.cache.MutableConfiguration;
+import javax.cache.event.CompletionListenerFuture;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -72,79 +77,6 @@ public class CacheLoaderTest extends TestSupport {
     }
 
     @Test
-    public void load_NullKey() {
-        Cache<Integer, Integer> cache = getCacheManager().configureCache(
-                getTestCacheName(), new MutableConfiguration<Integer, Integer>());
-
-        try {
-            cache.load(null);
-            fail("should have thrown an exception - null key not allowed");
-        } catch (NullPointerException e) {
-            //good
-        }
-    }
-
-    @Test
-    public void load_Found() {
-        Cache<Integer, Integer> cache = getCacheManager().configureCache(
-                getTestCacheName(), new MutableConfiguration<Integer, Integer>());
-
-        Integer key = 1;
-        cache.put(key, key);
-        try {
-            assertNull(cache.load(key));
-        } catch (NullPointerException e) {
-            fail("should not have thrown an exception - if key in store should return null");
-        }
-    }
-
-    @Test
-    public void load_NoCacheLoader() {
-        Cache<Integer, Integer> cache = getCacheManager().configureCache(
-                getTestCacheName(), new MutableConfiguration<Integer, Integer>());
-        
-        Integer key = 1;
-        try {
-            assertNull(cache.load(key));
-        } catch (NullPointerException e) {
-            fail("should not have thrown an exception - with no cache loader should return null");
-        }
-    }
-
-    @Test
-    public void load_NullValue() throws Exception {
-        final Integer valueDefault = null;
-        CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>() {
-            @Override
-            public Cache.Entry<Integer, Integer> load(final Integer key) {
-                return new Cache.Entry<Integer, Integer>() {
-                    public Integer getKey() {
-                        return (Integer) key;
-                    }
-
-                    public Integer getValue() {
-                        return null;
-                    }
-                };
-            }
-        };
-
-        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
-                new MutableConfiguration<Integer, Integer>().setCacheLoader(clDefault));
-
-        Integer key = 1;
-        Future<Integer> future = cache.load(key);
-        assertNotNull(future);
-        try {
-            assertEquals(valueDefault, future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS));
-            fail("should have thrown an exception - null value not allowed");
-        } catch (ExecutionException e) {
-            assertTrue(e.getCause() instanceof NullPointerException);
-            assertFalse(cache.containsKey(key));
-        }
-    }
-
-    @Test
     public void load_DefaultCacheLoader() throws Exception {
         CacheLoader<Integer, Integer> clDefault = new SimpleCacheLoader<Integer>();
         
@@ -152,9 +84,13 @@ public class CacheLoaderTest extends TestSupport {
                 new MutableConfiguration<Integer, Integer>().setCacheLoader(clDefault));
 
         Integer key = 123;
-        Future<Integer> future = cache.load(key);
-        assertNotNull(future);
-        assertEquals(key, future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS));
+
+        CompletionListenerFuture future = new CompletionListenerFuture();
+        cache.loadAll(Collections.singleton(key), future);
+
+        future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+
+        assertTrue(future.isDone());
         assertTrue(cache.containsKey(key));
         assertEquals(key, cache.get(key));
     }
@@ -167,10 +103,14 @@ public class CacheLoaderTest extends TestSupport {
                 new MutableConfiguration<Integer, Integer>().setCacheLoader(clDefault));
         
         Integer key = 1;
-        Future<Integer> future = cache.load(key);
-        assertNotNull(future);
+
+        CompletionListenerFuture future = new CompletionListenerFuture();
+        cache.loadAll(Collections.singleton(key), future);
+
         try {
             future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+            assertTrue(future.isDone());
+
             fail("expected exception");
         } catch (ExecutionException e) {
             assertEquals(UnsupportedOperationException.class, e.getCause().getClass());
@@ -184,7 +124,7 @@ public class CacheLoaderTest extends TestSupport {
         
         cache.stop();
         try {
-            cache.loadAll(null);
+            cache.loadAll(null, null);
             fail("should have thrown an exception - cache not started");
         } catch (IllegalStateException e) {
             //good
@@ -197,7 +137,7 @@ public class CacheLoaderTest extends TestSupport {
                 getTestCacheName(), new MutableConfiguration<Integer, Integer>());
         
         try {
-            cache.loadAll(null);
+            cache.loadAll(null, null);
             fail("should have thrown an exception - keys null");
         } catch (NullPointerException e) {
             //good
@@ -214,10 +154,15 @@ public class CacheLoaderTest extends TestSupport {
         HashSet<Integer> keys = new HashSet<Integer>();
         keys.add(null);
         try {
-            cache.loadAll(keys);
+            CompletionListenerFuture future = new CompletionListenerFuture();
+            cache.loadAll(keys, future);
+
+            future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+            assertTrue(future.isDone());
+
             fail("should have thrown an exception - keys contains null");
-        } catch (NullPointerException e) {
-            //good
+        } catch (ExecutionException e) {
+            assertTrue(e.getCause() instanceof NullPointerException);
         }
     }
 
@@ -240,10 +185,14 @@ public class CacheLoaderTest extends TestSupport {
         HashSet<Integer> keys = new HashSet<Integer>();
         keys.add(1);
         keys.add(2);
-        Future<Map<Integer, ? extends Integer>> future = cache.loadAll(keys);
+
+        CompletionListenerFuture future = new CompletionListenerFuture();
+        cache.loadAll(keys, future);
+
         try {
-            Map<Integer, ? extends Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
-            assertEquals(keys.size(), map.size());
+            future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+            assertTrue(future.isDone());
+
             fail("should have thrown an exception - null value");
         } catch (ExecutionException e) {
             assertTrue(e.getCause() instanceof NullPointerException);
@@ -252,7 +201,7 @@ public class CacheLoaderTest extends TestSupport {
 
     @Test
     public void loadAll_1Found1Not() throws Exception {
-        CacheLoader<Integer, Integer> loader = new SimpleCacheLoader<Integer>();
+        SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
         
         Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
                 new MutableConfiguration<Integer, Integer>().setCacheLoader(loader));
@@ -263,10 +212,15 @@ public class CacheLoaderTest extends TestSupport {
         HashSet<Integer> keys = new HashSet<Integer>();
         keys.add(keyThere);
         keys.add(keyNotThere);
-        Future<Map<Integer, ? extends Integer>> future = cache.loadAll(keys);
-        Map<Integer, ? extends Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
-        assertEquals(1, map.size());
-        assertEquals(keyNotThere, map.get(keyNotThere));
+
+        CompletionListenerFuture future = new CompletionListenerFuture();
+        cache.loadAll(keys, future);
+
+        future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+        assertTrue(future.isDone());
+
+        assertEquals(1, loader.getLoadCount());
+        assertTrue(loader.hasLoaded(keyNotThere));
         assertEquals(keyThere, cache.get(keyThere));
         assertEquals(keyNotThere, cache.get(keyNotThere));
     }
@@ -278,9 +232,12 @@ public class CacheLoaderTest extends TestSupport {
         
         HashSet<Integer> keys = new HashSet<Integer>();
         keys.add(1);
+
+        CompletionListenerFuture future = new CompletionListenerFuture();
         try {
-            assertNull(cache.loadAll(keys));
+            cache.loadAll(keys, future);
         } catch (NullPointerException e) {
+            assertTrue(future.isDone());
             fail("should not have thrown an exception - with no cache loader should return null");
         }
     }
@@ -296,11 +253,13 @@ public class CacheLoaderTest extends TestSupport {
         Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), 
                 new MutableConfiguration<Integer, Integer>().setCacheLoader(loader));
 
-        Future<Map<Integer, ? extends Integer>> future = cache.loadAll(keys);
-        Map<Integer, ? extends Integer> map = future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
-        assertEquals(keys.size(), map.size());
+        CompletionListenerFuture future = new CompletionListenerFuture();
+        cache.loadAll(keys, future);
+
+        future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+        assertTrue(future.isDone());
+
         for (Integer key : keys) {
-            assertEquals(key, map.get(key));
             assertEquals(key, cache.get(key));
         }
     }
@@ -321,12 +280,15 @@ public class CacheLoaderTest extends TestSupport {
         
         HashSet<Integer> keys = new HashSet<Integer>();
         keys.add(1);
-        Future<Map<Integer, ? extends Integer>> future = cache.loadAll(keys);
-        assertNotNull(future);
+
+        CompletionListenerFuture future = new CompletionListenerFuture();
+        cache.loadAll(keys, future);
+
         try {
             future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
             fail("expected exception");
         } catch (ExecutionException e) {
+            assertTrue(future.isDone());
             assertEquals(expectedException, e.getCause());
         }
     }
@@ -569,8 +531,21 @@ public class CacheLoaderTest extends TestSupport {
      * @param <K>
      */
     public static class SimpleCacheLoader<K> implements CacheLoader<K, K> {
+
+        /**
+         * The keys that have been loaded by this loader.
+         */
+        private ConcurrentHashMap<K, K> loaded = new ConcurrentHashMap<>();
+
+        /**
+         * The number of loads that have occurred.
+         */
+        private AtomicInteger loadCount = new AtomicInteger(0);
+
         @Override
         public Cache.Entry<K, K> load(final K key) {
+            loaded.put(key, key);
+
             return new Cache.Entry<K, K>() {
                 @Override
                 public K getKey() {
@@ -590,7 +565,31 @@ public class CacheLoaderTest extends TestSupport {
             for (K key : keys) {
                 map.put(key, key);
             }
+
+            loaded.putAll(map);
+            loadCount.addAndGet(map.size());
+
             return map;
+        }
+
+        /**
+         * Obtain the number of entries that have been loaded.
+         *
+         * @return the number of entries loaded thus far.
+         */
+        public int getLoadCount() {
+            return loadCount.get();
+        }
+
+        /**
+         * Determines if the specified key has been loaded by this loader.
+         *
+         * @param key  the key
+         *
+         * @return true if the key has been loaded, false otherwise
+         */
+        public boolean hasLoaded(K key) {
+            return loaded.containsKey(key);
         }
     }
 
