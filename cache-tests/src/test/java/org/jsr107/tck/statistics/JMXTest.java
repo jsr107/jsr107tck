@@ -22,7 +22,6 @@ import org.jsr107.tck.util.ExcludeListExcluder;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -79,8 +78,6 @@ public class JMXTest {
 //        assertEquals(0, mBeanServer.queryNames(new ObjectName("javax.cache:*"), null).size());
 //    }
 
-    //todo finish and get this going
-    @Ignore
     @Test
     public void testCacheStatisticsWhereStatisticsTurnedOn() throws Exception {
     	MutableConfiguration configuration = new MutableConfiguration();
@@ -116,7 +113,7 @@ public class JMXTest {
         try {
             MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
             MutableConfiguration configuration = new MutableConfiguration();
-        	configuration.setStatisticsEnabled(false);
+        	configuration.setStatisticsEnabled(true);
         	
             cacheManager.configureCache("cache1", configuration);
             cacheManager.configureCache("cache2", configuration);
