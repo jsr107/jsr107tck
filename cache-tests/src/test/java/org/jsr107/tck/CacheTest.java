@@ -196,23 +196,6 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     }
 
     @Test
-    public void getStatistics() {
-        assertNull(cache.getStatistics());
-    }
-
-    @Test
-    public void getStatistics_NotEnabled() {
-        getCacheManager().enableStatistics(cache.getName(), false);
-        assertNull(cache.getStatistics());
-    }
-
-    @Test
-    public void getStatistics_Enabled() {
-        getCacheManager().enableStatistics(cache.getName(), true);
-        assertNotNull(cache.getStatistics());
-    }
-
-    @Test
     public void iterator_NotStarted() {
         cache.stop();
         try {
