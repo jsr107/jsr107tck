@@ -29,6 +29,8 @@ import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.MutableConfiguration;
+import javax.cache.transaction.IsolationLevel;
+import javax.cache.transaction.Mode;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -108,13 +110,15 @@ public class JMXTest {
         java -cp $CP -Dcom.sun.management.jmxremote $TEST
     */
     public static void main(String[] args) throws Exception {
-        System.out.println("Starting -----------------");
-        CacheManager cacheManager = Caching.getCacheManager("Yannis");
+        System.out.println("Starting...");
+        CacheManager cacheManager = Caching.getCacheManager("Greg");
         try {
             MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-            MutableConfiguration configuration = new MutableConfiguration();
-        	configuration.setStatisticsEnabled(true);
-        	
+            MutableConfiguration configuration = new MutableConfiguration()
+                    .setStatisticsEnabled(true)
+                    .setManagementEnabled(true)
+                    .setTransactions(IsolationLevel.READ_COMMITTED, Mode.LOCAL);
+
             cacheManager.configureCache("cache1", configuration);
             cacheManager.configureCache("cache2", configuration);
             
@@ -122,7 +126,7 @@ public class JMXTest {
             ObjectName search = new ObjectName("javax.cache:*");
             System.out.println("size=" + mBeanServer.queryNames(search, null).size());
             Thread.sleep(60 * 1000);
-            System.out.println("Done -----------------");
+            System.out.println("Done...");
         } finally {
             cacheManager.shutdown();
         }
