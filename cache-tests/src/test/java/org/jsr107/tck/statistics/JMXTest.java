@@ -18,6 +18,7 @@
 
 package org.jsr107.tck.statistics;
 
+import org.hamcrest.collection.IsEmptyCollection;
 import org.jsr107.tck.util.ExcludeListExcluder;
 import org.junit.After;
 import org.junit.Assert;
@@ -29,30 +30,38 @@ import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.MutableConfiguration;
-import javax.cache.transaction.IsolationLevel;
-import javax.cache.transaction.Mode;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.util.Set;
-import java.util.logging.Logger;
 
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertThat;
 
 
 /**
  * Tests the Cache Statistics using the platform MBeanServer
+ * <p/>
+ * To examine a typical cache in JConsole, run the main() method and start JConsole. As we only using OpenMBeans there is
+ * no need to add any classpath.
+ *
  * @author Greg Luck
- * @since 1.0
+ * @version $Id: ManagementServiceTest.java 5945 2012-07-10 17:43:48Z teck $
  */
 public class JMXTest {
 
-    private static final Logger LOG = Logger.getLogger(JMXTest.class.getName());
-    private MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
     private CacheManager cacheManager;
+    public static final int EMPTY = 0;
+
+    MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+    MutableConfiguration<Integer, String> configuration = new MutableConfiguration<Integer, String>()
+            .setStatisticsEnabled(true)
+            .setManagementEnabled(true);
+
     private Cache<Integer, String> cache1;
     private Cache<Integer, String> cache2;
-    
+
     @Rule
     public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
 
@@ -61,74 +70,131 @@ public class JMXTest {
      */
     @Before
     public void setUp() throws Exception {
-        cacheManager = Caching.getCacheManager(this.getClass().getName());
+        //CacheManagers cannot be reused. Get a new one each time.
+        cacheManager = Caching.getCacheManager(this.getClass().getName() + System.nanoTime());
     }
 
     @After
     public void tearDown() throws MalformedObjectNameException {
         //assertEquals(0, mBeanServer.queryNames(new ObjectName("java.cache:*"), null).size());
         cacheManager.shutdown();
+        //All registered object names should be removed during shutdown
+        assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), IsEmptyCollection.<ObjectName>empty());
+    }
+
+    @Test
+    public void testNoEntriesWhenNoCaches() throws Exception {
+        assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(EMPTY));
+    }
+
+    @Test
+    public void testJMXGetsCacheAdditionsAndRemovals() throws Exception {
+        assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(EMPTY));
+        cacheManager.configureCache("new cache", configuration);
+        assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(2));
+        //name does not exist so no change
+        cacheManager.removeCache("sampleCache1");
+        assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(2));
+        //correct name, should get removed.
+        cacheManager.removeCache("new cache");
+        assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(EMPTY));
+    }
+
+    @Test
+    public void testMultipleCacheManagers() throws Exception {
+        cacheManager.configureCache("new cache", configuration);
+        assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(2));
+
+        CacheManager cacheManager2 = Caching.getCacheManager("Luck");
+        cacheManager2.configureCache("new cache", configuration);
+
+        assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(4));
+
+        cacheManager2.shutdown();
+    }
+
+    @Test
+    public void testDoubleRegistration() throws MalformedObjectNameException {
+        cacheManager.configureCache("new cache", configuration);
+        assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(2));
+
+        cacheManager.enableStatistics("new cache", true);
+        assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(2));
     }
 
 
-//    @Test
-//    public void testNoCacheStatisticsWhereNoStatisticsTurnedOn() throws Exception {
-//        cacheManager.createCacheBuilder("cache1").build();
-//        cacheManager.createCacheBuilder("cache2").build();
-//
-//        mBeanServerRegistrationUtility = new MBeanServerRegistrationUtility(cacheManager, mBeanServer);
-//        assertEquals(0, mBeanServer.queryNames(new ObjectName("javax.cache:*"), null).size());
-//    }
-
     @Test
-    public void testCacheStatisticsWhereStatisticsTurnedOn() throws Exception {
-    	MutableConfiguration configuration = new MutableConfiguration();
-    	configuration.setStatisticsEnabled(false);
+    public void testCacheStatisticsOffThenOnThenOff() throws Exception {
+        MutableConfiguration configuration = new MutableConfiguration();
+        configuration.setStatisticsEnabled(false);
         cacheManager.configureCache("cache1", configuration);
         cacheManager.configureCache("cache2", configuration);
-        Set names = mBeanServer.queryNames(new ObjectName("javax.cache:*"), null);
+        Set<? extends ObjectName> names = mBeanServer.queryNames(new ObjectName("javax.cache:*"), null);
         Assert.assertTrue(names.size() == 0);
-
 
         configuration.setStatisticsEnabled(true);
         cacheManager.configureCache("cache3", configuration);
         cacheManager.configureCache("cache4", configuration);
-        names = mBeanServer.queryNames(new ObjectName("javax.cache:*"), null);
-        Assert.assertTrue(names.size() >= 2);
+        assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(2));
+
+        cacheManager.enableStatistics("cache3", false);
+        assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(1));
+
+        cacheManager.enableStatistics("cache3", true);
+        assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(2));
     }
 
-    /*
-        TEST_CLASSES=jsr107tck/cache-tests/target/test-classes
-        API_JAR=jsr107spec/target/cache-api-0.5.jar
-        RI_JAR=RI/cache-ri-impl/target/cache-ri-impl-0.5.jar
-        RI_COMMON_JAR=RI/cache-ri-common/target/cache-ri-common-0.5.jar
+    @Test
+    public void testCacheManagementOffThenOnThenOff() throws Exception {
+        MutableConfiguration configuration = new MutableConfiguration();
+        configuration.setManagementEnabled(false);
+        cacheManager.configureCache("cache1", configuration);
+        cacheManager.configureCache("cache2", configuration);
+        Set<? extends ObjectName> names = mBeanServer.queryNames(new ObjectName("javax.cache:*"), null);
+        Assert.assertTrue(names.size() == 0);
 
-        TEST=javax.cache.statistics.JMXTest
+        configuration.setManagementEnabled(true);
+        cacheManager.configureCache("cache3", configuration);
+        cacheManager.configureCache("cache4", configuration);
+        assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(2));
 
-        CP="$TEST_CLASSES;$API_JAR;$RI_JAR;$RI_COMMON_JAR"
+        cacheManager.enableManagement("cache3", false);
+        assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(1));
 
-        java -cp $CP -Dcom.sun.management.jmxremote $TEST
-    */
+
+        cacheManager.enableManagement("cache3", true);
+        assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(2));
+    }
+
+
+    /**
+     * To view in JConsole, start main then run JConsole and connect then go to the
+     * MBeans tab and expand javax.cache.&lt;CacheManager&gt;
+     */
     public static void main(String[] args) throws Exception {
         System.out.println("Starting...");
-        CacheManager cacheManager = Caching.getCacheManager("Greg");
+        CacheManager cacheManager1 = Caching.getCacheManager("Greg");
+        CacheManager cacheManager2 = Caching.getCacheManager("Luck");
         try {
+
             MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
             MutableConfiguration configuration = new MutableConfiguration()
                     .setStatisticsEnabled(true)
-                    .setManagementEnabled(true)
-                    .setTransactions(IsolationLevel.READ_COMMITTED, Mode.LOCAL);
+                    .setManagementEnabled(true);
 
-            cacheManager.configureCache("cache1", configuration);
-            cacheManager.configureCache("cache2", configuration);
-            
+            cacheManager1.configureCache("cache1", configuration);
+            cacheManager1.configureCache("cache2", configuration);
+            cacheManager2.configureCache("cache1", configuration);
+            cacheManager2.configureCache("cache2", configuration);
+
 
             ObjectName search = new ObjectName("javax.cache:*");
             System.out.println("size=" + mBeanServer.queryNames(search, null).size());
-            Thread.sleep(60 * 1000);
+            Thread.sleep(60 * 10000);
             System.out.println("Done...");
         } finally {
-            cacheManager.shutdown();
+            cacheManager1.shutdown();
+            cacheManager2.shutdown();
         }
     }
 }

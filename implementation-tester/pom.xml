@@ -72,6 +72,14 @@
             <version>${project.parent.version}</version>
         </dependency>
 
+
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <version>1.2</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Logging to figure out what the heck is going on -->
         <dependency>
             <groupId>log4j</groupId>

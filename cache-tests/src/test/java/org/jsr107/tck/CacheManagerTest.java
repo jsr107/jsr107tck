@@ -33,10 +33,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Logger;
 
+import static javax.cache.Status.STOPPED;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -107,6 +110,21 @@ public class CacheManagerTest extends TestSupport {
         Cache cache = cacheManager.configureCache(name, new MutableConfiguration());
         assertSame(cache, cacheManager.getCache(name));
     }
+
+    @Test
+    public void testReuseCacheManager() throws Exception {
+        CacheManager cacheManager = Caching.getCacheManager(this.getClass().getName());
+        cacheManager.shutdown();
+        cacheManager = Caching.getCacheManager(this.getClass().getName());
+        Status status = cacheManager.getStatus();
+        assertThat(status, is(STOPPED));
+        try {
+            cacheManager.configureCache("Dog", null);
+        } catch (IllegalStateException e) {
+            //expected
+        }
+    }
+
 
     @Test
     public void createCache_NameOK() {
@@ -215,7 +233,7 @@ public class CacheManagerTest extends TestSupport {
 
         assertEquals(Status.STARTED, cacheManager.getStatus());
         cacheManager.shutdown();
-        assertEquals(Status.STOPPED, cacheManager.getStatus());
+        assertEquals(STOPPED, cacheManager.getStatus());
     }
 
     @Test
@@ -404,7 +422,7 @@ public class CacheManagerTest extends TestSupport {
     private void checkStopped(Cache cache) {
         Status status = cache.getStatus();
         //may be asynchronous
-        assertTrue(status == Status.STOPPED);
+        assertTrue(status == STOPPED);
     }
 
 //    todo GL adapt this test to its new home @Test
