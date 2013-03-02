@@ -9,6 +9,7 @@ import org.junit.rules.MethodRule;
 import javax.cache.Cache;
 import javax.cache.CacheException;
 import javax.cache.CacheManager;
+import javax.cache.MutableConfiguration;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
@@ -35,6 +37,10 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
     public void setUp() {
         super.setUp();
         cache.getCacheManager().enableStatistics(cache.getName(), true);
+    }
+
+    protected <A, B> MutableConfiguration<A, B> extraSetup(MutableConfiguration<A, B> configuration) {
+        return configuration.setStoreByValue(true);
     }
 
 
