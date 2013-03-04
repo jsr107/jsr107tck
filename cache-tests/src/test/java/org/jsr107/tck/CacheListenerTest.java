@@ -27,6 +27,7 @@ import javax.cache.Cache.MutableEntry;
 import javax.cache.CacheManager;
 import javax.cache.Configuration;
 import javax.cache.ExpiryPolicy;
+import javax.cache.Factories;
 import javax.cache.MutableConfiguration;
 import javax.cache.event.CacheEntryCreatedListener;
 import javax.cache.event.CacheEntryEvent;
@@ -79,7 +80,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     };
 
     protected <A, B> MutableConfiguration<A, B> extraSetup(MutableConfiguration<A, B> configuration) {
-        return configuration.setExpiryPolicy(new ExpiryPolicy.Modified(new Configuration.Duration(TimeUnit.MILLISECONDS, 20)));
+        return configuration.setExpiryPolicyFactory(Factories.of(new ExpiryPolicy.Modified<A, B>(new Configuration.Duration(TimeUnit.MILLISECONDS, 20))));
     }
 
     /**
