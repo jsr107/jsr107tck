@@ -85,7 +85,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final Integer ret = 456;
         Cache.EntryProcessor<Integer, String, Integer> processor = new MockEntryProcessor<Integer, String, Integer>() {
             @Override
-            public Integer process(Cache.MutableEntry<Integer, String> entry) {
+            public Integer process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
                 assertFalse(entry.exists());
                 return ret;
             }
@@ -101,7 +101,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String newValue = "abc";
         Cache.EntryProcessor<Integer, String, Integer> processor = new MockEntryProcessor<Integer, String, Integer>() {
             @Override
-            public Integer process(Cache.MutableEntry<Integer, String> entry) {
+            public Integer process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
                 assertFalse(entry.exists());
                 entry.setValue(newValue);
                 assertTrue(entry.exists());
@@ -118,7 +118,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String setValue = "abc";
         Cache.EntryProcessor<Integer, String, Void> processor = new MockEntryProcessor<Integer, String, Void>() {
             @Override
-            public Void process(Cache.MutableEntry<Integer, String> entry) {
+            public Void process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
                 assertFalse(entry.exists());
                 entry.setValue(setValue);
                 assertTrue(entry.exists());
@@ -141,7 +141,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String newValue = "def";
         Cache.EntryProcessor<Integer, String, String> processor = new MockEntryProcessor<Integer, String, String>() {
             @Override
-            public String process(Cache.MutableEntry<Integer, String> entry) {
+            public String process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
                 assertTrue(entry.exists());
                 String value1 = entry.getValue();
                 assertEquals(oldValue, entry.getValue());
@@ -163,7 +163,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String newValue = "def";
         Cache.EntryProcessor<Integer, String, String> processor = new MockEntryProcessor<Integer, String, String>() {
             @Override
-            public String process(Cache.MutableEntry<Integer, String> entry) {
+            public String process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
                 assertTrue(entry.exists());
                 assertEquals(oldValue, entry.getValue());
                 entry.setValue(newValue);
@@ -188,7 +188,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final Integer ret = 456;
         Cache.EntryProcessor<Integer, String, Integer> processor = new MockEntryProcessor<Integer, String, Integer>() {
             @Override
-            public Integer process(Cache.MutableEntry<Integer, String> entry) {
+            public Integer process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
                 assertFalse(entry.exists());
                 entry.setValue("aba");
                 assertTrue(entry.exists());
@@ -207,7 +207,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String oldValue = "abc";
         Cache.EntryProcessor<Integer, String, String> processor = new MockEntryProcessor<Integer, String, String>() {
             @Override
-            public String process(Cache.MutableEntry<Integer, String> entry) {
+            public String process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
                 assertTrue(entry.exists());
                 String oldValue = entry.getValue();
                 entry.remove();
@@ -226,7 +226,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         final String oldValue = "abc";
         Cache.EntryProcessor<Integer, String, Void> processor = new MockEntryProcessor<Integer, String, Void>() {
             @Override
-            public Void process(Cache.MutableEntry<Integer, String> entry) {
+            public Void process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
                 assertTrue(entry.exists());
                 entry.remove();
                 assertFalse(entry.exists());
@@ -682,7 +682,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     private static class MockEntryProcessor<K, V, T> implements Cache.EntryProcessor<K, V, T> {
 
         @Override
-        public T process(Cache.MutableEntry<K, V> kvMutableEntry) {
+        public T process(Cache.MutableEntry<K, V> kvMutableEntry, Object... arguments) {
             throw new UnsupportedOperationException();
         }
     }
@@ -709,7 +709,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
             Cache.EntryProcessor<K, V, V> processor = new MockEntryProcessor<K, V, V>() {
 
                 @Override
-                public V process(Cache.MutableEntry<K, V> entry) {
+                public V process(Cache.MutableEntry<K, V> entry, Object... arguments) {
                     try {
                         synchronizer.setReady(true);
                         Thread.sleep(sleep);

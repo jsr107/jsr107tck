@@ -222,7 +222,7 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
         cache.put(1l, "Sooty");
         String result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
             @Override
-            public String process(Cache.MutableEntry<Long, String> entry) {
+            public String process(Cache.MutableEntry<Long, String> entry, Object... arguments) {
                 return entry.getValue();
             }
         });
@@ -245,7 +245,7 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
         cache.put(1l, "Sooty");
         String result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
             @Override
-            public String process(Cache.MutableEntry<Long, String> entry) {
+            public String process(Cache.MutableEntry<Long, String> entry, Object... arguments) {
                 String value = entry.getValue();
                 entry.setValue("Trinity");
                 return "Trinity";
@@ -269,7 +269,7 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
         cache.put(1l, "Sooty");
         String result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
             @Override
-            public String process(Cache.MutableEntry<Long, String> entry) {
+            public String process(Cache.MutableEntry<Long, String> entry, Object... arguments) {
                 String value = entry.getValue();
                 entry.remove();
                 return "removed";

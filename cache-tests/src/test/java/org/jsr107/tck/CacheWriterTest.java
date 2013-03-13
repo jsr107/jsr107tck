@@ -235,7 +235,7 @@ public class CacheWriterTest extends TestSupport {
 
         cache.invokeEntryProcessor(1, new Cache.EntryProcessor<Integer, String, Void>() {
             @Override
-            public Void process(Cache.MutableEntry<Integer, String> entry) {
+            public Void process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
                 entry.setValue("Gudday World");
                 return null;
             }
@@ -255,7 +255,7 @@ public class CacheWriterTest extends TestSupport {
         cache.put(1, "Gudday World");
         cache.invokeEntryProcessor(1, new Cache.EntryProcessor<Integer, String, Void>() {
             @Override
-            public Void process(Cache.MutableEntry<Integer, String> entry) {
+            public Void process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
                 entry.setValue("Hello World");
                 return null;
             }
@@ -275,7 +275,7 @@ public class CacheWriterTest extends TestSupport {
         cache.put(1, "Gudday World");
         cache.invokeEntryProcessor(1, new Cache.EntryProcessor<Integer, String, Void>() {
             @Override
-            public Void process(Cache.MutableEntry<Integer, String> entry) {
+            public Void process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
                 entry.remove();
                 return null;
             }
