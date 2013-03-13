@@ -15,6 +15,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -164,7 +165,6 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
         assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"));
 
 
-
         cache.putAll(entries);
         assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
         assertEquals(0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
@@ -197,8 +197,8 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
         assertEquals(8L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
         assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
         assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
-        assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageGetTime"));
-        assertThat((Float)lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
         assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"));
 
         String value = cache.get(1l);
@@ -209,76 +209,115 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
         assertEquals(8L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
         assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
         assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
-        assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageGetTime"));
-        assertThat((Float)lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
         assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"));
 
-//        String result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
-//            @Override
-//            public String process(Cache.MutableEntry<Long, String> entry) {
-//                return entry.getValue();
-//            }
-//        });
-//        assertEquals(value, result);
-//        assertEquals(4, listener.getCreated());
-//        assertEquals(4, listener.getUpdated());
-//        assertEquals(3, listener.getReads());
-//        assertEquals(0, listener.getExpired());
-//        assertEquals(0, listener.getRemoved());
-//
-//        result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
-//            @Override
-//            public String process(Cache.MutableEntry<Long, String> entry) {
-//                entry.setValue("Zoot");
-//                return entry.getValue();
-//            }
-//        });
-//        assertEquals("Zoot", result);
-//        assertEquals(4, listener.getCreated());
-//        assertEquals(5, listener.getUpdated());
-//        assertEquals(3, listener.getReads());
-//        assertEquals(0, listener.getExpired());
-//        assertEquals(0, listener.getRemoved());
-//
-//        result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
-//            @Override
-//            public String process(Cache.MutableEntry<Long, String> entry) {
-//                entry.remove();
-//                return entry.getValue();
-//            }
-//        });
-//        assertNull(result);
-//        assertEquals(4, listener.getCreated());
-//        assertEquals(5, listener.getUpdated());
-//        assertEquals(3, listener.getReads());
-//        assertEquals(0, listener.getExpired());
-//        assertEquals(1, listener.getRemoved());
-//
-//        result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
-//            @Override
-//            public String process(Cache.MutableEntry<Long, String> entry) {
-//                entry.setValue("Moose");
-//                return entry.getValue();
-//            }
-//        });
-//        assertEquals("Moose", result);
-//        assertEquals(5, listener.getCreated());
-//        assertEquals(5, listener.getUpdated());
-//        assertEquals(3, listener.getReads());
-//        assertEquals(0, listener.getExpired());
-//        assertEquals(1, listener.getRemoved());
-//
-//        Iterator<Cache.Entry<Long, String>> iterator = cache.iterator();
-//        while(iterator.hasNext()) {
-//            iterator.next();
-//            iterator.remove();
-//        }
-//        assertEquals(5, listener.getCreated());
-//        assertEquals(5, listener.getUpdated());
-//        assertEquals(7, listener.getReads());
-//        assertEquals(0, listener.getExpired());
-//        assertEquals(5, listener.getRemoved());
-//    }
     }
+
+
+    @Test
+    public void testCacheStatisticsInvokeEntryProcessorGet() throws Exception {
+
+        cache.put(1l, "Sooty");
+        String result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
+            @Override
+            public String process(Cache.MutableEntry<Long, String> entry) {
+                return entry.getValue();
+            }
+        });
+        assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
+        assertEquals(1.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+        assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
+        assertEquals(0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
+        assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+        assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
+        assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
+        assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"));
+    }
+
+
+    @Test
+    public void testCacheStatisticsInvokeEntryProcessorCreate() throws Exception {
+
+        cache.put(1l, "Sooty");
+        String result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
+            @Override
+            public String process(Cache.MutableEntry<Long, String> entry) {
+                String value = entry.getValue();
+                entry.setValue("Trinity");
+                return "Trinity";
+            }
+        });
+        assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
+        assertEquals(1.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+        assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
+        assertEquals(0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
+        assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+        assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
+        assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
+        assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"));
+    }
+
+    @Test
+    public void testCacheStatisticsInvokeEntryProcessorRemove() throws Exception {
+
+        cache.put(1l, "Sooty");
+        String result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
+            @Override
+            public String process(Cache.MutableEntry<Long, String> entry) {
+                String value = entry.getValue();
+                entry.remove();
+                return "removed";
+            }
+        });
+        assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
+        assertEquals(1.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+        assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
+        assertEquals(0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
+        assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+        assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
+        assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
+        assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+    }
+
+    @Test
+    public void testIterateAndRemove() throws Exception {
+
+
+        for (long i = 0; i < 100L; i++) {
+            String word = "";
+            word =  word + " " + "Trinity";
+            cache.put(i, word);
+        }
+
+        Iterator<Cache.Entry<Long, String>> iterator = cache.iterator();
+        while (iterator.hasNext()) {
+            iterator.next();
+            iterator.remove();
+        }
+
+        //todo iterator is not updating stats so all these are 0
+        assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
+        assertEquals(0.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+        assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
+        assertEquals(0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
+        assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheGets"));
+        assertEquals(100L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+        assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
+        assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
+        assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+
+
+    }
+
 
 }
