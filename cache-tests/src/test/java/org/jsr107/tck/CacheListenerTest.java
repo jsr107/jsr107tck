@@ -165,9 +165,12 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         String result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
             @Override
             public String process(MutableEntry<Long, String> entry, Object... arguments) {
+                assertEquals("These", arguments[0]);
+                assertEquals("are", arguments[1]);
+                assertEquals("arguments", arguments[2]);
                 return entry.getValue();
             }
-        });
+        }, "These", "are", "arguments");
         assertEquals(value, result);
         assertEquals(4, listener.getCreated());
         assertEquals(4, listener.getUpdated());

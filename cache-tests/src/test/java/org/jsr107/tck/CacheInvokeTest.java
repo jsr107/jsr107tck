@@ -94,6 +94,26 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         assertFalse(cache.containsKey(key));
     }
 
+
+    @Test
+    public void varArguemntsPassedIn() {
+        final Integer key = 123;
+        final Integer ret = 456;
+        Cache.EntryProcessor<Integer, String, Integer> processor = new MockEntryProcessor<Integer, String, Integer>() {
+            @Override
+            public Integer process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
+                assertFalse(entry.exists());
+                assertEquals("These", arguments[0]);
+                assertEquals("are", arguments[1]);
+                assertEquals("arguments", arguments[2]);
+                assertEquals(1L, arguments[3]);
+                return ret;
+            }
+        };
+        assertEquals(ret, cache.invokeEntryProcessor(key, processor, "These", "are", "arguments", 1L));
+        assertFalse(cache.containsKey(key));
+    }
+
     @Test
     public void noValueSetValue() {
         final Integer key = 123;
