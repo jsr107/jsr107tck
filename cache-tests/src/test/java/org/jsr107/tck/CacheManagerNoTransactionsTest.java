@@ -47,7 +47,7 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
     @Before
     public void startUp() {
         try {
-            Caching.close();
+            Caching.getCachingProvider().close();
         }   catch (CachingShutdownException e) {
             //this will happen if we call close twice in a row.
         }
@@ -96,23 +96,23 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
     @Test
     public void setIncorrectIsolationLevelForTransactionalCache() throws Exception {
         CacheManager cacheManager = getCacheManager();
-        
+
         try {
             MutableConfiguration<?, ?> config = new MutableConfiguration();
             config.setTransactions(IsolationLevel.READ_COMMITTED, Mode.NONE)
                   .setTransactionsEnabled(true);
-            
+
             cacheManager.configureCache("test", config);
             Assert.fail("read_committed must have a valid mode");
         } catch (IllegalArgumentException e) {
             //expected
         }
-        
+
         try {
             MutableConfiguration<?, ?> config = new MutableConfiguration();
             config.setTransactions(IsolationLevel.NONE, Mode.LOCAL)
                   .setTransactionsEnabled(true);
-            
+
             cacheManager.configureCache("test", config);
             Assert.fail("failed to provide an isolation level");
         } catch (IllegalArgumentException e) {

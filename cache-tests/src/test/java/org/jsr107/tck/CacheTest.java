@@ -34,6 +34,7 @@ import javax.cache.MutableConfiguration;
 import javax.cache.Status;
 import javax.cache.annotation.CacheRemoveAll;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Iterator;
@@ -85,7 +86,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         Configuration<Integer, Integer> config2 = new MutableConfiguration<Integer, Integer>();
         assertEquals(config1, config2);
     }
-    
+
     @Test
     public void simpleAPI() {
         String cacheName = "sampleCache";
@@ -258,13 +259,16 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     }
 
     @Test
-    public void testGetCacheManager() {
-        String cacheName = "sampleCache";
+    public void testGetCacheManager() throws Exception {
+        String cacheName = "SampleCache";
+
+        URI uri = Caching.getCachingProvider().getDefaultURI();
+
         ClassLoader cl1 = Thread.currentThread().getContextClassLoader();
         ClassLoader cl2 = URLClassLoader.newInstance(new URL[]{}, cl1);
 
-        CacheManager cacheManager1 = Caching.getCacheManager(cl1);
-        CacheManager cacheManager2 = Caching.getCacheManager(cl2);
+        CacheManager cacheManager1 = Caching.getCachingProvider().getCacheManager(uri, cl1);
+        CacheManager cacheManager2 = Caching.getCachingProvider().getCacheManager(uri, cl2);
         assertNotSame(cacheManager1, cacheManager2);
 
         Cache cache1 = cacheManager1.configureCache(cacheName, new MutableConfiguration());

@@ -29,6 +29,7 @@ import org.jsr107.ri.annotations.guice.module.CacheAnnotationsModule;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.annotation.BeanProvider;
+import javax.cache.spi.CachingProvider;
 import java.util.logging.Logger;
 
 /**
@@ -54,7 +55,8 @@ public class GuiceBeanProvider implements BeanProvider {
 
                     @Override
                     public CacheManager get() {
-                        return Caching.getCacheManager();
+                        CachingProvider provider = Caching.getCachingProvider();
+                        return provider.getCacheManager(provider.getDefaultURI(), provider.getDefaultClassLoader());
                     }
 
                 });

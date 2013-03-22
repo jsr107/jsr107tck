@@ -38,7 +38,7 @@ public class AbstractInterceptionTest {
     private static final BeanProvider beanProvider;
 
     static {
-        BeanProvider localBeanProvider = null; 
+        BeanProvider localBeanProvider = null;
         try {
             final ServiceLoader<BeanProvider> serviceLoader = ServiceLoader.load(BeanProvider.class);
             final Iterator<BeanProvider> it = serviceLoader.iterator();
@@ -49,10 +49,10 @@ public class AbstractInterceptionTest {
             System.err.println("Failed to load BeanProvider SPI impl, annotation tests will be ignored");
             t.printStackTrace(System.err);
         }
-        
-        beanProvider = localBeanProvider; 
+
+        beanProvider = localBeanProvider;
     }
-    
+
 
     /**
      * Rule used to exclude tests that do not implement Annotations
@@ -62,13 +62,13 @@ public class AbstractInterceptionTest {
             @Override
             protected boolean isExcluded(String methodName) {
                 //Exclude all tests if annotations are not supported or no beanProvider has been set
-                return beanProvider == null || !Caching.isAnnotationsSupported();
+                return beanProvider == null; //TODO: determine how to support this moving forward || !Caching.isAnnotationsSupported();
             }
         };
 
     /**
      * Loads a specified bean by type, used to retrieve an annotated bean to test from the underlying implementation
-     * 
+     *
      * @param beanClass The type to load
      * @return The loaded bean
      */
@@ -76,7 +76,7 @@ public class AbstractInterceptionTest {
         if (beanProvider == null) {
             throw new IllegalStateException("No tests should be run if beanProvider is null");
         }
-        
+
         return beanProvider.getBeanByType(beanClass);
     }
 }

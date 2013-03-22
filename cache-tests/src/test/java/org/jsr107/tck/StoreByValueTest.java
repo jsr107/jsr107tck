@@ -53,10 +53,9 @@ public class StoreByValueTest extends CacheTestSupport<Date, Date> {
 
     @After
     public void teardown() {
-        getCacheManager().removeCache(getTestCacheName());
         try {
-            Caching.close();
-        } catch (CachingShutdownException e) {
+            getCacheManager().close();
+        } catch (Exception e) {
             //expected
         }
     }

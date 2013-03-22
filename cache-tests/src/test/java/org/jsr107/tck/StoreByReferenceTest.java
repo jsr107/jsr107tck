@@ -52,7 +52,7 @@ public class StoreByReferenceTest extends CacheTestSupport<Date, Date> {
      */
     @Rule
     public MethodRule rule =
-            Caching.isSupported(OptionalFeature.STORE_BY_REFERENCE) ?
+            Caching.getCachingProvider().isSupported(OptionalFeature.STORE_BY_REFERENCE) ?
                     new ExcludeListExcluder(this.getClass()) :
                     new AllTestExcluder();
 
@@ -64,7 +64,7 @@ public class StoreByReferenceTest extends CacheTestSupport<Date, Date> {
     @After
     public void teardown() {
         try {
-            Caching.close();
+            Caching.getCachingProvider().close();
         } catch (CachingShutdownException e) {
             //expected
         }
@@ -193,7 +193,7 @@ public class StoreByReferenceTest extends CacheTestSupport<Date, Date> {
         assertSame(value, cache.getAndReplace(key, nextValue));
         assertSame(nextValue, cache.get(key));
     }
-    
+
     /**
      * {@inheritDoc}
      */

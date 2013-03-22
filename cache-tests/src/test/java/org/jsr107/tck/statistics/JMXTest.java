@@ -30,10 +30,12 @@ import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.MutableConfiguration;
+import javax.cache.spi.CachingProvider;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
+import java.net.URI;
 import java.util.Set;
 
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -66,18 +68,34 @@ public class JMXTest {
     public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
 
     /**
+     * Obtains a CacheManager using a string-based name from the default
+     * CachingProvider.
+     *
+     * @param name  the name of the CacheManager
+     *
+     * @return a CacheManager
+     * @throws Exception
+     */
+    public static CacheManager getCacheManager(String name) throws Exception {
+        URI uri = new URI(name);
+        CachingProvider provider = Caching.getCachingProvider();
+
+        return Caching.getCachingProvider().getCacheManager(uri, provider.getDefaultClassLoader());
+    }
+
+    /**
      * setup test
      */
     @Before
     public void setUp() throws Exception {
         //CacheManagers cannot be reused. Get a new one each time.
-        cacheManager = Caching.getCacheManager(this.getClass().getName() + System.nanoTime());
+        cacheManager = getCacheManager(this.getClass().getName() + System.nanoTime());
     }
 
     @After
     public void tearDown() throws MalformedObjectNameException {
         //assertEquals(0, mBeanServer.queryNames(new ObjectName("java.cache:*"), null).size());
-        cacheManager.shutdown();
+        cacheManager.close();
         //All registered object names should be removed during shutdown
         assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), IsEmptyCollection.<ObjectName>empty());
     }
@@ -105,12 +123,12 @@ public class JMXTest {
         cacheManager.configureCache("new cache", configuration);
         assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(2));
 
-        CacheManager cacheManager2 = Caching.getCacheManager("Luck");
+        CacheManager cacheManager2 = getCacheManager("Luck");
         cacheManager2.configureCache("new cache", configuration);
 
         assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(4));
 
-        cacheManager2.shutdown();
+        cacheManager2.close();
     }
 
     @Test
@@ -173,8 +191,8 @@ public class JMXTest {
      */
     public static void main(String[] args) throws Exception {
         System.out.println("Starting...");
-        CacheManager cacheManager1 = Caching.getCacheManager("Greg");
-        CacheManager cacheManager2 = Caching.getCacheManager("Luck");
+        CacheManager cacheManager1 = getCacheManager("Greg");
+        CacheManager cacheManager2 = getCacheManager("Luck");
         try {
 
             MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
@@ -193,8 +211,8 @@ public class JMXTest {
             Thread.sleep(60 * 10000);
             System.out.println("Done...");
         } finally {
-            cacheManager1.shutdown();
-            cacheManager2.shutdown();
+            cacheManager1.close();
+            cacheManager2.close();
         }
     }
 }

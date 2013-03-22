@@ -2,15 +2,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>javax.cache</groupId>
-    <artifactId>implementation-tester</artifactId>
-    <version>${project.parent.version}</version>
-    <packaging>jar</packaging>
     <parent>
         <groupId>javax.cache</groupId>
         <artifactId>tck-parent</artifactId>
         <version>0.7-SNAPSHOT</version>
     </parent>
+
+    <groupId>javax.cache</groupId>
+    <artifactId>implementation-tester</artifactId>
+
+    <packaging>jar</packaging>
 
     <name>Implementation Tester</name>
     <url>https://github.com/jsr107/jsr107tck</url>
@@ -170,45 +171,6 @@
             </plugin>
 
         </plugins>
-
-        <pluginManagement>
-        	<plugins>
-        		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-        		<plugin>
-        			<groupId>org.eclipse.m2e</groupId>
-        			<artifactId>lifecycle-mapping</artifactId>
-        			<version>1.0.0</version>
-        			<configuration>
-        				<lifecycleMappingMetadata>
-        					<pluginExecutions>
-        						<pluginExecution>
-        							<pluginExecutionFilter>
-        								<groupId>
-        									org.apache.maven.plugins
-        								</groupId>
-        								<artifactId>
-        									maven-dependency-plugin
-        								</artifactId>
-        								<versionRange>
-        									[2.1,)
-        								</versionRange>
-        								<goals>
-        									<goal>
-        										unpack-dependencies
-        									</goal>
-        									<goal>copy</goal>
-        								</goals>
-        							</pluginExecutionFilter>
-        							<action>
-        								<ignore></ignore>
-        							</action>
-        						</pluginExecution>
-        					</pluginExecutions>
-        				</lifecycleMappingMetadata>
-        			</configuration>
-        		</plugin>
-        	</plugins>
-        </pluginManagement>
     </build>
 
     <profiles>
@@ -255,7 +217,5 @@
                 </plugins>
             </build>
         </profile>
-
     </profiles>
-
 </project>

@@ -2,15 +2,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>javax.cache</groupId>
-    <artifactId>cdi-weld-annotations-test-harness</artifactId>
-    <version>${project.parent.version}</version>
-    <packaging>jar</packaging>
     <parent>
         <groupId>javax.cache</groupId>
         <artifactId>tck-parent</artifactId>
         <version>0.7-SNAPSHOT</version>
     </parent>
+
+    <groupId>javax.cache</groupId>
+    <artifactId>cdi-weld-annotations-test-harness</artifactId>
+
+    <packaging>jar</packaging>
+
 
     <name>CDI/Weld Annotations Test Harness</name>
     <url>https://github.com/jsr107/jsr107tck</url>

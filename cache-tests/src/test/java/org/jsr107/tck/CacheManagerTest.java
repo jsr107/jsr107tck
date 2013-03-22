@@ -29,19 +29,16 @@ import javax.cache.CachingShutdownException;
 import javax.cache.MutableConfiguration;
 import javax.cache.OptionalFeature;
 import javax.cache.Status;
+import javax.cache.spi.CachingProvider;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Logger;
 
+import static javax.cache.Status.STARTED;
 import static javax.cache.Status.STOPPED;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Unit tests for CacheManager
@@ -52,7 +49,7 @@ import static org.junit.Assert.fail;
  */
 public class CacheManagerTest extends TestSupport {
     protected final Logger logger = Logger.getLogger(getClass().getName());
-    
+
     /**
      * Rule used to exclude tests
      */
@@ -67,7 +64,7 @@ public class CacheManagerTest extends TestSupport {
             if ("testUnwrap".equals(methodName) && getUnwrapClass(CacheManager.class) == null) {
                 return true;
             }
-            
+
             return super.isExcluded(methodName);
         }
     };
@@ -75,7 +72,7 @@ public class CacheManagerTest extends TestSupport {
     @Before
     public void startUp() {
         try {
-            Caching.close();
+            Caching.getCachingProvider().close();
         }   catch (CachingShutdownException e) {
             //this will happen if we call close twice in a row.
         }
@@ -91,7 +88,7 @@ public class CacheManagerTest extends TestSupport {
             //good
         }
     }
-    
+
     @Test
     public void configureCache_NullCacheConfiguration() {
         CacheManager cacheManager = getCacheManager();
@@ -113,16 +110,26 @@ public class CacheManagerTest extends TestSupport {
 
     @Test
     public void testReuseCacheManager() throws Exception {
-        CacheManager cacheManager = Caching.getCacheManager(this.getClass().getName());
-        cacheManager.shutdown();
-        cacheManager = Caching.getCacheManager(this.getClass().getName());
-        Status status = cacheManager.getStatus();
-        assertThat(status, is(STOPPED));
+        URI uri = new URI(this.getClass().getName());
+
+        CachingProvider provider = Caching.getCachingProvider();
+
+        CacheManager cacheManager = provider.getCacheManager(uri, provider.getDefaultClassLoader());
+        assertThat(cacheManager.getStatus(), is(STARTED));
+        cacheManager.close();
+        assertThat(cacheManager.getStatus(), is(STOPPED));
+
         try {
             cacheManager.configureCache("Dog", null);
+            fail();
         } catch (IllegalStateException e) {
             //expected
         }
+
+        CacheManager otherCacheManager = provider.getCacheManager(uri, provider.getDefaultClassLoader());
+        assertThat(otherCacheManager.getStatus(), is(STARTED));
+
+        assertNotSame(cacheManager, otherCacheManager);
     }
 
 
@@ -205,7 +212,7 @@ public class CacheManagerTest extends TestSupport {
     @Test
     public void removeCache_Stopped() {
         CacheManager cacheManager = getCacheManager();
-        cacheManager.shutdown();
+        cacheManager.close();
         try {
             cacheManager.removeCache("c1");
             fail();
@@ -221,7 +228,7 @@ public class CacheManagerTest extends TestSupport {
         Cache cache1 = cacheManager.configureCache("c1", new MutableConfiguration());
         Cache cache2 = cacheManager.configureCache("c2", new MutableConfiguration());
 
-        cacheManager.shutdown();
+        cacheManager.close();
 
         checkStopped(cache1);
         checkStopped(cache2);
@@ -232,7 +239,7 @@ public class CacheManagerTest extends TestSupport {
         CacheManager cacheManager = getCacheManager();
 
         assertEquals(Status.STARTED, cacheManager.getStatus());
-        cacheManager.shutdown();
+        cacheManager.close();
         assertEquals(STOPPED, cacheManager.getStatus());
     }
 
@@ -240,9 +247,9 @@ public class CacheManagerTest extends TestSupport {
     public void shutdown_statusTwice() {
         CacheManager cacheManager = getCacheManager();
 
-        cacheManager.shutdown();
+        cacheManager.close();
         try {
-            cacheManager.shutdown();
+            cacheManager.close();
             fail();
         } catch (IllegalStateException e) {
             // good
@@ -256,13 +263,13 @@ public class CacheManagerTest extends TestSupport {
         cacheManager.configureCache("c1", new MutableConfiguration());
         cacheManager.configureCache("c2", new MutableConfiguration());
 
-        cacheManager.shutdown();
+        cacheManager.close();
         assertFalse(cacheManager.getCaches().iterator().hasNext());
     }
 
     @Test
     public void getUserTransaction() {
-        boolean transactions = Caching.isSupported(OptionalFeature.TRANSACTIONS);
+        boolean transactions = Caching.getCachingProvider().isSupported(OptionalFeature.TRANSACTIONS);
         try {
             getCacheManager().getUserTransaction();
             if (!transactions) {
@@ -290,7 +297,7 @@ public class CacheManagerTest extends TestSupport {
     @Test
     public void getCache_Missing_Stopped() {
         CacheManager cacheManager = getCacheManager();
-        cacheManager.shutdown();
+        cacheManager.close();
         try {
             cacheManager.getCache("notThere");
             fail();
@@ -304,7 +311,7 @@ public class CacheManagerTest extends TestSupport {
         String name = this.toString();
         CacheManager cacheManager = getCacheManager();
         cacheManager.configureCache(name, new MutableConfiguration());
-        cacheManager.shutdown();
+        cacheManager.close();
         try {
             cacheManager.getCache(name);
             fail();
@@ -385,7 +392,7 @@ public class CacheManagerTest extends TestSupport {
         CacheManager cacheManager = getCacheManager();
 
         for (OptionalFeature feature : OptionalFeature.values()) {
-            assertSame(feature.toString(), Caching.isSupported(feature), cacheManager.isSupported(feature));
+            assertSame(feature.toString(), Caching.getCachingProvider().isSupported(feature), cacheManager.isSupported(feature));
         }
     }
 
@@ -395,7 +402,7 @@ public class CacheManagerTest extends TestSupport {
         final Class<?> unwrapClass = getUnwrapClass(CacheManager.class);
         final CacheManager cacheManager = getCacheManager();
         final Object unwrappedCacheManager = cacheManager.unwrap(unwrapClass);
-        
+
         assertTrue(unwrapClass.isAssignableFrom(unwrappedCacheManager.getClass()));
     }
 

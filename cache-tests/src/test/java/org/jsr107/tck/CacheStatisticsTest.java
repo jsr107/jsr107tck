@@ -83,7 +83,7 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
     private static ObjectName calculateObjectName(Cache cache) {
         try {
             return new ObjectName("javax.cache:type=CacheStatistics" + ",CacheManager="
-                    + mbeanSafe(cache.getCacheManager().getName()) + ",Cache=" + mbeanSafe(cache.getName()));
+                    + mbeanSafe(cache.getCacheManager().getURI().toString()) + ",Cache=" + mbeanSafe(cache.getName()));
         } catch (MalformedObjectNameException e) {
             throw new CacheException(e);
         }
@@ -97,7 +97,7 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
      * @return A valid JMX ObjectName attribute value.
      */
     private static String mbeanSafe(String string) {
-        return string == null ? "" : string.replaceAll(":|=|\n", ".");
+        return string == null ? "" : string.replaceAll(":|=|\n|,", ".");
     }
 
 
