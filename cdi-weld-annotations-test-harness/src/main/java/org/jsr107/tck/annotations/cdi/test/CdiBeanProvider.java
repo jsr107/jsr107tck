@@ -55,12 +55,10 @@ public class CdiBeanProvider implements BeanProvider {
             throw new IllegalStateException("Could not locate a bean of type " + beanClass.getName());
         }
         Bean<?> bean = beanManager.resolve(beans);
-        CreationalContext<?> context = beanManager
-                .createCreationalContext(bean);
+        CreationalContext<?> context = beanManager.createCreationalContext(bean);
         @SuppressWarnings("unchecked")
         T result = (T) beanManager.getReference(bean, bean.getBeanClass(),
                 context);
         return result;
     }
-
 }
