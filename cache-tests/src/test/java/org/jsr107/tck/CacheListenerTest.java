@@ -34,7 +34,6 @@ import javax.cache.event.CacheEntryEvent;
 import javax.cache.event.CacheEntryEventFilter;
 import javax.cache.event.CacheEntryExpiredListener;
 import javax.cache.event.CacheEntryListenerException;
-import javax.cache.event.CacheEntryReadListener;
 import javax.cache.event.CacheEntryRemovedListener;
 import javax.cache.event.CacheEntryUpdatedListener;
 import java.util.ArrayList;
@@ -106,14 +105,12 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         
         assertEquals(0, listener.getCreated());
         assertEquals(0, listener.getUpdated());
-        assertEquals(0, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
 
         cache.put(1l, "Sooty");
         assertEquals(1, listener.getCreated());
         assertEquals(0, listener.getUpdated());
-        assertEquals(0, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
 
@@ -123,42 +120,36 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         cache.putAll(entries);
         assertEquals(3, listener.getCreated());
         assertEquals(0, listener.getUpdated());
-        assertEquals(0, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
 
         cache.put(1l, "Sooty");
         assertEquals(3, listener.getCreated());
         assertEquals(1, listener.getUpdated());
-        assertEquals(0, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
 
         cache.putAll(entries);
         assertEquals(3, listener.getCreated());
         assertEquals(3, listener.getUpdated());
-        assertEquals(0, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
 
         cache.getAndPut(4l, "Cody");
         assertEquals(4, listener.getCreated());
         assertEquals(3, listener.getUpdated());
-        assertEquals(0, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
 
         cache.getAndPut(4l, "Cody");
         assertEquals(4, listener.getCreated());
         assertEquals(4, listener.getUpdated());
-        assertEquals(1, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
 
         String value = cache.get(1l);
         assertEquals(4, listener.getCreated());
         assertEquals(4, listener.getUpdated());
-        assertEquals(2, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
         
@@ -174,7 +165,6 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         assertEquals(value, result);
         assertEquals(4, listener.getCreated());
         assertEquals(4, listener.getUpdated());
-        assertEquals(3, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());        
         
@@ -188,7 +178,6 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         assertEquals("Zoot", result);
         assertEquals(4, listener.getCreated());
         assertEquals(5, listener.getUpdated());
-        assertEquals(3, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());        
         
@@ -202,7 +191,6 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         assertNull(result);
         assertEquals(4, listener.getCreated());
         assertEquals(5, listener.getUpdated());
-        assertEquals(3, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(1, listener.getRemoved());        
         
@@ -216,7 +204,6 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         assertEquals("Moose", result);
         assertEquals(5, listener.getCreated());
         assertEquals(5, listener.getUpdated());
-        assertEquals(3, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(1, listener.getRemoved());
 
@@ -227,7 +214,6 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         }
         assertEquals(5, listener.getCreated());
         assertEquals(5, listener.getUpdated());
-        assertEquals(7, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(5, listener.getRemoved());
     }
@@ -242,14 +228,12 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
 
         assertEquals(0, listener.getCreated());
         assertEquals(0, listener.getUpdated());
-        assertEquals(0, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
 
         cache.put(1l, "Sooty");
         assertEquals(1, listener.getCreated());
         assertEquals(0, listener.getUpdated());
-        assertEquals(0, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
 
@@ -258,18 +242,13 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         //there should be no change in events!
         assertEquals(1, listener.getCreated());
         assertEquals(0, listener.getUpdated());
-        assertEquals(0, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
     }
 
     @Test
     public void unregisterCacheEntryListener() {
-        CacheEntryReadListener<Long, String> listener = new MyCacheEntryListener<Long, String>();
-        cache.registerCacheEntryListener(listener, false, null, true);
         assertFalse(cache.unregisterCacheEntryListener(null));
-        assertTrue(cache.unregisterCacheEntryListener(listener));
-        assertFalse(cache.unregisterCacheEntryListener(listener));
     }
 
     /**
@@ -296,14 +275,12 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
 
         assertEquals(0, listener.getCreated());
         assertEquals(0, listener.getUpdated());
-        assertEquals(0, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
 
         cache.put(1l, "Sooty");
         assertEquals(1, listener.getCreated());
         assertEquals(0, listener.getUpdated());
-        assertEquals(0, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
 
@@ -313,42 +290,36 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         cache.putAll(entries);
         assertEquals(2, listener.getCreated());
         assertEquals(0, listener.getUpdated());
-        assertEquals(0, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
         
         cache.put(1l, "Zyn");
         assertEquals(2, listener.getCreated());
         assertEquals(0, listener.getUpdated());
-        assertEquals(0, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
         
         cache.remove(2l);
         assertEquals(2, listener.getCreated());
         assertEquals(0, listener.getUpdated());
-        assertEquals(0, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(1, listener.getRemoved());
         
         cache.replace(1l, "Fred");
         assertEquals(2, listener.getCreated());
         assertEquals(1, listener.getUpdated());
-        assertEquals(0, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(1, listener.getRemoved());
         
         cache.replace(3l, "Bryn", "Sooty");
         assertEquals(2, listener.getCreated());
         assertEquals(2, listener.getUpdated());
-        assertEquals(0, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(1, listener.getRemoved());
 
         cache.get(1L);
         assertEquals(2, listener.getCreated());
         assertEquals(2, listener.getUpdated());
-        assertEquals(1, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(1, listener.getRemoved());
 
@@ -356,7 +327,6 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         cache.containsKey(1L);
         assertEquals(2, listener.getCreated());
         assertEquals(2, listener.getUpdated());
-        assertEquals(1, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(1, listener.getRemoved());
 
@@ -367,14 +337,12 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         }
         assertEquals(2, listener.getCreated());
         assertEquals(2, listener.getUpdated());
-        assertEquals(3, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(1, listener.getRemoved());
 
         cache.getAndPut(1l, "Pistachio");
         assertEquals(2, listener.getCreated());
         assertEquals(3, listener.getUpdated());
-        assertEquals(4, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(1, listener.getRemoved());
 
@@ -383,21 +351,18 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         cache.getAll(keys);
         assertEquals(2, listener.getCreated());
         assertEquals(3, listener.getUpdated());
-        assertEquals(5, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(1, listener.getRemoved());
 
         cache.getAndReplace(1l, "Prince");
         assertEquals(2, listener.getCreated());
         assertEquals(4, listener.getUpdated());
-        assertEquals(6, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(1, listener.getRemoved());
 
         cache.getAndRemove(1l);
         assertEquals(2, listener.getCreated());
         assertEquals(4, listener.getUpdated());
-        assertEquals(7, listener.getReads());
         assertEquals(0, listener.getExpired());
         assertEquals(2, listener.getRemoved());
 
@@ -406,10 +371,8 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         assertEquals(null, cache.get(3L));
         assertEquals(2, listener.getCreated());
         assertEquals(4, listener.getUpdated());
-        assertEquals(7, listener.getReads());
         assertEquals(1, listener.getExpired());
         assertEquals(2, listener.getRemoved());
-
     }
 
 
@@ -420,20 +383,15 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
      * @param <K>
      * @param <V>
      */
-    static class MyCacheEntryListener<K, V> implements CacheEntryReadListener<K, V>, CacheEntryCreatedListener<K, V>,
+    static class MyCacheEntryListener<K, V> implements CacheEntryCreatedListener<K, V>,
             CacheEntryUpdatedListener<K, V>, CacheEntryExpiredListener<K, V>, CacheEntryRemovedListener<K, V> {
 
-        AtomicInteger reads = new AtomicInteger();
         AtomicInteger created = new AtomicInteger();
         AtomicInteger updated = new AtomicInteger();
         AtomicInteger removed = new AtomicInteger();
         AtomicInteger expired = new AtomicInteger();
 
         ArrayList<CacheEntryEvent<K,V>> entries = new ArrayList<CacheEntryEvent<K, V>>();
-
-        public int getReads() {
-            return reads.get();
-        }
 
         public int getCreated() {
             return created.get();
@@ -480,13 +438,6 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         public void onUpdated(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
             for (CacheEntryEvent<? extends K, ? extends V> event : events) {
                 updated.incrementAndGet();
-            }
-        }
-
-        @Override
-        public void onRead(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
-            for (CacheEntryEvent<? extends K, ? extends V> event : events) {
-                reads.incrementAndGet();
             }
         }
     }
