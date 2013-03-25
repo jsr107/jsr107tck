@@ -141,13 +141,4 @@ public class CachingTest {
             Logger.getLogger(getClass().getName()).info("Optional feature " + feature + " supported=" + value);
         }
     }
-
-    /**
-     * Used to confirm that file exclusion works.
-     * @see #rule
-     */
-    @Test
-    public void dummyTest() {
-        fail();
-    }
 }
