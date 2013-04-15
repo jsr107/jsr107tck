@@ -18,7 +18,7 @@ package manager;
 
 import domain.Blog;
 
-import javax.cache.annotation.CacheKeyParam;
+import javax.cache.annotation.CacheKey;
 import javax.cache.annotation.CacheRemoveAll;
 import javax.cache.annotation.CacheRemoveEntry;
 import javax.cache.annotation.CacheResult;
@@ -84,7 +84,7 @@ public class CacheNameOnEachMethodBlogManagerImpl implements BlogManager {
      * 
      */
     @CacheResult(cacheName="blogManager")
-    public Blog getEntryCached(String randomArg, @CacheKeyParam String title, String randomArg2) {
+    public Blog getEntryCached(String randomArg, @CacheKey String title, String randomArg2) {
         return map.get(title);
     }
 
