@@ -21,6 +21,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import javax.cache.Cache;
+import javax.cache.CacheException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -96,7 +97,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
 
 
     @Test
-    public void varArguemntsPassedIn() {
+    public void varArgumentsPassedIn() {
         final Integer key = 123;
         final Integer ret = 456;
         Cache.EntryProcessor<Integer, String, Integer> processor = new MockEntryProcessor<Integer, String, Integer>() {
@@ -148,8 +149,8 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         try {
             cache.invokeEntryProcessor(key, processor);
             fail();
-        } catch (IllegalAccessError e) {
-            //
+        } catch (CacheException e) {
+            assertTrue(e.getCause() instanceof IllegalAccessError);
         }
         assertFalse(cache.containsKey(key));
     }
@@ -196,8 +197,8 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         try {
             cache.invokeEntryProcessor(key, processor);
             fail();
-        } catch (IllegalAccessError e) {
-            //
+        } catch (CacheException e) {
+            assertTrue(e.getCause() instanceof IllegalAccessError);
         }
         assertEquals(oldValue, cache.get(key));
     }
@@ -257,8 +258,8 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         try {
             cache.invokeEntryProcessor(key, processor);
             fail();
-        } catch (IllegalAccessError e) {
-            //
+        } catch (CacheException e) {
+            assertTrue(e.getCause() instanceof IllegalAccessError);
         }
         assertEquals(oldValue, cache.get(key));
     }
