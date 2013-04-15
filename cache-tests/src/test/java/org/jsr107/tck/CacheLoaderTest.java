@@ -84,7 +84,7 @@ public class CacheLoaderTest extends TestSupport {
         Integer key = 123;
 
         CompletionListenerFuture future = new CompletionListenerFuture();
-        cache.loadAll(Collections.singleton(key), future);
+        cache.loadAll(Collections.singleton(key), true, future);
 
         future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
 
@@ -103,7 +103,7 @@ public class CacheLoaderTest extends TestSupport {
         Integer key = 1;
 
         CompletionListenerFuture future = new CompletionListenerFuture();
-        cache.loadAll(Collections.singleton(key), future);
+        cache.loadAll(Collections.singleton(key), true, future);
 
         try {
             future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
@@ -122,7 +122,7 @@ public class CacheLoaderTest extends TestSupport {
         
         cache.stop();
         try {
-            cache.loadAll(null, null);
+            cache.loadAll(null, true, null);
             fail("should have thrown an exception - cache not started");
         } catch (IllegalStateException e) {
             //good
@@ -135,7 +135,7 @@ public class CacheLoaderTest extends TestSupport {
                 getTestCacheName(), new MutableConfiguration<Integer, Integer>());
         
         try {
-            cache.loadAll(null, null);
+            cache.loadAll(null, true, null);
             fail("should have thrown an exception - keys null");
         } catch (NullPointerException e) {
             //good
@@ -153,7 +153,7 @@ public class CacheLoaderTest extends TestSupport {
         keys.add(null);
         try {
             CompletionListenerFuture future = new CompletionListenerFuture();
-            cache.loadAll(keys, future);
+            cache.loadAll(keys, true, future);
 
             future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
             assertTrue(future.isDone());
@@ -185,7 +185,7 @@ public class CacheLoaderTest extends TestSupport {
         keys.add(2);
 
         CompletionListenerFuture future = new CompletionListenerFuture();
-        cache.loadAll(keys, future);
+        cache.loadAll(keys, true, future);
 
         try {
             future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
@@ -212,7 +212,7 @@ public class CacheLoaderTest extends TestSupport {
         keys.add(keyNotThere);
 
         CompletionListenerFuture future = new CompletionListenerFuture();
-        cache.loadAll(keys, future);
+        cache.loadAll(keys, true, future);
 
         future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
         assertTrue(future.isDone());
@@ -233,7 +233,7 @@ public class CacheLoaderTest extends TestSupport {
 
         CompletionListenerFuture future = new CompletionListenerFuture();
         try {
-            cache.loadAll(keys, future);
+            cache.loadAll(keys, true, future);
         } catch (NullPointerException e) {
             assertTrue(future.isDone());
             fail("should not have thrown an exception - with no cache loader should return null");
@@ -252,7 +252,7 @@ public class CacheLoaderTest extends TestSupport {
                 new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(loader)));
 
         CompletionListenerFuture future = new CompletionListenerFuture();
-        cache.loadAll(keys, future);
+        cache.loadAll(keys, true, future);
 
         future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
         assertTrue(future.isDone());
@@ -280,7 +280,7 @@ public class CacheLoaderTest extends TestSupport {
         keys.add(1);
 
         CompletionListenerFuture future = new CompletionListenerFuture();
-        cache.loadAll(keys, future);
+        cache.loadAll(keys, true, future);
 
         try {
             future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);

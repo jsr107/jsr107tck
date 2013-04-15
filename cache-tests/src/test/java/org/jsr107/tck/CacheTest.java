@@ -188,7 +188,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     public void load_NotStarted() {
         cache.stop();
         try {
-            cache.loadAll(null, null);
+            cache.loadAll(null, true, null);
             fail("should have thrown an exception - cache not started");
         } catch (IllegalStateException e) {
             //good
