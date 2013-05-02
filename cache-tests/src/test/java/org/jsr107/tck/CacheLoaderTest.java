@@ -554,6 +554,11 @@ public class CacheLoaderTest extends TestSupport {
                 public K getValue() {
                     return key;
                 }
+
+                @Override
+                public <T> T unwrap(Class<T> clazz) {
+                    throw new IllegalArgumentException();
+                }
             };
         }
 
@@ -607,6 +612,11 @@ public class CacheLoaderTest extends TestSupport {
                 @Override
                 public String getValue() {
                     return key.toString();
+                }
+
+                @Override
+                public <T> T unwrap(Class<T> clazz) {
+                    throw new IllegalArgumentException();
                 }
             };
         }
