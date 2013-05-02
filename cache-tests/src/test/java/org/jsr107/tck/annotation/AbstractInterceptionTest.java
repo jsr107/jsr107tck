@@ -23,7 +23,6 @@ import org.jsr107.tck.util.AbstractTestExcluder;
 import org.junit.Rule;
 import org.junit.rules.MethodRule;
 
-import javax.cache.Caching;
 import javax.cache.annotation.BeanProvider;
 import java.util.Iterator;
 import java.util.ServiceLoader;

@@ -23,8 +23,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 
-import javax.cache.Caching;
-import javax.cache.CachingShutdownException;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;

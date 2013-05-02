@@ -16,14 +16,11 @@
  */
 package org.jsr107.tck;
 
-import junit.framework.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.spi.CachingProvider;
-
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
