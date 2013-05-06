@@ -309,16 +309,16 @@ public class CacheExpiryTest extends TestSupport {
          * {@inheritDoc}
          */
         @Override
-        public Duration getTTLForAccessedEntry(Entry<? extends K, ? extends V> entry, Duration duration) {
-            return accessedExpiryDuration == null ? duration : accessedExpiryDuration;
+        public Duration getTTLForAccessedEntry(Entry<? extends K, ? extends V> entry) {
+            return accessedExpiryDuration;
         }
         
         /**
          * {@inheritDoc}
          */
         @Override
-        public Duration getTTLForModifiedEntry(MutatedEntry<? extends K, ? extends V> entry, Duration duration) {
-            return modifiedExpiryDuration == null ? duration : modifiedExpiryDuration;
+        public Duration getTTLForModifiedEntry(MutatedEntry<? extends K, ? extends V> entry) {
+            return modifiedExpiryDuration;
         }
     }
 }

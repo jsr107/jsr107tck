@@ -25,10 +25,7 @@ import javax.cache.ExpiryPolicy;
 import javax.cache.MutableConfiguration;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Unit tests for a {@link javax.cache.Configuration}.
@@ -61,8 +58,8 @@ public class TCKConfigurationTest {
 
         Duration duration = new Duration(TimeUnit.MINUTES, 10);
         assertEquals(Duration.ETERNAL, expiryPolicy.getTTLForCreatedEntry(null));
-        assertEquals(duration, expiryPolicy.getTTLForAccessedEntry(null, duration));
-        assertEquals(duration, expiryPolicy.getTTLForModifiedEntry(null, duration));
+        assertNull(expiryPolicy.getTTLForAccessedEntry(null));
+        assertNull(expiryPolicy.getTTLForModifiedEntry(null));
     }
 
     @Test
