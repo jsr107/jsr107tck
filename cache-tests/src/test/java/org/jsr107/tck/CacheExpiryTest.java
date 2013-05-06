@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import javax.cache.Cache;
 import javax.cache.Cache.Entry;
+import javax.cache.Cache.MutatedEntry;
 import javax.cache.Configuration.Duration;
 import javax.cache.ExpiryPolicy;
 import javax.cache.Factories;
@@ -316,7 +317,7 @@ public class CacheExpiryTest extends TestSupport {
          * {@inheritDoc}
          */
         @Override
-        public Duration getTTLForModifiedEntry(Entry<? extends K, ? extends V> entry, Duration duration) {
+        public Duration getTTLForModifiedEntry(MutatedEntry<? extends K, ? extends V> entry, Duration duration) {
             return modifiedExpiryDuration == null ? duration : modifiedExpiryDuration;
         }
     }
