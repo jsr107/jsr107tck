@@ -94,6 +94,27 @@ public class CacheLoaderTest extends TestSupport {
     }
 
     @Test
+    public void load_LoadingDoesntCauseWriting() throws Exception {
+        CacheLoader<Integer, Integer> clDefault = new SimpleCacheLoader<Integer>();
+        CacheWriterTest.RecordingCacheWriter<Integer, Integer> writer = new CacheWriterTest.RecordingCacheWriter<Integer, Integer>();
+
+        Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
+                new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(clDefault)).setCacheWriterFactory(Factories.of(writer)));
+
+        Integer key = 123;
+
+        CompletionListenerFuture future = new CompletionListenerFuture();
+        cache.loadAll(Collections.singleton(key), true, future);
+
+        future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+
+        assertTrue(future.isDone());
+        assertTrue(cache.containsKey(key));
+        assertEquals(key, cache.get(key));
+        assertEquals(0, writer.getWriteCount());
+    }
+
+    @Test
     public void load_ExceptionPropagation() throws Exception {
         CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>();
         
