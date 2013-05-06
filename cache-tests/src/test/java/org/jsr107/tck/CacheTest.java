@@ -31,6 +31,8 @@ import javax.cache.Caching;
 import javax.cache.Configuration;
 import javax.cache.MutableConfiguration;
 import javax.cache.annotation.CacheRemoveAll;
+import javax.cache.transaction.IsolationLevel;
+import javax.cache.transaction.Mode;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
@@ -83,6 +85,20 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         Configuration<Integer, Integer> config1 = new MutableConfiguration<Integer, Integer>();
         Configuration<Integer, Integer> config2 = new MutableConfiguration<Integer, Integer>();
         assertEquals(config1, config2);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void failsUsingStoreByReference() {
+        String cacheName = "transactional-by-reference";
+        Configuration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>()
+            .setStoreByValue(false)
+            .setTransactions(IsolationLevel.READ_COMMITTED, Mode.LOCAL)
+            .setTransactionsEnabled(true);
+
+        CacheManager cacheManager = getCacheManager();
+        cacheManager.configureCache(cacheName, config);
+
+        fail("Should not be able to configure a transaction with a store-by-reference cache");
     }
 
     @Test
