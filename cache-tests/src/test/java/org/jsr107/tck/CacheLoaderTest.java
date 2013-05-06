@@ -116,14 +116,14 @@ public class CacheLoaderTest extends TestSupport {
     }
 
     @Test
-    public void loadAll_NotStarted() {
+    public void loadAll_Closed() {
         Cache<Integer, Integer> cache = getCacheManager().configureCache(
                 getTestCacheName(), new MutableConfiguration<Integer, Integer>());
         
-        cache.stop();
+        cache.close();
         try {
             cache.loadAll(null, true, null);
-            fail("should have thrown an exception - cache not started");
+            fail("should have thrown an exception - cache is closed");
         } catch (IllegalStateException e) {
             //good
         }

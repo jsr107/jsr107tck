@@ -59,11 +59,11 @@ public class RemoveTest extends CacheTestSupport<Long, String> {
     public MethodRule rule = new ExcludeListExcluder(this.getClass());
 
     @Test
-    public void remove_1arg_NotStarted() {
-        cache.stop();
+    public void remove_1arg_Closed() {
+        cache.close();
         try {
             cache.remove(null);
-            fail("should have thrown an exception - cache not started");
+            fail("should have thrown an exception - cache closed");
         } catch (IllegalStateException e) {
             //good
         }
@@ -127,11 +127,11 @@ public class RemoveTest extends CacheTestSupport<Long, String> {
     }
 
     @Test
-    public void remove_2arg_NotStarted() {
-        cache.stop();
+    public void remove_2arg_Closed() {
+        cache.close();
         try {
             cache.remove(null, null);
-            fail("should have thrown an exception - cache not started");
+            fail("should have thrown an exception - cache closed");
         } catch (IllegalStateException e) {
             //good
         }
@@ -204,11 +204,11 @@ public class RemoveTest extends CacheTestSupport<Long, String> {
     }
 
     @Test
-    public void getAndRemove_NotStarted() {
-        cache.stop();
+    public void getAndRemove_Closed() {
+        cache.close();
         try {
             cache.getAndRemove(null);
-            fail("should have thrown an exception - cache not started");
+            fail("should have thrown an exception - cache closed");
         } catch (IllegalStateException e) {
             //good
         }
@@ -269,11 +269,11 @@ public class RemoveTest extends CacheTestSupport<Long, String> {
     }
 
     @Test
-    public void removeAll_1arg_NotStarted() {
-        cache.stop();
+    public void removeAll_1arg_Closed() {
+        cache.close();
         try {
             cache.removeAll(null);
-            fail("should have thrown an exception - cache not started");
+            fail("should have thrown an exception - cache closed");
         } catch (IllegalStateException e) {
             //good
         }
@@ -320,11 +320,11 @@ public class RemoveTest extends CacheTestSupport<Long, String> {
     }
 
     @Test
-    public void removeAll_0arg_NotStarted() {
-        cache.stop();
+    public void removeAll_0arg_Closed() {
+        cache.close();
         try {
             cache.removeAll();
-            fail("should have thrown an exception - cache not started");
+            fail("should have thrown an exception - cache closed");
         } catch (IllegalStateException e) {
             //good
         }

@@ -28,24 +28,14 @@ import javax.cache.Caching;
 import javax.cache.CachingShutdownException;
 import javax.cache.MutableConfiguration;
 import javax.cache.OptionalFeature;
-import javax.cache.Status;
 import javax.cache.spi.CachingProvider;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Logger;
 
-import static javax.cache.Status.STARTED;
-import static javax.cache.Status.STOPPED;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Unit tests for CacheManager
@@ -122,9 +112,9 @@ public class CacheManagerTest extends TestSupport {
         CachingProvider provider = Caching.getCachingProvider();
 
         CacheManager cacheManager = provider.getCacheManager(uri, provider.getDefaultClassLoader());
-        assertThat(cacheManager.getStatus(), is(STARTED));
+        assertFalse(cacheManager.isClosed());
         cacheManager.close();
-        assertThat(cacheManager.getStatus(), is(STOPPED));
+        assertTrue(cacheManager.isClosed());
 
         try {
             cacheManager.configureCache("Dog", null);
@@ -134,7 +124,7 @@ public class CacheManagerTest extends TestSupport {
         }
 
         CacheManager otherCacheManager = provider.getCacheManager(uri, provider.getDefaultClassLoader());
-        assertThat(otherCacheManager.getStatus(), is(STARTED));
+        assertFalse(otherCacheManager.isClosed());
 
         assertNotSame(cacheManager, otherCacheManager);
     }
@@ -151,7 +141,8 @@ public class CacheManagerTest extends TestSupport {
     public void createCache_StatusOK() {
         String name = "c1";
         Cache cache = getCacheManager().configureCache(name, new MutableConfiguration());
-        assertSame(Status.STARTED, cache.getStatus());
+        assertNotNull(cache);
+        assertEquals(name, cache.getName());
     }
 
     @Test
@@ -159,11 +150,9 @@ public class CacheManagerTest extends TestSupport {
         String name1 = "c1";
         CacheManager cacheManager = getCacheManager();
         Cache cache1 = cacheManager.configureCache(name1, new MutableConfiguration());
-        assertEquals(Status.STARTED, cache1.getStatus());
 
         String name2 = "c2";
         Cache cache2 = cacheManager.configureCache(name2, new MutableConfiguration());
-        assertEquals(Status.STARTED, cache2.getStatus());
 
         assertEquals(cache1, cacheManager.getCache(name1));
         assertEquals(cache2, cacheManager.getCache(name2));
@@ -175,7 +164,7 @@ public class CacheManagerTest extends TestSupport {
         String name1 = "c1";
         Cache cache1 = cacheManager.configureCache(name1, new MutableConfiguration());
         assertEquals(cache1, cacheManager.getCache(name1));
-        checkStarted(cache1);
+        ensureOpen(cache1);
 
         Cache cache2 = cacheManager.configureCache(name1, new MutableConfiguration());
         assertSame(cache1, cache2);
@@ -207,7 +196,7 @@ public class CacheManagerTest extends TestSupport {
         String name1 = "c1";
         Cache cache1 = cacheManager.configureCache(name1, new MutableConfiguration());
         cacheManager.removeCache(name1);
-        checkStopped(cache1);
+        ensureClosed(cache1);
     }
 
     @Test
@@ -229,7 +218,7 @@ public class CacheManagerTest extends TestSupport {
     }
 
     @Test
-    public void shutdown_stopCalled() {
+    public void close_cachesClosed() {
         CacheManager cacheManager = getCacheManager();
 
         Cache cache1 = cacheManager.configureCache("c1", new MutableConfiguration());
@@ -237,34 +226,29 @@ public class CacheManagerTest extends TestSupport {
 
         cacheManager.close();
 
-        checkStopped(cache1);
-        checkStopped(cache2);
+        ensureClosed(cache1);
+        ensureClosed(cache2);
     }
 
     @Test
-    public void shutdown_status() {
+    public void close() {
         CacheManager cacheManager = getCacheManager();
 
-        assertEquals(Status.STARTED, cacheManager.getStatus());
+        assertFalse(cacheManager.isClosed());
         cacheManager.close();
-        assertEquals(STOPPED, cacheManager.getStatus());
+        assertTrue(cacheManager.isClosed());
     }
 
     @Test
-    public void shutdown_statusTwice() {
+    public void close_twice() {
         CacheManager cacheManager = getCacheManager();
 
         cacheManager.close();
-        try {
-            cacheManager.close();
-            fail();
-        } catch (IllegalStateException e) {
-            // good
-        }
+        cacheManager.close();
     }
 
     @Test
-    public void shutdown_cachesEmpty() {
+    public void close_cachesEmpty() {
         CacheManager cacheManager = getCacheManager();
 
         cacheManager.configureCache("c1", new MutableConfiguration());
@@ -427,16 +411,16 @@ public class CacheManagerTest extends TestSupport {
         }
     }
 
-    private void checkStarted(Cache cache) {
-        Status status = cache.getStatus();
-        //may be asynchronous
-        assertTrue(status == Status.STARTED);
+    private void ensureOpen(Cache cache) {
+        if (cache.isClosed()) {
+            fail();
+        }
     }
 
-    private void checkStopped(Cache cache) {
-        Status status = cache.getStatus();
-        //may be asynchronous
-        assertTrue(status == STOPPED);
+    private void ensureClosed(Cache cache) {
+        if (!cache.isClosed()) {
+            fail();
+        }
     }
 
 //    todo GL adapt this test to its new home @Test

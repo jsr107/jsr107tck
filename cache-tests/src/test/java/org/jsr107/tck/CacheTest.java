@@ -21,7 +21,6 @@ import domain.Beagle;
 import domain.Identifier;
 import manager.CacheNameOnEachMethodBlogManagerImpl;
 import org.jsr107.tck.util.ExcludeListExcluder;
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
@@ -31,7 +30,6 @@ import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.Configuration;
 import javax.cache.MutableConfiguration;
-import javax.cache.Status;
 import javax.cache.annotation.CacheRemoveAll;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -151,11 +149,11 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     }
 
     @Test
-    public void containsKey_NotStarted() {
-        cache.stop();
+    public void containsKey_Closed() {
+        cache.close();
         try {
             cache.containsKey(null);
-            fail("should have thrown an exception - cache not started");
+            fail("should have thrown an exception - cache closed");
         } catch (IllegalStateException e) {
             //good
         }
@@ -185,22 +183,22 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     }
 
     @Test
-    public void load_NotStarted() {
-        cache.stop();
+    public void load_Closed() {
+        cache.close();
         try {
             cache.loadAll(null, true, null);
-            fail("should have thrown an exception - cache not started");
+            fail("should have thrown an exception - cache closed");
         } catch (IllegalStateException e) {
             //good
         }
     }
 
     @Test
-    public void iterator_NotStarted() {
-        cache.stop();
+    public void iterator_Closed() {
+        cache.close();
         try {
             cache.iterator();
-            fail("should have thrown an exception - cache not started");
+            fail("should have thrown an exception - cache closed");
         } catch (IllegalStateException e) {
             //good
         }
@@ -240,13 +238,23 @@ public class CacheTest extends CacheTestSupport<Long, String> {
 
     @Test
     public void initialise() {
-        Assert.assertEquals(Status.STARTED, cache.getStatus());
+        try {
+            cache.getCacheManager();
+        } catch (IllegalStateException e) {
+            fail("Should be able to access the CacheManager for a new Cache");
+        }
     }
 
     @Test
-    public void stop() {
-        cache.stop();
-        assertEquals(Status.STOPPED, cache.getStatus());
+    public void close() {
+        cache.close();
+
+        try {
+            cache.get(1L);
+            fail("Should not be able to use a closed Cache");
+        } catch (IllegalStateException e) {
+            //SKIP: everything is ok if we can't access the CacheManager
+        }
     }
 
     @Test

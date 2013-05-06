@@ -50,11 +50,11 @@ public class ReplaceTest extends CacheTestSupport<Long, String> {
     public MethodRule rule = new ExcludeListExcluder(this.getClass());
 
     @Test
-    public void replace_3arg_NotStarted() {
-        cache.stop();
+    public void replace_3arg_Closed() {
+        cache.close();
         try {
             cache.replace(null, null, null);
-            fail("should have thrown an exception - cache not started");
+            fail("should have thrown an exception - cache closed");
         } catch (IllegalStateException e) {
             //good
         }
@@ -129,11 +129,11 @@ public class ReplaceTest extends CacheTestSupport<Long, String> {
     }
 
     @Test
-    public void replace_2arg_NotStarted() {
-        cache.stop();
+    public void replace_2arg_Closed() {
+        cache.close();
         try {
             cache.replace(null, null);
-            fail("should have thrown an exception - cache not started");
+            fail("should have thrown an exception - cache closed");
         } catch (IllegalStateException e) {
             //good
         }
@@ -177,11 +177,11 @@ public class ReplaceTest extends CacheTestSupport<Long, String> {
     }
 
     @Test
-    public void getAndReplace_NotStarted() {
-        cache.stop();
+    public void getAndReplace_Closed() {
+        cache.close();
         try {
             cache.getAndReplace(null, null);
-            fail("should have thrown an exception - cache not started");
+            fail("should have thrown an exception - cache closed");
         } catch (IllegalStateException e) {
             //good
         }

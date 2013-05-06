@@ -54,11 +54,11 @@ public class GetTest extends CacheTestSupport<Long, String> {
     public MethodRule rule = new ExcludeListExcluder(this.getClass());
 
     @Test
-    public void get_NotStarted() {
-        cache.stop();
+    public void get_Closed() {
+        cache.close();
         try {
             cache.get(null);
-            fail("should have thrown an exception - cache not started");
+            fail("should have thrown an exception - cache closed");
         } catch (IllegalStateException e) {
             //good
         }
@@ -101,11 +101,11 @@ public class GetTest extends CacheTestSupport<Long, String> {
     }
 
     @Test
-    public void getAll_NotStarted() {
-        cache.stop();
+    public void getAll_Closed() {
+        cache.close();
         try {
             cache.getAll(null);
-            fail("should have thrown an exception - cache not started");
+            fail("should have thrown an exception - cache closed");
         } catch (IllegalStateException e) {
             //good
         }

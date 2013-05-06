@@ -70,8 +70,8 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     }
 
     @Test
-    public void notStarted() {
-        cache.stop();
+    public void close() {
+        cache.close();
         try {
             cache.invokeEntryProcessor(123, new MockEntryProcessor<Integer, String, Void>());
             fail("null key");

@@ -55,11 +55,11 @@ public class PutTest extends CacheTestSupport<Long, String> {
     public MethodRule rule = new ExcludeListExcluder(this.getClass());
 
     @Test
-    public void put_NotStarted() {
-        cache.stop();
+    public void put_Closed() {
+        cache.close();
         try {
             cache.put(null, null);
-            fail("should have thrown an exception - cache not started");
+            fail("should have thrown an exception - cache closed");
         } catch (IllegalStateException e) {
             //good
         }
@@ -108,11 +108,11 @@ public class PutTest extends CacheTestSupport<Long, String> {
     }
 
     @Test
-    public void getAndPut_NotStarted() {
-        cache.stop();
+    public void getAndPut_Closed() {
+        cache.close();
         try {
             cache.getAndPut(null, null);
-            fail("should have thrown an exception - cache not started");
+            fail("should have thrown an exception - cache closed");
         } catch (IllegalStateException e) {
             //good
         }
@@ -169,11 +169,11 @@ public class PutTest extends CacheTestSupport<Long, String> {
     }
 
     @Test
-    public void putIfAbsent_NotStarted() {
-        cache.stop();
+    public void putIfAbsent_Closed() {
+        cache.close();
         try {
             cache.putIfAbsent(null, null);
-            fail("should have thrown an exception - cache not started");
+            fail("should have thrown an exception - cache closed");
         } catch (IllegalStateException e) {
             //good
         }
@@ -218,11 +218,11 @@ public class PutTest extends CacheTestSupport<Long, String> {
     }
 
     @Test
-    public void putAll_NotStarted() {
-        cache.stop();
+    public void putAll_Closed() {
+        cache.close();
         try {
             cache.putAll(null);
-            fail("should have thrown an exception - cache not started");
+            fail("should have thrown an exception - cache closed");
         } catch (IllegalStateException e) {
             //good
         }
