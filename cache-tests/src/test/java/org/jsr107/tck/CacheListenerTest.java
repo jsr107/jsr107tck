@@ -36,6 +36,7 @@ import javax.cache.event.CacheEntryExpiredListener;
 import javax.cache.event.CacheEntryListenerException;
 import javax.cache.event.CacheEntryRemovedListener;
 import javax.cache.event.CacheEntryUpdatedListener;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -91,6 +92,37 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
             cache.registerCacheEntryListener(null, false, null, true);
         } catch (CacheEntryListenerException e) {
             //expected
+        }
+    }
+
+    static public class SetEntryProcessor<K,V,T> implements Cache.EntryProcessor<K,V,T>, Serializable {
+        public SetEntryProcessor(V setValue) {
+            this.setValue = setValue;
+        }
+
+        public T process(MutableEntry<K, V> entry, Object... arguments) {
+            entry.setValue(setValue);
+            return (T)entry.getValue();
+        }
+
+        final V setValue;
+    }
+
+    static public class MultiArgumentEntryProcessor<K,V,T> implements Cache.EntryProcessor<K,V,T>, Serializable {
+        @Override
+        public T process(MutableEntry<K, V> entry, Object... arguments) {
+            assertEquals("These", arguments[0]);
+            assertEquals("are", arguments[1]);
+            assertEquals("arguments", arguments[2]);
+            return (T)entry.getValue();
+        }
+    }
+
+    static public class RemoveEntryProcessor<K,V,T> implements Cache.EntryProcessor<K,V,T>, Serializable {
+        @Override
+        public T process(MutableEntry<K, V> entry, Object... arguments) {
+            entry.remove();
+            return (T)entry.getValue();
         }
     }
 
@@ -151,55 +183,31 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         assertEquals(4, listener.getUpdated());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());
-        
-        String result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
-            @Override
-            public String process(MutableEntry<Long, String> entry, Object... arguments) {
-                assertEquals("These", arguments[0]);
-                assertEquals("are", arguments[1]);
-                assertEquals("arguments", arguments[2]);
-                return entry.getValue();
-            }
-        }, "These", "are", "arguments");
+
+
+        Cache.EntryProcessor<Long,String,String> multiArgEP = new MultiArgumentEntryProcessor<Long, String, String>();
+        String result = cache.invokeEntryProcessor(1l, multiArgEP, "These", "are", "arguments");
         assertEquals(value, result);
         assertEquals(4, listener.getCreated());
         assertEquals(4, listener.getUpdated());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());        
         
-        result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
-            @Override
-            public String process(MutableEntry<Long, String> entry, Object... arguments) {
-                entry.setValue("Zoot");
-                return entry.getValue();
-            }
-        });
+        result = cache.invokeEntryProcessor(1l, new SetEntryProcessor<Long, String, String>("Zoot"));
         assertEquals("Zoot", result);
         assertEquals(4, listener.getCreated());
         assertEquals(5, listener.getUpdated());
         assertEquals(0, listener.getExpired());
         assertEquals(0, listener.getRemoved());        
         
-        result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
-            @Override
-            public String process(MutableEntry<Long, String> entry, Object... arguments) {
-                entry.remove();
-                return entry.getValue();
-            }
-        });
+        result = cache.invokeEntryProcessor(1l, new RemoveEntryProcessor<Long, String, String>());
         assertNull(result);
         assertEquals(4, listener.getCreated());
         assertEquals(5, listener.getUpdated());
         assertEquals(0, listener.getExpired());
-        assertEquals(1, listener.getRemoved());        
-        
-        result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
-            @Override
-            public String process(MutableEntry<Long, String> entry, Object... arguments) {
-                entry.setValue("Moose");
-                return entry.getValue();
-            }
-        });
+        assertEquals(1, listener.getRemoved());
+
+        result = cache.invokeEntryProcessor(1l, new SetEntryProcessor<Long, String, String>("Moose"));
         assertEquals("Moose", result);
         assertEquals(5, listener.getCreated());
         assertEquals(5, listener.getUpdated());

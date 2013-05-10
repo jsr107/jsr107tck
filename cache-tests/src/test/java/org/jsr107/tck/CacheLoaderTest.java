@@ -27,6 +27,7 @@ import javax.cache.CacheLoader;
 import javax.cache.Factories;
 import javax.cache.MutableConfiguration;
 import javax.cache.event.CompletionListenerFuture;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -64,7 +65,7 @@ public class CacheLoaderTest extends TestSupport {
      * Rule used to exclude tests
      */
     @Rule
-    public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
+    public ExcludeListExcluder rule = new ExcludeListExcluder(CacheLoaderTest.class);
 
 
     @After
@@ -530,7 +531,8 @@ public class CacheLoaderTest extends TestSupport {
      * @param <K>
      * @param <V>
      */
-    public static class MockCacheLoader<K, V> implements CacheLoader<K, V> {
+    public static class MockCacheLoader<K, V> implements CacheLoader<K, V>, Serializable {
+        private static final long serialVersionUID = -1L;
 
         @Override
         public Cache.Entry<K, V> load(K key) {
@@ -549,7 +551,8 @@ public class CacheLoaderTest extends TestSupport {
      *
      * @param <K>
      */
-    public static class SimpleCacheLoader<K> implements CacheLoader<K, K> {
+    public static class SimpleCacheLoader<K> implements CacheLoader<K, K>, Serializable {
+        private static final long serialVersionUID = -1L;
 
         /**
          * The keys that have been loaded by this loader.
@@ -620,7 +623,8 @@ public class CacheLoaderTest extends TestSupport {
     /**
      * A simple example of a Cache Loader
      */
-    public static class ArrayListCacheLoader implements CacheLoader<ArrayList<Integer>, String> {
+    public static class ArrayListCacheLoader implements CacheLoader<ArrayList<Integer>, String>, Serializable {
+        private static final long serialVersionUID = -1L;
 
         @Override
         public Cache.Entry<ArrayList<Integer>, String> load(final ArrayList<Integer> key) {
