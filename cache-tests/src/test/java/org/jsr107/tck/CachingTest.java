@@ -16,8 +16,8 @@
  */
 package org.jsr107.tck;
 
-import junit.framework.Assert;
 import org.jsr107.tck.util.ExcludeListExcluder;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 

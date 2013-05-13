@@ -46,6 +46,10 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static javax.cache.event.EventType.CREATED;
+import static javax.cache.event.EventType.EXPIRED;
+import static javax.cache.event.EventType.REMOVED;
+import static javax.cache.event.EventType.UPDATED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -423,6 +427,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         @Override
         public void onCreated(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
             for (CacheEntryEvent<? extends K, ? extends V> event : events) {
+                assertEquals(CREATED, event.getEventType());
                 created.incrementAndGet();
             }
         }
@@ -430,6 +435,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         @Override
         public void onExpired(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
             for (CacheEntryEvent<? extends K, ? extends V> event : events) {
+                assertEquals(EXPIRED, event.getEventType());
                 expired.incrementAndGet();
             }
         }
@@ -437,6 +443,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         @Override
         public void onRemoved(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
             for (CacheEntryEvent<? extends K, ? extends V> event : events) {
+                assertEquals(REMOVED, event.getEventType());
                 removed.incrementAndGet();
             }
         }
@@ -444,6 +451,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         @Override
         public void onUpdated(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
             for (CacheEntryEvent<? extends K, ? extends V> event : events) {
+                assertEquals(UPDATED, event.getEventType());
                 updated.incrementAndGet();
             }
         }
