@@ -385,6 +385,70 @@ public class CacheManagerTest extends TestSupport {
     }
 
     @Test
+    public void getUntypedCache() {
+        CacheManager cacheManager = getCacheManager();
+
+        //configure an un-typed Cache
+        MutableConfiguration config = new MutableConfiguration();
+
+        cacheManager.configureCache("untyped-cache", config);
+
+        Cache cache = cacheManager.getCache("untyped-cache");
+
+        assertNotNull(cache);
+        assertNull(cache.getConfiguration().getKeyType());
+        assertNull(cache.getConfiguration().getValueType());
+    }
+
+    @Test
+    public void getTypedCache() {
+        CacheManager cacheManager = getCacheManager();
+
+        MutableConfiguration<String, Long> config = new MutableConfiguration<String, Long>(String.class, Long.class);
+
+        cacheManager.configureCache("typed-cache", config);
+
+        Cache<String, Long> cache = cacheManager.getCache("typed-cache", String.class, Long.class);
+
+        assertNotNull(cache);
+        assertEquals(String.class, cache.getConfiguration().getKeyType());
+        assertEquals(Long.class, cache.getConfiguration().getValueType());
+    }
+
+    @Test(expected = ClassCastException.class)
+    public void getIncorrectCacheType() {
+        CacheManager cacheManager = getCacheManager();
+
+        MutableConfiguration<String, Long> config = new MutableConfiguration<String, Long>(String.class, Long.class);
+
+        cacheManager.configureCache("typed-cache", config);
+
+        Cache<Long, String> cache = cacheManager.getCache("typed-cache", Long.class, String.class);
+    }
+
+    @Test(expected = ClassCastException.class)
+    public void getUnsafeTypedCacheRequest() {
+        CacheManager cacheManager = getCacheManager();
+
+        MutableConfiguration<String, Long> config = new MutableConfiguration<String, Long>(String.class, Long.class);
+
+        cacheManager.configureCache("typed-cache", config);
+
+        Cache cache = cacheManager.getCache("typed-cache");
+    }
+
+    @Test(expected = ClassCastException.class)
+    public void getNullTypeCacheRequest() {
+        CacheManager cacheManager = getCacheManager();
+
+        MutableConfiguration config = new MutableConfiguration();
+
+        cacheManager.configureCache("untyped-cache", config);
+
+        Cache cache = cacheManager.getCache("untyped-cache", null, null);
+    }
+
+    @Test
     public void isSupported() {
         CacheManager cacheManager = getCacheManager();
 
