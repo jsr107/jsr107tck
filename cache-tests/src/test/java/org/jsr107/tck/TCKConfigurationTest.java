@@ -61,9 +61,9 @@ public class TCKConfigurationTest {
         ExpiryPolicy<?, ?> expiryPolicy = config.getExpiryPolicyFactory().create();
 
         Duration duration = new Duration(TimeUnit.MINUTES, 10);
-        assertEquals(Duration.ETERNAL, expiryPolicy.getTTLForCreatedEntry(null));
-        assertNull(expiryPolicy.getTTLForAccessedEntry(null));
-        assertNull(expiryPolicy.getTTLForModifiedEntry(null));
+        assertEquals(Duration.ETERNAL, expiryPolicy.getExpiryForCreatedEntry(null));
+        assertNull(expiryPolicy.getExpiryForAccessedEntry(null));
+        assertNull(expiryPolicy.getExpiryForModifiedEntry(null));
     }
 
     @Test
