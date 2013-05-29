@@ -21,6 +21,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 
+import javax.cache.MutableConfiguration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
@@ -52,6 +53,11 @@ public class GetTest extends CacheTestSupport<Long, String> {
      */
     @Rule
     public MethodRule rule = new ExcludeListExcluder(this.getClass());
+
+    @Override
+    protected MutableConfiguration<Long, String> newMutableConfiguration() {
+        return new MutableConfiguration<Long, String>(Long.class, String.class);
+    }
 
     @Test
     public void get_Closed() {

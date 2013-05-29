@@ -33,11 +33,11 @@ import java.util.LinkedHashMap;
  */
 public abstract class CacheTestSupport<K,V> extends TestSupport {
 
-    protected Cache<K,V> cache;
+    protected Cache<K, V> cache;
 
     @Before
     public void setUp() {
-        cache = getCacheManager().configureCache(getTestCacheName(), extraSetup(new MutableConfiguration<K, V>()));
+        cache = getCacheManager().configureCache(getTestCacheName(), extraSetup(newMutableConfiguration()));
     }
 
     @After
@@ -45,7 +45,15 @@ public abstract class CacheTestSupport<K,V> extends TestSupport {
         getCacheManager().removeCache(getTestCacheName());
     }
 
-    protected <A, B> MutableConfiguration<A, B> extraSetup(MutableConfiguration<A, B> configuration) {
+    /**
+     * Constructs a new {@link MutableConfiguration} for the test.
+     *
+     * @return a new {@link MutableConfiguration}
+     */
+    abstract protected MutableConfiguration<K, V> newMutableConfiguration();
+
+
+    protected MutableConfiguration<K, V> extraSetup(MutableConfiguration<K, V> configuration) {
         return configuration;
     }
 

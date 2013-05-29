@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
+import javax.cache.MutableConfiguration;
 import java.io.Serializable;
 
 import static org.junit.Assert.assertEquals;
@@ -45,6 +46,11 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
      */
     @Rule
     public ExcludeListExcluder rule = new ExcludeListExcluder(CacheInvokeTest.class);
+
+    @Override
+    protected MutableConfiguration<Integer, String> newMutableConfiguration() {
+        return new MutableConfiguration<Integer, String>(Integer.class, String.class);
+    }
 
     @Test
     public void nullKey() {

@@ -80,6 +80,11 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         }
     };
 
+    @Override
+    protected MutableConfiguration<Long, String> newMutableConfiguration() {
+        return new MutableConfiguration<Long, String>(Long.class, String.class);
+    }
+
     @Test
     public void sameConfiguration() {
         Configuration<Integer, Integer> config1 = new MutableConfiguration<Integer, Integer>();
@@ -103,61 +108,59 @@ public class CacheTest extends CacheTestSupport<Long, String> {
 
     @Test
     public void simpleAPI() {
-        String cacheName = "sampleCache";
-        CacheManager cacheManager = getCacheManager();
-        Cache<String, Integer> cache = cacheManager.getCache(cacheName);
-        cache = cacheManager.configureCache(cacheName, new MutableConfiguration<String, Integer>().setStoreByValue(true));;
+        Long key = 1L;
+        String value1 = "key";
 
-        String key = "key";
-        Integer value1 = 1;
         cache.put(key, value1);
-        Integer value2 = cache.get(key);
+
+        String value2 = cache.get(key);
+
         assertEquals(value1, value2);
     }
 
     @Test()
     public void clearTest() {
-        String cacheName = "sampleCache";
-        CacheManager cacheManager = getCacheManager();
-        Cache<String, Integer> cache = cacheManager.getCache(cacheName);
-        cache = cacheManager.configureCache(cacheName, new MutableConfiguration<String, Integer>().setStoreByValue(true));;
+        Long key = 1L;
+        String value1 = "key";
 
-        String key = "key";
-        Integer value1 = 1;
         cache.put(key, value1);
-        Integer value2 = cache.get(key);
+
+        String value2 = cache.get(key);
+
         assertEquals(value1, value2);
+
         cache.clear();
         assertNull(cache.get(key));
     }
 
-    /**
-     * All these work with get(Object)
-     */
-    @Test
-    public void genericsTest() {
-
-        String cacheName = "genericsCache";
-        CacheManager cacheManager = getCacheManager();
-        Cache<Identifier, Beagle> cacheGeneric = cacheManager.getCache(cacheName);
-        cacheGeneric = cacheManager.configureCache(cacheName, new MutableConfiguration<Identifier, Beagle>());
-        Beagle pistachio = new Beagle();
-        cacheGeneric.put(new Identifier("Pistachio"), pistachio);
-        //Illegal with change to get(K)
-        //Object value = cacheGeneric.get(new Identifier2("Pistachio"));
-
-        Cache cacheNonGeneric = cacheManager.getCache(cacheName);
-        //Illegal with change to get(K)
-        //value = cacheNonGeneric.get(new Identifier2("Pistachio"));
-        //assertNotNull(value);
-    }
-
-    @Test
-    public void hashcode() {
-        Identifier identifier = new Identifier("Pistachio");
-        System.out.println(identifier.hashCode());
-        System.out.println("Pistachio".hashCode());
-    }
+//TODO: move these into a new type-based test class
+//    /**
+//     * All these work with get(Object)
+//     */
+//    @Test
+//    public void genericsTest() {
+//
+//        String cacheName = "genericsCache";
+//        CacheManager cacheManager = getCacheManager();
+//        Cache<Identifier, Beagle> cacheGeneric = cacheManager.getCache(cacheName);
+//        cacheGeneric = cacheManager.configureCache(cacheName, new MutableConfiguration<Identifier, Beagle>());
+//        Beagle pistachio = new Beagle();
+//        cacheGeneric.put(new Identifier("Pistachio"), pistachio);
+//        //Illegal with change to get(K)
+//        //Object value = cacheGeneric.get(new Identifier2("Pistachio"));
+//
+//        Cache cacheNonGeneric = cacheManager.getCache(cacheName);
+//        //Illegal with change to get(K)
+//        //value = cacheNonGeneric.get(new Identifier2("Pistachio"));
+//        //assertNotNull(value);
+//    }
+//
+//    @Test
+//    public void hashcode() {
+//        Identifier identifier = new Identifier("Pistachio");
+//        System.out.println(identifier.hashCode());
+//        System.out.println("Pistachio".hashCode());
+//    }
 
     @Test
     public void getCacheName() {

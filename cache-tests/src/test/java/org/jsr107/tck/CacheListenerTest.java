@@ -82,8 +82,14 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
         }
     };
 
-    protected <A, B> MutableConfiguration<A, B> extraSetup(MutableConfiguration<A, B> configuration) {
-        return configuration.setExpiryPolicyFactory(Factories.of(new ExpiryPolicy.Modified<A, B>(new Configuration.Duration(TimeUnit.MILLISECONDS, 20))));
+    @Override
+    protected MutableConfiguration<Long, String> newMutableConfiguration() {
+        return new MutableConfiguration<Long, String>(Long.class, String.class);
+    }
+
+    @Override
+    protected MutableConfiguration<Long, String> extraSetup(MutableConfiguration<Long, String> configuration) {
+        return configuration.setExpiryPolicyFactory(Factories.of(new ExpiryPolicy.Modified<Long, String>(new Configuration.Duration(TimeUnit.MILLISECONDS, 20))));
     }
 
     /**

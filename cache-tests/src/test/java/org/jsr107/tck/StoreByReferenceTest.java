@@ -61,6 +61,19 @@ public class StoreByReferenceTest extends CacheTestSupport<Date, Date> {
         super.setUp();
     }
 
+    @Override
+    protected MutableConfiguration<Date, Date> newMutableConfiguration() {
+        return new MutableConfiguration<Date, Date>(Date.class, Date.class);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected MutableConfiguration<Date, Date> extraSetup(MutableConfiguration<Date, Date> configuration) {
+        return super.extraSetup(configuration).setStoreByValue(false);
+    }
+
     @After
     public void teardown() {
         try {
@@ -192,13 +205,5 @@ public class StoreByReferenceTest extends CacheTestSupport<Date, Date> {
         Date nextValue = new Date(now + 1);
         assertSame(value, cache.getAndReplace(key, nextValue));
         assertSame(nextValue, cache.get(key));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected <A, B> MutableConfiguration<A, B> extraSetup(MutableConfiguration<A, B> configuration) {
-    	return super.extraSetup(configuration).setStoreByValue(false);
     }
 }

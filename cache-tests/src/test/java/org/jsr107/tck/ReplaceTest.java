@@ -21,6 +21,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 
+import javax.cache.MutableConfiguration;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -48,6 +50,11 @@ public class ReplaceTest extends CacheTestSupport<Long, String> {
      */
     @Rule
     public MethodRule rule = new ExcludeListExcluder(this.getClass());
+
+    @Override
+    protected MutableConfiguration<Long, String> newMutableConfiguration() {
+        return new MutableConfiguration<Long, String>(Long.class, String.class);
+    }
 
     @Test
     public void replace_3arg_Closed() {

@@ -31,14 +31,19 @@ import static org.junit.Assert.assertThat;
  */
 public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
 
-
     @Before
     public void setUp() {
         super.setUp();
         cache.getCacheManager().enableStatistics(cache.getName(), true);
     }
 
-    protected <A, B> MutableConfiguration<A, B> extraSetup(MutableConfiguration<A, B> configuration) {
+    @Override
+    protected MutableConfiguration<Long, String> newMutableConfiguration() {
+        return new MutableConfiguration<Long, String>(Long.class, String.class);
+    }
+
+    @Override
+    protected MutableConfiguration<Long, String> extraSetup(MutableConfiguration<Long, String> configuration) {
         return configuration.setStoreByValue(true);
     }
 

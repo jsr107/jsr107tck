@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 
+import javax.cache.MutableConfiguration;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
@@ -58,6 +59,10 @@ public class StoreByValueTest extends CacheTestSupport<Date, Date> {
         }
     }
 
+    @Override
+    protected MutableConfiguration<Date, Date> newMutableConfiguration() {
+        return new MutableConfiguration<Date, Date>(Date.class, Date.class);
+    }
 
     @Test
     public void get_Existing_MutateValue() {
