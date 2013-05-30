@@ -20,19 +20,17 @@ import manager.BlogManager;
 import manager.ClassLevelCacheConfigBlogManagerImpl;
 
 /**
- * 
  * @author Rick Hightower
- * 
  */
 public class InterceptionUsingCacheConfigTest extends
     AbstractBlogManagerInterceptionTest {
 
-    /**
-     * 
-     */
-    @Override
-    protected BlogManager getBlogManager() {
-        return getBeanByType(ClassLevelCacheConfigBlogManagerImpl.class);
-    }
+  /**
+   *
+   */
+  @Override
+  protected BlogManager getBlogManager() {
+    return getBeanByType(ClassLevelCacheConfigBlogManagerImpl.class);
+  }
 
 }

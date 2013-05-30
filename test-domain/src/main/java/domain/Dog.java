@@ -19,104 +19,105 @@ package domain;
 
 /**
  * A Dog.
+ *
  * @author Greg Luck
  */
 public class Dog {
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Dog)) return false;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Dog)) return false;
 
-        Dog dog = (Dog) o;
+    Dog dog = (Dog) o;
 
-        if (heightInCm != dog.heightInCm) return false;
-        if (lengthInCm != dog.lengthInCm) return false;
-        if (neutered != dog.neutered) return false;
-        if (weighInKg != dog.weighInKg) return false;
-        if (color != null ? !color.equals(dog.color) : dog.color != null) return false;
-        if (name != null ? !name.equals(dog.name) : dog.name != null) return false;
-        if (sex != dog.sex) return false;
+    if (heightInCm != dog.heightInCm) return false;
+    if (lengthInCm != dog.lengthInCm) return false;
+    if (neutered != dog.neutered) return false;
+    if (weighInKg != dog.weighInKg) return false;
+    if (color != null ? !color.equals(dog.color) : dog.color != null) return false;
+    if (name != null ? !name.equals(dog.name) : dog.name != null) return false;
+    if (sex != dog.sex) return false;
 
-        return true;
-    }
+    return true;
+  }
 
-    @Override
-    public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (color != null ? color.hashCode() : 0);
-        result = 31 * result + weighInKg;
-        result = 31 * result + (int) (lengthInCm ^ (lengthInCm >>> 32));
-        result = 31 * result + (int) (heightInCm ^ (heightInCm >>> 32));
-        result = 31 * result + (sex != null ? sex.hashCode() : 0);
-        result = 31 * result + (neutered ? 1 : 0);
-        return result;
-    }
+  @Override
+  public int hashCode() {
+    int result = name != null ? name.hashCode() : 0;
+    result = 31 * result + (color != null ? color.hashCode() : 0);
+    result = 31 * result + weighInKg;
+    result = 31 * result + (int) (lengthInCm ^ (lengthInCm >>> 32));
+    result = 31 * result + (int) (heightInCm ^ (heightInCm >>> 32));
+    result = 31 * result + (sex != null ? sex.hashCode() : 0);
+    result = 31 * result + (neutered ? 1 : 0);
+    return result;
+  }
 
-    public Identifier getName() {
+  public Identifier getName() {
 
-        return name;
-    }
+    return name;
+  }
 
-    public void setName(Identifier name) {
-        this.name = name;
-    }
+  public void setName(Identifier name) {
+    this.name = name;
+  }
 
-    private Identifier name;
-    private String color;
-    private int weighInKg;
-    private long lengthInCm;
-    private long heightInCm;
-    private Sex sex;
-    private boolean neutered;
+  private Identifier name;
+  private String color;
+  private int weighInKg;
+  private long lengthInCm;
+  private long heightInCm;
+  private Sex sex;
+  private boolean neutered;
 
 
-    public String getColor() {
-        return color;
-    }
+  public String getColor() {
+    return color;
+  }
 
-    public void setColor(String color) {
-        this.color = color;
-    }
+  public void setColor(String color) {
+    this.color = color;
+  }
 
-    public int getWeighInKg() {
-        return weighInKg;
-    }
+  public int getWeighInKg() {
+    return weighInKg;
+  }
 
-    public void setWeighInKg(int weighInKg) {
-        this.weighInKg = weighInKg;
-    }
+  public void setWeighInKg(int weighInKg) {
+    this.weighInKg = weighInKg;
+  }
 
-    public long getLengthInCm() {
-        return lengthInCm;
-    }
+  public long getLengthInCm() {
+    return lengthInCm;
+  }
 
-    public void setLengthInCm(long lengthInCm) {
-        this.lengthInCm = lengthInCm;
-    }
+  public void setLengthInCm(long lengthInCm) {
+    this.lengthInCm = lengthInCm;
+  }
 
-    public long getHeightInCm() {
-        return heightInCm;
-    }
+  public long getHeightInCm() {
+    return heightInCm;
+  }
 
-    public void setHeightInCm(long heightInCm) {
-        this.heightInCm = heightInCm;
-    }
+  public void setHeightInCm(long heightInCm) {
+    this.heightInCm = heightInCm;
+  }
 
-    public Sex getSex() {
-        return sex;
-    }
+  public Sex getSex() {
+    return sex;
+  }
 
-    public void setSex(Sex sex) {
-        this.sex = sex;
-    }
+  public void setSex(Sex sex) {
+    this.sex = sex;
+  }
 
-    public boolean isNeutered() {
-        return neutered;
-    }
+  public boolean isNeutered() {
+    return neutered;
+  }
 
-    public void setNeutered(boolean neutered) {
-        this.neutered = neutered;
-    }
+  public void setNeutered(boolean neutered) {
+    this.neutered = neutered;
+  }
 
 }

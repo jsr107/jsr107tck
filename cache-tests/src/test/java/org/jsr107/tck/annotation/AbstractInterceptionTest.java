@@ -29,53 +29,52 @@ import java.util.ServiceLoader;
 
 /**
  * Base class that ALL annotation/interceptor tests MUST extend from
- * 
+ *
  * @author Eric Dalquist
  * @version $Revision$
  */
 public class AbstractInterceptionTest {
-    private static final BeanProvider beanProvider;
+  private static final BeanProvider beanProvider;
 
-    static {
-        BeanProvider localBeanProvider = null;
-        try {
-            final ServiceLoader<BeanProvider> serviceLoader = ServiceLoader.load(BeanProvider.class);
-            final Iterator<BeanProvider> it = serviceLoader.iterator();
-            localBeanProvider = it.hasNext() ? it.next() : null;
-        }
-        catch (Throwable t) {
-            //ignore
-            System.err.println("Failed to load BeanProvider SPI impl, annotation tests will be ignored");
-            t.printStackTrace(System.err);
-        }
-
-        beanProvider = localBeanProvider;
+  static {
+    BeanProvider localBeanProvider = null;
+    try {
+      final ServiceLoader<BeanProvider> serviceLoader = ServiceLoader.load(BeanProvider.class);
+      final Iterator<BeanProvider> it = serviceLoader.iterator();
+      localBeanProvider = it.hasNext() ? it.next() : null;
+    } catch (Throwable t) {
+      //ignore
+      System.err.println("Failed to load BeanProvider SPI impl, annotation tests will be ignored");
+      t.printStackTrace(System.err);
     }
 
+    beanProvider = localBeanProvider;
+  }
 
-    /**
-     * Rule used to exclude tests that do not implement Annotations
-     */
-    @Rule
-    public final MethodRule rule = new AbstractTestExcluder() {
-            @Override
-            protected boolean isExcluded(String methodName) {
-                //Exclude all tests if annotations are not supported or no beanProvider has been set
-                return beanProvider == null; //TODO: determine how to support this moving forward || !Caching.isAnnotationsSupported();
-            }
-        };
 
-    /**
-     * Loads a specified bean by type, used to retrieve an annotated bean to test from the underlying implementation
-     *
-     * @param beanClass The type to load
-     * @return The loaded bean
-     */
-    protected final <T> T getBeanByType(Class<T> beanClass) {
-        if (beanProvider == null) {
-            throw new IllegalStateException("No tests should be run if beanProvider is null");
-        }
-
-        return beanProvider.getBeanByType(beanClass);
+  /**
+   * Rule used to exclude tests that do not implement Annotations
+   */
+  @Rule
+  public final MethodRule rule = new AbstractTestExcluder() {
+    @Override
+    protected boolean isExcluded(String methodName) {
+      //Exclude all tests if annotations are not supported or no beanProvider has been set
+      return beanProvider == null; //TODO: determine how to support this moving forward || !Caching.isAnnotationsSupported();
     }
+  };
+
+  /**
+   * Loads a specified bean by type, used to retrieve an annotated bean to test from the underlying implementation
+   *
+   * @param beanClass The type to load
+   * @return The loaded bean
+   */
+  protected final <T> T getBeanByType(Class<T> beanClass) {
+    if (beanProvider == null) {
+      throw new IllegalStateException("No tests should be run if beanProvider is null");
+    }
+
+    return beanProvider.getBeanByType(beanClass);
+  }
 }

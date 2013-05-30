@@ -21,41 +21,40 @@ import java.io.Serializable;
 
 /**
  * Domain class for testing interception model
- * 
+ *
  * @author Rick Hightower
- * 
  */
 public class Blog implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String title;
-    private String body;
+  private String title;
+  private String body;
 
-    public Blog(String title, String body) {
-        super();
-        this.title = title;
-        this.body = body;
-    }
+  public Blog(String title, String body) {
+    super();
+    this.title = title;
+    this.body = body;
+  }
 
-    public Blog() {
+  public Blog() {
 
-    }
+  }
 
-    public String getTitle() {
-        return title;
-    }
+  public String getTitle() {
+    return title;
+  }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+  public void setTitle(String title) {
+    this.title = title;
+  }
 
-    public String getBody() {
-        return body;
-    }
+  public String getBody() {
+    return body;
+  }
 
-    public void setBody(String body) {
-        this.body = body;
-    }
+  public void setBody(String body) {
+    this.body = body;
+  }
 
 }

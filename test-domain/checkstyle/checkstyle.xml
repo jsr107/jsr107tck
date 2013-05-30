@@ -42,7 +42,8 @@
     </module>
     <!-- Make sure commons logging is not used -->
     <module name="RegexpSingleline">
-        <property name="format" value="import org\.apache\.commons\.logging\.Log;"/>
+        <property name="format"
+                  value="import org\.apache\.commons\.logging\.Log;"/>
     </module>
     <!-- Make sure we are using safe element.get methods everywhere -->
     <module name="RegexpSingleline">
@@ -68,11 +69,11 @@
         <!--<property name="allowMissingReturnTag" value="true"/>-->
         <!--</module>-->
         <module name="JavadocVariable">
-        <property name="scope" value="package"/>
+            <property name="scope" value="package"/>
         </module>
         <module name="JavadocStyle">
-        <property name="scope" value="public"/>
-        <property name="checkFirstSentence" value="false"/>
+            <property name="scope" value="public"/>
+            <property name="checkFirstSentence" value="false"/>
         </module>
 
         <!-- Naming Conventions -->
@@ -101,7 +102,8 @@
         <!-- Imports -->
         <module name="AvoidStarImport"/>
         <module name="AvoidStaticImport">
-            <property name="excludes" value="java.lang.System.out,java.lang.Math.*,org.junit.Assert.*"/>
+            <property name="excludes"
+                      value="java.lang.System.out,java.lang.Math.*,org.junit.Assert.*"/>
         </module>
         <module name="IllegalImport"/>
         <module name="RedundantImport"/>

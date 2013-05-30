@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -15,7 +16,8 @@
 
     <name>Cache Tests</name>
     <url>https://github.com/jsr107/jsr107tck</url>
-    <description>Tests, which form part of the Technology Compatibility Kit for JSR107. You should be able to test an inplementation by:
+    <description>Tests, which form part of the Technology Compatibility Kit for
+        JSR107. You should be able to test an inplementation by:
         1. Adding the dependency
         2. Configuring the JUnit test fixtures
     </description>
@@ -44,7 +46,7 @@
             <artifactId>cache-api</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>javax.transaction</groupId>
             <artifactId>jta</artifactId>
@@ -125,7 +127,8 @@
         <repository>
             <id>jboss.maven.repo</id>
             <name>JBoss Repository</name>
-            <url>http://repository.jboss.org/nexus/content/groups/public-jboss/</url>
+            <url>http://repository.jboss.org/nexus/content/groups/public-jboss/
+            </url>
         </repository>
 
     </repositories>

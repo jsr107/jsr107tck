@@ -19,13 +19,13 @@ package javax.cache.annotation;
 
 /**
  * SPI used by an annotation implementation test harness to make testable beans available to the TCK
- * 
+ *
  * @author Eric Dalquist
  * @version $Revision$
  */
 public interface BeanProvider {
-    /**
-     * Load the specified bean from the test-domain project configured appropriately for annotation testing
-     */
-    <T> T getBeanByType(Class<T> beanClass);
+  /**
+   * Load the specified bean from the test-domain project configured appropriately for annotation testing
+   */
+  <T> T getBeanByType(Class<T> beanClass);
 }

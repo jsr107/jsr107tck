@@ -21,20 +21,20 @@ import java.io.Serializable;
 
 /**
  * A Beagle is a Dog and a type of hound.
+ *
  * @author Greg Luck
  */
 public class Beagle extends Dog implements Hound, Serializable {
 
-    /**
-     * Tells the hound to bay
-     *
-     * @param loudness 0 for mute, 1 is the softest and 255 is the loudest
-     * @param duration the duraction of the bay in seconds
-     */
-    public void bay(int loudness, int duration) {
+  /**
+   * Tells the hound to bay
+   *
+   * @param loudness 0 for mute, 1 is the softest and 255 is the loudest
+   * @param duration the duraction of the bay in seconds
+   */
+  public void bay(int loudness, int duration) {
 
-    }
-
+  }
 
 
 }

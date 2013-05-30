@@ -24,26 +24,26 @@ import javax.cache.annotation.BeanProvider;
 
 /**
  * Spring specific bean provider that loads up the spring app context when constructed
- * 
+ *
  * @author Eric Dalquist
  * @version $Revision$
  */
 public class SpringBeanProvider implements BeanProvider {
-    private final ApplicationContext applicationContext;
-    
-    public SpringBeanProvider() {
-        final ClassPathXmlApplicationContext classPathXmlApplicationContext = 
-                new ClassPathXmlApplicationContext("/annotationsTestContext.xml");
-        classPathXmlApplicationContext.registerShutdownHook();
-        this.applicationContext = classPathXmlApplicationContext;
-    }
+  private final ApplicationContext applicationContext;
 
-    /* (non-Javadoc)
-     * @see javax.cache.annotation.BeanProvider#getBeanByType(java.lang.Class)
-     */
-    @Override
-    public <T> T getBeanByType(Class<T> beanClass) {
-        return this.applicationContext.getBean(beanClass);
-    }
+  public SpringBeanProvider() {
+    final ClassPathXmlApplicationContext classPathXmlApplicationContext =
+        new ClassPathXmlApplicationContext("/annotationsTestContext.xml");
+    classPathXmlApplicationContext.registerShutdownHook();
+    this.applicationContext = classPathXmlApplicationContext;
+  }
+
+  /* (non-Javadoc)
+   * @see javax.cache.annotation.BeanProvider#getBeanByType(java.lang.Class)
+   */
+  @Override
+  public <T> T getBeanByType(Class<T> beanClass) {
+    return this.applicationContext.getBean(beanClass);
+  }
 
 }

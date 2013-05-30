@@ -39,101 +39,101 @@ import static org.junit.Assert.assertNull;
  * @since 1.0
  */
 public class StoreByValueTest extends CacheTestSupport<Date, Date> {
-    /**
-     * Rule used to exclude tests
-     */
-    @Rule
-    public MethodRule rule = new ExcludeListExcluder(this.getClass());
+  /**
+   * Rule used to exclude tests
+   */
+  @Rule
+  public MethodRule rule = new ExcludeListExcluder(this.getClass());
 
-    @Before
-    public void setUp() {
-        super.setUp();
+  @Before
+  public void setUp() {
+    super.setUp();
+  }
+
+  @After
+  public void teardown() {
+    try {
+      getCacheManager().close();
+    } catch (Exception e) {
+      //expected
     }
+  }
 
-    @After
-    public void teardown() {
-        try {
-            getCacheManager().close();
-        } catch (Exception e) {
-            //expected
-        }
-    }
+  @Override
+  protected MutableConfiguration<Date, Date> newMutableConfiguration() {
+    return new MutableConfiguration<Date, Date>(Date.class, Date.class);
+  }
 
-    @Override
-    protected MutableConfiguration<Date, Date> newMutableConfiguration() {
-        return new MutableConfiguration<Date, Date>(Date.class, Date.class);
-    }
+  @Test
+  public void get_Existing_MutateValue() {
+    long now = System.currentTimeMillis();
+    Date existingKey = new Date(now);
+    Date existingValue = new Date(now);
+    cache.put(existingKey, existingValue);
+    existingValue.setTime(now + 1);
+    assertEquals(new Date(now), cache.get(existingKey));
+  }
 
-    @Test
-    public void get_Existing_MutateValue() {
-        long now = System.currentTimeMillis();
-        Date existingKey = new Date(now);
-        Date existingValue = new Date(now);
-        cache.put(existingKey, existingValue);
-        existingValue.setTime(now + 1);
-        assertEquals(new Date(now), cache.get(existingKey));
-    }
+  @Test
+  public void get_Existing_MutateKey() {
+    long now = System.currentTimeMillis();
+    Date existingKey = new Date(now);
+    Date existingValue = new Date(now);
+    cache.put(existingKey, existingValue);
+    existingKey.setTime(now + 1);
+    assertEquals(new Date(now), cache.get(new Date(now)));
+  }
 
-    @Test
-    public void get_Existing_MutateKey() {
-        long now = System.currentTimeMillis();
-        Date existingKey = new Date(now);
-        Date existingValue = new Date(now);
-        cache.put(existingKey, existingValue);
-        existingKey.setTime(now + 1);
-        assertEquals(new Date(now), cache.get(new Date(now)));
-    }
+  @Test
+  public void getAndPut_NotThere() {
+    if (cache == null) return;
 
-    @Test
-    public void getAndPut_NotThere() {
-        if (cache == null) return;
+    long now = System.currentTimeMillis();
+    Date existingKey = new Date(now);
+    Date existingValue = new Date(now);
+    assertNull(cache.getAndPut(existingKey, existingValue));
+    existingValue.setTime(now + 1);
+    assertEquals(new Date(now), cache.get(existingKey));
+  }
 
-        long now = System.currentTimeMillis();
-        Date existingKey = new Date(now);
-        Date existingValue = new Date(now);
-        assertNull(cache.getAndPut(existingKey, existingValue));
-        existingValue.setTime(now + 1);
-        assertEquals(new Date(now), cache.get(existingKey));
-    }
+  @Test
+  public void getAndPut_Existing_MutateValue() {
+    long now = System.currentTimeMillis();
+    Date existingKey = new Date(now);
+    Date value1 = new Date(now);
+    cache.getAndPut(existingKey, value1);
+    Date value2 = new Date(now + 1);
+    value1.setTime(now + 2);
+    assertEquals(new Date(now), cache.getAndPut(existingKey, value2));
+    value2.setTime(now + 3);
+    assertEquals(new Date(now + 1), cache.get(existingKey));
+  }
 
-    @Test
-    public void getAndPut_Existing_MutateValue() {
-        long now = System.currentTimeMillis();
-        Date existingKey = new Date(now);
-        Date value1 = new Date(now);
-        cache.getAndPut(existingKey, value1);
-        Date value2 = new Date(now + 1);
-        value1.setTime(now + 2);
-        assertEquals(new Date(now), cache.getAndPut(existingKey, value2));
-        value2.setTime(now + 3);
-        assertEquals(new Date(now + 1), cache.get(existingKey));
-    }
+  @Test
+  public void getAndPut_Existing_NonSameKey_MutateValue() throws Exception {
+    long now = System.currentTimeMillis();
+    Date key1 = new Date(now);
+    Date value1 = new Date(now);
+    cache.getAndPut(key1, value1);
+    value1.setTime(now + 1);
+    Date key2 = new Date(now);
+    Date value2 = new Date(now + 2);
+    assertEquals(new Date(now), cache.getAndPut(key2, value2));
+    value2.setTime(now + 3);
+    assertEquals(new Date(now + 2), cache.get(key1));
+    assertEquals(new Date(now + 2), cache.get(key2));
+  }
 
-    @Test
-    public void getAndPut_Existing_NonSameKey_MutateValue() throws Exception {
-        long now = System.currentTimeMillis();
-        Date key1 = new Date(now);
-        Date value1 = new Date(now);
-        cache.getAndPut(key1, value1);
-        value1.setTime(now + 1);
-        Date key2 = new Date(now);
-        Date value2 = new Date(now + 2);
-        assertEquals(new Date(now), cache.getAndPut(key2, value2));
-        value2.setTime(now + 3);
-        assertEquals(new Date(now + 2), cache.get(key1));
-        assertEquals(new Date(now + 2), cache.get(key2));
-    }
-
-    @Test
-    public void getAndPut_Existing_NonSameKey_MutateKey() {
-        long now = System.currentTimeMillis();
-        Date key1 = new Date(now);
-        Date value1 = new Date(now);
-        cache.getAndPut(key1, value1);
-        key1.setTime(now + 1);
-        Date key2 = new Date(now);
-        Date value2 = new Date(now + 2);
-        assertEquals(new Date(now), cache.getAndPut(key2, value2));
-        assertEquals(new Date(now + 2), cache.get(key2));
-    }
+  @Test
+  public void getAndPut_Existing_NonSameKey_MutateKey() {
+    long now = System.currentTimeMillis();
+    Date key1 = new Date(now);
+    Date value1 = new Date(now);
+    cache.getAndPut(key1, value1);
+    key1.setTime(now + 1);
+    Date key2 = new Date(now);
+    Date value2 = new Date(now + 2);
+    assertEquals(new Date(now), cache.getAndPut(key2, value2));
+    assertEquals(new Date(now + 2), cache.get(key2));
+  }
 }

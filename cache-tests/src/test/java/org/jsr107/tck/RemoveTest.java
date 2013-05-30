@@ -53,296 +53,296 @@ import static org.junit.Assert.fail;
  */
 public class RemoveTest extends CacheTestSupport<Long, String> {
 
-    /**
-     * Rule used to exclude tests
-     */
-    @Rule
-    public MethodRule rule = new ExcludeListExcluder(this.getClass());
+  /**
+   * Rule used to exclude tests
+   */
+  @Rule
+  public MethodRule rule = new ExcludeListExcluder(this.getClass());
 
-    @Override
-    protected MutableConfiguration<Long, String> newMutableConfiguration() {
-        return new MutableConfiguration<Long, String>(Long.class, String.class);
+  @Override
+  protected MutableConfiguration<Long, String> newMutableConfiguration() {
+    return new MutableConfiguration<Long, String>(Long.class, String.class);
+  }
+
+  @Test
+  public void remove_1arg_Closed() {
+    cache.close();
+    try {
+      cache.remove(null);
+      fail("should have thrown an exception - cache closed");
+    } catch (IllegalStateException e) {
+      //good
     }
+  }
 
-    @Test
-    public void remove_1arg_Closed() {
-        cache.close();
-        try {
-            cache.remove(null);
-            fail("should have thrown an exception - cache closed");
-        } catch (IllegalStateException e) {
-            //good
-        }
+  @Test
+  public void remove_1arg_NullKey() throws Exception {
+    try {
+      assertFalse(cache.remove(null));
+      fail("should have thrown an exception - null key not allowed");
+    } catch (NullPointerException e) {
+      //expected
     }
+  }
 
-    @Test
-    public void remove_1arg_NullKey() throws Exception {
-        try {
-            assertFalse(cache.remove(null));
-            fail("should have thrown an exception - null key not allowed");
-        } catch (NullPointerException e) {
-            //expected
-        }
+  @Test
+  public void remove_1arg_NotExistent() throws Exception {
+    Long existingKey = System.currentTimeMillis();
+    String existingValue = "value" + existingKey;
+    cache.put(existingKey, existingValue);
+
+    Long keyNotExisting = existingKey + 1;
+    assertFalse(cache.remove(keyNotExisting));
+    assertEquals(existingValue, cache.get(existingKey));
+  }
+
+  @Test
+  public void remove_1arg_Existing() {
+    Long key1 = System.currentTimeMillis();
+    String value1 = "value" + key1;
+    cache.put(key1, value1);
+
+    Long key2 = key1 + 1;
+    String value2 = "value" + key2;
+    cache.put(key2, value2);
+
+    assertTrue(cache.remove(key1));
+    assertFalse(cache.containsKey(key1));
+    assertNull(cache.get(key1));
+    assertEquals(value2, cache.get(key2));
+  }
+
+  @Test
+  public void remove_1arg_EqualButNotSameKey() {
+    Long key1 = System.currentTimeMillis();
+    String value1 = "value" + key1;
+    cache.put(key1, value1);
+
+    Long key2 = key1 + 1;
+    String value2 = "value" + key2;
+    cache.put(key2, value2);
+
+    Long key3 = new Long(key1);
+    assertNotSame(key1, key3);
+    assertTrue(cache.remove(key3));
+    assertFalse(cache.containsKey(key1));
+    assertNull(cache.get(key1));
+    assertFalse(cache.containsKey(key3));
+    assertNull(cache.get(key3));
+    assertEquals(value2, cache.get(key2));
+  }
+
+  @Test
+  public void remove_2arg_Closed() {
+    cache.close();
+    try {
+      cache.remove(null, null);
+      fail("should have thrown an exception - cache closed");
+    } catch (IllegalStateException e) {
+      //good
     }
+  }
 
-    @Test
-    public void remove_1arg_NotExistent() throws Exception {
-        Long existingKey = System.currentTimeMillis();
-        String existingValue = "value" + existingKey;
-        cache.put(existingKey, existingValue);
-
-        Long keyNotExisting = existingKey + 1;
-        assertFalse(cache.remove(keyNotExisting));
-        assertEquals(existingValue, cache.get(existingKey));
+  @Test
+  public void remove_2arg_NullKey() {
+    try {
+      cache.remove(null, "");
+      fail("should have thrown an exception - null key");
+    } catch (NullPointerException e) {
+      //good
     }
+  }
 
-    @Test
-    public void remove_1arg_Existing() {
-        Long key1 = System.currentTimeMillis();
-        String value1 = "value" + key1;
-        cache.put(key1, value1);
-
-        Long key2 = key1 + 1;
-        String value2 = "value" + key2;
-        cache.put(key2, value2);
-
-        assertTrue(cache.remove(key1));
-        assertFalse(cache.containsKey(key1));
-        assertNull(cache.get(key1));
-        assertEquals(value2, cache.get(key2));
+  @Test
+  public void remove_2arg_NullValue() {
+    try {
+      cache.remove(1L, null);
+      fail("should have thrown an exception - null value");
+    } catch (NullPointerException e) {
+      //good
     }
+  }
 
-    @Test
-    public void remove_1arg_EqualButNotSameKey() {
-        Long key1 = System.currentTimeMillis();
-        String value1 = "value" + key1;
-        cache.put(key1, value1);
+  @Test
+  public void remove_2arg_NotThere() {
+    Long key = System.currentTimeMillis();
+    assertFalse(cache.remove(key, ""));
+  }
 
-        Long key2 = key1 + 1;
-        String value2 = "value" + key2;
-        cache.put(key2, value2);
+  @Test
+  public void remove_2arg_Existing_SameValue() {
+    Long key = System.currentTimeMillis();
+    String value = "value" + key;
+    cache.put(key, value);
+    assertTrue(cache.remove(key, value));
+  }
 
-        Long key3 = new Long(key1);
-        assertNotSame(key1, key3);
-        assertTrue(cache.remove(key3));
-        assertFalse(cache.containsKey(key1));
-        assertNull(cache.get(key1));
-        assertFalse(cache.containsKey(key3));
-        assertNull(cache.get(key3));
-        assertEquals(value2, cache.get(key2));
+  @Test
+  public void remove_2arg_Existing_EqualValue() {
+    Long key = System.currentTimeMillis();
+    String value = "value" + key;
+    cache.put(key, value);
+    assertTrue(cache.remove(key, new String(value)));
+  }
+
+  @Test
+  public void remove_2arg_Existing_EqualKey() {
+    Long key = System.currentTimeMillis();
+    String value = "value" + key;
+    cache.put(key, value);
+    assertTrue(cache.remove(new Long(key), value));
+  }
+
+  @Test
+  public void remove_2arg_Existing_EqualKey_EqualValue() {
+    Long key = System.currentTimeMillis();
+    String value = "value" + key;
+    cache.put(key, value);
+    assertTrue(cache.remove(new Long(key), new String(value)));
+  }
+
+  @Test
+  public void remove_2arg_Existing_Different() {
+    Long key = System.currentTimeMillis();
+    String value = "value" + key;
+    cache.put(key, value);
+    assertFalse(cache.remove(key, value + 1));
+  }
+
+  @Test
+  public void getAndRemove_Closed() {
+    cache.close();
+    try {
+      cache.getAndRemove(null);
+      fail("should have thrown an exception - cache closed");
+    } catch (IllegalStateException e) {
+      //good
     }
+  }
 
-    @Test
-    public void remove_2arg_Closed() {
-        cache.close();
-        try {
-            cache.remove(null, null);
-            fail("should have thrown an exception - cache closed");
-        } catch (IllegalStateException e) {
-            //good
-        }
+  @Test
+  public void getAndRemove_NullKey() throws Exception {
+    try {
+      assertNull(cache.getAndRemove(null));
+      fail("should have thrown an exception - null key not allowed");
+    } catch (NullPointerException e) {
+      //expected
     }
+  }
 
-    @Test
-    public void remove_2arg_NullKey() {
-        try {
-            cache.remove(null, "");
-            fail("should have thrown an exception - null key");
-        } catch (NullPointerException e) {
-            //good
-        }
+  @Test
+  public void getAndRemove_NotExistent() throws Exception {
+    Long existingKey = System.currentTimeMillis();
+    String existingValue = "value" + existingKey;
+    cache.put(existingKey, existingValue);
+
+    Long keyNotExisting = existingKey + 1;
+    assertNull(cache.getAndRemove(keyNotExisting));
+    assertEquals(existingValue, cache.get(existingKey));
+  }
+
+  @Test
+  public void getAndRemove_Existing() {
+    Long key1 = System.currentTimeMillis();
+    String value1 = "value" + key1;
+    cache.put(key1, value1);
+
+    Long key2 = key1 + 1;
+    String value2 = "value" + key2;
+    cache.put(key2, value2);
+
+    assertEquals(value1, cache.getAndRemove(key1));
+    assertFalse(cache.containsKey(key1));
+    assertNull(cache.get(key1));
+    assertEquals(value2, cache.get(key2));
+  }
+
+  @Test
+  public void getAndRemove_EqualButNotSameKey() {
+    Long key1 = System.currentTimeMillis();
+    String value1 = "value" + key1;
+    cache.put(key1, value1);
+
+    Long key2 = key1 + 1;
+    String value2 = "value" + key2;
+    cache.put(key2, value2);
+
+    Long key3 = new Long(key1);
+    assertNotSame(key3, key1);
+    assertEquals(value1, cache.getAndRemove(key3));
+    assertNull(cache.get(key1));
+    assertEquals(value2, cache.get(key2));
+  }
+
+  @Test
+  public void removeAll_1arg_Closed() {
+    cache.close();
+    try {
+      cache.removeAll(null);
+      fail("should have thrown an exception - cache closed");
+    } catch (IllegalStateException e) {
+      //good
     }
+  }
 
-    @Test
-    public void remove_2arg_NullValue() {
-        try {
-            cache.remove(1L, null);
-            fail("should have thrown an exception - null value");
-        } catch (NullPointerException e) {
-            //good
-        }
+  @Test
+  public void removeAll_1arg_Null() {
+    try {
+      cache.removeAll(null);
+      fail("should have thrown an exception - null keys not allowed");
+    } catch (NullPointerException e) {
+      //good
     }
+  }
 
-    @Test
-    public void remove_2arg_NotThere() {
-        Long key = System.currentTimeMillis();
-        assertFalse(cache.remove(key, ""));
+  @Test
+  public void removeAll_1arg_NullKey() {
+    HashSet<Long> keys = new HashSet<Long>();
+    keys.add(null);
+
+    try {
+      cache.removeAll(keys);
+      fail("should have thrown an exception - null key not allowed");
+    } catch (NullPointerException e) {
+      //expected
     }
+  }
 
-    @Test
-    public void remove_2arg_Existing_SameValue() {
-        Long key = System.currentTimeMillis();
-        String value = "value" + key;
-        cache.put(key, value);
-        assertTrue(cache.remove(key, value));
+  @Test
+  public void removeAll_1arg() {
+    Map<Long, String> data = createLSData(3);
+    cache.putAll(data);
+
+    Iterator<Map.Entry<Long, String>> it = data.entrySet().iterator();
+    it.next();
+    Map.Entry removedEntry = it.next();
+    it.remove();
+
+    cache.removeAll(data.keySet());
+    for (Long key : data.keySet()) {
+      assertFalse(cache.containsKey(key));
     }
+    assertEquals(removedEntry.getValue(), cache.get((Long) removedEntry.getKey()));
+  }
 
-    @Test
-    public void remove_2arg_Existing_EqualValue() {
-        Long key = System.currentTimeMillis();
-        String value = "value" + key;
-        cache.put(key, value);
-        assertTrue(cache.remove(key, new String(value)));
+  @Test
+  public void removeAll_0arg_Closed() {
+    cache.close();
+    try {
+      cache.removeAll();
+      fail("should have thrown an exception - cache closed");
+    } catch (IllegalStateException e) {
+      //good
     }
+  }
 
-    @Test
-    public void remove_2arg_Existing_EqualKey() {
-        Long key = System.currentTimeMillis();
-        String value = "value" + key;
-        cache.put(key, value);
-        assertTrue(cache.remove(new Long(key), value));
+  @Test
+  public void removeAll_0arg() {
+    Map<Long, String> data = createLSData(3);
+    cache.putAll(data);
+    cache.removeAll();
+    for (Long key : data.keySet()) {
+      assertFalse(cache.containsKey(key));
     }
-
-    @Test
-    public void remove_2arg_Existing_EqualKey_EqualValue() {
-        Long key = System.currentTimeMillis();
-        String value = "value" + key;
-        cache.put(key, value);
-        assertTrue(cache.remove(new Long(key), new String(value)));
-    }
-
-    @Test
-    public void remove_2arg_Existing_Different() {
-        Long key = System.currentTimeMillis();
-        String value = "value" + key;
-        cache.put(key, value);
-        assertFalse(cache.remove(key, value + 1));
-    }
-
-    @Test
-    public void getAndRemove_Closed() {
-        cache.close();
-        try {
-            cache.getAndRemove(null);
-            fail("should have thrown an exception - cache closed");
-        } catch (IllegalStateException e) {
-            //good
-        }
-    }
-
-    @Test
-    public void getAndRemove_NullKey() throws Exception {
-        try {
-            assertNull(cache.getAndRemove(null));
-            fail("should have thrown an exception - null key not allowed");
-        } catch (NullPointerException e) {
-            //expected
-        }
-    }
-
-    @Test
-    public void getAndRemove_NotExistent() throws Exception {
-        Long existingKey = System.currentTimeMillis();
-        String existingValue = "value" + existingKey;
-        cache.put(existingKey, existingValue);
-
-        Long keyNotExisting = existingKey + 1;
-        assertNull(cache.getAndRemove(keyNotExisting));
-        assertEquals(existingValue, cache.get(existingKey));
-    }
-
-    @Test
-    public void getAndRemove_Existing() {
-        Long key1 = System.currentTimeMillis();
-        String value1 = "value" + key1;
-        cache.put(key1, value1);
-
-        Long key2 = key1 + 1;
-        String value2 = "value" + key2;
-        cache.put(key2, value2);
-
-        assertEquals(value1, cache.getAndRemove(key1));
-        assertFalse(cache.containsKey(key1));
-        assertNull(cache.get(key1));
-        assertEquals(value2, cache.get(key2));
-    }
-
-    @Test
-    public void getAndRemove_EqualButNotSameKey() {
-        Long key1 = System.currentTimeMillis();
-        String value1 = "value" + key1;
-        cache.put(key1, value1);
-
-        Long key2 = key1 + 1;
-        String value2 = "value" + key2;
-        cache.put(key2, value2);
-
-        Long key3 = new Long(key1);
-        assertNotSame(key3, key1);
-        assertEquals(value1, cache.getAndRemove(key3));
-        assertNull(cache.get(key1));
-        assertEquals(value2, cache.get(key2));
-    }
-
-    @Test
-    public void removeAll_1arg_Closed() {
-        cache.close();
-        try {
-            cache.removeAll(null);
-            fail("should have thrown an exception - cache closed");
-        } catch (IllegalStateException e) {
-            //good
-        }
-    }
-
-    @Test
-    public void removeAll_1arg_Null() {
-        try {
-            cache.removeAll(null);
-            fail("should have thrown an exception - null keys not allowed");
-        } catch (NullPointerException e) {
-            //good
-        }
-    }
-
-    @Test
-    public void removeAll_1arg_NullKey() {
-        HashSet<Long> keys = new HashSet<Long>();
-        keys.add(null);
-
-        try {
-            cache.removeAll(keys);
-            fail("should have thrown an exception - null key not allowed");
-        } catch (NullPointerException e) {
-            //expected
-        }
-    }
-
-    @Test
-    public void removeAll_1arg() {
-        Map<Long, String> data = createLSData(3);
-        cache.putAll(data);
-
-        Iterator<Map.Entry<Long, String>> it = data.entrySet().iterator();
-        it.next();
-        Map.Entry removedEntry = it.next();
-        it.remove();
-
-        cache.removeAll(data.keySet());
-        for (Long key : data.keySet()) {
-            assertFalse(cache.containsKey(key));
-        }
-        assertEquals(removedEntry.getValue(), cache.get((Long)removedEntry.getKey()));
-    }
-
-    @Test
-    public void removeAll_0arg_Closed() {
-        cache.close();
-        try {
-            cache.removeAll();
-            fail("should have thrown an exception - cache closed");
-        } catch (IllegalStateException e) {
-            //good
-        }
-    }
-
-    @Test
-    public void removeAll_0arg() {
-        Map<Long, String> data = createLSData(3);
-        cache.putAll(data);
-        cache.removeAll();
-        for (Long key : data.keySet()) {
-            assertFalse(cache.containsKey(key));
-        }
-    }
+  }
 }

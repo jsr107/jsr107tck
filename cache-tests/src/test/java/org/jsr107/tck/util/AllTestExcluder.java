@@ -19,9 +19,9 @@ package org.jsr107.tck.util;
 /**
  * For the TCK we need to have an exclude list of bad tests so that disabling tests
  * can be done without changing code.
- *
+ * <p/>
  * This class creates a rule for the class provided
- *
+ * <p/>
  * The exclude list is created by {@link ExcludeList} by creating a file in the root of your classpath called
  * "ExcludeList". There is an example in the testRI module for testing the RI.
  *
@@ -29,8 +29,8 @@ package org.jsr107.tck.util;
  * @since 1.0
  */
 public class AllTestExcluder extends AbstractTestExcluder {
-    @Override
-    protected boolean isExcluded(String methodName) {
-        return true;
-    }
+  @Override
+  protected boolean isExcluded(String methodName) {
+    return true;
+  }
 }

@@ -59,77 +59,77 @@ import static org.junit.Assert.fail;
  */
 public class CacheTest extends CacheTestSupport<Long, String> {
 
-    /**
-     * Rule used to exclude tests
+  /**
+   * Rule used to exclude tests
+   */
+  @Rule
+  public MethodRule rule = new ExcludeListExcluder(this.getClass()) {
+
+    /* (non-Javadoc)
+     * @see javax.cache.util.ExcludeListExcluder#isExcluded(java.lang.String)
      */
-    @Rule
-    public MethodRule rule = new ExcludeListExcluder(this.getClass()) {
-
-        /* (non-Javadoc)
-         * @see javax.cache.util.ExcludeListExcluder#isExcluded(java.lang.String)
-         */
-        @Override
-        protected boolean isExcluded(String methodName) {
-            if ("testUnwrap".equals(methodName) && getUnwrapClass(CacheManager.class) == null) {
-                return true;
-            }
-
-            return super.isExcluded(methodName);
-        }
-    };
-
     @Override
-    protected MutableConfiguration<Long, String> newMutableConfiguration() {
-        return new MutableConfiguration<Long, String>(Long.class, String.class);
+    protected boolean isExcluded(String methodName) {
+      if ("testUnwrap".equals(methodName) && getUnwrapClass(CacheManager.class) == null) {
+        return true;
+      }
+
+      return super.isExcluded(methodName);
     }
+  };
 
-    @Test
-    public void sameConfiguration() {
-        Configuration<Integer, Integer> config1 = new MutableConfiguration<Integer, Integer>();
-        Configuration<Integer, Integer> config2 = new MutableConfiguration<Integer, Integer>();
-        assertEquals(config1, config2);
-    }
+  @Override
+  protected MutableConfiguration<Long, String> newMutableConfiguration() {
+    return new MutableConfiguration<Long, String>(Long.class, String.class);
+  }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void failsUsingStoreByReference() {
-        String cacheName = "transactional-by-reference";
-        Configuration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>()
-            .setStoreByValue(false)
-            .setTransactions(IsolationLevel.READ_COMMITTED, Mode.LOCAL)
-            .setTransactionsEnabled(true);
+  @Test
+  public void sameConfiguration() {
+    Configuration<Integer, Integer> config1 = new MutableConfiguration<Integer, Integer>();
+    Configuration<Integer, Integer> config2 = new MutableConfiguration<Integer, Integer>();
+    assertEquals(config1, config2);
+  }
 
-        CacheManager cacheManager = getCacheManager();
-        cacheManager.configureCache(cacheName, config);
+  @Test(expected = IllegalArgumentException.class)
+  public void failsUsingStoreByReference() {
+    String cacheName = "transactional-by-reference";
+    Configuration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>()
+        .setStoreByValue(false)
+        .setTransactions(IsolationLevel.READ_COMMITTED, Mode.LOCAL)
+        .setTransactionsEnabled(true);
 
-        fail("Should not be able to configure a transaction with a store-by-reference cache");
-    }
+    CacheManager cacheManager = getCacheManager();
+    cacheManager.configureCache(cacheName, config);
 
-    @Test
-    public void simpleAPI() {
-        Long key = 1L;
-        String value1 = "key";
+    fail("Should not be able to configure a transaction with a store-by-reference cache");
+  }
 
-        cache.put(key, value1);
+  @Test
+  public void simpleAPI() {
+    Long key = 1L;
+    String value1 = "key";
 
-        String value2 = cache.get(key);
+    cache.put(key, value1);
 
-        assertEquals(value1, value2);
-    }
+    String value2 = cache.get(key);
 
-    @Test()
-    public void clearTest() {
-        Long key = 1L;
-        String value1 = "key";
+    assertEquals(value1, value2);
+  }
 
-        cache.put(key, value1);
+  @Test()
+  public void clearTest() {
+    Long key = 1L;
+    String value1 = "key";
 
-        String value2 = cache.get(key);
+    cache.put(key, value1);
 
-        assertEquals(value1, value2);
+    String value2 = cache.get(key);
 
-        cache.clear();
-        assertNull(cache.get(key));
-    }
+    assertEquals(value1, value2);
+
+    cache.clear();
+    assertNull(cache.get(key));
+  }
 
 //TODO: move these into a new type-based test class
 //    /**
@@ -160,163 +160,163 @@ public class CacheTest extends CacheTestSupport<Long, String> {
 //        System.out.println("Pistachio".hashCode());
 //    }
 
-    @Test
-    public void getCacheName() {
-        assertEquals(getTestCacheName(), cache.getName());
+  @Test
+  public void getCacheName() {
+    assertEquals(getTestCacheName(), cache.getName());
+  }
+
+  @Test
+  public void containsKey_Closed() {
+    cache.close();
+    try {
+      cache.containsKey(null);
+      fail("should have thrown an exception - cache closed");
+    } catch (IllegalStateException e) {
+      //good
     }
+  }
 
-    @Test
-    public void containsKey_Closed() {
-        cache.close();
-        try {
-            cache.containsKey(null);
-            fail("should have thrown an exception - cache closed");
-        } catch (IllegalStateException e) {
-            //good
-        }
+  @Test
+  public void containsKey_Null() {
+    try {
+      assertFalse(cache.containsKey(null));
+      fail("should have thrown an exception - null key not allowed");
+    } catch (NullPointerException e) {
+      //expected
     }
+  }
 
-    @Test
-    public void containsKey_Null() {
-        try {
-            assertFalse(cache.containsKey(null));
-            fail("should have thrown an exception - null key not allowed");
-        } catch (NullPointerException e) {
-            //expected
-        }
+  @Test
+  public void containsKey() {
+    Map<Long, String> data = createLSData(3);
+    for (Map.Entry<Long, String> entry : data.entrySet()) {
+      assertFalse("before put", cache.containsKey(entry.getKey()));
+      cache.put(entry.getKey(), entry.getValue());
+      assertTrue("after put", cache.containsKey(entry.getKey()));
     }
-
-    @Test
-    public void containsKey() {
-        Map<Long, String> data = createLSData(3);
-        for (Map.Entry<Long, String> entry : data.entrySet()) {
-            assertFalse("before put", cache.containsKey(entry.getKey()));
-            cache.put(entry.getKey(), entry.getValue());
-            assertTrue("after put", cache.containsKey(entry.getKey()));
-        }
-        for (Long key : data.keySet()) {
-            assertTrue("finally", cache.containsKey(key));
-        }
+    for (Long key : data.keySet()) {
+      assertTrue("finally", cache.containsKey(key));
     }
+  }
 
-    @Test
-    public void load_Closed() {
-        cache.close();
-        try {
-            cache.loadAll(null, true, null);
-            fail("should have thrown an exception - cache closed");
-        } catch (IllegalStateException e) {
-            //good
-        }
+  @Test
+  public void load_Closed() {
+    cache.close();
+    try {
+      cache.loadAll(null, true, null);
+      fail("should have thrown an exception - cache closed");
+    } catch (IllegalStateException e) {
+      //good
     }
+  }
 
-    @Test
-    public void iterator_Closed() {
-        cache.close();
-        try {
-            cache.iterator();
-            fail("should have thrown an exception - cache closed");
-        } catch (IllegalStateException e) {
-            //good
-        }
+  @Test
+  public void iterator_Closed() {
+    cache.close();
+    try {
+      cache.iterator();
+      fail("should have thrown an exception - cache closed");
+    } catch (IllegalStateException e) {
+      //good
     }
+  }
 
-    @Test
-    public void iterator_Empty() {
-        Iterator<Cache.Entry<Long, String>> iterator = cache.iterator();
-        assertFalse(iterator.hasNext());
-        try {
-            iterator.remove();
-            fail();
-        } catch (IllegalStateException e) {
-            //good
-        }
-        try {
-            iterator.next();
-            fail();
-        } catch (NoSuchElementException e) {
-            //good
-        }
+  @Test
+  public void iterator_Empty() {
+    Iterator<Cache.Entry<Long, String>> iterator = cache.iterator();
+    assertFalse(iterator.hasNext());
+    try {
+      iterator.remove();
+      fail();
+    } catch (IllegalStateException e) {
+      //good
     }
-
-    @Test
-    public void iterator() {
-        LinkedHashMap<Long, String> data = createLSData(3);
-        cache.putAll(data);
-        Iterator<Cache.Entry<Long, String>> iterator = cache.iterator();
-        while (iterator.hasNext()) {
-            Cache.Entry<Long, String> next = iterator.next();
-            assertEquals(next.getValue(), data.get(next.getKey()));
-            iterator.remove();
-            data.remove(next.getKey());
-        }
-        assertTrue(data.isEmpty());
+    try {
+      iterator.next();
+      fail();
+    } catch (NoSuchElementException e) {
+      //good
     }
+  }
 
-    @Test
-    public void initialise() {
-        try {
-            cache.getCacheManager();
-        } catch (IllegalStateException e) {
-            fail("Should be able to access the CacheManager for a new Cache");
-        }
+  @Test
+  public void iterator() {
+    LinkedHashMap<Long, String> data = createLSData(3);
+    cache.putAll(data);
+    Iterator<Cache.Entry<Long, String>> iterator = cache.iterator();
+    while (iterator.hasNext()) {
+      Cache.Entry<Long, String> next = iterator.next();
+      assertEquals(next.getValue(), data.get(next.getKey()));
+      iterator.remove();
+      data.remove(next.getKey());
     }
+    assertTrue(data.isEmpty());
+  }
 
-    @Test
-    public void close() {
-        cache.close();
-
-        try {
-            cache.get(1L);
-            fail("Should not be able to use a closed Cache");
-        } catch (IllegalStateException e) {
-            //SKIP: everything is ok if we can't access the CacheManager
-        }
+  @Test
+  public void initialise() {
+    try {
+      cache.getCacheManager();
+    } catch (IllegalStateException e) {
+      fail("Should be able to access the CacheManager for a new Cache");
     }
+  }
 
-    @Test
-    public void testUnwrap() {
-        //Assumes rule will exclude this test when no unwrapClass is specified
-        final Class<?> unwrapClass = getUnwrapClass(Cache.class);
-        final Object unwrappedCache = cache.unwrap(unwrapClass);
+  @Test
+  public void close() {
+    cache.close();
 
-        assertTrue(unwrapClass.isAssignableFrom(unwrappedCache.getClass()));
+    try {
+      cache.get(1L);
+      fail("Should not be able to use a closed Cache");
+    } catch (IllegalStateException e) {
+      //SKIP: everything is ok if we can't access the CacheManager
     }
+  }
 
-    @Test
-    public void testGetCacheManager() throws Exception {
-        String cacheName = "SampleCache";
+  @Test
+  public void testUnwrap() {
+    //Assumes rule will exclude this test when no unwrapClass is specified
+    final Class<?> unwrapClass = getUnwrapClass(Cache.class);
+    final Object unwrappedCache = cache.unwrap(unwrapClass);
 
-        URI uri = Caching.getCachingProvider().getDefaultURI();
+    assertTrue(unwrapClass.isAssignableFrom(unwrappedCache.getClass()));
+  }
 
-        ClassLoader cl1 = Thread.currentThread().getContextClassLoader();
-        ClassLoader cl2 = URLClassLoader.newInstance(new URL[]{}, cl1);
+  @Test
+  public void testGetCacheManager() throws Exception {
+    String cacheName = "SampleCache";
 
-        CacheManager cacheManager1 = Caching.getCachingProvider().getCacheManager(uri, cl1);
-        CacheManager cacheManager2 = Caching.getCachingProvider().getCacheManager(uri, cl2);
-        assertNotSame(cacheManager1, cacheManager2);
+    URI uri = Caching.getCachingProvider().getDefaultURI();
 
-        Cache cache1 = cacheManager1.configureCache(cacheName, new MutableConfiguration());
-        Cache cache2 = cacheManager2.configureCache(cacheName, new MutableConfiguration());
+    ClassLoader cl1 = Thread.currentThread().getContextClassLoader();
+    ClassLoader cl2 = URLClassLoader.newInstance(new URL[]{}, cl1);
 
-        assertSame(cacheManager1, cache1.getCacheManager());
-        assertSame(cacheManager2, cache2.getCacheManager());
+    CacheManager cacheManager1 = Caching.getCachingProvider().getCacheManager(uri, cl1);
+    CacheManager cacheManager2 = Caching.getCachingProvider().getCacheManager(uri, cl2);
+    assertNotSame(cacheManager1, cacheManager2);
+
+    Cache cache1 = cacheManager1.configureCache(cacheName, new MutableConfiguration());
+    Cache cache2 = cacheManager2.configureCache(cacheName, new MutableConfiguration());
+
+    assertSame(cacheManager1, cache1.getCacheManager());
+    assertSame(cacheManager2, cache2.getCacheManager());
+  }
+
+  /**
+   * todo this just illustrates how easily we could discover a runtime annotation. Remove eventually.
+   */
+  @Test
+  public void testAnnotations() {
+    Object value = new CacheNameOnEachMethodBlogManagerImpl();
+    boolean foundRemoveAllAnnotation = false;
+    for (Method m : value.getClass().getMethods()) {
+      if (m.isAnnotationPresent(CacheRemoveAll.class)) {
+        System.out.println(m.getName());
+        foundRemoveAllAnnotation = true;
+      }
     }
-
-    /**
-     * todo this just illustrates how easily we could discover a runtime annotation. Remove eventually.
-     */
-    @Test
-    public void testAnnotations() {
-        Object value = new CacheNameOnEachMethodBlogManagerImpl();
-        boolean foundRemoveAllAnnotation = false;
-        for (Method m : value.getClass().getMethods()) {
-            if (m.isAnnotationPresent(CacheRemoveAll.class)) {
-                System.out.println(m.getName());
-                foundRemoveAllAnnotation = true;
-            }
-        }
-       assertTrue(foundRemoveAllAnnotation);
-    }
+    assertTrue(foundRemoveAllAnnotation);
+  }
 
 }

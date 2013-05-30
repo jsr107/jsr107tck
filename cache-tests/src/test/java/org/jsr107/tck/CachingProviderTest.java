@@ -33,179 +33,178 @@ import static org.junit.Assert.fail;
  * Functional Tests for {@link CachingProvider}s.
  *
  * @author Brian Oliver
- *
  * @see CachingProvider
  */
 public class CachingProviderTest {
-    private static final ClassLoader CLASS_LOADER = CachingProviderTest.class.getClassLoader();
+  private static final ClassLoader CLASS_LOADER = CachingProviderTest.class.getClassLoader();
 
-    @Test
-    public void getCacheManagerUsingNulls() {
-        CachingProvider provider = Caching.getCachingProvider();
-        Properties properties = new Properties();
+  @Test
+  public void getCacheManagerUsingNulls() {
+    CachingProvider provider = Caching.getCachingProvider();
+    Properties properties = new Properties();
 
-        try {
-            provider.getCacheManager(null, null, null);
-        } catch (NullPointerException e) {
-            fail();
-        }
-        try {
-            provider.getCacheManager(null, null, properties);
-        } catch (NullPointerException e) {
-            fail();
-        }
-        try {
-            provider.getCacheManager(null, provider.getDefaultClassLoader(), null);
-        } catch (NullPointerException e) {
-            fail();
-        }
-        try {
-            provider.getCacheManager(null, provider.getDefaultClassLoader(), properties);
-        } catch (NullPointerException e) {
-            fail();
-        }
-        try {
-            provider.getCacheManager(provider.getDefaultURI(), null, null);
-        } catch (NullPointerException e) {
-            fail();
-        }
-        try {
-            provider.getCacheManager(provider.getDefaultURI(), null, properties);
-        } catch (NullPointerException e) {
-            fail();
-        }
-        try {
-            provider.getCacheManager(provider.getDefaultURI(), provider.getDefaultClassLoader(), null);
-        } catch (NullPointerException e) {
-            fail();
-        }
-        try {
-            provider.getCacheManager(provider.getDefaultURI(), provider.getDefaultClassLoader(), properties);
-        } catch (NullPointerException e) {
-            fail();
-        }
-
-        try {
-            provider.getCacheManager(null, null);
-        } catch (NullPointerException e) {
-            fail();
-        }
-        try {
-            provider.getCacheManager(provider.getDefaultURI(), null);
-        } catch (NullPointerException e) {
-            fail();
-        }
+    try {
+      provider.getCacheManager(null, null, null);
+    } catch (NullPointerException e) {
+      fail();
+    }
+    try {
+      provider.getCacheManager(null, null, properties);
+    } catch (NullPointerException e) {
+      fail();
+    }
+    try {
+      provider.getCacheManager(null, provider.getDefaultClassLoader(), null);
+    } catch (NullPointerException e) {
+      fail();
+    }
+    try {
+      provider.getCacheManager(null, provider.getDefaultClassLoader(), properties);
+    } catch (NullPointerException e) {
+      fail();
+    }
+    try {
+      provider.getCacheManager(provider.getDefaultURI(), null, null);
+    } catch (NullPointerException e) {
+      fail();
+    }
+    try {
+      provider.getCacheManager(provider.getDefaultURI(), null, properties);
+    } catch (NullPointerException e) {
+      fail();
+    }
+    try {
+      provider.getCacheManager(provider.getDefaultURI(), provider.getDefaultClassLoader(), null);
+    } catch (NullPointerException e) {
+      fail();
+    }
+    try {
+      provider.getCacheManager(provider.getDefaultURI(), provider.getDefaultClassLoader(), properties);
+    } catch (NullPointerException e) {
+      fail();
     }
 
-    @Test
-    public void getCacheManagerUsingDefaultURI() {
-        CachingProvider provider = Caching.getCachingProvider();
-
-        CacheManager manager1 = provider.getCacheManager();
-        assertNotNull(manager1);
-        assertEquals(provider.getDefaultURI(), manager1.getURI());
-
-        CacheManager manager2 = provider.getCacheManager();
-        assertSame(manager1, manager2);
+    try {
+      provider.getCacheManager(null, null);
+    } catch (NullPointerException e) {
+      fail();
     }
-
-    @Test
-    public void getCacheManagerUsingSameNameAndClassLoader() {
-        CachingProvider provider = Caching.getCachingProvider();
-
-        ClassLoader loader = CLASS_LOADER;
-
-        CacheManager manager1 = provider.getCacheManager(provider.getDefaultURI(), loader, null);
-        assertNotNull(manager1);
-
-        CacheManager manager2 = provider.getCacheManager(provider.getDefaultURI(), loader, null);
-        assertSame(manager1, manager2);
+    try {
+      provider.getCacheManager(provider.getDefaultURI(), null);
+    } catch (NullPointerException e) {
+      fail();
     }
+  }
 
-    @Test
-    public void getCacheManagerUsingSameURIDifferentClassLoader() {
-        CachingProvider provider = Caching.getCachingProvider();
+  @Test
+  public void getCacheManagerUsingDefaultURI() {
+    CachingProvider provider = Caching.getCachingProvider();
 
-        ClassLoader loader1 = CLASS_LOADER;
-        CacheManager manager1 = provider.getCacheManager(provider.getDefaultURI(), loader1, null);
-        assertNotNull(manager1);
+    CacheManager manager1 = provider.getCacheManager();
+    assertNotNull(manager1);
+    assertEquals(provider.getDefaultURI(), manager1.getURI());
 
-        ClassLoader loader2 = new MyClassLoader(CLASS_LOADER);
-        CacheManager manager2 = provider.getCacheManager(provider.getDefaultURI(), loader2, null);
-        assertNotNull(manager2);
+    CacheManager manager2 = provider.getCacheManager();
+    assertSame(manager1, manager2);
+  }
 
-        assertNotSame(manager1, manager2);
+  @Test
+  public void getCacheManagerUsingSameNameAndClassLoader() {
+    CachingProvider provider = Caching.getCachingProvider();
+
+    ClassLoader loader = CLASS_LOADER;
+
+    CacheManager manager1 = provider.getCacheManager(provider.getDefaultURI(), loader, null);
+    assertNotNull(manager1);
+
+    CacheManager manager2 = provider.getCacheManager(provider.getDefaultURI(), loader, null);
+    assertSame(manager1, manager2);
+  }
+
+  @Test
+  public void getCacheManagerUsingSameURIDifferentClassLoader() {
+    CachingProvider provider = Caching.getCachingProvider();
+
+    ClassLoader loader1 = CLASS_LOADER;
+    CacheManager manager1 = provider.getCacheManager(provider.getDefaultURI(), loader1, null);
+    assertNotNull(manager1);
+
+    ClassLoader loader2 = new MyClassLoader(CLASS_LOADER);
+    CacheManager manager2 = provider.getCacheManager(provider.getDefaultURI(), loader2, null);
+    assertNotNull(manager2);
+
+    assertNotSame(manager1, manager2);
+  }
+
+  @Test
+  public void closeCacheManagers() {
+    CachingProvider provider = Caching.getCachingProvider();
+
+    ClassLoader loader1 = CLASS_LOADER;
+    CacheManager manager1 = provider.getCacheManager(provider.getDefaultURI(), loader1, null);
+    manager1.close();
+
+    ClassLoader loader2 = new MyClassLoader(CLASS_LOADER);
+    CacheManager manager2 = provider.getCacheManager(provider.getDefaultURI(), loader2, null);
+    manager2.close();
+
+    assertNotSame(manager1, provider.getCacheManager(provider.getDefaultURI(), loader1, null));
+    assertNotSame(manager2, provider.getCacheManager(provider.getDefaultURI(), loader2, null));
+  }
+
+  @Test
+  public void closeCachingProvider() {
+    CachingProvider provider = Caching.getCachingProvider();
+
+    ClassLoader loader1 = CLASS_LOADER;
+    CacheManager manager1 = provider.getCacheManager(provider.getDefaultURI(), loader1, null);
+
+    ClassLoader loader2 = new MyClassLoader(CLASS_LOADER);
+    CacheManager manager2 = provider.getCacheManager(provider.getDefaultURI(), loader2, null);
+
+    provider.close();
+
+    assertNotSame(manager1, provider.getCacheManager(provider.getDefaultURI(), loader1, null));
+    assertNotSame(manager2, provider.getCacheManager(provider.getDefaultURI(), loader2, null));
+  }
+
+  @Test
+  public void closeCacheManagerByURIAndClassLoader() {
+    CachingProvider provider = Caching.getCachingProvider();
+
+    ClassLoader loader1 = CLASS_LOADER;
+    CacheManager manager1 = provider.getCacheManager(provider.getDefaultURI(), loader1, null);
+
+    ClassLoader loader2 = new MyClassLoader(CLASS_LOADER);
+    CacheManager manager2 = provider.getCacheManager(provider.getDefaultURI(), loader2, null);
+
+    provider.close(manager1.getURI(), loader1);
+    provider.close(manager2.getURI(), loader2);
+
+    assertNotSame(manager1, provider.getCacheManager(provider.getDefaultURI(), loader1, null));
+    assertNotSame(manager2, provider.getCacheManager(provider.getDefaultURI(), loader2, null));
+  }
+
+  @Test
+  public void closeCacheManagersByClassLoader() {
+    CachingProvider provider = Caching.getCachingProvider();
+
+    ClassLoader loader1 = CLASS_LOADER;
+    CacheManager manager1 = provider.getCacheManager(provider.getDefaultURI(), loader1, null);
+
+    ClassLoader loader2 = new MyClassLoader(CLASS_LOADER);
+    CacheManager manager2 = provider.getCacheManager(provider.getDefaultURI(), loader2, null);
+
+    provider.close(loader1);
+    provider.close(loader2);
+
+    assertNotSame(manager1, provider.getCacheManager(provider.getDefaultURI(), loader1, null));
+    assertNotSame(manager2, provider.getCacheManager(provider.getDefaultURI(), loader2, null));
+  }
+
+  private static class MyClassLoader extends ClassLoader {
+    public MyClassLoader(ClassLoader parent) {
+      super(parent);
     }
-
-    @Test
-    public void closeCacheManagers() {
-        CachingProvider provider = Caching.getCachingProvider();
-
-        ClassLoader loader1 = CLASS_LOADER;
-        CacheManager manager1 = provider.getCacheManager(provider.getDefaultURI(), loader1, null);
-        manager1.close();
-
-        ClassLoader loader2 = new MyClassLoader(CLASS_LOADER);
-        CacheManager manager2 = provider.getCacheManager(provider.getDefaultURI(), loader2, null);
-        manager2.close();
-
-        assertNotSame(manager1, provider.getCacheManager(provider.getDefaultURI(), loader1, null));
-        assertNotSame(manager2, provider.getCacheManager(provider.getDefaultURI(), loader2, null));
-    }
-
-    @Test
-    public void closeCachingProvider() {
-        CachingProvider provider = Caching.getCachingProvider();
-
-        ClassLoader loader1 = CLASS_LOADER;
-        CacheManager manager1 = provider.getCacheManager(provider.getDefaultURI(), loader1, null);
-
-        ClassLoader loader2 = new MyClassLoader(CLASS_LOADER);
-        CacheManager manager2 = provider.getCacheManager(provider.getDefaultURI(), loader2, null);
-
-        provider.close();
-
-        assertNotSame(manager1, provider.getCacheManager(provider.getDefaultURI(), loader1, null));
-        assertNotSame(manager2, provider.getCacheManager(provider.getDefaultURI(), loader2, null));
-    }
-
-    @Test
-    public void closeCacheManagerByURIAndClassLoader() {
-        CachingProvider provider = Caching.getCachingProvider();
-
-        ClassLoader loader1 = CLASS_LOADER;
-        CacheManager manager1 = provider.getCacheManager(provider.getDefaultURI(), loader1, null);
-
-        ClassLoader loader2 = new MyClassLoader(CLASS_LOADER);
-        CacheManager manager2 = provider.getCacheManager(provider.getDefaultURI(), loader2, null);
-
-        provider.close(manager1.getURI(), loader1);
-        provider.close(manager2.getURI(), loader2);
-
-        assertNotSame(manager1, provider.getCacheManager(provider.getDefaultURI(), loader1, null));
-        assertNotSame(manager2, provider.getCacheManager(provider.getDefaultURI(), loader2, null));
-    }
-
-    @Test
-    public void closeCacheManagersByClassLoader() {
-        CachingProvider provider = Caching.getCachingProvider();
-
-        ClassLoader loader1 = CLASS_LOADER;
-        CacheManager manager1 = provider.getCacheManager(provider.getDefaultURI(), loader1, null);
-
-        ClassLoader loader2 = new MyClassLoader(CLASS_LOADER);
-        CacheManager manager2 = provider.getCacheManager(provider.getDefaultURI(), loader2, null);
-
-        provider.close(loader1);
-        provider.close(loader2);
-
-        assertNotSame(manager1, provider.getCacheManager(provider.getDefaultURI(), loader1, null));
-        assertNotSame(manager2, provider.getCacheManager(provider.getDefaultURI(), loader2, null));
-    }
-
-    private static class MyClassLoader extends ClassLoader{
-        public MyClassLoader(ClassLoader parent) {
-            super(parent);
-        }
-    }
+  }
 }

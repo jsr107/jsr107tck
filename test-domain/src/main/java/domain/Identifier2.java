@@ -18,42 +18,43 @@
 package domain;
 
 /**
- *
  * @author Greg Luck
  */
 public class Identifier2 {
 
-    private final String name;
+  private final String name;
 
-    /**
-     * Constructor
-     * @param name
-     */
-    public Identifier2(String name) {
-        this.name = name;
-    }
+  /**
+   * Constructor
+   *
+   * @param name
+   */
+  public Identifier2(String name) {
+    this.name = name;
+  }
 
-    /**
-     * Implemented without class checking
-     * @param o
-     * @return
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
+  /**
+   * Implemented without class checking
+   *
+   * @param o
+   * @return
+   */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
 
-        return o.toString().equals(this.toString());
-    }
+    return o.toString().equals(this.toString());
+  }
 
-    @Override
-    public int hashCode() {
+  @Override
+  public int hashCode() {
 //        return name != null ? name.hashCode() : 0;
-        return 10;
-    }
+    return 10;
+  }
 
 
-    @Override
-    public String toString() {
-        return name;
-    }
+  @Override
+  public String toString() {
+    return name;
+  }
 }

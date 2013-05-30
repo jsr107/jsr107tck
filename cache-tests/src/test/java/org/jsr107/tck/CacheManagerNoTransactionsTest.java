@@ -44,79 +44,79 @@ import static org.junit.Assert.assertEquals;
 public class CacheManagerNoTransactionsTest extends TestSupport {
 
 
-    @Before
-    public void startUp() {
-        try {
-            Caching.getCachingProvider().close();
-        }   catch (CachingShutdownException e) {
-            //this will happen if we call close twice in a row.
-        }
+  @Before
+  public void startUp() {
+    try {
+      Caching.getCachingProvider().close();
+    } catch (CachingShutdownException e) {
+      //this will happen if we call close twice in a row.
+    }
+  }
+
+  /**
+   * Rule used to exclude tests
+   */
+  @Rule
+  public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
+
+
+  @Test
+  public void transactionalStatusWhenNoUserTransaction() throws Exception {
+    CacheManager cacheManager = getCacheManager();
+    try {
+      UserTransaction transaction = cacheManager.getUserTransaction();
+    } catch (UnsupportedOperationException e) {
+      //expected
+    }
+  }
+
+  /**
+   * The isolation level returned by a non-transactional cache
+   */
+  @Test
+  public void isolationLevelForNonTransactionalCache() throws Exception {
+    CacheManager cacheManager = getCacheManager();
+    Cache<?, ?> cache = cacheManager.configureCache("test", new MutableConfiguration());
+    assertEquals(IsolationLevel.NONE, cache.getConfiguration().getTransactionIsolationLevel());
+  }
+
+  /**
+   * The transaction mode returned by a non-transactional cache
+   */
+  @Test
+  public void modeForNonTransactionalCache() throws Exception {
+    CacheManager cacheManager = getCacheManager();
+    Cache<?, ?> cache = cacheManager.configureCache("test", new MutableConfiguration());
+    assertEquals(Mode.NONE, cache.getConfiguration().getTransactionMode());
+  }
+
+  /**
+   * Test various illegal combinations
+   */
+  @Test
+  public void setIncorrectIsolationLevelForTransactionalCache() throws Exception {
+    CacheManager cacheManager = getCacheManager();
+
+    try {
+      MutableConfiguration<?, ?> config = new MutableConfiguration();
+      config.setTransactions(IsolationLevel.READ_COMMITTED, Mode.NONE)
+          .setTransactionsEnabled(true);
+
+      cacheManager.configureCache("test", config);
+      Assert.fail("read_committed must have a valid mode");
+    } catch (IllegalArgumentException e) {
+      //expected
     }
 
-    /**
-     * Rule used to exclude tests
-     */
-    @Rule
-    public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
+    try {
+      MutableConfiguration<?, ?> config = new MutableConfiguration();
+      config.setTransactions(IsolationLevel.NONE, Mode.LOCAL)
+          .setTransactionsEnabled(true);
 
-
-    @Test
-    public void transactionalStatusWhenNoUserTransaction() throws Exception {
-        CacheManager cacheManager = getCacheManager();
-        try {
-        UserTransaction transaction = cacheManager.getUserTransaction();
-        } catch (UnsupportedOperationException e) {
-            //expected
-        }
+      cacheManager.configureCache("test", config);
+      Assert.fail("failed to provide an isolation level");
+    } catch (IllegalArgumentException e) {
+      //expected
     }
-
-    /**
-     * The isolation level returned by a non-transactional cache
-     */
-    @Test
-    public void isolationLevelForNonTransactionalCache() throws Exception {
-        CacheManager cacheManager = getCacheManager();
-        Cache<?, ?> cache = cacheManager.configureCache("test", new MutableConfiguration());
-        assertEquals(IsolationLevel.NONE , cache.getConfiguration().getTransactionIsolationLevel());
-    }
-
-    /**
-     * The transaction mode returned by a non-transactional cache
-     */
-    @Test
-    public void modeForNonTransactionalCache() throws Exception {
-        CacheManager cacheManager = getCacheManager();
-        Cache<?, ?> cache = cacheManager.configureCache("test", new MutableConfiguration());
-        assertEquals(Mode.NONE , cache.getConfiguration().getTransactionMode());
-    }
-
-    /**
-     * Test various illegal combinations
-     */
-    @Test
-    public void setIncorrectIsolationLevelForTransactionalCache() throws Exception {
-        CacheManager cacheManager = getCacheManager();
-
-        try {
-            MutableConfiguration<?, ?> config = new MutableConfiguration();
-            config.setTransactions(IsolationLevel.READ_COMMITTED, Mode.NONE)
-                  .setTransactionsEnabled(true);
-
-            cacheManager.configureCache("test", config);
-            Assert.fail("read_committed must have a valid mode");
-        } catch (IllegalArgumentException e) {
-            //expected
-        }
-
-        try {
-            MutableConfiguration<?, ?> config = new MutableConfiguration();
-            config.setTransactions(IsolationLevel.NONE, Mode.LOCAL)
-                  .setTransactionsEnabled(true);
-
-            cacheManager.configureCache("test", config);
-            Assert.fail("failed to provide an isolation level");
-        } catch (IllegalArgumentException e) {
-            //expected
-        }
-    }
+  }
 }

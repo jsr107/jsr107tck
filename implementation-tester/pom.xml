@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -15,8 +16,10 @@
 
     <name>Implementation Tester</name>
     <url>https://github.com/jsr107/jsr107tck</url>
-    <description>Wires together cache-tests with the RI implementation and runs JUnit against them. Create
-        a similar module for each new implementation you wish to test. See README.md for details.
+    <description>Wires together cache-tests with the RI implementation and runs
+        JUnit against them. Create
+        a similar module for each new implementation you wish to test. See
+        README.md for details.
     </description>
 
     <properties>
@@ -32,19 +35,23 @@
         <implementation-groupId>org.jsr107.ri</implementation-groupId>
         <implementation-artifactId>cache-ri-impl</implementation-artifactId>
         <implementation-version>${project.parent.version}</implementation-version>
-        
+
         <annotation-harness-groupId>javax.cache</annotation-harness-groupId>
-        <annotation-harness-artifactId>guice-annotations-test-harness</annotation-harness-artifactId>
+        <annotation-harness-artifactId>guice-annotations-test-harness
+        </annotation-harness-artifactId>
         <!-- 
         <annotation-harness-artifactId>cdi-weld-annotations-test-harness</annotation-harness-artifactId>
         <annotation-harness-artifactId>spring-annotations-test-harness</annotation-harness-artifactId>
         -->
-        <annotation-harness-version>${project.parent.version}</annotation-harness-version>
-        
+        <annotation-harness-version>${project.parent.version}
+        </annotation-harness-version>
+
         <!-- Used by the unwrap tests, leave blank and the tests will be ignored -->
         <CacheManagerImpl>org.jsr107.ri.RICacheManager</CacheManagerImpl>
         <CacheImpl>org.jsr107.ri.RICache</CacheImpl>
-        <CacheInvocationContextImpl>javax.cache.annotation.impl.cdi.CdiCacheKeyInvocationContextImpl</CacheInvocationContextImpl>
+        <CacheInvocationContextImpl>
+            javax.cache.annotation.impl.cdi.CdiCacheKeyInvocationContextImpl
+        </CacheInvocationContextImpl>
     </properties>
 
     <dependencies>
@@ -53,7 +60,7 @@
             <artifactId>${implementation-artifactId}</artifactId>
             <version>${implementation-version}</version>
         </dependency>
-        
+
         <!-- 
             Is there a way to have the cache RI impl check if one of the annotations RIs is available
             before stating it supports annotations?
@@ -127,7 +134,8 @@
                             <goal>unpack-dependencies</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+                            <outputDirectory>${project.build.testOutputDirectory}
+                            </outputDirectory>
                             <includeArtifactIds>cache-tests</includeArtifactIds>
                             <includeScope>test</includeScope>
                             <excludes>**/unwrap.properties</excludes>
@@ -144,7 +152,8 @@
                                     <groupId>javax.cache</groupId>
                                     <artifactId>app-domain</artifactId>
                                     <version>${project.parent.version}</version>
-                                    <outputDirectory>${domain-lib-dir}</outputDirectory>
+                                    <outputDirectory>${domain-lib-dir}
+                                    </outputDirectory>
                                     <destFileName>${domain-jar}</destFileName>
                                 </artifactItem>
                             </artifactItems>
@@ -191,7 +200,8 @@
                                 <include>**/interceptor/*Test.java</include>
                             </excludes>
                             <systemPropertyVariables>
-                                <domainJar>${domain-lib-dir}/${domain-jar}</domainJar>
+                                <domainJar>${domain-lib-dir}/${domain-jar}
+                                </domainJar>
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>

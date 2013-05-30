@@ -26,68 +26,74 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
  * @author Rick Hightower
- * 
  */
 public class UsingDefaultCacheNameBlogManagerImpl implements BlogManager {
 
-    /**
-     * 
-     */
-    private static Map<String, Blog> map = new HashMap<String, Blog>();
+  /**
+   *
+   */
+  private static Map<String, Blog> map = new HashMap<String, Blog>();
 
-    /**
-     * 
-     */
-    @CacheResult
-    public Blog getEntryCached(String title) {
-        return map.get(title);
-    }
+  /**
+   *
+   */
+  @CacheResult
+  public Blog getEntryCached(String title) {
+    return map.get(title);
+  }
 
-    /**
-     * 
-     */
-    public Blog getEntryRaw(String title) {
-        return map.get(title);
-    }
+  /**
+   *
+   */
+  public Blog getEntryRaw(String title) {
+    return map.get(title);
+  }
 
-    /** (non-Javadoc)
-     * @see manager.BlogManager#clearEntryFromCache(java.lang.String)
-     */
-    @CacheRemoveEntry(cacheName="manager.UsingDefaultCacheNameBlogManagerImpl.getEntryCached(java.lang.String)")
-    public void clearEntryFromCache(String title) {
-    }
+  /**
+   * (non-Javadoc)
+   *
+   * @see manager.BlogManager#clearEntryFromCache(java.lang.String)
+   */
+  @CacheRemoveEntry(cacheName = "manager.UsingDefaultCacheNameBlogManagerImpl.getEntryCached(java.lang.String)")
+  public void clearEntryFromCache(String title) {
+  }
 
-    /** (non-Javadoc)
-     * @see manager.BlogManager#clearEntry(java.lang.String)
-     */
-    public void clearEntry(String title) {
-        map.put(title, null);
-    }
+  /**
+   * (non-Javadoc)
+   *
+   * @see manager.BlogManager#clearEntry(java.lang.String)
+   */
+  public void clearEntry(String title) {
+    map.put(title, null);
+  }
 
-    /** (non-Javadoc)
-     * @see manager.BlogManager#clearCache()
-     */
-    @CacheRemoveAll(cacheName="manager.UsingDefaultCacheNameBlogManagerImpl.getEntryCached(java.lang.String)")
-    public void clearCache() {
-    }
+  /**
+   * (non-Javadoc)
+   *
+   * @see manager.BlogManager#clearCache()
+   */
+  @CacheRemoveAll(cacheName = "manager.UsingDefaultCacheNameBlogManagerImpl.getEntryCached(java.lang.String)")
+  public void clearCache() {
+  }
 
-    /** (non-Javadoc)
-     * @see manager.BlogManager#createEntry(domain.Blog)
-     */
-    public void createEntry(Blog blog) {
-        map.put(blog.getTitle(), blog);
-    }
-    
-    /**
-     * Have to specify the cache name here, the generated name is:
-     * manager.UsingDefaultCacheNameBlogManagerImpl.getEntryCached(java.lang.String,java.lang.String,java.lang.String)
-     */
-    @CacheResult(cacheName="manager.UsingDefaultCacheNameBlogManagerImpl.getEntryCached(java.lang.String)")
-    public Blog getEntryCached(String randomArg, @CacheKey String title, String randomArg2) {
-        return map.get(title);
-    }
+  /**
+   * (non-Javadoc)
+   *
+   * @see manager.BlogManager#createEntry(domain.Blog)
+   */
+  public void createEntry(Blog blog) {
+    map.put(blog.getTitle(), blog);
+  }
+
+  /**
+   * Have to specify the cache name here, the generated name is:
+   * manager.UsingDefaultCacheNameBlogManagerImpl.getEntryCached(java.lang.String,java.lang.String,java.lang.String)
+   */
+  @CacheResult(cacheName = "manager.UsingDefaultCacheNameBlogManagerImpl.getEntryCached(java.lang.String)")
+  public Blog getEntryCached(String randomArg, @CacheKey String title, String randomArg2) {
+    return map.get(title);
+  }
 
 
 }

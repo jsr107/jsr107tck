@@ -51,447 +51,447 @@ import static org.junit.Assert.fail;
  * @since 1.0
  */
 public class CacheManagerTest extends TestSupport {
-    protected final Logger logger = Logger.getLogger(getClass().getName());
+  protected final Logger logger = Logger.getLogger(getClass().getName());
 
-    /**
-     * Rule used to exclude tests
+  /**
+   * Rule used to exclude tests
+   */
+  @Rule
+  public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass()) {
+
+    /* (non-Javadoc)
+     * @see javax.cache.util.ExcludeListExcluder#isExcluded(java.lang.String)
      */
-    @Rule
-    public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass()) {
+    @Override
+    protected boolean isExcluded(String methodName) {
+      if ("testUnwrap".equals(methodName) && getUnwrapClass(CacheManager.class) == null) {
+        return true;
+      }
 
-        /* (non-Javadoc)
-         * @see javax.cache.util.ExcludeListExcluder#isExcluded(java.lang.String)
-         */
-        @Override
-        protected boolean isExcluded(String methodName) {
-            if ("testUnwrap".equals(methodName) && getUnwrapClass(CacheManager.class) == null) {
-                return true;
-            }
+      return super.isExcluded(methodName);
+    }
+  };
 
-            return super.isExcluded(methodName);
-        }
-    };
+  @Before
+  public void startUp() {
+    try {
+      Caching.getCachingProvider().close();
+    } catch (CachingShutdownException e) {
+      //this will happen if we call close twice in a row.
+    }
+  }
 
-    @Before
-    public void startUp() {
-        try {
-            Caching.getCachingProvider().close();
-        }   catch (CachingShutdownException e) {
-            //this will happen if we call close twice in a row.
-        }
+  @Test
+  public void configureCache_NullCacheName() {
+    CacheManager cacheManager = getCacheManager();
+    try {
+      cacheManager.configureCache(null, new MutableConfiguration());
+      fail("should have thrown an exception - null cache name not allowed");
+    } catch (NullPointerException e) {
+      //good
+    }
+  }
+
+  @Test
+  public void configureCache_NullCacheConfiguration() {
+    CacheManager cacheManager = getCacheManager();
+    try {
+      cacheManager.configureCache("cache", null);
+      fail("should have thrown an exception - null cache configuration not allowed");
+    } catch (NullPointerException e) {
+      //good
+    }
+  }
+
+  @Test
+  public void createCache_Same() {
+    String name = "c1";
+    CacheManager cacheManager = getCacheManager();
+    Cache cache = cacheManager.configureCache(name, new MutableConfiguration());
+    assertSame(cache, cacheManager.getCache(name));
+  }
+
+  @Test
+  public void testReuseCacheManager() throws Exception {
+    URI uri = new URI(this.getClass().getName());
+
+    CachingProvider provider = Caching.getCachingProvider();
+
+    CacheManager cacheManager = provider.getCacheManager(uri, provider.getDefaultClassLoader());
+    assertFalse(cacheManager.isClosed());
+    cacheManager.close();
+    assertTrue(cacheManager.isClosed());
+
+    try {
+      cacheManager.configureCache("Dog", null);
+      fail();
+    } catch (IllegalStateException e) {
+      //expected
     }
 
-    @Test
-    public void configureCache_NullCacheName() {
-        CacheManager cacheManager = getCacheManager();
-        try {
-            cacheManager.configureCache(null, new MutableConfiguration());
-            fail("should have thrown an exception - null cache name not allowed");
-        } catch (NullPointerException e) {
-            //good
-        }
+    CacheManager otherCacheManager = provider.getCacheManager(uri, provider.getDefaultClassLoader());
+    assertFalse(otherCacheManager.isClosed());
+
+    assertNotSame(cacheManager, otherCacheManager);
+  }
+
+
+  @Test
+  public void createCache_NameOK() {
+    String name = "c1";
+    Cache cache = getCacheManager().configureCache(name, new MutableConfiguration());
+    assertEquals(name, cache.getName());
+  }
+
+  @Test
+  public void createCache_StatusOK() {
+    String name = "c1";
+    Cache cache = getCacheManager().configureCache(name, new MutableConfiguration());
+    assertNotNull(cache);
+    assertEquals(name, cache.getName());
+  }
+
+  @Test
+  public void createCache_Different() {
+    String name1 = "c1";
+    CacheManager cacheManager = getCacheManager();
+    Cache cache1 = cacheManager.configureCache(name1, new MutableConfiguration());
+
+    String name2 = "c2";
+    Cache cache2 = cacheManager.configureCache(name2, new MutableConfiguration());
+
+    assertEquals(cache1, cacheManager.getCache(name1));
+    assertEquals(cache2, cacheManager.getCache(name2));
+  }
+
+  @Test
+  public void createCache_DifferentSameName() {
+    CacheManager cacheManager = getCacheManager();
+    String name1 = "c1";
+    Cache cache1 = cacheManager.configureCache(name1, new MutableConfiguration());
+    assertEquals(cache1, cacheManager.getCache(name1));
+    ensureOpen(cache1);
+
+    Cache cache2 = cacheManager.configureCache(name1, new MutableConfiguration());
+    assertSame(cache1, cache2);
+  }
+
+  @Test
+  public void removeCache_Null() {
+    CacheManager cacheManager = getCacheManager();
+    try {
+      cacheManager.removeCache(null);
+      fail("should have thrown an exception - cache name null");
+    } catch (NullPointerException e) {
+      //good
     }
+  }
 
-    @Test
-    public void configureCache_NullCacheConfiguration() {
-        CacheManager cacheManager = getCacheManager();
-        try {
-            cacheManager.configureCache("cache", null);
-            fail("should have thrown an exception - null cache configuration not allowed");
-        } catch (NullPointerException e) {
-            //good
-        }
+  @Test
+  public void removeCache_There() {
+    CacheManager cacheManager = getCacheManager();
+    String name1 = "c1";
+    cacheManager.configureCache(name1, new MutableConfiguration());
+    assertTrue(cacheManager.removeCache(name1));
+    assertFalse(cacheManager.getCaches().iterator().hasNext());
+  }
+
+  @Test
+  public void removeCache_CacheStopped() {
+    CacheManager cacheManager = getCacheManager();
+    String name1 = "c1";
+    Cache cache1 = cacheManager.configureCache(name1, new MutableConfiguration());
+    cacheManager.removeCache(name1);
+    ensureClosed(cache1);
+  }
+
+  @Test
+  public void removeCache_NotThere() {
+    CacheManager cacheManager = getCacheManager();
+    assertFalse(cacheManager.removeCache("c1"));
+  }
+
+  @Test
+  public void removeCache_Stopped() {
+    CacheManager cacheManager = getCacheManager();
+    cacheManager.close();
+    try {
+      cacheManager.removeCache("c1");
+      fail();
+    } catch (IllegalStateException e) {
+      //ok
     }
+  }
 
-    @Test
-    public void createCache_Same() {
-        String name = "c1";
-        CacheManager cacheManager = getCacheManager();
-        Cache cache = cacheManager.configureCache(name, new MutableConfiguration());
-        assertSame(cache, cacheManager.getCache(name));
+  @Test
+  public void close_cachesClosed() {
+    CacheManager cacheManager = getCacheManager();
+
+    Cache cache1 = cacheManager.configureCache("c1", new MutableConfiguration());
+    Cache cache2 = cacheManager.configureCache("c2", new MutableConfiguration());
+
+    cacheManager.close();
+
+    ensureClosed(cache1);
+    ensureClosed(cache2);
+  }
+
+  @Test
+  public void close() {
+    CacheManager cacheManager = getCacheManager();
+
+    assertFalse(cacheManager.isClosed());
+    cacheManager.close();
+    assertTrue(cacheManager.isClosed());
+  }
+
+  @Test
+  public void close_twice() {
+    CacheManager cacheManager = getCacheManager();
+
+    cacheManager.close();
+    cacheManager.close();
+  }
+
+  @Test
+  public void close_cachesEmpty() {
+    CacheManager cacheManager = getCacheManager();
+
+    cacheManager.configureCache("c1", new MutableConfiguration());
+    cacheManager.configureCache("c2", new MutableConfiguration());
+
+    cacheManager.close();
+    assertFalse(cacheManager.getCaches().iterator().hasNext());
+  }
+
+  @Test
+  public void getUserTransaction() {
+    boolean transactions = Caching.getCachingProvider().isSupported(OptionalFeature.TRANSACTIONS);
+    try {
+      getCacheManager().getUserTransaction();
+      if (!transactions) {
+        fail();
+      }
+    } catch (UnsupportedOperationException e) {
+      assertFalse(transactions);
     }
+  }
 
-    @Test
-    public void testReuseCacheManager() throws Exception {
-        URI uri = new URI(this.getClass().getName());
+  @Test
+  public void getCache_Missing() {
+    CacheManager cacheManager = getCacheManager();
+    assertNull(cacheManager.getCache("notThere"));
+  }
 
-        CachingProvider provider = Caching.getCachingProvider();
+  @Test
+  public void getCache_There() {
+    String name = this.toString();
+    CacheManager cacheManager = getCacheManager();
+    Cache cache = cacheManager.configureCache(name, new MutableConfiguration());
+    assertSame(cache, cacheManager.getCache(name));
+  }
 
-        CacheManager cacheManager = provider.getCacheManager(uri, provider.getDefaultClassLoader());
-        assertFalse(cacheManager.isClosed());
-        cacheManager.close();
-        assertTrue(cacheManager.isClosed());
-
-        try {
-            cacheManager.configureCache("Dog", null);
-            fail();
-        } catch (IllegalStateException e) {
-            //expected
-        }
-
-        CacheManager otherCacheManager = provider.getCacheManager(uri, provider.getDefaultClassLoader());
-        assertFalse(otherCacheManager.isClosed());
-
-        assertNotSame(cacheManager, otherCacheManager);
+  @Test
+  public void getCache_Missing_Stopped() {
+    CacheManager cacheManager = getCacheManager();
+    cacheManager.close();
+    try {
+      cacheManager.getCache("notThere");
+      fail();
+    } catch (IllegalStateException e) {
+      //good
     }
+  }
 
-
-    @Test
-    public void createCache_NameOK() {
-        String name = "c1";
-        Cache cache = getCacheManager().configureCache(name, new MutableConfiguration());
-        assertEquals(name, cache.getName());
+  @Test
+  public void getCache_There_Stopped() {
+    String name = this.toString();
+    CacheManager cacheManager = getCacheManager();
+    cacheManager.configureCache(name, new MutableConfiguration());
+    cacheManager.close();
+    try {
+      cacheManager.getCache(name);
+      fail();
+    } catch (IllegalStateException e) {
+      //good
     }
+  }
 
-    @Test
-    public void createCache_StatusOK() {
-        String name = "c1";
-        Cache cache = getCacheManager().configureCache(name, new MutableConfiguration());
-        assertNotNull(cache);
-        assertEquals(name, cache.getName());
+  @Test
+  public void getCaches_Empty() {
+    CacheManager cacheManager = getCacheManager();
+    assertFalse(cacheManager.getCaches().iterator().hasNext());
+  }
+
+  @Test
+  public void getCaches_NotEmpty() {
+    CacheManager cacheManager = getCacheManager();
+
+    ArrayList<Cache> caches1 = new ArrayList<Cache>();
+    caches1.add(cacheManager.configureCache("c1", new MutableConfiguration()));
+    caches1.add(cacheManager.configureCache("c2", new MutableConfiguration()));
+    caches1.add(cacheManager.configureCache("c3", new MutableConfiguration()));
+
+    checkCollections(caches1, cacheManager.getCaches());
+  }
+
+  @Test
+  public void getCaches_MutateReturn() {
+    CacheManager cacheManager = getCacheManager();
+
+    cacheManager.configureCache("c1", new MutableConfiguration());
+
+    try {
+      cacheManager.getCaches().iterator().remove();
+      fail();
+    } catch (UnsupportedOperationException e) {
+      // immutable
     }
+  }
 
-    @Test
-    public void createCache_Different() {
-        String name1 = "c1";
-        CacheManager cacheManager = getCacheManager();
-        Cache cache1 = cacheManager.configureCache(name1, new MutableConfiguration());
+  @Test
+  public void getCaches_MutateCacheManager() {
+    CacheManager cacheManager = getCacheManager();
 
-        String name2 = "c2";
-        Cache cache2 = cacheManager.configureCache(name2, new MutableConfiguration());
+    String removeName = "c2";
+    ArrayList<Cache> caches1 = new ArrayList<Cache>();
+    caches1.add(cacheManager.configureCache("c1", new MutableConfiguration()));
+    cacheManager.configureCache(removeName, new MutableConfiguration());
+    caches1.add(cacheManager.configureCache("c3", new MutableConfiguration()));
 
-        assertEquals(cache1, cacheManager.getCache(name1));
-        assertEquals(cache2, cacheManager.getCache(name2));
+    Iterable<Cache<?, ?>> it;
+    int size;
+
+    it = cacheManager.getCaches();
+    size = 0;
+    for (Cache<?, ?> c : it) {
+      size++;
     }
-
-    @Test
-    public void createCache_DifferentSameName() {
-        CacheManager cacheManager = getCacheManager();
-        String name1 = "c1";
-        Cache cache1 = cacheManager.configureCache(name1, new MutableConfiguration());
-        assertEquals(cache1, cacheManager.getCache(name1));
-        ensureOpen(cache1);
-
-        Cache cache2 = cacheManager.configureCache(name1, new MutableConfiguration());
-        assertSame(cache1, cache2);
+    assertEquals(3, size);
+    cacheManager.removeCache(removeName);
+    size = 0;
+    for (Cache<?, ?> c : it) {
+      size++;
     }
+    assertEquals(3, size);
 
-    @Test
-    public void removeCache_Null() {
-        CacheManager cacheManager = getCacheManager();
-        try {
-            cacheManager.removeCache(null);
-            fail("should have thrown an exception - cache name null");
-        } catch (NullPointerException e) {
-            //good
-        }
+    it = cacheManager.getCaches();
+    size = 0;
+    for (Cache<?, ?> c : it) {
+      size++;
     }
+    assertEquals(2, size);
+    checkCollections(caches1, it);
+  }
 
-    @Test
-    public void removeCache_There() {
-        CacheManager cacheManager = getCacheManager();
-        String name1 = "c1";
-        cacheManager.configureCache(name1, new MutableConfiguration());
-        assertTrue(cacheManager.removeCache(name1));
-        assertFalse(cacheManager.getCaches().iterator().hasNext());
+  @Test
+  public void getUntypedCache() {
+    CacheManager cacheManager = getCacheManager();
+
+    //configure an un-typed Cache
+    MutableConfiguration config = new MutableConfiguration();
+
+    cacheManager.configureCache("untyped-cache", config);
+
+    Cache cache = cacheManager.getCache("untyped-cache");
+
+    assertNotNull(cache);
+    assertNull(cache.getConfiguration().getKeyType());
+    assertNull(cache.getConfiguration().getValueType());
+  }
+
+  @Test
+  public void getTypedCache() {
+    CacheManager cacheManager = getCacheManager();
+
+    MutableConfiguration<String, Long> config = new MutableConfiguration<String, Long>(String.class, Long.class);
+
+    cacheManager.configureCache("typed-cache", config);
+
+    Cache<String, Long> cache = cacheManager.getCache("typed-cache", String.class, Long.class);
+
+    assertNotNull(cache);
+    assertEquals(String.class, cache.getConfiguration().getKeyType());
+    assertEquals(Long.class, cache.getConfiguration().getValueType());
+  }
+
+  @Test(expected = ClassCastException.class)
+  public void getIncorrectCacheType() {
+    CacheManager cacheManager = getCacheManager();
+
+    MutableConfiguration<String, Long> config = new MutableConfiguration<String, Long>(String.class, Long.class);
+
+    cacheManager.configureCache("typed-cache", config);
+
+    Cache<Long, String> cache = cacheManager.getCache("typed-cache", Long.class, String.class);
+  }
+
+  @Test(expected = ClassCastException.class)
+  public void getUnsafeTypedCacheRequest() {
+    CacheManager cacheManager = getCacheManager();
+
+    MutableConfiguration<String, Long> config = new MutableConfiguration<String, Long>(String.class, Long.class);
+
+    cacheManager.configureCache("typed-cache", config);
+
+    Cache cache = cacheManager.getCache("typed-cache");
+  }
+
+  @Test(expected = ClassCastException.class)
+  public void getNullTypeCacheRequest() {
+    CacheManager cacheManager = getCacheManager();
+
+    MutableConfiguration config = new MutableConfiguration();
+
+    cacheManager.configureCache("untyped-cache", config);
+
+    Cache cache = cacheManager.getCache("untyped-cache", null, null);
+  }
+
+  @Test
+  public void isSupported() {
+    CacheManager cacheManager = getCacheManager();
+
+    for (OptionalFeature feature : OptionalFeature.values()) {
+      assertSame(feature.toString(), Caching.getCachingProvider().isSupported(feature), cacheManager.isSupported(feature));
     }
+  }
 
-    @Test
-    public void removeCache_CacheStopped() {
-        CacheManager cacheManager = getCacheManager();
-        String name1 = "c1";
-        Cache cache1 = cacheManager.configureCache(name1, new MutableConfiguration());
-        cacheManager.removeCache(name1);
-        ensureClosed(cache1);
+  @Test
+  public void testUnwrap() {
+    //Assumes rule will exclude this test when no unwrapClass is specified
+    final Class<?> unwrapClass = getUnwrapClass(CacheManager.class);
+    final CacheManager cacheManager = getCacheManager();
+    final Object unwrappedCacheManager = cacheManager.unwrap(unwrapClass);
+
+    assertTrue(unwrapClass.isAssignableFrom(unwrappedCacheManager.getClass()));
+  }
+
+  // ---------- utilities ----------
+
+  private <T> void checkCollections(Collection<T> collection1, Iterable<?> iterable2) {
+    ArrayList<Object> collection2 = new ArrayList<Object>();
+    for (Object element : iterable2) {
+      assertTrue(collection1.contains(element));
+      collection2.add(element);
     }
-
-    @Test
-    public void removeCache_NotThere() {
-        CacheManager cacheManager = getCacheManager();
-        assertFalse(cacheManager.removeCache("c1"));
+    assertEquals(collection1.size(), collection2.size());
+    for (T element : collection1) {
+      assertTrue(collection2.contains(element));
     }
+  }
 
-    @Test
-    public void removeCache_Stopped() {
-        CacheManager cacheManager = getCacheManager();
-        cacheManager.close();
-        try {
-            cacheManager.removeCache("c1");
-            fail();
-        } catch (IllegalStateException e) {
-            //ok
-        }
+  private void ensureOpen(Cache cache) {
+    if (cache.isClosed()) {
+      fail();
     }
+  }
 
-    @Test
-    public void close_cachesClosed() {
-        CacheManager cacheManager = getCacheManager();
-
-        Cache cache1 = cacheManager.configureCache("c1", new MutableConfiguration());
-        Cache cache2 = cacheManager.configureCache("c2", new MutableConfiguration());
-
-        cacheManager.close();
-
-        ensureClosed(cache1);
-        ensureClosed(cache2);
+  private void ensureClosed(Cache cache) {
+    if (!cache.isClosed()) {
+      fail();
     }
-
-    @Test
-    public void close() {
-        CacheManager cacheManager = getCacheManager();
-
-        assertFalse(cacheManager.isClosed());
-        cacheManager.close();
-        assertTrue(cacheManager.isClosed());
-    }
-
-    @Test
-    public void close_twice() {
-        CacheManager cacheManager = getCacheManager();
-
-        cacheManager.close();
-        cacheManager.close();
-    }
-
-    @Test
-    public void close_cachesEmpty() {
-        CacheManager cacheManager = getCacheManager();
-
-        cacheManager.configureCache("c1", new MutableConfiguration());
-        cacheManager.configureCache("c2", new MutableConfiguration());
-
-        cacheManager.close();
-        assertFalse(cacheManager.getCaches().iterator().hasNext());
-    }
-
-    @Test
-    public void getUserTransaction() {
-        boolean transactions = Caching.getCachingProvider().isSupported(OptionalFeature.TRANSACTIONS);
-        try {
-            getCacheManager().getUserTransaction();
-            if (!transactions) {
-                fail();
-            }
-        } catch (UnsupportedOperationException e) {
-            assertFalse(transactions);
-        }
-    }
-
-    @Test
-    public void getCache_Missing() {
-        CacheManager cacheManager = getCacheManager();
-        assertNull(cacheManager.getCache("notThere"));
-    }
-
-    @Test
-    public void getCache_There() {
-        String name = this.toString();
-        CacheManager cacheManager = getCacheManager();
-        Cache cache = cacheManager.configureCache(name, new MutableConfiguration());
-        assertSame(cache, cacheManager.getCache(name));
-    }
-
-    @Test
-    public void getCache_Missing_Stopped() {
-        CacheManager cacheManager = getCacheManager();
-        cacheManager.close();
-        try {
-            cacheManager.getCache("notThere");
-            fail();
-        } catch (IllegalStateException e) {
-            //good
-        }
-    }
-
-    @Test
-    public void getCache_There_Stopped() {
-        String name = this.toString();
-        CacheManager cacheManager = getCacheManager();
-        cacheManager.configureCache(name, new MutableConfiguration());
-        cacheManager.close();
-        try {
-            cacheManager.getCache(name);
-            fail();
-        } catch (IllegalStateException e) {
-            //good
-        }
-    }
-
-    @Test
-    public void getCaches_Empty() {
-        CacheManager cacheManager = getCacheManager();
-        assertFalse(cacheManager.getCaches().iterator().hasNext());
-    }
-
-    @Test
-    public void getCaches_NotEmpty() {
-        CacheManager cacheManager = getCacheManager();
-
-        ArrayList<Cache> caches1 = new ArrayList<Cache>();
-        caches1.add(cacheManager.configureCache("c1", new MutableConfiguration()));
-        caches1.add(cacheManager.configureCache("c2", new MutableConfiguration()));
-        caches1.add(cacheManager.configureCache("c3", new MutableConfiguration()));
-
-        checkCollections(caches1, cacheManager.getCaches());
-    }
-
-    @Test
-    public void getCaches_MutateReturn() {
-        CacheManager cacheManager = getCacheManager();
-
-        cacheManager.configureCache("c1", new MutableConfiguration());
-
-        try {
-            cacheManager.getCaches().iterator().remove();
-            fail();
-        } catch (UnsupportedOperationException e) {
-            // immutable
-        }
-    }
-
-    @Test
-    public void getCaches_MutateCacheManager() {
-        CacheManager cacheManager = getCacheManager();
-
-        String removeName = "c2";
-        ArrayList<Cache> caches1 = new ArrayList<Cache>();
-        caches1.add(cacheManager.configureCache("c1", new MutableConfiguration()));
-        cacheManager.configureCache(removeName, new MutableConfiguration());
-        caches1.add(cacheManager.configureCache("c3", new MutableConfiguration()));
-
-        Iterable<Cache<?, ?>> it;
-        int size;
-
-        it = cacheManager.getCaches();
-        size = 0;
-        for (Cache<?, ?> c : it) {
-            size++;
-        }
-        assertEquals(3, size);
-        cacheManager.removeCache(removeName);
-        size = 0;
-        for (Cache<?, ?> c : it) {
-            size++;
-        }
-        assertEquals(3, size);
-
-        it = cacheManager.getCaches();
-        size = 0;
-        for (Cache<?, ?> c : it) {
-            size++;
-        }
-        assertEquals(2, size);
-        checkCollections(caches1, it);
-    }
-
-    @Test
-    public void getUntypedCache() {
-        CacheManager cacheManager = getCacheManager();
-
-        //configure an un-typed Cache
-        MutableConfiguration config = new MutableConfiguration();
-
-        cacheManager.configureCache("untyped-cache", config);
-
-        Cache cache = cacheManager.getCache("untyped-cache");
-
-        assertNotNull(cache);
-        assertNull(cache.getConfiguration().getKeyType());
-        assertNull(cache.getConfiguration().getValueType());
-    }
-
-    @Test
-    public void getTypedCache() {
-        CacheManager cacheManager = getCacheManager();
-
-        MutableConfiguration<String, Long> config = new MutableConfiguration<String, Long>(String.class, Long.class);
-
-        cacheManager.configureCache("typed-cache", config);
-
-        Cache<String, Long> cache = cacheManager.getCache("typed-cache", String.class, Long.class);
-
-        assertNotNull(cache);
-        assertEquals(String.class, cache.getConfiguration().getKeyType());
-        assertEquals(Long.class, cache.getConfiguration().getValueType());
-    }
-
-    @Test(expected = ClassCastException.class)
-    public void getIncorrectCacheType() {
-        CacheManager cacheManager = getCacheManager();
-
-        MutableConfiguration<String, Long> config = new MutableConfiguration<String, Long>(String.class, Long.class);
-
-        cacheManager.configureCache("typed-cache", config);
-
-        Cache<Long, String> cache = cacheManager.getCache("typed-cache", Long.class, String.class);
-    }
-
-    @Test(expected = ClassCastException.class)
-    public void getUnsafeTypedCacheRequest() {
-        CacheManager cacheManager = getCacheManager();
-
-        MutableConfiguration<String, Long> config = new MutableConfiguration<String, Long>(String.class, Long.class);
-
-        cacheManager.configureCache("typed-cache", config);
-
-        Cache cache = cacheManager.getCache("typed-cache");
-    }
-
-    @Test(expected = ClassCastException.class)
-    public void getNullTypeCacheRequest() {
-        CacheManager cacheManager = getCacheManager();
-
-        MutableConfiguration config = new MutableConfiguration();
-
-        cacheManager.configureCache("untyped-cache", config);
-
-        Cache cache = cacheManager.getCache("untyped-cache", null, null);
-    }
-
-    @Test
-    public void isSupported() {
-        CacheManager cacheManager = getCacheManager();
-
-        for (OptionalFeature feature : OptionalFeature.values()) {
-            assertSame(feature.toString(), Caching.getCachingProvider().isSupported(feature), cacheManager.isSupported(feature));
-        }
-    }
-
-    @Test
-    public void testUnwrap() {
-        //Assumes rule will exclude this test when no unwrapClass is specified
-        final Class<?> unwrapClass = getUnwrapClass(CacheManager.class);
-        final CacheManager cacheManager = getCacheManager();
-        final Object unwrappedCacheManager = cacheManager.unwrap(unwrapClass);
-
-        assertTrue(unwrapClass.isAssignableFrom(unwrappedCacheManager.getClass()));
-    }
-
-    // ---------- utilities ----------
-
-    private <T> void  checkCollections(Collection<T> collection1, Iterable<?> iterable2) {
-        ArrayList<Object> collection2 = new ArrayList<Object>();
-        for (Object element : iterable2) {
-            assertTrue(collection1.contains(element));
-            collection2.add(element);
-        }
-        assertEquals(collection1.size(), collection2.size());
-        for (T element : collection1) {
-            assertTrue(collection2.contains(element));
-        }
-    }
-
-    private void ensureOpen(Cache cache) {
-        if (cache.isClosed()) {
-            fail();
-        }
-    }
-
-    private void ensureClosed(Cache cache) {
-        if (!cache.isClosed()) {
-            fail();
-        }
-    }
+  }
 
 //    todo GL adapt this test to its new home @Test
 //    public void setStatisticsEnabled() {

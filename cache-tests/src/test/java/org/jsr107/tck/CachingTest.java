@@ -39,105 +39,104 @@ import static org.junit.Assert.assertSame;
  * Caching to create instances of {@link CacheManager}
  *
  * @author Yannis Cosmadopoulos
- * @since 1.0
- *
  * @see Caching
+ * @since 1.0
  */
 public class CachingTest {
 
 
-    /**
-     * Rule used to exclude tests
-     */
-    @Rule
-    public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
+  /**
+   * Rule used to exclude tests
+   */
+  @Rule
+  public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
 
-    @Test
-    public void getCachingProviderSingleton() {
-        CachingProvider provider1 = Caching.getCachingProvider();
-        CachingProvider provider2 = Caching.getCachingProvider();
+  @Test
+  public void getCachingProviderSingleton() {
+    CachingProvider provider1 = Caching.getCachingProvider();
+    CachingProvider provider2 = Caching.getCachingProvider();
 
-        Assert.assertEquals(provider1, provider2);
+    Assert.assertEquals(provider1, provider2);
+  }
+
+
+  /**
+   * Multiple invocations of {@link CachingProvider#getCacheManager()} return the same CacheManager
+   */
+  @Test
+  public void getCacheManager_singleton() {
+    CachingProvider provider = Caching.getCachingProvider();
+
+    CacheManager manager = provider.getCacheManager();
+    assertNotNull(manager);
+    assertSame(manager, provider.getCacheManager());
+  }
+
+  @Test
+  public void getCacheManager_defaultURI() {
+    CachingProvider provider = Caching.getCachingProvider();
+
+    assertSame(provider.getCacheManager(),
+        provider.getCacheManager(provider.getDefaultURI(), provider.getDefaultClassLoader()));
+
+    CacheManager manager = provider.getCacheManager();
+    assertEquals(provider.getDefaultURI(), manager.getURI());
+  }
+
+  /**
+   * Multiple invocations of {@link CachingProvider#getCacheManager(java.net.URI, ClassLoader)} with the same name
+   * return the same CacheManager instance
+   */
+  @Test
+  public void getCacheManager_URI() throws Exception {
+    CachingProvider provider = Caching.getCachingProvider();
+
+    URI uri = new URI("javax.cache.MyCache");
+
+    CacheManager manager = provider.getCacheManager(uri, provider.getDefaultClassLoader());
+    assertNotNull(manager);
+    assertSame(manager, provider.getCacheManager(uri, provider.getDefaultClassLoader()));
+
+    assertEquals(uri, manager.getURI());
+  }
+
+  /**
+   * Invocations of {@link CachingProvider#getCacheManager(java.net.URI, ClassLoader)} using a name other
+   * than the default returns a CacheManager other than the default
+   */
+  @Test
+  public void getCacheManager_URI_notDefault() throws Exception {
+    CachingProvider provider = Caching.getCachingProvider();
+
+    URI uri = new URI("javax.cache.MyCache");
+
+    CacheManager manager = provider.getCacheManager(uri, provider.getDefaultClassLoader());
+    assertNotNull(manager);
+    assertNotSame(manager, provider.getCacheManager());
+  }
+
+  /**
+   * Invocations of {@link CachingProvider#getCacheManager(java.net.URI, ClassLoader)} using different names return
+   * different instances
+   */
+  @Test
+  public void getCacheManager_URI_different() throws Exception {
+    CachingProvider provider = Caching.getCachingProvider();
+
+    URI uri1 = new URI("javax.cache.MyCacheOne");
+    URI uri2 = new URI("javax.cache.MyCacheTwo");
+
+    assertNotSame(provider.getCacheManager(uri1, provider.getDefaultClassLoader()), provider.getCacheManager(uri2, provider.getDefaultClassLoader()));
+  }
+
+  @Test
+  public void isSupported() {
+    CachingProvider provider = Caching.getCachingProvider();
+
+    OptionalFeature[] features = OptionalFeature.values();
+    for (OptionalFeature feature : features) {
+      boolean value = provider.isSupported(feature);
+      Logger.getLogger(getClass().getName()).info("Optional feature " + feature + " supported=" + value);
     }
-
-
-    /**
-     * Multiple invocations of {@link CachingProvider#getCacheManager()} return the same CacheManager
-     */
-    @Test
-    public void getCacheManager_singleton() {
-        CachingProvider provider = Caching.getCachingProvider();
-
-        CacheManager manager = provider.getCacheManager();
-        assertNotNull(manager);
-        assertSame(manager, provider.getCacheManager());
-    }
-
-    @Test
-    public void getCacheManager_defaultURI() {
-        CachingProvider provider = Caching.getCachingProvider();
-
-        assertSame(provider.getCacheManager(),
-                provider.getCacheManager(provider.getDefaultURI(), provider.getDefaultClassLoader()));
-
-        CacheManager manager = provider.getCacheManager();
-        assertEquals(provider.getDefaultURI(), manager.getURI());
-    }
-
-    /**
-     * Multiple invocations of {@link CachingProvider#getCacheManager(java.net.URI, ClassLoader)} with the same name
-     * return the same CacheManager instance
-     */
-    @Test
-    public void getCacheManager_URI() throws Exception {
-        CachingProvider provider = Caching.getCachingProvider();
-
-        URI uri = new URI("javax.cache.MyCache");
-
-        CacheManager manager = provider.getCacheManager(uri, provider.getDefaultClassLoader());
-        assertNotNull(manager);
-        assertSame(manager, provider.getCacheManager(uri, provider.getDefaultClassLoader()));
-
-        assertEquals(uri, manager.getURI());
-    }
-
-    /**
-     * Invocations of {@link CachingProvider#getCacheManager(java.net.URI, ClassLoader)} using a name other
-     * than the default returns a CacheManager other than the default
-     */
-    @Test
-    public void getCacheManager_URI_notDefault() throws Exception{
-        CachingProvider provider = Caching.getCachingProvider();
-
-        URI uri = new URI("javax.cache.MyCache");
-
-        CacheManager manager = provider.getCacheManager(uri, provider.getDefaultClassLoader());
-        assertNotNull(manager);
-        assertNotSame(manager, provider.getCacheManager());
-    }
-
-    /**
-     * Invocations of {@link CachingProvider#getCacheManager(java.net.URI, ClassLoader)} using different names return
-     * different instances
-     */
-    @Test
-    public void getCacheManager_URI_different() throws Exception {
-        CachingProvider provider = Caching.getCachingProvider();
-
-        URI uri1 = new URI("javax.cache.MyCacheOne");
-        URI uri2 = new URI("javax.cache.MyCacheTwo");
-
-        assertNotSame(provider.getCacheManager(uri1, provider.getDefaultClassLoader()), provider.getCacheManager(uri2, provider.getDefaultClassLoader()));
-    }
-
-    @Test
-    public void isSupported() {
-        CachingProvider provider = Caching.getCachingProvider();
-
-        OptionalFeature[] features = OptionalFeature.values();
-        for (OptionalFeature feature:features) {
-            boolean value = provider.isSupported(feature);
-            Logger.getLogger(getClass().getName()).info("Optional feature " + feature + " supported=" + value);
-        }
-    }
+  }
 }

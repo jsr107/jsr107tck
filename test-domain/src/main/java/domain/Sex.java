@@ -26,16 +26,16 @@ package domain;
  */
 public enum Sex {
 
-    /**
-     * A dog
-     */
-    MALE,
+  /**
+   * A dog
+   */
+  MALE,
 
 
-    /**
-     * A bitch
-     */
-    FEMALE
+  /**
+   * A bitch
+   */
+  FEMALE
 
 
 }

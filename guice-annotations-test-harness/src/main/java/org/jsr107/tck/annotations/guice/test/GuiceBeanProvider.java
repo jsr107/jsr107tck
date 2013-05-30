@@ -39,36 +39,36 @@ import java.util.logging.Logger;
  * @version $Revision$
  */
 public class GuiceBeanProvider implements BeanProvider {
-    private final Injector injector;
+  private final Injector injector;
 
-    public GuiceBeanProvider() {
-        super();
-        this.injector = Guice.createInjector(new AbstractModule() {
+  public GuiceBeanProvider() {
+    super();
+    this.injector = Guice.createInjector(new AbstractModule() {
 
-            @Override
-            protected void configure() {
-                install(new CacheAnnotationsModule());
-                bind(CacheNameOnEachMethodBlogManagerImpl.class);
-                bind(ClassLevelCacheConfigBlogManagerImpl.class);
-                bind(UsingDefaultCacheNameBlogManagerImpl.class);
-                bind(CacheManager.class).toProvider(new Provider<CacheManager>() {
+      @Override
+      protected void configure() {
+        install(new CacheAnnotationsModule());
+        bind(CacheNameOnEachMethodBlogManagerImpl.class);
+        bind(ClassLevelCacheConfigBlogManagerImpl.class);
+        bind(UsingDefaultCacheNameBlogManagerImpl.class);
+        bind(CacheManager.class).toProvider(new Provider<CacheManager>() {
 
-                    @Override
-                    public CacheManager get() {
-                        CachingProvider provider = Caching.getCachingProvider();
-                        return provider.getCacheManager(provider.getDefaultURI(), provider.getDefaultClassLoader());
-                    }
-
-                });
-            }
+          @Override
+          public CacheManager get() {
+            CachingProvider provider = Caching.getCachingProvider();
+            return provider.getCacheManager(provider.getDefaultURI(), provider.getDefaultClassLoader());
+          }
 
         });
-        this.injector.getInstance(Logger.class).info("Guice started successfully");
-    }
+      }
 
-    @Override
-    public <T> T getBeanByType(Class<T> beanClass) {
-        return this.injector.getInstance(beanClass);
-    }
+    });
+    this.injector.getInstance(Logger.class).info("Guice started successfully");
+  }
+
+  @Override
+  public <T> T getBeanByType(Class<T> beanClass) {
+    return this.injector.getInstance(beanClass);
+  }
 
 }

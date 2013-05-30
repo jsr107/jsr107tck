@@ -22,15 +22,15 @@ package domain;
  */
 public class Daschund extends Dog implements Hound {
 
-    /**
-     * Tells the hound to bay
-     *
-     * @param loudness 0 for mute, 1 is the softest and 255 is the loudest
-     * @param duration the duraction of the bay in seconds
-     */
-    @Override
-    public void bay(int loudness, int duration) {
+  /**
+   * Tells the hound to bay
+   *
+   * @param loudness 0 for mute, 1 is the softest and 255 is the loudest
+   * @param duration the duraction of the bay in seconds
+   */
+  @Override
+  public void bay(int loudness, int duration) {
 
-    }
+  }
 }
 

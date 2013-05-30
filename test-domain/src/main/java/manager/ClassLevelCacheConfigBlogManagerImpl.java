@@ -27,68 +27,68 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
  * @author Rick Hightower
- * 
  */
-@CacheDefaults(cacheName="blgMngr")
+@CacheDefaults(cacheName = "blgMngr")
 public class ClassLevelCacheConfigBlogManagerImpl implements BlogManager {
 
-    /**
-     * 
-     */
-    private static Map<String, Blog> map = new HashMap<String, Blog>();
+  /**
+   *
+   */
+  private static Map<String, Blog> map = new HashMap<String, Blog>();
 
-    /**
-     * 
-     */
-    @CacheResult
-    public Blog getEntryCached(String title) {
-        return map.get(title);
-    }
+  /**
+   *
+   */
+  @CacheResult
+  public Blog getEntryCached(String title) {
+    return map.get(title);
+  }
 
-    /**
-     * 
-     */
-    public Blog getEntryRaw(String title) {
-        return map.get(title);
-    }
+  /**
+   *
+   */
+  public Blog getEntryRaw(String title) {
+    return map.get(title);
+  }
 
-    /** 
-     * @see manager.BlogManager#clearEntryFromCache(java.lang.String)
-     */
-    @CacheRemoveEntry
-    public void clearEntryFromCache(String title) {
-    }
+  /**
+   * @see manager.BlogManager#clearEntryFromCache(java.lang.String)
+   */
+  @CacheRemoveEntry
+  public void clearEntryFromCache(String title) {
+  }
 
-    /**
-     * @see manager.BlogManager#clearEntry(java.lang.String)
-     */
-    public void clearEntry(String title) {
-        map.put(title, null);
-    }
+  /**
+   * @see manager.BlogManager#clearEntry(java.lang.String)
+   */
+  public void clearEntry(String title) {
+    map.put(title, null);
+  }
 
-    /**
-     * @see manager.BlogManager#clearCache()
-     */
-    @CacheRemoveAll
-    public void clearCache() {
-    }
+  /**
+   * @see manager.BlogManager#clearCache()
+   */
+  @CacheRemoveAll
+  public void clearCache() {
+  }
 
-    /** (non-Javadoc)
-     * @see manager.BlogManager#createEntry(domain.Blog)
-     */
-    public void createEntry(Blog blog) {
-        map.put(blog.getTitle(), blog);
-    }
-    
-    /**
-     * 
-     */
-    @CacheResult
-    public Blog getEntryCached(String randomArg, @CacheKey String title, String randomArg2) {
-        return map.get(title);
-    }
+  /**
+   * (non-Javadoc)
+   *
+   * @see manager.BlogManager#createEntry(domain.Blog)
+   */
+  public void createEntry(Blog blog) {
+    map.put(blog.getTitle(), blog);
+  }
+
+  /**
+   *
+   */
+  @CacheResult
+  public Blog getEntryCached(String randomArg, @CacheKey String title, String randomArg2) {
+    return map.get(title);
+  }
 
 
 }

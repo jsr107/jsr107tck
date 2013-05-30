@@ -42,53 +42,53 @@ import static org.junit.Assert.assertEquals;
  */
 public class CacheManagerTransactionsTest extends TestSupport {
 
-    /**
-     * Rule used to exclude tests that do not implement Transactions
-     */
-    @Rule
-    public MethodRule rule =
-            Caching.getCachingProvider().isSupported(OptionalFeature.TRANSACTIONS) ?
-                    new ExcludeListExcluder(this.getClass()) :
-                    new AllTestExcluder();
+  /**
+   * Rule used to exclude tests that do not implement Transactions
+   */
+  @Rule
+  public MethodRule rule =
+      Caching.getCachingProvider().isSupported(OptionalFeature.TRANSACTIONS) ?
+          new ExcludeListExcluder(this.getClass()) :
+          new AllTestExcluder();
 
 
-    @Test
-    public void transactionalStatusWhenNoUserTransaction() throws Exception {
-        CacheManager cacheManager = getCacheManager();
-        UserTransaction userTrans = cacheManager.getUserTransaction();
-        assertEquals(javax.transaction.Status.STATUS_NO_TRANSACTION , userTrans.getStatus());
+  @Test
+  public void transactionalStatusWhenNoUserTransaction() throws Exception {
+    CacheManager cacheManager = getCacheManager();
+    UserTransaction userTrans = cacheManager.getUserTransaction();
+    assertEquals(javax.transaction.Status.STATUS_NO_TRANSACTION, userTrans.getStatus());
+  }
+
+  /**
+   * The isolation level returned by a non-transactional cache
+   */
+  @Test
+  public void isolationLevelForNonTransactionalCache() throws Exception {
+    CacheManager cacheManager = getCacheManager();
+    Cache cache = cacheManager.configureCache("test", new MutableConfiguration());
+    assertEquals(IsolationLevel.NONE, cache.getConfiguration().getTransactionIsolationLevel());
+  }
+
+  /**
+   * Test various illegal combinations
+   */
+  @Test
+  public void setIncorrectIsolationLevelForTransactionalCache() throws Exception {
+    CacheManager cacheManager = getCacheManager();
+    try {
+      cacheManager.configureCache("test", new MutableConfiguration().setTransactions(IsolationLevel.NONE, Mode.NONE));
+    } catch (IllegalArgumentException e) {
+      //expected
     }
-
-    /**
-     * The isolation level returned by a non-transactional cache
-     */
-    @Test
-    public void isolationLevelForNonTransactionalCache() throws Exception {
-        CacheManager cacheManager = getCacheManager();
-        Cache cache = cacheManager.configureCache("test", new MutableConfiguration());
-        assertEquals(IsolationLevel.NONE, cache.getConfiguration().getTransactionIsolationLevel());
+    try {
+      cacheManager.configureCache("test", new MutableConfiguration().setTransactions(IsolationLevel.READ_COMMITTED, Mode.NONE));
+    } catch (IllegalArgumentException e) {
+      //expected
     }
-
-    /**
-     * Test various illegal combinations
-     */
-    @Test
-    public void setIncorrectIsolationLevelForTransactionalCache() throws Exception {
-        CacheManager cacheManager = getCacheManager();
-        try {
-            cacheManager.configureCache("test", new MutableConfiguration().setTransactions(IsolationLevel.NONE, Mode.NONE));
-        } catch (IllegalArgumentException e) {
-            //expected
-        }
-        try {
-            cacheManager.configureCache("test", new MutableConfiguration().setTransactions(IsolationLevel.READ_COMMITTED, Mode.NONE));
-        } catch (IllegalArgumentException e) {
-            //expected
-        }
-        try {
-            cacheManager.configureCache("test", new MutableConfiguration().setTransactions(IsolationLevel.NONE, Mode.LOCAL));
-        } catch (IllegalArgumentException e) {
-            //expected
-        }
+    try {
+      cacheManager.configureCache("test", new MutableConfiguration().setTransactions(IsolationLevel.NONE, Mode.LOCAL));
+    } catch (IllegalArgumentException e) {
+      //expected
     }
+  }
 }

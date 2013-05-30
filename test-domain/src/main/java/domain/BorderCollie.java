@@ -21,12 +21,12 @@ package domain;
  * @author Greg Luck
  */
 public class BorderCollie extends Dog implements Collie {
-    /**
-     * Tells the hound to bay
-     */
-    @Override
-    public void herd() {
+  /**
+   * Tells the hound to bay
+   */
+  @Override
+  public void herd() {
 
-    }
+  }
 }
 

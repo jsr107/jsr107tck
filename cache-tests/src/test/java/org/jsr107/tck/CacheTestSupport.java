@@ -31,55 +31,55 @@ import java.util.LinkedHashMap;
  * @author Yannis Cosmadopoulos
  * @since 1.0
  */
-public abstract class CacheTestSupport<K,V> extends TestSupport {
+public abstract class CacheTestSupport<K, V> extends TestSupport {
 
-    protected Cache<K, V> cache;
+  protected Cache<K, V> cache;
 
-    @Before
-    public void setUp() {
-        cache = getCacheManager().configureCache(getTestCacheName(), extraSetup(newMutableConfiguration()));
+  @Before
+  public void setUp() {
+    cache = getCacheManager().configureCache(getTestCacheName(), extraSetup(newMutableConfiguration()));
+  }
+
+  @After
+  public void teardown() {
+    getCacheManager().removeCache(getTestCacheName());
+  }
+
+  /**
+   * Constructs a new {@link MutableConfiguration} for the test.
+   *
+   * @return a new {@link MutableConfiguration}
+   */
+  abstract protected MutableConfiguration<K, V> newMutableConfiguration();
+
+
+  protected MutableConfiguration<K, V> extraSetup(MutableConfiguration<K, V> configuration) {
+    return configuration;
+  }
+
+
+  private LinkedHashMap<Long, String> createLSData(int count, long now) {
+    LinkedHashMap<Long, String> map = new LinkedHashMap<Long, String>(count);
+    for (int i = 0; i < count; i++) {
+      Long key = now + i;
+      map.put(key, "value" + key);
     }
+    return map;
+  }
 
-    @After
-    public void teardown() {
-        getCacheManager().removeCache(getTestCacheName());
+  private LinkedHashMap<Date, Date> createDDData(int count, long now) {
+    LinkedHashMap<Date, Date> map = new LinkedHashMap<Date, Date>(count);
+    for (int i = 0; i < count; i++) {
+      map.put(new Date(now + i), new Date(now + 1000 + i));
     }
+    return map;
+  }
 
-    /**
-     * Constructs a new {@link MutableConfiguration} for the test.
-     *
-     * @return a new {@link MutableConfiguration}
-     */
-    abstract protected MutableConfiguration<K, V> newMutableConfiguration();
+  protected LinkedHashMap<Date, Date> createDDData(int count) {
+    return createDDData(count, System.currentTimeMillis());
+  }
 
-
-    protected MutableConfiguration<K, V> extraSetup(MutableConfiguration<K, V> configuration) {
-        return configuration;
-    }
-
-
-    private LinkedHashMap<Long, String> createLSData(int count, long now) {
-        LinkedHashMap<Long, String> map = new LinkedHashMap<Long, String>(count);
-        for (int i = 0; i < count; i++) {
-            Long key = now + i;
-            map.put(key, "value" + key);
-        }
-        return map;
-    }
-
-    private LinkedHashMap<Date, Date> createDDData(int count, long now) {
-        LinkedHashMap<Date, Date> map = new LinkedHashMap<Date, Date>(count);
-        for (int i = 0; i < count; i++) {
-            map.put(new Date(now + i), new Date(now + 1000 + i));
-        }
-        return map;
-    }
-
-    protected LinkedHashMap<Date, Date> createDDData(int count) {
-        return createDDData(count, System.currentTimeMillis());
-    }
-
-    protected LinkedHashMap<Long, String> createLSData(int count) {
-        return createLSData(count, System.currentTimeMillis());
-    }
+  protected LinkedHashMap<Long, String> createLSData(int count) {
+    return createLSData(count, System.currentTimeMillis());
+  }
 }
