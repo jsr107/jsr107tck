@@ -17,8 +17,6 @@
 
 package org.jsr107.tck;
 
-import domain.Beagle;
-import domain.Identifier;
 import manager.CacheNameOnEachMethodBlogManagerImpl;
 import org.jsr107.tck.util.ExcludeListExcluder;
 import org.junit.Rule;

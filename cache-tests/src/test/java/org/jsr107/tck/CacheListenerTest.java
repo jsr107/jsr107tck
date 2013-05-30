@@ -25,8 +25,6 @@ import org.junit.rules.MethodRule;
 import javax.cache.Cache;
 import javax.cache.Cache.MutableEntry;
 import javax.cache.CacheManager;
-import javax.cache.Configuration;
-import javax.cache.ExpiryPolicy;
 import javax.cache.Factories;
 import javax.cache.MutableConfiguration;
 import javax.cache.event.CacheEntryCreatedListener;
@@ -36,6 +34,8 @@ import javax.cache.event.CacheEntryExpiredListener;
 import javax.cache.event.CacheEntryListenerException;
 import javax.cache.event.CacheEntryRemovedListener;
 import javax.cache.event.CacheEntryUpdatedListener;
+import javax.cache.expiry.Duration;
+import javax.cache.expiry.Modified;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -89,7 +89,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
 
     @Override
     protected MutableConfiguration<Long, String> extraSetup(MutableConfiguration<Long, String> configuration) {
-        return configuration.setExpiryPolicyFactory(Factories.of(new ExpiryPolicy.Modified<Long, String>(new Configuration.Duration(TimeUnit.MILLISECONDS, 20))));
+        return configuration.setExpiryPolicyFactory(Factories.of(new Modified<Long, String>(new Duration(TimeUnit.MILLISECONDS, 20))));
     }
 
     /**

@@ -24,8 +24,8 @@ import org.junit.Test;
 
 import javax.cache.Cache;
 import javax.cache.Cache.Entry;
-import javax.cache.Configuration.Duration;
-import javax.cache.ExpiryPolicy;
+import javax.cache.expiry.Duration;
+import javax.cache.expiry.ExpiryPolicy;
 import javax.cache.Factories;
 import javax.cache.MutableConfiguration;
 import java.util.HashMap;
@@ -38,7 +38,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Unit Tests for expiring cache entries with {@link javax.cache.ExpiryPolicy}s.
+ * Unit Tests for expiring cache entries with {@link javax.cache.expiry.ExpiryPolicy}s.
  * 
  * @author Brian Oliver
  */
@@ -59,7 +59,7 @@ public class CacheExpiryTest extends TestSupport {
     }
     
     /**
-     * Ensure that a cache using a {@link javax.cache.ExpiryPolicy} configured to
+     * Ensure that a cache using a {@link javax.cache.expiry.ExpiryPolicy} configured to
      * return a {@link Duration#ZERO} for newly created entries will immediately 
      * expire said entries.
      */
@@ -99,7 +99,7 @@ public class CacheExpiryTest extends TestSupport {
     }
     
     /**
-     * Ensure that a cache using a {@link javax.cache.ExpiryPolicy} configured to
+     * Ensure that a cache using a {@link javax.cache.expiry.ExpiryPolicy} configured to
      * return a {@link Duration#ZERO} after accessing entries will immediately 
      * expire said entries.
      */
@@ -174,7 +174,7 @@ public class CacheExpiryTest extends TestSupport {
     }
     
     /**
-     * Ensure that a cache using a {@link javax.cache.ExpiryPolicy} configured to
+     * Ensure that a cache using a {@link javax.cache.expiry.ExpiryPolicy} configured to
      * return a {@link Duration#ZERO} after modifying entries will immediately 
      * expire said entries.
      */
@@ -252,7 +252,7 @@ public class CacheExpiryTest extends TestSupport {
     }
     
     /**
-     * A {@link javax.cache.ExpiryPolicy} that updates the expiry time based on
+     * A {@link javax.cache.expiry.ExpiryPolicy} that updates the expiry time based on
      * defined parameters.
      */
     public static class ParameterizedExpiryPolicy<K, V> implements ExpiryPolicy<K, V> {
