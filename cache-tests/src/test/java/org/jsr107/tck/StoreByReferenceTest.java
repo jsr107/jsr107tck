@@ -24,8 +24,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 
+import javax.cache.CacheException;
 import javax.cache.Caching;
-import javax.cache.CachingShutdownException;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.configuration.OptionalFeature;
 import java.util.Date;
@@ -78,7 +78,7 @@ public class StoreByReferenceTest extends CacheTestSupport<Date, Date> {
   public void teardown() {
     try {
       Caching.getCachingProvider().close();
-    } catch (CachingShutdownException e) {
+    } catch (CacheException e) {
       //expected
     }
   }

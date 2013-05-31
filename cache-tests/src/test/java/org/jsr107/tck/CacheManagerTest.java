@@ -23,9 +23,9 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import javax.cache.Cache;
+import javax.cache.CacheException;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
-import javax.cache.CachingShutdownException;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.configuration.OptionalFeature;
 import javax.cache.spi.CachingProvider;
@@ -76,7 +76,7 @@ public class CacheManagerTest extends TestSupport {
   public void startUp() {
     try {
       Caching.getCachingProvider().close();
-    } catch (CachingShutdownException e) {
+    } catch (CacheException e) {
       //this will happen if we call close twice in a row.
     }
   }
