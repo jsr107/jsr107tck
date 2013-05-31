@@ -26,8 +26,8 @@ import org.junit.rules.MethodRule;
 
 import javax.cache.Caching;
 import javax.cache.CachingShutdownException;
-import javax.cache.MutableConfiguration;
-import javax.cache.OptionalFeature;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.configuration.OptionalFeature;
 import java.util.Date;
 import java.util.Map;
 

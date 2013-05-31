@@ -24,8 +24,8 @@ import org.junit.Test;
 
 import javax.cache.Cache;
 import javax.cache.CacheLoader;
-import javax.cache.Factories;
-import javax.cache.MutableConfiguration;
+import javax.cache.configuration.FactoryBuilder;
+import javax.cache.configuration.MutableConfiguration;
 import javax.cache.event.CompletionListenerFuture;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -79,7 +79,7 @@ public class CacheLoaderTest extends TestSupport {
     CacheLoader<Integer, Integer> clDefault = new SimpleCacheLoader<Integer>();
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(clDefault)));
+        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(clDefault)));
 
     Integer key = 123;
 
@@ -99,7 +99,7 @@ public class CacheLoaderTest extends TestSupport {
     CacheWriterTest.RecordingCacheWriter<Integer, Integer> writer = new CacheWriterTest.RecordingCacheWriter<Integer, Integer>();
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(clDefault)).setCacheWriterFactory(Factories.of(writer)));
+        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(clDefault)).setCacheWriterFactory(FactoryBuilder.factoryOf(writer)));
 
     Integer key = 123;
 
@@ -119,7 +119,7 @@ public class CacheLoaderTest extends TestSupport {
     CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>();
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(clDefault)));
+        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(clDefault)));
 
     Integer key = 1;
 
@@ -168,7 +168,7 @@ public class CacheLoaderTest extends TestSupport {
     CacheLoader<Integer, Integer> loader = new SimpleCacheLoader<Integer>();
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(loader)));
+        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
 
     HashSet<Integer> keys = new HashSet<Integer>();
     keys.add(null);
@@ -199,7 +199,7 @@ public class CacheLoaderTest extends TestSupport {
     };
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(loader)));
+        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
 
     HashSet<Integer> keys = new HashSet<Integer>();
     keys.add(1);
@@ -223,7 +223,7 @@ public class CacheLoaderTest extends TestSupport {
     SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(loader)));
+        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
 
     Integer keyThere = 1;
     cache.put(keyThere, keyThere);
@@ -270,7 +270,7 @@ public class CacheLoaderTest extends TestSupport {
     CacheLoader<Integer, Integer> loader = new SimpleCacheLoader<Integer>();
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(loader)));
+        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
 
     CompletionListenerFuture future = new CompletionListenerFuture();
     cache.loadAll(keys, true, future);
@@ -295,7 +295,7 @@ public class CacheLoaderTest extends TestSupport {
     };
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(loader)));
+        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
 
     HashSet<Integer> keys = new HashSet<Integer>();
     keys.add(1);
@@ -317,7 +317,7 @@ public class CacheLoaderTest extends TestSupport {
     SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(loader)));
+        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
 
     Integer key = 1;
     assertFalse(cache.containsKey(key));
@@ -330,7 +330,7 @@ public class CacheLoaderTest extends TestSupport {
     CacheLoader<Integer, Integer> loader = new MockCacheLoader<Integer, Integer>();
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(loader)));
+        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
 
     Integer key = 1;
     try {
@@ -346,7 +346,7 @@ public class CacheLoaderTest extends TestSupport {
     SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(loader)));
+        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
 
     HashSet<Integer> keysToGet = new HashSet<Integer>();
     keysToGet.add(1);
@@ -372,7 +372,7 @@ public class CacheLoaderTest extends TestSupport {
     SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(loader)));
+        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
 
     Integer key = 1;
     assertFalse(cache.containsKey(key));
@@ -385,7 +385,7 @@ public class CacheLoaderTest extends TestSupport {
     SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(loader)));
+        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
 
     Integer key = 1;
     Integer value = key + 1;
@@ -398,7 +398,7 @@ public class CacheLoaderTest extends TestSupport {
     SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(loader)));
+        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
 
     Integer key = 1;
     assertNull(cache.getAndRemove(key));
@@ -410,7 +410,7 @@ public class CacheLoaderTest extends TestSupport {
     SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(loader)));
+        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
 
     Integer key = 1;
     Integer value = key + 1;
@@ -424,7 +424,7 @@ public class CacheLoaderTest extends TestSupport {
     SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(loader)));
+        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
 
     Integer key = 1;
     Integer newValue = key + 1;
@@ -437,7 +437,7 @@ public class CacheLoaderTest extends TestSupport {
     SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(loader)));
+        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
 
     Integer key = 1;
     Integer value1 = key + 1;
@@ -453,7 +453,7 @@ public class CacheLoaderTest extends TestSupport {
     SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(loader)));
+        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
 
     Integer key = 1;
     Integer value1 = key + 1;
@@ -469,7 +469,7 @@ public class CacheLoaderTest extends TestSupport {
     SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(loader)));
+        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
 
     Integer key = 1;
     assertFalse(cache.replace(key, key));
@@ -481,7 +481,7 @@ public class CacheLoaderTest extends TestSupport {
     SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(loader)));
+        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
 
     Integer key = 1;
     Integer value1 = key + 1;
@@ -497,7 +497,7 @@ public class CacheLoaderTest extends TestSupport {
     SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(Factories.of(loader)));
+        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
 
     Integer key = 1;
     Integer newValue = key + 1;
@@ -516,7 +516,7 @@ public class CacheLoaderTest extends TestSupport {
     CacheLoader<ArrayList<Integer>, String> loader = new ArrayListCacheLoader();
 
     Cache<ArrayList<Integer>, String> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<ArrayList<Integer>, String>().setCacheLoaderFactory(Factories.of(loader)));
+        new MutableConfiguration<ArrayList<Integer>, String>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
 
 //        String value = cache.get(key2);
 //        assertEquals(cacheLoaderFactory.load(key2).getValue(), value);

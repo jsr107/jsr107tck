@@ -19,10 +19,10 @@ package org.jsr107.tck;
 
 import org.junit.Test;
 
-import javax.cache.Configuration;
+import javax.cache.configuration.Configuration;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
-import javax.cache.MutableConfiguration;
+import javax.cache.configuration.MutableConfiguration;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
@@ -32,7 +32,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Unit tests for a {@link javax.cache.Configuration}.
+ * Unit tests for a {@link javax.cache.configuration.Configuration}.
  *
  * @author Brian Oliver
  * @since 1.0
@@ -40,9 +40,9 @@ import static org.junit.Assert.assertTrue;
 public class TCKConfigurationTest {
 
   /**
-   * Obtains the {@link javax.cache.Configuration} implementation to use for testing
+   * Obtains the {@link javax.cache.configuration.Configuration} implementation to use for testing
    *
-   * @return a new {@link javax.cache.Configuration} instance
+   * @return a new {@link javax.cache.configuration.Configuration} instance
    */
   public <K, V> Configuration<K, V> getConfiguration() {
     return new MutableConfiguration<K, V>();

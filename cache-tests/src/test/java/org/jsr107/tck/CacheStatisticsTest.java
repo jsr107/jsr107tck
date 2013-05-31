@@ -9,7 +9,7 @@ import org.junit.rules.MethodRule;
 import javax.cache.Cache;
 import javax.cache.CacheException;
 import javax.cache.CacheManager;
-import javax.cache.MutableConfiguration;
+import javax.cache.configuration.MutableConfiguration;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;

@@ -25,8 +25,8 @@ import org.junit.rules.MethodRule;
 import javax.cache.Cache;
 import javax.cache.Cache.MutableEntry;
 import javax.cache.CacheManager;
-import javax.cache.Factories;
-import javax.cache.MutableConfiguration;
+import javax.cache.configuration.FactoryBuilder;
+import javax.cache.configuration.MutableConfiguration;
 import javax.cache.event.CacheEntryCreatedListener;
 import javax.cache.event.CacheEntryEvent;
 import javax.cache.event.CacheEntryEventFilter;
@@ -90,7 +90,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
 
   @Override
   protected MutableConfiguration<Long, String> extraSetup(MutableConfiguration<Long, String> configuration) {
-    return configuration.setExpiryPolicyFactory(Factories.of(new Modified<Long, String>(new Duration(TimeUnit.MILLISECONDS, 20))));
+    return configuration.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new Modified<Long, String>(new Duration(TimeUnit.MILLISECONDS, 20))));
   }
 
   /**

@@ -20,7 +20,7 @@ import org.junit.After;
 import org.junit.Before;
 
 import javax.cache.Cache;
-import javax.cache.MutableConfiguration;
+import javax.cache.configuration.MutableConfiguration;
 import java.util.Date;
 import java.util.LinkedHashMap;
 

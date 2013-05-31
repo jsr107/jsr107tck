@@ -21,7 +21,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 
-import javax.cache.MutableConfiguration;
+import javax.cache.configuration.MutableConfiguration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;

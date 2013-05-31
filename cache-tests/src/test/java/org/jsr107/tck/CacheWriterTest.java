@@ -24,8 +24,8 @@ import org.junit.Test;
 
 import javax.cache.Cache;
 import javax.cache.CacheWriter;
-import javax.cache.Factories;
-import javax.cache.MutableConfiguration;
+import javax.cache.configuration.FactoryBuilder;
+import javax.cache.configuration.MutableConfiguration;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,7 +65,7 @@ public class CacheWriterTest extends TestSupport {
     cacheWriter = new RecordingCacheWriter<Integer, String>();
 
     MutableConfiguration<Integer, String> config = new MutableConfiguration<Integer, String>();
-    config.setCacheWriterFactory(Factories.of(cacheWriter));
+    config.setCacheWriterFactory(FactoryBuilder.factoryOf(cacheWriter));
     config.setWriteThrough(true);
 
     cache = getCacheManager().configureCache(getTestCacheName(), config);
