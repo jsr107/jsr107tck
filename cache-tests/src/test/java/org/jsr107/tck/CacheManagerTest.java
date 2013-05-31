@@ -194,7 +194,7 @@ public class CacheManagerTest extends TestSupport {
     String name1 = "c1";
     cacheManager.configureCache(name1, new MutableConfiguration());
     assertTrue(cacheManager.removeCache(name1));
-    assertFalse(cacheManager.getCaches().iterator().hasNext());
+    assertFalse(cacheManager.getCacheNames().iterator().hasNext());
   }
 
   @Test
@@ -262,7 +262,7 @@ public class CacheManagerTest extends TestSupport {
     cacheManager.configureCache("c2", new MutableConfiguration());
 
     cacheManager.close();
-    assertFalse(cacheManager.getCaches().iterator().hasNext());
+    assertFalse(cacheManager.getCacheNames().iterator().hasNext());
   }
 
   @Test
@@ -321,19 +321,20 @@ public class CacheManagerTest extends TestSupport {
   @Test
   public void getCaches_Empty() {
     CacheManager cacheManager = getCacheManager();
-    assertFalse(cacheManager.getCaches().iterator().hasNext());
+    assertFalse(cacheManager.getCacheNames().iterator().hasNext());
   }
 
   @Test
   public void getCaches_NotEmpty() {
     CacheManager cacheManager = getCacheManager();
 
-    ArrayList<Cache> caches1 = new ArrayList<Cache>();
-    caches1.add(cacheManager.configureCache("c1", new MutableConfiguration()));
-    caches1.add(cacheManager.configureCache("c2", new MutableConfiguration()));
-    caches1.add(cacheManager.configureCache("c3", new MutableConfiguration()));
+    ArrayList<String> caches1 = new ArrayList<String>();
+    caches1.add(cacheManager.configureCache("c1", new MutableConfiguration())
+        .getName());
+    caches1.add(cacheManager.configureCache("c2", new MutableConfiguration()).getName());
+    caches1.add(cacheManager.configureCache("c3", new MutableConfiguration()).getName());
 
-    checkCollections(caches1, cacheManager.getCaches());
+    checkCollections(caches1, cacheManager.getCacheNames());
   }
 
   @Test
@@ -343,7 +344,7 @@ public class CacheManagerTest extends TestSupport {
     cacheManager.configureCache("c1", new MutableConfiguration());
 
     try {
-      cacheManager.getCaches().iterator().remove();
+      cacheManager.getCacheNames().iterator().remove();
       fail();
     } catch (UnsupportedOperationException e) {
       // immutable
@@ -355,34 +356,36 @@ public class CacheManagerTest extends TestSupport {
     CacheManager cacheManager = getCacheManager();
 
     String removeName = "c2";
-    ArrayList<Cache> caches1 = new ArrayList<Cache>();
-    caches1.add(cacheManager.configureCache("c1", new MutableConfiguration()));
+    ArrayList<String> cacheNames1 = new ArrayList<String>();
+    cacheNames1.add(cacheManager.configureCache("c1", new MutableConfiguration())
+        .getName());
     cacheManager.configureCache(removeName, new MutableConfiguration());
-    caches1.add(cacheManager.configureCache("c3", new MutableConfiguration()));
+    cacheNames1.add(cacheManager.configureCache("c3", new MutableConfiguration())
+        .getName());
 
-    Iterable<Cache<?, ?>> it;
+    Iterable<String> cacheNames;
     int size;
 
-    it = cacheManager.getCaches();
+    cacheNames = cacheManager.getCacheNames();
     size = 0;
-    for (Cache<?, ?> c : it) {
+    for (String cacheName : cacheNames) {
       size++;
     }
     assertEquals(3, size);
     cacheManager.removeCache(removeName);
     size = 0;
-    for (Cache<?, ?> c : it) {
+    for (String cacheName : cacheNames) {
       size++;
     }
     assertEquals(3, size);
 
-    it = cacheManager.getCaches();
+    cacheNames = cacheManager.getCacheNames();
     size = 0;
-    for (Cache<?, ?> c : it) {
+    for (String cacheName : cacheNames) {
       size++;
     }
     assertEquals(2, size);
-    checkCollections(caches1, it);
+    checkCollections(cacheNames1, cacheNames);
   }
 
   @Test
