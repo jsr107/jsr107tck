@@ -57,7 +57,7 @@ public class PutTest extends CacheTestSupport<Long, String> {
 
   @Override
   protected MutableConfiguration<Long, String> newMutableConfiguration() {
-    return new MutableConfiguration<Long, String>(Long.class, String.class);
+    return new MutableConfiguration<Long, String>().setTypes(Long.class, String.class);
   }
 
   @Test

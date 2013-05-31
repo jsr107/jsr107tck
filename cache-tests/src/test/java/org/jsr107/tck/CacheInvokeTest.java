@@ -49,7 +49,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
 
   @Override
   protected MutableConfiguration<Integer, String> newMutableConfiguration() {
-    return new MutableConfiguration<Integer, String>(Integer.class, String.class);
+    return new MutableConfiguration<Integer, String>().setTypes(Integer.class, String.class);
   }
 
   @Test

@@ -61,7 +61,7 @@ public class StoreByValueTest extends CacheTestSupport<Date, Date> {
 
   @Override
   protected MutableConfiguration<Date, Date> newMutableConfiguration() {
-    return new MutableConfiguration<Date, Date>(Date.class, Date.class);
+    return new MutableConfiguration<Date, Date>().setTypes(Date.class, Date.class);
   }
 
   @Test

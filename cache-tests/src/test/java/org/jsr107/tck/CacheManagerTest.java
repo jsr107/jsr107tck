@@ -404,7 +404,7 @@ public class CacheManagerTest extends TestSupport {
   public void getTypedCache() {
     CacheManager cacheManager = getCacheManager();
 
-    MutableConfiguration<String, Long> config = new MutableConfiguration<String, Long>(String.class, Long.class);
+    MutableConfiguration<String, Long> config = new MutableConfiguration<String, Long>().setTypes(String.class, Long.class);
 
     cacheManager.configureCache("typed-cache", config);
 
@@ -419,7 +419,7 @@ public class CacheManagerTest extends TestSupport {
   public void getIncorrectCacheType() {
     CacheManager cacheManager = getCacheManager();
 
-    MutableConfiguration<String, Long> config = new MutableConfiguration<String, Long>(String.class, Long.class);
+    MutableConfiguration<String, Long> config = new MutableConfiguration<String, Long>().setTypes(String.class, Long.class);
 
     cacheManager.configureCache("typed-cache", config);
 
@@ -430,7 +430,7 @@ public class CacheManagerTest extends TestSupport {
   public void getUnsafeTypedCacheRequest() {
     CacheManager cacheManager = getCacheManager();
 
-    MutableConfiguration<String, Long> config = new MutableConfiguration<String, Long>(String.class, Long.class);
+    MutableConfiguration<String, Long> config = new MutableConfiguration<String, Long>().setTypes(String.class, Long.class);
 
     cacheManager.configureCache("typed-cache", config);
 
