@@ -15,9 +15,10 @@
  *  limitations under the License.
  */
 
-package org.jsr107.tck;
+package org.jsr107.tck.expiry;
 
-import org.jsr107.tck.util.ExcludeListExcluder;
+import org.jsr107.tck.testutil.TestSupport;
+import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;

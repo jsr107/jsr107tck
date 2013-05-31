@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.jsr107.tck;
+package org.jsr107.tck.testutil;
 
 import javax.cache.CacheManager;
 import javax.cache.Caching;

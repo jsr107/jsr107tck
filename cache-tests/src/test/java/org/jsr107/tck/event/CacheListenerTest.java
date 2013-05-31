@@ -15,9 +15,10 @@
  *  limitations under the License.
  */
 
-package org.jsr107.tck;
+package org.jsr107.tck.event;
 
-import org.jsr107.tck.util.ExcludeListExcluder;
+import org.jsr107.tck.testutil.CacheTestSupport;
+import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;

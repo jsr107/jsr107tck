@@ -14,10 +14,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.jsr107.tck;
+package org.jsr107.tck.transaction;
 
 import junit.framework.Assert;
-import org.jsr107.tck.util.ExcludeListExcluder;
+import org.jsr107.tck.testutil.TestSupport;
+import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

@@ -19,7 +19,7 @@
 
 package org.jsr107.tck.annotation;
 
-import org.jsr107.tck.util.AbstractTestExcluder;
+import org.jsr107.tck.testutil.AbstractTestExcluder;
 import org.junit.Rule;
 import org.junit.rules.MethodRule;
 

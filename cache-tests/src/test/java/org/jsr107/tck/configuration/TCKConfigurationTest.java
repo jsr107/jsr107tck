@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.jsr107.tck;
+package org.jsr107.tck.configuration;
 
 import org.junit.Test;
 

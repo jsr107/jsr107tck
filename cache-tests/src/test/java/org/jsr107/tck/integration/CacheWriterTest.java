@@ -14,9 +14,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.jsr107.tck;
+package org.jsr107.tck.integration;
 
-import org.jsr107.tck.util.ExcludeListExcluder;
+import org.jsr107.tck.testutil.TestSupport;
+import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

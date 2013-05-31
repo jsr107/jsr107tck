@@ -17,7 +17,8 @@
 
 package org.jsr107.tck;
 
-import org.jsr107.tck.util.ExcludeListExcluder;
+import org.jsr107.tck.testutil.ExcludeListExcluder;
+import org.jsr107.tck.testutil.TestSupport;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

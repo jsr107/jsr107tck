@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.jsr107.tck.util;
+package org.jsr107.tck.testutil;
 
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;

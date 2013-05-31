@@ -14,7 +14,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.jsr107.tck.util;
+package org.jsr107.tck.testutil;
+
+import java.util.Set;
 
 /**
  * For the TCK we need to have an exclude list of bad tests so that disabling tests
@@ -28,9 +30,25 @@ package org.jsr107.tck.util;
  * @author Yannis Cosmadopoulos
  * @since 1.0
  */
-public class AllTestExcluder extends AbstractTestExcluder {
-  @Override
-  protected boolean isExcluded(String methodName) {
-    return true;
+public class ExcludeListExcluder extends AbstractTestExcluder {
+
+
+  private final Set<String> excludes;
+
+  /**
+   * Constructor for ExcludeListExcluder.
+   * Uses the supplied class name and {@link ExcludeList#getExcludes(String)} to
+   * determine the methods to be excluded.
+   *
+   * @param c the class for which tests should be excluded
+   */
+  public ExcludeListExcluder(Class c) {
+    excludes = ExcludeList.INSTANCE.getExcludes(c.getName());
   }
+
+
+  protected boolean isExcluded(String methodName) {
+    return excludes != null && excludes.contains(methodName);
+  }
+
 }

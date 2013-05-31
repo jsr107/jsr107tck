@@ -21,6 +21,6 @@
  The tests use JUnit and should run both from an IDE and Maven using the supplied pom.xml.
 
 
- @author Yannis Cosmadopoulos
+ @author Greg Luck
  */
-package org.jsr107.tck.util;
+package org.jsr107.tck.management;

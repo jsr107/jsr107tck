@@ -16,10 +16,10 @@
  */
 
 
-package org.jsr107.tck.statistics;
+package org.jsr107.tck.management;
 
 import org.hamcrest.collection.IsEmptyCollection;
-import org.jsr107.tck.util.ExcludeListExcluder;
+import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
