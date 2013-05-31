@@ -23,7 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import javax.cache.Cache;
-import javax.cache.configuration.CacheLoader;
+import javax.cache.integration.CacheLoader;
 import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.event.CompletionListenerFuture;

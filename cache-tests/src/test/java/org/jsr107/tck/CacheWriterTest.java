@@ -23,7 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import javax.cache.Cache;
-import javax.cache.configuration.CacheWriter;
+import javax.cache.integration.CacheWriter;
 import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableConfiguration;
 import java.util.Collection;
@@ -38,7 +38,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Unit test for {@link javax.cache.configuration.CacheWriter}s.
+ * Unit test for {@link javax.cache.integration.CacheWriter}s.
  *
  * @author Brian Oliver
  */
