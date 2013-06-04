@@ -430,7 +430,7 @@ public class CacheManagerTest extends TestSupport {
     Cache<Long, String> cache = cacheManager.getCache("typed-cache", Long.class, String.class);
   }
 
-  @Test(expected = ClassCastException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void getUnsafeTypedCacheRequest() {
     CacheManager cacheManager = getCacheManager();
 
@@ -441,7 +441,7 @@ public class CacheManagerTest extends TestSupport {
     Cache cache = cacheManager.getCache("typed-cache");
   }
 
-  @Test(expected = ClassCastException.class)
+  @Test(expected = NullPointerException.class)
   public void getNullTypeCacheRequest() {
     CacheManager cacheManager = getCacheManager();
 
