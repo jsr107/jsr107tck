@@ -11,7 +11,6 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
@@ -21,14 +20,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 /**
- * Functional Tests for the {@link Duration} class.
+ * Unit tests for the {@link Duration} class.
  */
 public class DurationTest {
 
@@ -62,7 +59,84 @@ public class DurationTest {
    */
   @Test(expected = NullPointerException.class)
   public void shouldNotCreateDurationWithNullTimeUnit() {
-    Duration duration = new Duration(null, 1);
+    new Duration(null, 1);
+  }
+
+  /**
+   * Ensure that we can't create a {@link Duration} using a
+   * negative duration amount
+   */
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldNotCreateDurationWithNegativeAmount() {
+    new Duration(TimeUnit.MINUTES, -1);
+  }
+
+  /**
+   * Ensure that we can't create a {@link Duration} using a
+   * negative duration start range amount
+   */
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldNotCreateDurationWithNegativeStartRangeAmount() {
+    new Duration(-1, 1);
+  }
+
+  /**
+   * Ensure that we can't create a {@link Duration} using a
+   * negative duration end range amount
+   */
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldNotCreateDurationWithNegativeEndRangeAmount() {
+    new Duration(1, -1);
+  }
+
+  /**
+   * Ensure that two {@link Duration}s with the same {@link TimeUnit}
+   * and amount are equal and have the same hashcode.
+   */
+  @Test
+  public void shouldBeEqualWithSameTimeUnitAndAmount() {
+    Duration duration1 = new Duration(TimeUnit.DAYS, 2);
+    Duration duration2 = new Duration(TimeUnit.DAYS, 2);
+
+    assertThat(duration1.equals(duration2), is(true));
+    assertThat(duration1.hashCode(), equalTo(duration2.hashCode()));
+  }
+
+  /**
+   * Ensure that two {@link Duration}s with the same {@link TimeUnit}
+   * but different amounts are not equal.
+   */
+  @Test
+  public void shouldNotBeEqualWithSameTimeUnitAndDifferentAmount() {
+    Duration duration1 = new Duration(TimeUnit.DAYS, 2);
+    Duration duration2 = new Duration(TimeUnit.DAYS, 3);
+
+    assertThat(duration1.equals(duration2), is(false));
+  }
+
+  /**
+   * Ensure that two {@link Duration}s with the different {@link TimeUnit}s
+   * and different amounts are not equal.
+   */
+  @Test
+  public void shouldNotBeEqualWithDifferentTimeUnitAndAmount() {
+    Duration duration1 = new Duration(TimeUnit.DAYS, 2);
+    Duration duration2 = new Duration(TimeUnit.MINUTES, 2);
+
+    assertThat(duration1.equals(duration2), is(false));
+  }
+
+  /**
+   * Ensure that two {@link Duration}s are semantically equal even though
+   * the time units are different.
+   */
+  @Test
+  public void durationEqualsWhenSemanticallyEqualsButExpressedDifferentUnits() {
+    Duration duration1 = new Duration(TimeUnit.SECONDS, 120);
+    Duration duration2 = new Duration(TimeUnit.MINUTES, 2);
+
+    assertThat(duration1, equalTo(duration2));
+    assertThat(duration1.hashCode(), equalTo(duration2.hashCode()));
   }
 
   /**
@@ -73,6 +147,19 @@ public class DurationTest {
     Duration duration = new Duration(0, 0);
 
     assertThat(duration.isZero(), is(true));
+  }
+
+  /**
+   * Ensure that a {@link Duration} created using a range is of the expected
+   * size.
+   */
+  @Test
+  public void shouldCreateDurationWithRangeOfCorrectSize() {
+    Duration duration = new Duration(0, 10);
+
+    assertThat(duration.isZero(), is(false));
+    assertThat(duration.getTimeUnit(), is(TimeUnit.MILLISECONDS));
+    assertThat(duration.getDurationAmount(), is(10L));
   }
 
   /**
@@ -156,6 +243,33 @@ public class DurationTest {
   }
 
   /**
+   * Ensure that the statically declared constants are as expected.
+   */
+  @Test
+  public void shouldDefineExpectedStaticConstantDurations() {
+    assertThat(Duration.ONE_MINUTE.getTimeUnit(), is(TimeUnit.MINUTES));
+    assertThat(Duration.ONE_MINUTE.getDurationAmount(), is(1L));
+
+    assertThat(Duration.FIVE_MINUTES.getTimeUnit(), is(TimeUnit.MINUTES));
+    assertThat(Duration.FIVE_MINUTES.getDurationAmount(), is(5L));
+
+    assertThat(Duration.TEN_MINUTES.getTimeUnit(), is(TimeUnit.MINUTES));
+    assertThat(Duration.TEN_MINUTES.getDurationAmount(), is(10L));
+
+    assertThat(Duration.TWENTY_MINUTES.getTimeUnit(), is(TimeUnit.MINUTES));
+    assertThat(Duration.TWENTY_MINUTES.getDurationAmount(), is(20L));
+
+    assertThat(Duration.THIRTY_MINUTES.getTimeUnit(), is(TimeUnit.MINUTES));
+    assertThat(Duration.THIRTY_MINUTES.getDurationAmount(), is(30L));
+
+    assertThat(Duration.ONE_HOUR.getTimeUnit(), is(TimeUnit.HOURS));
+    assertThat(Duration.ONE_HOUR.getDurationAmount(), is(1L));
+
+    assertThat(Duration.ONE_DAY.getTimeUnit(), is(TimeUnit.DAYS));
+    assertThat(Duration.ONE_DAY.getDurationAmount(), is(1L));
+  }
+
+  /**
    * Ensure that statically declared constant {@link Duration}s are different.
    */
   @Test
@@ -206,7 +320,6 @@ public class DurationTest {
 
     ois.close();
   }
-
 
   /**
    * Obtains a {@link List} of the statically declared constant
