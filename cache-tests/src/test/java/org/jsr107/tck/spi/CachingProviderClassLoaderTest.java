@@ -134,69 +134,6 @@ public class CachingProviderClassLoaderTest {
   }
 
   /**
-   * Invocations of {@link CachingProvider#getCacheManager(java.net.URI, ClassLoader)}
-   * using a URI other than the default returns a CacheManager other than the default.
-   */
-  @Test
-  public void getCacheManagerWithCustomURI() throws Exception {
-    ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
-
-    CachingProvider provider = Caching.getCachingProvider(contextLoader);
-
-    URI myURI = new URI("javax.cache.MyCache");
-
-    CacheManager manager = provider.getCacheManager(provider.getDefaultURI(), contextLoader);
-    CacheManager myManager = provider.getCacheManager(myURI, contextLoader);
-
-    assertNotSame(manager, myManager);
-
-    // using a different ClassLoader
-    ClassLoader otherLoader = new MyClassLoader(contextLoader);
-    CachingProvider otherProvider = Caching.getCachingProvider(otherLoader);
-    assertNotSame(provider, otherProvider);
-
-    CacheManager otherManager = otherProvider.getCacheManager(otherProvider.getDefaultURI(), contextLoader);
-    CacheManager myOtherManager = otherProvider.getCacheManager(myURI, contextLoader);
-
-    assertNotSame(otherManager, myOtherManager);
-
-    assertNotSame(manager, otherManager);
-    assertNotSame(myManager, myOtherManager);
-  }
-
-  /**
-   * Invocations of {@link CachingProvider#getCacheManager(java.net.URI, ClassLoader)}
-   * using different URIs will return different CacheManager instances.
-   */
-  @Test
-  public void getCacheManagerWithDifferentURIs() throws Exception {
-    ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
-
-    CachingProvider provider = Caching.getCachingProvider(contextLoader);
-
-    URI myURI = new URI("javax.cache.MyCache");
-    CacheManager myManager = provider.getCacheManager(myURI, contextLoader);
-
-    URI differentURI = new URI("javax.cache.DifferentCache");
-    CacheManager differentManager = provider.getCacheManager(differentURI, contextLoader);
-
-    assertNotSame(myManager, differentManager);
-
-    // using a different ClassLoader
-    ClassLoader otherLoader = new MyClassLoader(contextLoader);
-    CachingProvider otherProvider = Caching.getCachingProvider(otherLoader);
-    assertNotSame(provider, otherProvider);
-
-    CacheManager myOtherManager = otherProvider.getCacheManager(myURI, contextLoader);
-    CacheManager differentOtherManager = otherProvider.getCacheManager(differentURI, contextLoader);
-
-    assertNotSame(myOtherManager, differentOtherManager);
-
-    assertNotSame(myManager, myOtherManager);
-    assertNotSame(differentManager, differentOtherManager);
-  }
-
-  /**
    * Close all CacheManagers from a CachingProvider, each CacheManager being
    * based on a different ClassLoader.
    */
@@ -206,7 +143,7 @@ public class CachingProviderClassLoaderTest {
 
     CachingProvider provider = Caching.getCachingProvider(contextLoader);
 
-    URI uri = new URI("javax.cache.MyCache");
+    URI uri = provider.getDefaultURI();
 
     ClassLoader loader1 = new MyClassLoader(contextLoader);
     CacheManager manager1 = provider.getCacheManager(uri, loader1);
@@ -234,7 +171,7 @@ public class CachingProviderClassLoaderTest {
 
     CachingProvider provider = Caching.getCachingProvider(contextLoader);
 
-    URI uri = new URI("javax.cache.MyCache");
+    URI uri = provider.getDefaultURI();
 
     ClassLoader loader1 = new MyClassLoader(contextLoader);
     CacheManager manager1 = provider.getCacheManager(uri, loader1);
@@ -262,7 +199,7 @@ public class CachingProviderClassLoaderTest {
 
     CachingProvider provider = Caching.getCachingProvider(contextLoader);
 
-    URI uri = new URI("javax.cache.MyCache");
+    URI uri = provider.getDefaultURI();
 
     ClassLoader loader1 = new MyClassLoader(contextLoader);
     CacheManager manager1 = provider.getCacheManager(uri, loader1);
@@ -274,9 +211,9 @@ public class CachingProviderClassLoaderTest {
     CacheManager manager3 = provider.getCacheManager(uri, loader3);
 
     provider.close(contextLoader);
-    provider.close(provider.getDefaultURI(), loader1);
-    provider.close(provider.getDefaultURI(), loader2);
-    provider.close(provider.getDefaultURI(), loader3);
+    provider.close(provider.getDefaultURI(), contextLoader);
+    provider.close(provider.getDefaultURI(), contextLoader);
+    provider.close(provider.getDefaultURI(), contextLoader);
 
     assertSame(manager1, provider.getCacheManager(uri, loader1));
     assertSame(manager2, provider.getCacheManager(uri, loader2));

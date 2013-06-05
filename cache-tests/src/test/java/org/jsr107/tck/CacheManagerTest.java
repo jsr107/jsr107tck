@@ -114,9 +114,8 @@ public class CacheManagerTest extends TestSupport {
 
   @Test
   public void testReuseCacheManager() throws Exception {
-    URI uri = new URI(this.getClass().getName());
-
     CachingProvider provider = Caching.getCachingProvider();
+    URI uri = provider.getDefaultURI();
 
     CacheManager cacheManager = provider.getCacheManager(uri, provider.getDefaultClassLoader());
     assertFalse(cacheManager.isClosed());

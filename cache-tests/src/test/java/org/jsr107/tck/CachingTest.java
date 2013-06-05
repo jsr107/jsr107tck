@@ -91,42 +91,13 @@ public class CachingTest {
   public void getCacheManager_URI() throws Exception {
     CachingProvider provider = Caching.getCachingProvider();
 
-    URI uri = new URI("javax.cache.MyCache");
+    URI uri = provider.getDefaultURI();
 
     CacheManager manager = provider.getCacheManager(uri, provider.getDefaultClassLoader());
     assertNotNull(manager);
     assertSame(manager, provider.getCacheManager(uri, provider.getDefaultClassLoader()));
 
     assertEquals(uri, manager.getURI());
-  }
-
-  /**
-   * Invocations of {@link CachingProvider#getCacheManager(java.net.URI, ClassLoader)} using a name other
-   * than the default returns a CacheManager other than the default
-   */
-  @Test
-  public void getCacheManager_URI_notDefault() throws Exception {
-    CachingProvider provider = Caching.getCachingProvider();
-
-    URI uri = new URI("javax.cache.MyCache");
-
-    CacheManager manager = provider.getCacheManager(uri, provider.getDefaultClassLoader());
-    assertNotNull(manager);
-    assertNotSame(manager, provider.getCacheManager());
-  }
-
-  /**
-   * Invocations of {@link CachingProvider#getCacheManager(java.net.URI, ClassLoader)} using different names return
-   * different instances
-   */
-  @Test
-  public void getCacheManager_URI_different() throws Exception {
-    CachingProvider provider = Caching.getCachingProvider();
-
-    URI uri1 = new URI("javax.cache.MyCacheOne");
-    URI uri2 = new URI("javax.cache.MyCacheTwo");
-
-    assertNotSame(provider.getCacheManager(uri1, provider.getDefaultClassLoader()), provider.getCacheManager(uri2, provider.getDefaultClassLoader()));
   }
 
   @Test

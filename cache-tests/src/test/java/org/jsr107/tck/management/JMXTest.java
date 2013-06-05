@@ -71,13 +71,13 @@ public class JMXTest {
    * Obtains a CacheManager using a string-based name from the default
    * CachingProvider.
    *
-   * @param name the name of the CacheManager
    * @return a CacheManager
    * @throws Exception
    */
-  public static CacheManager getCacheManager(String name) throws Exception {
-    URI uri = new URI(name);
+  public static CacheManager getCacheManager() throws Exception {
     CachingProvider provider = Caching.getCachingProvider();
+
+    URI uri = provider.getDefaultURI();
 
     return Caching.getCachingProvider().getCacheManager(uri, provider.getDefaultClassLoader());
   }
@@ -87,8 +87,11 @@ public class JMXTest {
    */
   @Before
   public void setUp() throws Exception {
-    //CacheManagers cannot be reused. Get a new one each time.
-    cacheManager = getCacheManager(this.getClass().getName() + System.nanoTime());
+    //ensure that the caching provider is closed
+    Caching.getCachingProvider().close();
+
+    //now get a new cache manager
+    cacheManager = getCacheManager();
   }
 
   @After
@@ -122,8 +125,8 @@ public class JMXTest {
     cacheManager.configureCache("new cache", configuration);
     assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(2));
 
-    CacheManager cacheManager2 = getCacheManager("Luck");
-    cacheManager2.configureCache("new cache", configuration);
+    CacheManager cacheManager2 = getCacheManager();
+    cacheManager2.configureCache("other cache", configuration);
 
     assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(4));
 
@@ -190,8 +193,8 @@ public class JMXTest {
    */
   public static void main(String[] args) throws Exception {
     System.out.println("Starting...");
-    CacheManager cacheManager1 = getCacheManager("Greg");
-    CacheManager cacheManager2 = getCacheManager("Luck");
+    CacheManager cacheManager1 = getCacheManager();
+    CacheManager cacheManager2 = getCacheManager();
     try {
 
       MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
@@ -199,10 +202,10 @@ public class JMXTest {
           .setStatisticsEnabled(true)
           .setManagementEnabled(true);
 
-      cacheManager1.configureCache("cache1", configuration);
-      cacheManager1.configureCache("cache2", configuration);
-      cacheManager2.configureCache("cache1", configuration);
-      cacheManager2.configureCache("cache2", configuration);
+      cacheManager1.configureCache("greg cache1", configuration);
+      cacheManager1.configureCache("greg cache2", configuration);
+      cacheManager2.configureCache("luck cache1", configuration);
+      cacheManager2.configureCache("luck cache2", configuration);
 
 
       ObjectName search = new ObjectName("javax.cache:*");
