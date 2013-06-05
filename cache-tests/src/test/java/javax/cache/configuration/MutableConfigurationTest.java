@@ -71,7 +71,7 @@ public class MutableConfigurationTest {
    * another not specifying types should not be equal.
    */
   @Test
-  public void shouldNotBeEqualWithComparingTypedAndUntyped() {
+  public void shouldNotBeEqualWhenUsingTypedAndUntypedConfigurations() {
     Configuration<?, ?> config1 = new MutableConfiguration<>();
     Configuration<?, ?> config2 = new MutableConfiguration<Object, Object>()
         .setTypes(Object.class, Object.class);
