@@ -29,10 +29,9 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 /**
- * Unit tests for the {@link MutableConfiguration} class.
+ * Functional tests for the {@link MutableConfiguration} class.
  *
  * @author Brian Oliver
- * @since 1.0
  */
 public class MutableConfigurationTest {
 

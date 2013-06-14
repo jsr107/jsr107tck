@@ -25,7 +25,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 /**
- * Unit tests for the {@link Duration} class.
+ * Functional tests for the {@link Duration} class.
+ *
+ * @author Brian Oliver
  */
 public class DurationTest {
 
@@ -131,7 +133,7 @@ public class DurationTest {
    * the time units are different.
    */
   @Test
-  public void durationEqualsWhenSemanticallyEqualsButExpressedDifferentUnits() {
+  public void shouldCompareSemanticallyEquivalentDurationsWithDifferentDurations() {
     Duration duration1 = new Duration(TimeUnit.SECONDS, 120);
     Duration duration2 = new Duration(TimeUnit.MINUTES, 2);
 
