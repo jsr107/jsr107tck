@@ -97,10 +97,11 @@ public class CacheLoaderServer<K, V> extends Server {
       } else {
         HashSet<K> keys = new HashSet<K>();
 
-        int count = ois.readInt();
+        K key = (K) ois.readObject();
+        while (key != null) {
+          keys.add(key);
 
-        while (count > 0) {
-          keys.add((K) ois.readObject());
+          key = (K) ois.readObject();
         }
 
         Map<K, V> map = null;
@@ -111,12 +112,11 @@ public class CacheLoaderServer<K, V> extends Server {
         }
 
         if (map != null) {
-          oos.writeInt(map.size());
-
-          for (K key : map.keySet()) {
-            oos.writeObject(key);
-            oos.writeObject(map.get(key));
+          for (Map.Entry<K, V> entry : map.entrySet()) {
+            oos.writeObject(entry.getKey());
+            oos.writeObject(entry.getValue());
           }
+          oos.writeObject(null);
         }
       }
     }

@@ -28,6 +28,7 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A {@link CacheLoader} that delegates requests to a {@link CacheLoaderServer}.
@@ -125,22 +126,12 @@ public class CacheLoaderClient<K, V> implements CacheLoader<K, V>, AutoCloseable
    */
   @Override
   public Map<K, V> loadAll(Iterable<? extends K> keys) {
-    //TODO: this should call the server loadall, but for now we'll just call load
-
-    HashMap<K, V> map = new HashMap<K, V>();
-    for (K key : keys) {
-      Cache.Entry<K, V> entry = load(key);
-
-      if (entry != null && entry.getValue() != null) {
-        map.put(key, entry.getValue());
-      }
-    }
-    return map;
+    return getClient().invoke(new LoadAllOperation<K, V>(keys));
   }
 
-
   /**
-   * The {@link LoadOperation} representing a {@link CacheLoader#load(Object)}.
+   * The {@link LoadOperation} representing a {@link CacheLoader#load(Object)}
+   * request.
    *
    * @param <K> the type of keys
    * @param <V> the type of values
@@ -182,6 +173,70 @@ public class CacheLoaderClient<K, V> implements CacheLoader<K, V>, AutoCloseable
         throw (RuntimeException) o;
       } else {
         return (V) o;
+      }
+    }
+  }
+
+  /**
+   * The {@link LoadAllOperation} representing a {@link Cache#loadAll(Iterable, boolean, javax.cache.event.CompletionListener)}
+   * request.
+   *
+   * @param <K> the type of keys
+   * @param <V> the type of values
+   */
+  private static class LoadAllOperation<K, V> implements Operation<Map<K, V>> {
+    /**
+     * The keys to load.
+     */
+    private Iterable<? extends K> keys;
+
+    /**
+     * Constructs a {@link LoadAllOperation}.
+     *
+     * @param keys the keys to load
+     */
+    public LoadAllOperation(Iterable<? extends K> keys) {
+      this.keys = keys;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getType() {
+      return "loadAll";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<K, V> onInvoke(ObjectInputStream ois, ObjectOutputStream oos)
+        throws IOException, ClassNotFoundException, ExecutionException {
+
+      //send the keys to load
+      for(K key : keys) {
+        oos.writeObject(key);
+      }
+      oos.writeObject(null);
+
+      //read the resulting map
+      HashMap<K, V> map = new HashMap<K, V>();
+
+      Object result = ois.readObject();
+      while (result != null && !(result instanceof Exception)) {
+        K key = (K)result;
+        V value = (V) ois.readObject();
+
+        map.put(key, value);
+
+        result = ois.readObject();
+      }
+
+      if (result instanceof RuntimeException) {
+        throw (RuntimeException)result;
+      } else {
+        return map;
       }
     }
   }

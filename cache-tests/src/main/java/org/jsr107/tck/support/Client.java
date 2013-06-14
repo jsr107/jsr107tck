@@ -98,7 +98,7 @@ public class Client implements AutoCloseable {
       } catch (RuntimeException e) {
         throw e;
       } catch (Exception e) {
-        throw new RuntimeException("Failed to perform Operation " + operation.getType(), e);
+        throw new RuntimeException("Failed to perform operation " + operation.getType(), e);
       }
     }
   }

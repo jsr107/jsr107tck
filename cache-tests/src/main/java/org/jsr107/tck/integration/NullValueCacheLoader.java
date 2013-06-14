@@ -18,7 +18,7 @@ package org.jsr107.tck.integration;
 
 import javax.cache.Cache;
 import javax.cache.integration.CacheLoader;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -59,7 +59,7 @@ public class NullValueCacheLoader<K, V> implements CacheLoader<K, V> {
    */
   @Override
   public Map<K, V> loadAll(Iterable<? extends K> keys) {
-    Hashtable<K, V> map = new Hashtable<K, V>();
+    HashMap<K, V> map = new HashMap<K, V>();
     for (K key : keys) {
       map.put(key, null);
     }

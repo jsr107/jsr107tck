@@ -47,13 +47,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static javax.cache.event.EventType.CREATED;
-import static javax.cache.event.EventType.EXPIRED;
-import static javax.cache.event.EventType.REMOVED;
-import static javax.cache.event.EventType.UPDATED;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static javax.cache.event.EventType.*;
+import static org.junit.Assert.*;
 
 /**
  * Unit tests for Cache Listeners.
@@ -108,16 +103,21 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
   }
 
   static public class SetEntryProcessor<K, V, T> implements Cache.EntryProcessor<K, V, T>, Serializable {
-    public SetEntryProcessor(V setValue) {
-      this.setValue = setValue;
+
+    private V value;
+
+    public SetEntryProcessor(V value) {
+      this.value = value;
     }
 
     public T process(MutableEntry<K, V> entry, Object... arguments) {
-      entry.setValue(setValue);
+      entry.setValue(value);
       return (T) entry.getValue();
     }
 
-    final V setValue;
+    public V getValue() {
+      return value;
+    }
   }
 
   static public class MultiArgumentEntryProcessor<K, V, T> implements Cache.EntryProcessor<K, V, T>, Serializable {
