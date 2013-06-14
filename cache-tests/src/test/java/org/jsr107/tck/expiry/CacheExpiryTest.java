@@ -29,6 +29,7 @@ import javax.cache.configuration.FactoryBuilder;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
 import javax.cache.configuration.MutableConfiguration;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -256,7 +257,11 @@ public class CacheExpiryTest extends TestSupport {
    * A {@link javax.cache.expiry.ExpiryPolicy} that updates the expiry time based on
    * defined parameters.
    */
-  public static class ParameterizedExpiryPolicy<K, V> implements ExpiryPolicy<K, V> {
+  public static class ParameterizedExpiryPolicy<K, V> implements ExpiryPolicy<K, V>, Serializable {
+    /**
+     * The serialVersionUID required for {@link java.io.Serializable}.
+     */
+    public static final long serialVersionUID = 201306141148L;
 
     /**
      * The {@link Duration} after which a Cache Entry will expire when created.
