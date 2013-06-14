@@ -14,52 +14,37 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.jsr107.tck.integration;
 
-import org.jsr107.tck.testutil.TestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import javax.cache.Cache;
-import javax.cache.integration.CacheLoader;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
 import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.event.CompletionListenerFuture;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
+import javax.cache.integration.CacheLoader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 /**
- * Unit test for {@link CacheLoader}s.
+ * Functional Tests for {@link CacheLoader}s.
  *
- * @author Yannis Cosmadopoulos
  * @author Brian Oliver
- * @since 1.0
  */
-public class CacheLoaderTest extends TestSupport {
-
-  /**
-   * the time to wait for a future
-   */
-  protected static final long FUTURE_WAIT_MILLIS = 100;
-
+public class CacheLoaderTest {
 
   /**
    * Rule used to exclude tests
@@ -67,587 +52,798 @@ public class CacheLoaderTest extends TestSupport {
   @Rule
   public ExcludeListExcluder rule = new ExcludeListExcluder(CacheLoaderTest.class);
 
+  /**
+   * The {@link CacheManager} for the each test.
+   */
+  private CacheManager cacheManager;
 
+  /**
+   * A {@link CacheLoaderServer} that will delegate {@link Cache} request
+   * onto the recording {@link CacheLoader}.
+   */
+  private CacheLoaderServer<String, String> cacheLoaderServer;
+
+  /**
+   * The {@link Cache} for the each test.
+   */
+  private Cache<String, String> cache;
+
+  /**
+   * Establish the {@link CacheManager} and {@link Cache} for a test.
+   */
+  @Before
+  public void onBeforeEachTest() throws IOException {
+    //establish and open a CacheLoaderServer to handle cache
+    //cache loading requests from a CacheLoaderClient
+    cacheLoaderServer = new CacheLoaderServer<String, String>(10000);
+    cacheLoaderServer.open();
+
+    //establish the CacheManager for the tests
+    cacheManager = Caching.getCachingProvider().getCacheManager();
+
+    //establish a CacheLoaderClient that a Cache can use for loading entries
+    //(via the CacheLoaderServer)
+    CacheLoader<String, String> cacheLoader =
+        new CacheLoaderClient<>(cacheLoaderServer.getInetAddress(), cacheLoaderServer.getPort());
+
+    //establish a Cache Configuration that uses a CacheLoader and Read-Through
+    MutableConfiguration<String, String> configuration = new MutableConfiguration<>();
+    configuration.setTypes(String.class, String.class);
+    configuration.setCacheLoaderFactory(FactoryBuilder.factoryOf(cacheLoader));
+    configuration.setReadThrough(true);
+
+    //configure the cache
+    cache = cacheManager.configureCache("cache-loader-test", configuration);
+  }
+
+  /**
+   * Clean up the {@link CacheManager} and {@link Cache} after a test.
+   */
   @After
-  public void cleanup() {
-    for (String cacheName : getCacheManager().getCacheNames()) {
-      getCacheManager().removeCache(cacheName);
-    }
-  }
+  public void onAfterEachTest() {
+    //close the server
+    cacheLoaderServer.close();
+    cacheLoaderServer = null;
 
-  @Test
-  public void load_DefaultCacheLoader() throws Exception {
-    CacheLoader<Integer, Integer> clDefault = new SimpleCacheLoader<Integer>();
-
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(clDefault)));
-
-    Integer key = 123;
-
-    CompletionListenerFuture future = new CompletionListenerFuture();
-    cache.loadAll(Collections.singleton(key), true, future);
-
-    future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
-
-    assertTrue(future.isDone());
-    assertTrue(cache.containsKey(key));
-    assertEquals(key, cache.get(key));
-  }
-
-  @Test
-  public void load_LoadingDoesntCauseWriting() throws Exception {
-    CacheLoader<Integer, Integer> clDefault = new SimpleCacheLoader<Integer>();
-    CacheWriterTest.RecordingCacheWriter<Integer, Integer> writer = new CacheWriterTest.RecordingCacheWriter<Integer, Integer>();
-
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(clDefault)).setCacheWriterFactory(FactoryBuilder.factoryOf(writer)));
-
-    Integer key = 123;
-
-    CompletionListenerFuture future = new CompletionListenerFuture();
-    cache.loadAll(Collections.singleton(key), true, future);
-
-    future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
-
-    assertTrue(future.isDone());
-    assertTrue(cache.containsKey(key));
-    assertEquals(key, cache.get(key));
-    assertEquals(0, writer.getWriteCount());
-  }
-
-  @Test
-  public void load_ExceptionPropagation() throws Exception {
-    CacheLoader<Integer, Integer> clDefault = new MockCacheLoader<Integer, Integer>();
-
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(clDefault)));
-
-    Integer key = 1;
-
-    CompletionListenerFuture future = new CompletionListenerFuture();
-    cache.loadAll(Collections.singleton(key), true, future);
-
-    try {
-      future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
-      assertTrue(future.isDone());
-
-      fail("expected exception");
-    } catch (ExecutionException e) {
-      assertEquals(UnsupportedOperationException.class, e.getCause().getClass());
-    }
-  }
-
-  @Test
-  public void loadAll_Closed() {
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(
-        getTestCacheName(), new MutableConfiguration<Integer, Integer>());
-
+    //close the cache
+    String cacheName = cache.getName();
     cache.close();
-    try {
-      cache.loadAll(null, true, null);
-      fail("should have thrown an exception - cache is closed");
-    } catch (IllegalStateException e) {
-      //good
-    }
+    cache = null;
+
+    //destroy the cache
+    cacheManager.removeCache(cacheName);
   }
 
+  /**
+   * Ensure that a {@link Cache#get(Object)} for a non-existent entry will
+   * cause it to be loaded.
+   */
   @Test
-  public void loadAll_NullKeys() {
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(
-        getTestCacheName(), new MutableConfiguration<Integer, Integer>());
+  public void shouldLoadWhenCacheMissUsingGet() {
+    RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
 
-    try {
-      cache.loadAll(null, true, null);
-      fail("should have thrown an exception - keys null");
-    } catch (NullPointerException e) {
-      //good
-    }
+    String key = "message";
+
+    assertThat(cache.containsKey(key), is(false));
+
+    String value = cache.get(key);
+
+    assertThat(value, is(equalTo(key)));
+    assertThat(cacheLoader.getLoadCount(), is(1));
+    assertThat(cacheLoader.hasLoaded(key), is(true));
   }
 
+  /**
+   * Ensure that a {@link Cache#get(Object)} request for an existing entry will
+   * not cause a load to occur.
+   */
   @Test
-  public void loadAll_NullKey() throws Exception {
-    CacheLoader<Integer, Integer> loader = new SimpleCacheLoader<Integer>();
+  public void shouldNotLoadUsingGetWithExistingValue() {
+    RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
 
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
+    String key = "message";
 
-    HashSet<Integer> keys = new HashSet<Integer>();
+    assertThat(cache.containsKey(key), is(false));
+    cache.put(key, key);
+    assertThat(cache.containsKey(key), is(true));
+
+    String value = cache.get(key);
+
+    assertThat(value, is(equalTo(key)));
+    assertThat(cacheLoader.getLoadCount(), is(0));
+    assertThat(cacheLoader.hasLoaded(key), is(false));
+  }
+
+  /**
+   * Ensure that a {@link Cache#containsKey(Object)} will not cause an entry
+   * to be loaded.
+   */
+  @Test
+  public void shouldNotLoadUsingContainsKey() {
+    RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    String key = "message";
+
+    assertThat(cacheLoader.getLoadCount(), is(0));
+    assertThat(cache.containsKey(key), is(false));
+    assertThat(cacheLoader.getLoadCount(), is(0));
+    assertThat(cacheLoader.hasLoaded(key), is(false));
+  }
+
+  /**
+   * Ensure that a {@link Cache#getAll(java.util.Set)} will load the expected
+   * entries.
+   */
+  @Test
+  public void shouldLoadUsingGetAll() {
+    RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    //construct a set of keys
+    HashSet<String> keys = new HashSet<String>();
+    keys.add("gudday");
+    keys.add("hello");
+    keys.add("howdy");
+    keys.add("bonjour");
+
+    //get the keys
+    Map<String, String> map = cache.getAll(keys);
+
+    //assert that the map content is as expected
+    assertThat(map.size(), is(keys.size()));
+
+    for (String key : keys) {
+      assertThat(map.containsKey(key), is(true));
+      assertThat(map.get(key), is(key));
+    }
+
+    //assert that the loader state is as expected
+    assertThat(cacheLoader.getLoadCount(), is(keys.size()));
+
+    for (String key : keys) {
+      assertThat(cacheLoader.hasLoaded(key), is(true));
+    }
+
+    //attempting to load the same keys should not result in another load
+    cache.getAll(keys);
+    assertThat(cacheLoader.getLoadCount(), is(keys.size()));
+  }
+
+  /**
+   * Ensure that a {@link Cache#getAll(java.util.Set)} using one or more
+   * <code>null</code> keys will not load anything.
+   */
+  @Test
+  public void shouldNotLoadWithNullKeyUsingGetAll() {
+    RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    //construct a set of keys
+    HashSet<String> keys = new HashSet<String>();
+    keys.add("gudday");
+    keys.add("hello");
+    keys.add("howdy");
+    keys.add("bonjour");
     keys.add(null);
+
+    //attempt to get the keys
+    try {
+      Map<String, String> map = cache.getAll(keys);
+
+      fail("Should have thrown a NullPointerException");
+    } catch (NullPointerException e) {
+      //assert that nothing was actually loaded
+      assertThat(cacheLoader.getLoadCount(), is(0));
+
+      for (String key : keys) {
+        assertThat(cacheLoader.hasLoaded(key), is(false));
+      }
+    }
+  }
+
+  /**
+   * Ensure that iterating over a {@link Cache} does cause loading.
+   */
+  @Test
+  public void shouldNotLoadDueToIteration() {
+    RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    //put a number of entries into the cache
+    cache.put("gudday", "gudday");
+    cache.put("hello", "hello");
+    cache.put("howdy", "howdy");
+    cache.put("bonjour", "bonjour");
+
+    //iterate over the entries
+    HashSet<String> keys = new HashSet<>();
+    for (Cache.Entry<String, String> entry : cache) {
+      keys.add(entry.getKey());
+    }
+
+    //assert that nothing was actually loaded
+    assertThat(cacheLoader.getLoadCount(), is(0));
+
+    for (String key : keys) {
+      assertThat(cacheLoader.hasLoaded(key), is(false));
+    }
+  }
+
+  /**
+   * Ensure that a {@link CacheLoader} that returns <code>null</code> entries
+   * aren't placed in the cache.
+   */
+  @Test
+  public void shouldNotLoadNullEntries() {
+    NullEntryCacheLoader<String, String> nullCacheLoader = new NullEntryCacheLoader<>();
+    cacheLoaderServer.setCacheLoader(nullCacheLoader);
+
+    //construct a set of keys
+    HashSet<String> keys = new HashSet<String>();
+    keys.add("gudday");
+    keys.add("hello");
+    keys.add("howdy");
+    keys.add("bonjour");
+
+    //attempt to get the keys
+    Map<String, String> map = cache.getAll(keys);
+
+    //nothing should have been loaded
+    assertThat(map.size(), is(0));
+  }
+
+  /**
+   * Ensure that a {@link CacheLoader} that returns <code>null</code> values
+   * aren't placed in the cache.
+   */
+  @Test
+  public void shouldNotLoadNullValues() {
+    NullValueCacheLoader<String, String> cacheLoader = new NullValueCacheLoader<>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    //construct a set of keys
+    HashSet<String> keys = new HashSet<String>();
+    keys.add("gudday");
+    keys.add("hello");
+    keys.add("howdy");
+    keys.add("bonjour");
+
+    //attempt to get the keys
+    Map<String, String> map = cache.getAll(keys);
+
+    //nothing should have been loaded
+    assertThat(map.size(), is(0));
+  }
+
+  /**
+   * Ensure that a {@link Cache#getAndPut(Object, Object)} does not cause
+   * an entry to be loaded.
+   */
+  @Test
+  public void shouldNotLoadUsingGetAndPut() {
+    RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    String key = "message";
+
+    assertThat(cache.containsKey(key), is(false));
+    String value = cache.getAndPut(key, key);
+    assertThat(cache.containsKey(key), is(true));
+
+    assertThat(value, is(nullValue()));
+    assertThat(cacheLoader.getLoadCount(), is(0));
+    assertThat(cacheLoader.hasLoaded(key), is(false));
+
+    //try again with an existing value
+    value = cache.getAndPut(key, key);
+    assertThat(value, is(key));
+    assertThat(cacheLoader.getLoadCount(), is(0));
+    assertThat(cacheLoader.hasLoaded(key), is(false));
+  }
+
+  /**
+   * Ensure that a {@link Cache#getAndRemove(Object)} does not cause
+   * an entry to be loaded.
+   */
+  @Test
+  public void shouldNotLoadUsingGetAndRemove() {
+    RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    String key = "message";
+
+    assertThat(cache.containsKey(key), is(false));
+    String value = cache.getAndRemove(key);
+    assertThat(cache.containsKey(key), is(false));
+
+    assertThat(value, is(nullValue()));
+    assertThat(cacheLoader.getLoadCount(), is(0));
+    assertThat(cacheLoader.hasLoaded(key), is(false));
+
+    //try again with an existing value
+    cache.put(key, key);
+    value = cache.getAndRemove(key);
+    assertThat(value, is(key));
+    assertThat(cache.containsKey(key), is(false));
+    assertThat(cacheLoader.getLoadCount(), is(0));
+    assertThat(cacheLoader.hasLoaded(key), is(false));
+  }
+
+  /**
+   * Ensure that a {@link Cache#getAndReplace(Object, Object)} does not cause
+   * an entry to be loaded.
+   */
+  @Test
+  public void shouldNotLoadUsingGetAndReplace() {
+    RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    String key = "message";
+
+    assertThat(cache.containsKey(key), is(false));
+    String value = cache.getAndReplace(key, key);
+    assertThat(cache.containsKey(key), is(false));
+
+    assertThat(value, is(nullValue()));
+    assertThat(cacheLoader.getLoadCount(), is(0));
+    assertThat(cacheLoader.hasLoaded(key), is(false));
+
+    //try again with an existing value
+    cache.put(key, key);
+    value = cache.getAndReplace(key, "gudday");
+    assertThat(value, is(key));
+    assertThat(cache.containsKey(key), is(true));
+    assertThat(cacheLoader.getLoadCount(), is(0));
+    assertThat(cacheLoader.hasLoaded(key), is(false));
+  }
+
+  /**
+   * Ensure that a {@link Cache#put(Object, Object)} )} does not cause
+   * an entry to be loaded.
+   */
+  @Test
+  public void shouldNotLoadUsingPut() {
+    RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    String key = "message";
+
+    assertThat(cache.containsKey(key), is(false));
+    cache.put(key, key);
+    assertThat(cache.containsKey(key), is(true));
+
+    assertThat(cache.get(key), is(key));
+    assertThat(cacheLoader.getLoadCount(), is(0));
+    assertThat(cacheLoader.hasLoaded(key), is(false));
+
+    //try again with an existing value
+    cache.put(key, "gudday");
+
+    assertThat(cacheLoader.getLoadCount(), is(0));
+    assertThat(cacheLoader.hasLoaded(key), is(false));
+  }
+
+  /**
+   * Ensure that a {@link Cache#putIfAbsent(Object, Object)} does not cause
+   * an entry to be loaded.
+   */
+  @Test
+  public void shouldNotLoadUsingPutIfAbsent() {
+    RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    String key = "message";
+
+    assertThat(cache.containsKey(key), is(false));
+    cache.putIfAbsent(key, key);
+    assertThat(cache.containsKey(key), is(true));
+
+    assertThat(cache.get(key), is(key));
+    assertThat(cacheLoader.getLoadCount(), is(0));
+    assertThat(cacheLoader.hasLoaded(key), is(false));
+
+    //try again with an existing value
+    cache.putIfAbsent(key, key);
+
+    assertThat(cacheLoader.getLoadCount(), is(0));
+    assertThat(cacheLoader.hasLoaded(key), is(false));
+  }
+
+  /**
+   * Ensure that a {@link Cache#putAll(java.util.Map)} does not cause
+   * an entry to be loaded.
+   */
+  @Test
+  public void shouldNotLoadUsingPutAll() {
+    RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    HashMap<String, String> map = new HashMap<>();
+    map.put("gudday", "gudday");
+    map.put("hello", "hello");
+    map.put("howdy", "howdy");
+    map.put("bonjour", "bonjour");
+
+    //assert that the cache doesn't contain the map entries
+    for (String key : map.keySet()) {
+      assertThat(cache.containsKey(key), is(false));
+    }
+
+    cache.putAll(map);
+
+    //assert that the cache contains the map entries
+    for (String key : map.keySet()) {
+      assertThat(cache.containsKey(key), is(true));
+      assertThat(cache.get(key), is(map.get(key)));
+    }
+
+    //assert that nothing was loaded
+    assertThat(cacheLoader.getLoadCount(), is(0));
+
+    for (String key : map.keySet()) {
+      assertThat(cacheLoader.hasLoaded(key), is(false));
+    }
+  }
+
+  /**
+   * Ensure that a {@link Cache#replace(Object, Object)} and
+   * {@link Cache#replace(Object, Object, Object)} does not cause
+   * an entry to be loaded.
+   */
+  @Test
+  public void shouldNotLoadUsingReplace() {
+    RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    String key = "message";
+
+    assertThat(cache.containsKey(key), is(false));
+    cache.put(key, key);
+    assertThat(cache.containsKey(key), is(true));
+
+    String value = "other";
+    cache.replace(key, value);
+
+    assertThat(cache.get(key), is(value));
+    assertThat(cacheLoader.getLoadCount(), is(0));
+    assertThat(cacheLoader.hasLoaded(key), is(false));
+
+    //try again with a specific value
+    cache.replace(key, value, key);
+
+    assertThat(cache.get(key), is(key));
+    assertThat(cacheLoader.getLoadCount(), is(0));
+    assertThat(cacheLoader.hasLoaded(key), is(false));
+  }
+
+  /**
+   * Ensure that a {@link Cache#remove(Object)} and
+   * {@link Cache#remove(Object, Object)}  does not cause an entry to be loaded.
+   */
+  @Test
+  public void shouldNotLoadUsingRemove() {
+    RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    String key = "message";
+
+    assertThat(cache.containsKey(key), is(false));
+    cache.put(key, key);
+    assertThat(cache.containsKey(key), is(true));
+
+    cache.remove(key);
+
+    assertThat(cache.containsKey(key), is(false));
+    assertThat(cacheLoader.getLoadCount(), is(0));
+    assertThat(cacheLoader.hasLoaded(key), is(false));
+
+    //try again with a specific value
+    cache.put(key, key);
+    cache.remove(key, key);
+
+    assertThat(cache.containsKey(key), is(false));
+    assertThat(cacheLoader.getLoadCount(), is(0));
+    assertThat(cacheLoader.hasLoaded(key), is(false));
+  }
+
+  /**
+   * Ensure that a {@link Cache#putAll(java.util.Map)} does not cause
+   * an entry to be loaded.
+   */
+  @Test
+  public void shouldNotLoadUsingRemoveAll() {
+    RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    //put a number of entries into the cache
+    cache.put("gudday", "gudday");
+    cache.put("hello", "hello");
+    cache.put("howdy", "howdy");
+    cache.put("bonjour", "bonjour");
+
+    cache.removeAll();
+
+    //assert that nothing was actually loaded
+    assertThat(cacheLoader.getLoadCount(), is(0));
+  }
+
+  /**
+   * Ensure that {@link Cache#loadAll(Iterable, boolean, javax.cache.event.CompletionListener)}
+   * for a non-existent single value will cause it to be loaded.
+   */
+  @Test
+  public void shouldLoadSingleMissingEntryUsingLoadAll() throws Exception {
+    RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    String key = "message";
+    HashSet<String> keys = new HashSet<>();
+    keys.add(key);
+
+    assertThat(cache.containsKey(key), is(false));
+
+    CompletionListenerFuture future = new CompletionListenerFuture();
+    cache.loadAll(keys, false, future);
+
+    //wait for the load to complete
+    future.get();
+
+    assertThat(future.isDone(), is(true));
+    assertThat(cache.get(key), is(equalTo(key)));
+    assertThat(cacheLoader.getLoadCount(), is(1));
+    assertThat(cacheLoader.hasLoaded(key), is(true));
+  }
+
+  /**
+   * Ensure that {@link Cache#loadAll(Iterable, boolean, javax.cache.event.CompletionListener)}
+   * for an existing single entry will cause it to be reloaded.
+   */
+  @Test
+  public void shouldLoadSingleExistingEntryUsingLoadAll() throws Exception {
+    RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    String key = "message";
+    HashSet<String> keys = new HashSet<>();
+    keys.add(key);
+
+    assertThat(cache.containsKey(key), is(false));
+
+    String value = "other";
+    cache.put(key, value);
+
+    assertThat(cache.containsKey(key), is(true));
+    assertThat(cache.get(key), is(value));
+
+    CompletionListenerFuture future = new CompletionListenerFuture();
+    cache.loadAll(keys, true, future);
+
+    //wait for the load to complete
+    future.get();
+
+    assertThat(future.isDone(), is(true));
+    assertThat(cache.get(key), is(equalTo(key)));
+    assertThat(cacheLoader.getLoadCount(), is(1));
+    assertThat(cacheLoader.hasLoaded(key), is(true));
+  }
+
+  /**
+   * Ensure that {@link Cache#loadAll(Iterable, boolean, javax.cache.event.CompletionListener)}
+   * for multiple non-existing entries will be loaded.
+   */
+  @Test
+  public void shouldLoadMultipleNonExistingEntryUsingLoadAll() throws Exception {
+    RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    HashSet<String> keys = new HashSet<>();
+    keys.add("gudday");
+    keys.add("hello");
+    keys.add("howdy");
+    keys.add("bonjour");
+
+    for (String key : keys) {
+      assertThat(cache.containsKey(key), is(false));
+    }
+
+    CompletionListenerFuture future = new CompletionListenerFuture();
+    cache.loadAll(keys, false, future);
+
+    //wait for the load to complete
+    future.get();
+
+    assertThat(future.isDone(), is(true));
+    assertThat(cacheLoader.getLoadCount(), is(keys.size()));
+
+    for (String key : keys) {
+      assertThat(cache.get(key), is(equalTo(key)));
+      assertThat(cacheLoader.hasLoaded(key), is(true));
+    }
+  }
+
+  /**
+   * Ensure that {@link Cache#loadAll(Iterable, boolean, javax.cache.event.CompletionListener)}
+   * for multiple existing entries will be reloaded.
+   */
+  @Test
+  public void shouldLoadMultipleExistingEntryUsingLoadAll() throws Exception {
+    RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    HashSet<String> keys = new HashSet<>();
+    keys.add("gudday");
+    keys.add("hello");
+    keys.add("howdy");
+    keys.add("bonjour");
+
+    String value = "other";
+    for (String key : keys) {
+      assertThat(cache.containsKey(key), is(false));
+      cache.put(key, value);
+      assertThat(cache.containsKey(key), is(true));
+    }
+
+    CompletionListenerFuture future = new CompletionListenerFuture();
+    cache.loadAll(keys, true, future);
+
+    //wait for the load to complete
+    future.get();
+
+    assertThat(future.isDone(), is(true));
+    assertThat(cacheLoader.getLoadCount(), is(keys.size()));
+
+    for (String key : keys) {
+      assertThat(cache.get(key), is(equalTo(key)));
+      assertThat(cacheLoader.hasLoaded(key), is(true));
+    }
+  }
+
+  /**
+   * Ensure that {@link Cache#loadAll(Iterable, boolean, javax.cache.event.CompletionListener)}
+   * won't load <code>null</code> values.
+   */
+  @Test
+  public void shouldNotLoadMultipleNullValuesUsingLoadAll() throws Exception {
+    NullValueCacheLoader<String, String> cacheLoader = new NullValueCacheLoader<>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    HashSet<String> keys = new HashSet<>();
+    keys.add("gudday");
+    keys.add("hello");
+    keys.add("howdy");
+    keys.add("bonjour");
+
+    CompletionListenerFuture future = new CompletionListenerFuture();
+    cache.loadAll(keys, false, future);
+
+    //wait for the load to complete
+    future.get();
+
+    assertThat(future.isDone(), is(true));
+
+    for (String key : keys) {
+      assertThat(cache.containsKey(key), is(false));
+    }
+  }
+
+  /**
+   * Ensure that {@link Cache#loadAll(Iterable, boolean, javax.cache.event.CompletionListener)}
+   * won't load <code>null</code> entries.
+   */
+  @Test
+  public void shouldNotLoadMultipleNullEntriesUsingLoadAll() throws Exception {
+    NullEntryCacheLoader<String, String> cacheLoader = new NullEntryCacheLoader<>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    HashSet<String> keys = new HashSet<>();
+    keys.add("gudday");
+    keys.add("hello");
+    keys.add("howdy");
+    keys.add("bonjour");
+
+    CompletionListenerFuture future = new CompletionListenerFuture();
+    cache.loadAll(keys, false, future);
+
+    //wait for the load to complete
+    future.get();
+
+    assertThat(future.isDone(), is(true));
+
+    for (String key : keys) {
+      assertThat(cache.containsKey(key), is(false));
+    }
+  }
+
+  /**
+   * Ensure that {@link Cache#loadAll(Iterable, boolean, javax.cache.event.CompletionListener)}
+   * using a <code>null</code> key will raise an exception
+   */
+  @Test
+  public void shouldNotLoadWithNullKeyUsingLoadAll() throws Exception {
+    RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    HashSet<String> keys = new HashSet<>();
+    keys.add(null);
+
     try {
       CompletionListenerFuture future = new CompletionListenerFuture();
-      cache.loadAll(keys, true, future);
+      cache.loadAll(keys, false, future);
 
-      future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
-      assertTrue(future.isDone());
-
-      fail("should have thrown an exception - keys contains null");
-    } catch (ExecutionException e) {
-      assertTrue(e.getCause() instanceof NullPointerException);
-    }
-  }
-
-  @Test
-  public void loadAll_NullValue() throws Exception {
-    CacheLoader<Integer, Integer> loader = new MockCacheLoader<Integer, Integer>() {
-      @Override
-      public Map<Integer, Integer> loadAll(Iterable<? extends Integer> keys) {
-        Map<Integer, Integer> map = new HashMap<Integer, Integer>();
-        for (Integer key : keys) {
-          map.put(key, null);
-        }
-        return map;
-      }
-    };
-
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
-
-    HashSet<Integer> keys = new HashSet<Integer>();
-    keys.add(1);
-    keys.add(2);
-
-    CompletionListenerFuture future = new CompletionListenerFuture();
-    cache.loadAll(keys, true, future);
-
-    try {
-      future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
-      assertTrue(future.isDone());
-
-      fail("should have thrown an exception - null value");
-    } catch (ExecutionException e) {
-      assertTrue(e.getCause() instanceof NullPointerException);
-    }
-  }
-
-  @Test
-  public void loadAll_1Found1Not() throws Exception {
-    SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
-
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
-
-    Integer keyThere = 1;
-    cache.put(keyThere, keyThere);
-    Integer keyNotThere = keyThere + 1;
-    HashSet<Integer> keys = new HashSet<Integer>();
-    keys.add(keyThere);
-    keys.add(keyNotThere);
-
-    CompletionListenerFuture future = new CompletionListenerFuture();
-    cache.loadAll(keys, true, future);
-
-    future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
-    assertTrue(future.isDone());
-
-    assertEquals(1, loader.getLoadCount());
-    assertTrue(loader.hasLoaded(keyNotThere));
-    assertEquals(keyThere, cache.get(keyThere));
-    assertEquals(keyNotThere, cache.get(keyNotThere));
-  }
-
-  @Test
-  public void loadAll_NoCacheLoader() throws Exception {
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(
-        getTestCacheName(), new MutableConfiguration<Integer, Integer>());
-
-    HashSet<Integer> keys = new HashSet<Integer>();
-    keys.add(1);
-
-    CompletionListenerFuture future = new CompletionListenerFuture();
-    try {
-      cache.loadAll(keys, true, future);
+      fail("Expected a NullPointerException");
     } catch (NullPointerException e) {
-      assertTrue(future.isDone());
-      fail("should not have thrown an exception - with no cache loader should return null");
+      //SKIP: expected
+    } finally {
+      assertThat(cacheLoader.getLoadCount(), is(0));
     }
   }
 
+  /**
+   * Ensure that {@link Cache#loadAll(Iterable, boolean, javax.cache.event.CompletionListener)}
+   * using a <code>null</code> key will raise an exception
+   */
   @Test
-  public void loadAll_DefaultCacheLoader() throws Exception {
-    HashSet<Integer> keys = new HashSet<Integer>();
-    keys.add(1);
-    keys.add(2);
-
-    CacheLoader<Integer, Integer> loader = new SimpleCacheLoader<Integer>();
-
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
-
-    CompletionListenerFuture future = new CompletionListenerFuture();
-    cache.loadAll(keys, true, future);
-
-    future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
-    assertTrue(future.isDone());
-
-    for (Integer key : keys) {
-      assertEquals(key, cache.get(key));
-    }
-  }
-
-  @Test
-  public void loadAll_ExceptionPropagation() throws Exception {
-    final RuntimeException expectedException = new RuntimeException("expected");
-
-    CacheLoader<Integer, Integer> loader = new MockCacheLoader<Integer, Integer>() {
-      @Override
-      public Map<Integer, Integer> loadAll(Iterable<? extends Integer> keys) {
-        throw expectedException;
-      }
-    };
-
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
-
-    HashSet<Integer> keys = new HashSet<Integer>();
-    keys.add(1);
-
-    CompletionListenerFuture future = new CompletionListenerFuture();
-    cache.loadAll(keys, true, future);
+  public void shouldNotLoadWithNullKeysUsingLoadAll() throws Exception {
+    RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
 
     try {
-      future.get(FUTURE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
-      fail("expected exception");
-    } catch (ExecutionException e) {
-      assertTrue(future.isDone());
-      assertEquals(expectedException, e.getCause());
+      CompletionListenerFuture future = new CompletionListenerFuture();
+      cache.loadAll(null, false, future);
+
+      fail("Expected a NullPointerException");
+    } catch (NullPointerException e) {
+      //SKIP: expected
+    } finally {
+      assertThat(cacheLoader.getLoadCount(), is(0));
     }
   }
 
+  /**
+   * Ensure that {@link Cache#get(Object)} will propagate an exception from a
+   * {@link CacheLoader}.
+   */
   @Test
-  public void get_Stored() {
-    SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
+  public void shouldPropagateExceptionUsingGet() {
+    FailingCacheLoader<String, String> cacheLoader = new FailingCacheLoader<>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
 
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
-
-    Integer key = 1;
-    assertFalse(cache.containsKey(key));
-    assertEquals(key, cache.get(key));
-    assertTrue(cache.containsKey(key));
-  }
-
-  @Test
-  public void get_Exception() {
-    CacheLoader<Integer, Integer> loader = new MockCacheLoader<Integer, Integer>();
-
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
-
-    Integer key = 1;
     try {
+      String key = "message";
       cache.get(key);
-      fail("should have got an exception ");
+
+      fail("Expected an UnsupportedOperationException");
     } catch (UnsupportedOperationException e) {
-      //
-    }
-  }
-
-  @Test
-  public void getAll() {
-    SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
-
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
-
-    HashSet<Integer> keysToGet = new HashSet<Integer>();
-    keysToGet.add(1);
-    keysToGet.add(2);
-    keysToGet.add(3);
-
-    Map<Integer, Integer> map = cache.getAll(keysToGet);
-    assertEquals(keysToGet.size(), map.size());
-    for (Integer key : keysToGet) {
-      assertTrue(map.containsKey(key));
-      assertEquals(cache.get(key), map.get(key));
-      assertEquals(key, map.get(key));
-    }
-
-    // Confirm that result is stored (no 2nd load)
-    for (Integer key : keysToGet) {
-      assertTrue(cache.containsKey(key));
-    }
-  }
-
-  @Test
-  public void containsKey() {
-    SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
-
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
-
-    Integer key = 1;
-    assertFalse(cache.containsKey(key));
-    assertEquals(key, cache.get(key));
-    assertTrue(cache.containsKey(key));
-  }
-
-  @Test
-  public void putIfAbsent() {
-    SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
-
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
-
-    Integer key = 1;
-    Integer value = key + 1;
-    assertTrue(cache.putIfAbsent(key, value));
-    assertEquals(value, cache.get(key));
-  }
-
-  @Test
-  public void getAndRemove_NotExistent() {
-    SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
-
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
-
-    Integer key = 1;
-    assertNull(cache.getAndRemove(key));
-    assertFalse(cache.containsKey(key));
-  }
-
-  @Test
-  public void getAndRemove_There() {
-    SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
-
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
-
-    Integer key = 1;
-    Integer value = key + 1;
-    cache.put(key, value);
-    assertEquals(value, cache.getAndRemove(key));
-    assertFalse(cache.containsKey(key));
-  }
-
-  @Test
-  public void replace_3arg_Missing() {
-    SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
-
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
-
-    Integer key = 1;
-    Integer newValue = key + 1;
-    assertFalse(cache.replace(key, key, newValue));
-    assertFalse(cache.containsKey(key));
-  }
-
-  @Test
-  public void replace_3arg_Different() {
-    SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
-
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
-
-    Integer key = 1;
-    Integer value1 = key + 1;
-    Integer value2 = value1 + 1;
-    Integer value3 = value2 + 1;
-    cache.put(key, value1);
-    assertFalse(cache.replace(key, value2, value3));
-    assertEquals(value1, cache.get(key));
-  }
-
-  @Test
-  public void replace_3arg() {
-    SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
-
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
-
-    Integer key = 1;
-    Integer value1 = key + 1;
-    Integer value2 = value1 + 1;
-    Integer value3 = value2 + 1;
-    cache.put(key, value2);
-    assertTrue(cache.replace(key, value2, value3));
-    assertEquals(value3, cache.get(key));
-  }
-
-  @Test
-  public void replace_2arg_Missing() {
-    SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
-
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
-
-    Integer key = 1;
-    assertFalse(cache.replace(key, key));
-    assertFalse(cache.containsKey(key));
-  }
-
-  @Test
-  public void replace_2arg() {
-    SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
-
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
-
-    Integer key = 1;
-    Integer value1 = key + 1;
-    Integer value2 = value1 + 1;
-    Integer value3 = value2 + 1;
-    cache.put(key, value2);
-    assertTrue(cache.replace(key, value3));
-    assertEquals(value3, cache.get(key));
-  }
-
-  @Test
-  public void getAndReplace() {
-    SimpleCacheLoader<Integer> loader = new SimpleCacheLoader<Integer>();
-
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<Integer, Integer>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
-
-    Integer key = 1;
-    Integer newValue = key + 1;
-    assertNull(cache.getAndReplace(key, newValue));
-    assertFalse(cache.containsKey(key));
-  }
-
-  @Test
-  public void get_WithNonKeyKey() {
-    ArrayList<Integer> key1 = new ArrayList<Integer>();
-    key1.add(1);
-    key1.add(2);
-    //Illegal now with get(K)
-    LinkedList<Integer> key2 = new LinkedList<Integer>(key1);
-
-    CacheLoader<ArrayList<Integer>, String> loader = new ArrayListCacheLoader();
-
-    Cache<ArrayList<Integer>, String> cache = getCacheManager().configureCache(getTestCacheName(),
-        new MutableConfiguration<ArrayList<Integer>, String>().setCacheLoaderFactory(FactoryBuilder.factoryOf(loader)));
-
-//        String value = cache.get(key2);
-//        assertEquals(cacheLoaderFactory.load(key2).getValue(), value);
-  }
-
-  // ---------- utilities ----------
-
-  /**
-   * A mock CacheLoader which simply throws UnsupportedOperationException on all methods.
-   *
-   * @param <K>
-   * @param <V>
-   */
-  public static class MockCacheLoader<K, V> implements CacheLoader<K, V>, Serializable {
-    private static final long serialVersionUID = -1L;
-
-    @Override
-    public Cache.Entry<K, V> load(K key) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Map<K, V> loadAll(Iterable<? extends K> keys) {
-      throw new UnsupportedOperationException();
-    }
-
-  }
-
-  /**
-   * A simple example of a Cache Loader which simply adds the key as the value.
-   *
-   * @param <K>
-   */
-  public static class SimpleCacheLoader<K> implements CacheLoader<K, K>, Serializable {
-    private static final long serialVersionUID = -1L;
-
-    /**
-     * The keys that have been loaded by this loader.
-     */
-    private ConcurrentHashMap<K, K> loaded = new ConcurrentHashMap<>();
-
-    /**
-     * The number of loads that have occurred.
-     */
-    private AtomicInteger loadCount = new AtomicInteger(0);
-
-    @Override
-    public Cache.Entry<K, K> load(final K key) {
-      loaded.put(key, key);
-
-      return new Cache.Entry<K, K>() {
-        @Override
-        public K getKey() {
-          return key;
-        }
-
-        @Override
-        public K getValue() {
-          return key;
-        }
-
-        @Override
-        public <T> T unwrap(Class<T> clazz) {
-          throw new IllegalArgumentException();
-        }
-      };
-    }
-
-    @Override
-    public Map<K, K> loadAll(Iterable<? extends K> keys) {
-      Map<K, K> map = new HashMap<K, K>();
-      for (K key : keys) {
-        map.put(key, key);
-      }
-
-      loaded.putAll(map);
-      loadCount.addAndGet(map.size());
-
-      return map;
-    }
-
-    /**
-     * Obtain the number of entries that have been loaded.
-     *
-     * @return the number of entries loaded thus far.
-     */
-    public int getLoadCount() {
-      return loadCount.get();
-    }
-
-    /**
-     * Determines if the specified key has been loaded by this loader.
-     *
-     * @param key the key
-     * @return true if the key has been loaded, false otherwise
-     */
-    public boolean hasLoaded(K key) {
-      return loaded.containsKey(key);
+      //SKIP: expected
     }
   }
 
   /**
-   * A simple example of a Cache Loader
+   * Ensure that {@link Cache#loadAll(Iterable, boolean, javax.cache.event.CompletionListener)}
+   * will propagate an exception from a {@link CacheLoader}.
    */
-  public static class ArrayListCacheLoader implements CacheLoader<ArrayList<Integer>, String>, Serializable {
-    private static final long serialVersionUID = -1L;
+  @Test
+  public void shouldPropagateExceptionUsingLoadAll() throws Exception {
+    FailingCacheLoader<String, String> cacheLoader = new FailingCacheLoader<>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
 
-    @Override
-    public Cache.Entry<ArrayList<Integer>, String> load(final ArrayList<Integer> key) {
-      return new Cache.Entry<ArrayList<Integer>, String>() {
-        @Override
-        public ArrayList<Integer> getKey() {
-          return new ArrayList<Integer>(key);
-        }
+    HashSet<String> keys = new HashSet<>();
+    keys.add("gudday");
+    keys.add("hello");
+    keys.add("howdy");
+    keys.add("bonjour");
 
-        @Override
-        public String getValue() {
-          return key.toString();
-        }
+    CompletionListenerFuture future = new CompletionListenerFuture();
+    cache.loadAll(keys, false, future);
 
-        @Override
-        public <T> T unwrap(Class<T> clazz) {
-          throw new IllegalArgumentException();
-        }
-      };
-    }
-
-    @Override
-    public Map<ArrayList<Integer>, String> loadAll(Iterable<? extends ArrayList<Integer>> keys) {
-      throw new UnsupportedOperationException();
+    //wait for the load to complete
+    try{
+      future.get();
+    } catch (ExecutionException e) {
+      assertThat(e.getCause(), instanceOf(UnsupportedOperationException.class));
     }
   }
 }

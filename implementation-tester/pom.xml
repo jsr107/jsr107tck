@@ -75,6 +75,12 @@
         <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>cache-tests</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-tests</artifactId>
             <classifier>tests</classifier>
             <scope>test</scope>
             <version>${project.parent.version}</version>
