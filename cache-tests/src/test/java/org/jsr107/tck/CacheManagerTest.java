@@ -180,7 +180,7 @@ public class CacheManagerTest extends TestSupport {
   public void removeCache_Null() {
     CacheManager cacheManager = getCacheManager();
     try {
-      cacheManager.removeCache(null);
+      cacheManager.destroyCache(null);
       fail("should have thrown an exception - cache name null");
     } catch (NullPointerException e) {
       //good
@@ -192,7 +192,7 @@ public class CacheManagerTest extends TestSupport {
     CacheManager cacheManager = getCacheManager();
     String name1 = "c1";
     cacheManager.configureCache(name1, new MutableConfiguration());
-    assertTrue(cacheManager.removeCache(name1));
+    cacheManager.destroyCache(name1);
     assertFalse(cacheManager.getCacheNames().iterator().hasNext());
   }
 
@@ -201,14 +201,14 @@ public class CacheManagerTest extends TestSupport {
     CacheManager cacheManager = getCacheManager();
     String name1 = "c1";
     Cache cache1 = cacheManager.configureCache(name1, new MutableConfiguration());
-    cacheManager.removeCache(name1);
+    cacheManager.destroyCache(name1);
     ensureClosed(cache1);
   }
 
   @Test
   public void removeCache_NotThere() {
     CacheManager cacheManager = getCacheManager();
-    assertFalse(cacheManager.removeCache("c1"));
+    cacheManager.destroyCache("c1");
   }
 
   @Test
@@ -216,7 +216,7 @@ public class CacheManagerTest extends TestSupport {
     CacheManager cacheManager = getCacheManager();
     cacheManager.close();
     try {
-      cacheManager.removeCache("c1");
+      cacheManager.destroyCache("c1");
       fail();
     } catch (IllegalStateException e) {
       //ok
@@ -371,7 +371,7 @@ public class CacheManagerTest extends TestSupport {
       size++;
     }
     assertEquals(3, size);
-    cacheManager.removeCache(removeName);
+    cacheManager.destroyCache(removeName);
     size = 0;
     for (String cacheName : cacheNames) {
       size++;

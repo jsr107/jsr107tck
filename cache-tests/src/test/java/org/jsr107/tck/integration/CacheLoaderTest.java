@@ -111,7 +111,7 @@ public class CacheLoaderTest {
     cache = null;
 
     //destroy the cache
-    cacheManager.removeCache(cacheName);
+    cacheManager.destroyCache(cacheName);
   }
 
   /**

@@ -113,10 +113,10 @@ public class JMXTest {
     cacheManager.configureCache("new cache", configuration);
     assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(2));
     //name does not exist so no change
-    cacheManager.removeCache("sampleCache1");
+    cacheManager.destroyCache("sampleCache1");
     assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(2));
     //correct name, should get removed.
-    cacheManager.removeCache("new cache");
+    cacheManager.destroyCache("new cache");
     assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(EMPTY));
   }
 

@@ -42,7 +42,7 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
 
   @After
   public void teardown() {
-    getCacheManager().removeCache(getTestCacheName());
+    getCacheManager().destroyCache(getTestCacheName());
   }
 
   /**

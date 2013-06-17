@@ -56,7 +56,7 @@ public class CacheExpiryTest extends TestSupport {
   @After
   public void cleanup() {
     for (String cacheName : getCacheManager().getCacheNames()) {
-      getCacheManager().removeCache(cacheName);
+      getCacheManager().destroyCache(cacheName);
     }
   }
 
