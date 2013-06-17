@@ -16,13 +16,16 @@
  */
 
 /**
- This package contains the reference implementation for JSR107.
- <p/>
- This is meant to act as a proof of concept for the API. It is not threadsafe or high performance. It therefore is
- not suitable for use in production. Please use a production implementation of the API.
- <p/>
- This implementation implements all optional parts of JSR107 except for the Transactions chapter. Transactions support
- simply uses the JTA API. The JSR107 specification details how JTA should be applied to caches.
+ This package contains infrastructure so that loaders and writers can send
+ information back to the JUnit test whic initiated them so that asserts can
+ happen.
+
+ An instance of {@link CacheLoaderServer} is created in the JUnit test,
+ listening on port 10,000. Loaders create clients which make requests to the
+ server for loading or writing.
+
+ This way no assumption is made about whether a loader or writer is running
+ in-process or out of process.
 
  @author Greg Luck
  @author Brian Oliver
