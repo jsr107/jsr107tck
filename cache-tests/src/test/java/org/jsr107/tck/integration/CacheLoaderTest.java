@@ -101,17 +101,15 @@ public class CacheLoaderTest {
    */
   @After
   public void onAfterEachTest() {
+    //destroy the cache
+    String cacheName = cache.getName();
+    cacheManager.destroyCache(cacheName);
+
     //close the server
     cacheLoaderServer.close();
     cacheLoaderServer = null;
 
-    //close the cache
-    String cacheName = cache.getName();
-    cache.close();
     cache = null;
-
-    //destroy the cache
-    cacheManager.destroyCache(cacheName);
   }
 
   /**
