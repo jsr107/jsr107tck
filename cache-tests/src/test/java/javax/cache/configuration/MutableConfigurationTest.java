@@ -77,4 +77,37 @@ public class MutableConfigurationTest {
 
     assertThat(config1.equals(config2), is(false));
   }
+
+  /**
+   * Ensure that multiple {@link MutableConfiguration}s are equal but not
+   * the same, including those that are cloned.
+   */
+  @Test
+  public void shouldNotBeTheSameButAClone() {
+    Configuration<?, ?> config1 = new MutableConfiguration<>(new MutableConfiguration<>());
+    Configuration<?, ?> config2 = new MutableConfiguration<>();
+    assertNotSame(config1, config2);
+    assertEquals(config1, config2);
+  }
+
+  /**
+   * Ensure that multiple {@link MutableConfiguration}s are equal but not
+   * the same.
+   */
+  @Test
+  public void shouldNotBeTheSame() {
+    Configuration<?, ?> config1 = new MutableConfiguration<>();
+    Configuration<?, ?> config2 = new MutableConfiguration<>();
+    assertNotSame(config1, config2);
+  }
+
+  /**
+   * Ensure that multiple {@link MutableConfiguration}s are equal.
+   */
+  @Test
+  public void shouldEqual() {
+    Configuration<?, ?> config1 = new MutableConfiguration<>();
+    Configuration<?, ?> config2 = new MutableConfiguration<>();
+    assertEquals(config1, config2);
+  }
 }
