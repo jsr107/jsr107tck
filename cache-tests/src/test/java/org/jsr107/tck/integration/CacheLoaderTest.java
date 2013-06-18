@@ -83,7 +83,7 @@ public class CacheLoaderTest {
 
     //establish a CacheLoaderClient that a Cache can use for loading entries
     //(via the CacheLoaderServer)
-    CacheLoader<String, String> cacheLoader =
+    CacheLoaderClient<String, String> cacheLoader =
         new CacheLoaderClient<>(cacheLoaderServer.getInetAddress(), cacheLoaderServer.getPort());
 
     //establish a Cache Configuration that uses a CacheLoader and Read-Through

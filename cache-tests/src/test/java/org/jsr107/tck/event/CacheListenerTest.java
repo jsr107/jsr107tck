@@ -356,7 +356,8 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
    * @param <V>
    */
   static class MyCacheEntryListener<K, V> implements CacheEntryCreatedListener<K, V>,
-      CacheEntryUpdatedListener<K, V>, CacheEntryExpiredListener<K, V>, CacheEntryRemovedListener<K, V> {
+      CacheEntryUpdatedListener<K, V>, CacheEntryExpiredListener<K, V>,
+      CacheEntryRemovedListener<K, V>, Serializable {
 
     AtomicInteger created = new AtomicInteger();
     AtomicInteger updated = new AtomicInteger();

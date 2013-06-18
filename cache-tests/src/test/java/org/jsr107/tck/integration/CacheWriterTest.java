@@ -27,6 +27,7 @@ import javax.cache.Cache;
 import javax.cache.integration.CacheWriter;
 import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableConfiguration;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -510,7 +511,8 @@ public class CacheWriterTest extends TestSupport {
    * @param <K> the type of the keys
    * @param <V> the type of the values
    */
-  public static class RecordingCacheWriter<K, V> implements CacheWriter<K, V> {
+  public static class RecordingCacheWriter<K, V> implements CacheWriter<K, V>,
+      Serializable {
 
     /**
      * A map of keys to values that have been written.
