@@ -90,22 +90,9 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
   @Override
   protected MutableConfiguration<Long, String> extraSetup(MutableConfiguration<Long, String> configuration) {
     listener = new MyCacheEntryListener<Long, String>();
-    configuration.registerCacheEntryListener(listener, false, null, true);
+
+    configuration.registerCacheEntryListener(FactoryBuilder.factoryOf(listener), false, null, true);
     return configuration.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ModifiedExpiryPolicy<Long, String>(new Duration(TimeUnit.MILLISECONDS, 20))));
-  }
-
-  /**
-   * Null listeners are not allowed
-   */
-  @Test
-  public void registerNullCacheEntryListener() {
-
-    //TODO: this test needs to be moved to configuration
-//    try {
-//      cache.registerCacheEntryListener(null, false, null, true);
-//    } catch (CacheEntryListenerException e) {
-//      //expected
-//    }
   }
 
   static public class SetEntryProcessor<K, V, T> implements Cache.EntryProcessor<K, V, T>, Serializable {
