@@ -96,8 +96,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     String cacheName = "transactional-by-reference";
     Configuration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>()
         .setStoreByValue(false)
-        .setTransactions(IsolationLevel.READ_COMMITTED, Mode.LOCAL)
-        .setTransactionsEnabled(true);
+        .setTransactions(IsolationLevel.READ_COMMITTED, Mode.LOCAL);
 
     CacheManager cacheManager = getCacheManager();
     cacheManager.configureCache(cacheName, config);

@@ -100,8 +100,7 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
 
     try {
       MutableConfiguration<?, ?> config = new MutableConfiguration();
-      config.setTransactions(IsolationLevel.READ_COMMITTED, Mode.NONE)
-          .setTransactionsEnabled(true);
+      config.setTransactions(IsolationLevel.READ_COMMITTED, Mode.NONE);
 
       cacheManager.configureCache("test", config);
       Assert.fail("read_committed must have a valid mode");
@@ -111,8 +110,7 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
 
     try {
       MutableConfiguration<?, ?> config = new MutableConfiguration();
-      config.setTransactions(IsolationLevel.NONE, Mode.LOCAL)
-          .setTransactionsEnabled(true);
+      config.setTransactions(IsolationLevel.NONE, Mode.LOCAL);
 
       cacheManager.configureCache("test", config);
       Assert.fail("failed to provide an isolation level");
