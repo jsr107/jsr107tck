@@ -30,9 +30,9 @@ import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.event.CacheEntryCreatedListener;
 import javax.cache.event.CacheEntryEvent;
-import javax.cache.event.CacheEntryEventFilter;
 import javax.cache.event.CacheEntryExpiredListener;
 import javax.cache.event.CacheEntryListenerException;
+import javax.cache.event.CacheEntryListenerFactoryDefinition;
 import javax.cache.event.CacheEntryRemovedListener;
 import javax.cache.event.CacheEntryUpdatedListener;
 import javax.cache.expiry.Duration;
@@ -40,10 +40,8 @@ import javax.cache.expiry.ModifiedExpiryPolicy;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -91,7 +89,10 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
   protected MutableConfiguration<Long, String> extraSetup(MutableConfiguration<Long, String> configuration) {
     listener = new MyCacheEntryListener<Long, String>();
 
-    configuration.registerCacheEntryListener(FactoryBuilder.factoryOf(listener), false, null, true);
+    CacheEntryListenerFactoryDefinition definition = new
+        MutableConfiguration.MutableCacheEntryListenerFactoryDefinition
+        (FactoryBuilder.factoryOf(listener), null, false, true);
+    configuration.addCacheEntryListenerFactoryDefinition(definition);
     return configuration.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ModifiedExpiryPolicy<Long, String>(new Duration(TimeUnit.MILLISECONDS, 20))));
   }
 
