@@ -26,13 +26,14 @@ import org.junit.rules.MethodRule;
 import javax.cache.Cache;
 import javax.cache.Cache.MutableEntry;
 import javax.cache.CacheManager;
+import javax.cache.configuration.CacheEntryListenerConfiguration;
 import javax.cache.configuration.FactoryBuilder;
+import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.event.CacheEntryCreatedListener;
 import javax.cache.event.CacheEntryEvent;
 import javax.cache.event.CacheEntryExpiredListener;
 import javax.cache.event.CacheEntryListenerException;
-import javax.cache.event.CacheEntryListenerFactoryDefinition;
 import javax.cache.event.CacheEntryRemovedListener;
 import javax.cache.event.CacheEntryUpdatedListener;
 import javax.cache.expiry.Duration;
@@ -46,7 +47,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static javax.cache.event.EventType.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Unit tests for Cache Listeners.
@@ -88,11 +90,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
   @Override
   protected MutableConfiguration<Long, String> extraSetup(MutableConfiguration<Long, String> configuration) {
     listener = new MyCacheEntryListener<Long, String>();
-
-    CacheEntryListenerFactoryDefinition definition = new
-        MutableConfiguration.MutableCacheEntryListenerFactoryDefinition
-        (FactoryBuilder.factoryOf(listener), null, false, true);
-    configuration.addCacheEntryListenerFactoryDefinition(definition);
+    configuration.addCacheEntryListenerConfiguration(FactoryBuilder.factoryOf(listener), null, false, true);
     return configuration.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ModifiedExpiryPolicy<Long, String>(new Duration(TimeUnit.MILLISECONDS, 20))));
   }
 
