@@ -178,7 +178,7 @@ public class CacheLoaderClient<K, V> implements CacheLoader<K, V>, AutoCloseable
   }
 
   /**
-   * The {@link LoadAllOperation} representing a {@link Cache#loadAll(Iterable, boolean, javax.cache.event.CompletionListener)}
+   * The {@link LoadAllOperation} representing a {@link Cache#loadAll(Iterable, boolean, javax.cache.integration.CompletionListener)}
    * request.
    *
    * @param <K> the type of keys
