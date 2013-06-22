@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import javax.cache.Cache;
-import javax.cache.configuration.InstanceFactoryBuilder;
+import javax.cache.configuration.FactoryBuilder;
 import javax.cache.integration.CacheWriter;
 import javax.cache.configuration.MutableConfiguration;
 import java.io.Serializable;
@@ -67,7 +67,7 @@ public class CacheWriterTest extends TestSupport {
     cacheWriter = new RecordingCacheWriter<Integer, String>();
 
     MutableConfiguration<Integer, String> config = new MutableConfiguration<Integer, String>();
-    config.setCacheWriterFactory(InstanceFactoryBuilder.factoryOf(cacheWriter));
+    config.setCacheWriterFactory(FactoryBuilder.factoryOf(cacheWriter));
     config.setWriteThrough(true);
 
     cache = getCacheManager().configureCache(getTestCacheName(), config);

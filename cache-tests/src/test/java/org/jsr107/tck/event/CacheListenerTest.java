@@ -26,7 +26,7 @@ import org.junit.rules.MethodRule;
 import javax.cache.Cache;
 import javax.cache.Cache.MutableEntry;
 import javax.cache.CacheManager;
-import javax.cache.configuration.InstanceFactoryBuilder;
+import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.event.CacheEntryCreatedListener;
@@ -92,9 +92,9 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     MutableCacheEntryListenerConfiguration<Long,
         String> listenerConfiguration = new
         MutableCacheEntryListenerConfiguration<Long,
-        String>(InstanceFactoryBuilder.factoryOf(listener), null, false, true);
+        String>(FactoryBuilder.factoryOf(listener), null, false, true);
     configuration.addCacheEntryListenerConfiguration(listenerConfiguration);
-    return configuration.setExpiryPolicyFactory(InstanceFactoryBuilder.factoryOf(new ModifiedExpiryPolicy<Long, String>(new Duration(TimeUnit.MILLISECONDS, 20))));
+    return configuration.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ModifiedExpiryPolicy<Long, String>(new Duration(TimeUnit.MILLISECONDS, 20))));
   }
 
   static public class SetEntryProcessor<K, V, T> implements Cache.EntryProcessor<K, V, T>, Serializable {
