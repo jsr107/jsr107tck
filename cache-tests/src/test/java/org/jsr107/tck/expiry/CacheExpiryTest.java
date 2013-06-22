@@ -25,7 +25,7 @@ import org.junit.Test;
 
 import javax.cache.Cache;
 import javax.cache.Cache.Entry;
-import javax.cache.configuration.FactoryBuilder;
+import javax.cache.configuration.InstanceFactoryBuilder;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
 import javax.cache.configuration.MutableConfiguration;
@@ -68,7 +68,7 @@ public class CacheExpiryTest extends TestSupport {
   @Test
   public void expire_whenCreated() {
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
-    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ZERO, null, null)));
+    config.setExpiryPolicyFactory(InstanceFactoryBuilder.factoryOf(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ZERO, null, null)));
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), config);
 
@@ -108,7 +108,7 @@ public class CacheExpiryTest extends TestSupport {
   @Test
   public void expire_whenAccessed() {
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
-    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ETERNAL, Duration.ZERO, null)));
+    config.setExpiryPolicyFactory(InstanceFactoryBuilder.factoryOf(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ETERNAL, Duration.ZERO, null)));
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), config);
 
@@ -183,7 +183,7 @@ public class CacheExpiryTest extends TestSupport {
   @Test
   public void expire_whenModified() {
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
-    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ETERNAL, null, Duration.ZERO)));
+    config.setExpiryPolicyFactory(InstanceFactoryBuilder.factoryOf(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ETERNAL, null, Duration.ZERO)));
 
     Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), config);
 
