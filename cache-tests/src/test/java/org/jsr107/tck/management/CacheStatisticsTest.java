@@ -226,7 +226,7 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
   public void testCacheStatisticsInvokeEntryProcessorGet() throws Exception {
 
     cache.put(1l, "Sooty");
-    String result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
+    String result = cache.invoke(1l, new Cache.EntryProcessor<Long, String, String>() {
       @Override
       public String process(Cache.MutableEntry<Long, String> entry, Object... arguments) {
         return entry.getValue();
@@ -249,7 +249,7 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
   public void testCacheStatisticsInvokeEntryProcessorCreate() throws Exception {
 
     cache.put(1l, "Sooty");
-    String result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
+    String result = cache.invoke(1l, new Cache.EntryProcessor<Long, String, String>() {
       @Override
       public String process(Cache.MutableEntry<Long, String> entry, Object... arguments) {
         String value = entry.getValue();
@@ -273,7 +273,7 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
   public void testCacheStatisticsInvokeEntryProcessorRemove() throws Exception {
 
     cache.put(1l, "Sooty");
-    String result = cache.invokeEntryProcessor(1l, new Cache.EntryProcessor<Long, String, String>() {
+    String result = cache.invoke(1l, new Cache.EntryProcessor<Long, String, String>() {
       @Override
       public String process(Cache.MutableEntry<Long, String> entry, Object... arguments) {
         String value = entry.getValue();

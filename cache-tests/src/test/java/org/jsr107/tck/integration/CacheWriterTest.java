@@ -235,7 +235,7 @@ public class CacheWriterTest extends TestSupport {
     assertEquals(0, cacheWriter.getWriteCount());
     assertEquals(0, cacheWriter.getDeleteCount());
 
-    cache.invokeEntryProcessor(1, new Cache.EntryProcessor<Integer, String, Void>() {
+    cache.invoke(1, new Cache.EntryProcessor<Integer, String, Void>() {
       @Override
       public Void process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
         entry.setValue("Gudday World");
@@ -255,7 +255,7 @@ public class CacheWriterTest extends TestSupport {
     assertEquals(0, cacheWriter.getDeleteCount());
 
     cache.put(1, "Gudday World");
-    cache.invokeEntryProcessor(1, new Cache.EntryProcessor<Integer, String, Void>() {
+    cache.invoke(1, new Cache.EntryProcessor<Integer, String, Void>() {
       @Override
       public Void process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
         entry.setValue("Hello World");
@@ -275,7 +275,7 @@ public class CacheWriterTest extends TestSupport {
     assertEquals(0, cacheWriter.getDeleteCount());
 
     cache.put(1, "Gudday World");
-    cache.invokeEntryProcessor(1, new Cache.EntryProcessor<Integer, String, Void>() {
+    cache.invoke(1, new Cache.EntryProcessor<Integer, String, Void>() {
       @Override
       public Void process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
         entry.remove();

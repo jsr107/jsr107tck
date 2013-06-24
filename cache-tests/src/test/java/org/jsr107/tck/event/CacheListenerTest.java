@@ -182,25 +182,25 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
 
 
     Cache.EntryProcessor<Long, String, String> multiArgEP = new MultiArgumentEntryProcessor<Long, String, String>();
-    String result = cache.invokeEntryProcessor(1l, multiArgEP, "These", "are", "arguments");
+    String result = cache.invoke(1l, multiArgEP, "These", "are", "arguments");
     assertEquals(value, result);
     assertEquals(4, listener.getCreated());
     assertEquals(4, listener.getUpdated());
     assertEquals(0, listener.getRemoved());
 
-    result = cache.invokeEntryProcessor(1l, new SetEntryProcessor<Long, String, String>("Zoot"));
+    result = cache.invoke(1l, new SetEntryProcessor<Long, String, String>("Zoot"));
     assertEquals("Zoot", result);
     assertEquals(4, listener.getCreated());
     assertEquals(5, listener.getUpdated());
     assertEquals(0, listener.getRemoved());
 
-    result = cache.invokeEntryProcessor(1l, new RemoveEntryProcessor<Long, String, String>());
+    result = cache.invoke(1l, new RemoveEntryProcessor<Long, String, String>());
     assertNull(result);
     assertEquals(4, listener.getCreated());
     assertEquals(5, listener.getUpdated());
     assertEquals(1, listener.getRemoved());
 
-    result = cache.invokeEntryProcessor(1l, new SetEntryProcessor<Long, String, String>("Moose"));
+    result = cache.invoke(1l, new SetEntryProcessor<Long, String, String>("Moose"));
     assertEquals("Moose", result);
     assertEquals(5, listener.getCreated());
     assertEquals(5, listener.getUpdated());

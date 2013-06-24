@@ -56,7 +56,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
   @Test
   public void nullKey() {
     try {
-      cache.invokeEntryProcessor((Integer)null, new MockEntryProcessor<Integer, String, Void>());
+      cache.invoke(null, new MockEntryProcessor<Integer, String, Void>());
       fail("null key");
     } catch (NullPointerException e) {
       //
@@ -66,7 +66,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
   @Test
   public void nullProcessor() {
     try {
-      cache.invokeEntryProcessor(123, null);
+      cache.invoke(123, null);
       fail("null key");
     } catch (NullPointerException e) {
       //
@@ -77,7 +77,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
   public void close() {
     cache.close();
     try {
-      cache.invokeEntryProcessor(123, new MockEntryProcessor<Integer, String, Void>());
+      cache.invoke(123, new MockEntryProcessor<Integer, String, Void>());
       fail("null key");
     } catch (IllegalStateException e) {
       //
@@ -114,7 +114,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     final Integer ret = 456;
     Cache.EntryProcessor<Integer, String, Integer> processor =
         new NoValueNoMutationEntryProcessor<Integer, String, Integer>(ret);
-    assertEquals(ret, cache.invokeEntryProcessor(key, processor));
+    assertEquals(ret, cache.invoke(key, processor));
     assertFalse(cache.containsKey(key));
   }
 
@@ -142,7 +142,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     final Integer ret = 456;
     Cache.EntryProcessor<Integer, String, Integer> processor =
         new VarArgumentsPassedInEntryProcessor<Integer, String, Integer>(ret);
-    assertEquals(ret, cache.invokeEntryProcessor(key, processor, "These", "are", "arguments", 1L));
+    assertEquals(ret, cache.invoke(key, processor, "These", "are", "arguments", 1L));
     assertFalse(cache.containsKey(key));
   }
 
@@ -172,7 +172,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     final String newValue = "abc";
     Cache.EntryProcessor<Integer, String, Integer> processor =
         new NoValueSetValueEntryProcessor<Integer, String, Integer>(ret, newValue);
-    assertEquals(ret, cache.invokeEntryProcessor(key, processor));
+    assertEquals(ret, cache.invoke(key, processor));
     assertEquals(newValue, cache.get(key));
   }
 
@@ -199,7 +199,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     Cache.EntryProcessor<Integer, String, Void> processor =
         new NoValueExceptionEntryProcessor<Integer, String, Void>(setValue);
     try {
-      cache.invokeEntryProcessor(key, processor);
+      cache.invoke(key, processor);
       fail();
     } catch (CacheException e) {
       assertTrue(e.getCause() instanceof IllegalAccessError);
@@ -236,7 +236,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     Cache.EntryProcessor<Integer, String, String> processor =
         new ExistingReplaceEntryProcessor<Integer, String, String>(oldValue, newValue);
     cache.put(key, oldValue);
-    assertEquals(oldValue, cache.invokeEntryProcessor(key, processor));
+    assertEquals(oldValue, cache.invoke(key, processor));
     assertEquals(newValue, cache.get(key));
   }
 
@@ -268,7 +268,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         new ExistingExceptionEntryProcessor<Integer, String, String>(oldValue, newValue);
     cache.put(key, oldValue);
     try {
-      cache.invokeEntryProcessor(key, processor);
+      cache.invoke(key, processor);
       fail();
     } catch (CacheException e) {
       assertTrue(e.getCause() instanceof IllegalAccessError);
@@ -300,7 +300,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     final Integer ret = 456;
     Cache.EntryProcessor<Integer, String, Integer> processor =
         new RemoveMissingEntryProcessor<Integer, String, Integer>(ret);
-    assertEquals(ret, cache.invokeEntryProcessor(key, processor));
+    assertEquals(ret, cache.invoke(key, processor));
     assertFalse(cache.containsKey(key));
   }
 
@@ -323,7 +323,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     Cache.EntryProcessor<Integer, String, String> processor =
         new RemoveThereEntryProcessor<Integer, String, String>();
     cache.put(key, oldValue);
-    assertEquals(oldValue, cache.invokeEntryProcessor(key, processor));
+    assertEquals(oldValue, cache.invoke(key, processor));
     assertFalse(cache.containsKey(key));
   }
 
@@ -347,7 +347,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
         new RemoveExceptionEntryProcessor<Integer, String, Void>();
     cache.put(key, oldValue);
     try {
-      cache.invokeEntryProcessor(key, processor);
+      cache.invoke(key, processor);
       fail();
     } catch (CacheException e) {
       assertTrue(e.getCause() instanceof IllegalAccessError);
