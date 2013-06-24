@@ -56,7 +56,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
   @Test
   public void nullKey() {
     try {
-      cache.invokeEntryProcessor(null, new MockEntryProcessor<Integer, String, Void>());
+      cache.invokeEntryProcessor((Integer)null, new MockEntryProcessor<Integer, String, Void>());
       fail("null key");
     } catch (NullPointerException e) {
       //
