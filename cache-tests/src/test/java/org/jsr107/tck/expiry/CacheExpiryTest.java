@@ -70,7 +70,7 @@ public class CacheExpiryTest extends TestSupport {
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ZERO, null, null)));
 
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), config);
+    Cache<Integer, Integer> cache = getCacheManager().getOrCreateCache(getTestCacheName(), config);
 
     cache.put(1, 1);
     assertFalse(cache.containsKey(1));
@@ -110,7 +110,7 @@ public class CacheExpiryTest extends TestSupport {
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ETERNAL, Duration.ZERO, null)));
 
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), config);
+    Cache<Integer, Integer> cache = getCacheManager().getOrCreateCache(getTestCacheName(), config);
 
     cache.put(1, 1);
     assertTrue(cache.containsKey(1));
@@ -185,7 +185,7 @@ public class CacheExpiryTest extends TestSupport {
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ETERNAL, null, Duration.ZERO)));
 
-    Cache<Integer, Integer> cache = getCacheManager().configureCache(getTestCacheName(), config);
+    Cache<Integer, Integer> cache = getCacheManager().getOrCreateCache(getTestCacheName(), config);
 
     cache.put(1, 1);
     assertTrue(cache.containsKey(1));

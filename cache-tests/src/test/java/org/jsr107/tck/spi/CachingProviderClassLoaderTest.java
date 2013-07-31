@@ -296,7 +296,7 @@ public class CachingProviderClassLoaderTest {
     private Cache<Integer, Object> createCache() {
       CachingProvider provider = Caching.getCachingProvider(classLoader);
 
-      return provider.getCacheManager(provider.getDefaultURI(), classLoader).configureCache("c1", new MutableConfiguration<Integer, Object>());
+      return provider.getCacheManager(provider.getDefaultURI(), classLoader).getOrCreateCache("c1", new MutableConfiguration<Integer, Object>());
     }
 
     public Class getClassForDomainClass() throws ClassNotFoundException {

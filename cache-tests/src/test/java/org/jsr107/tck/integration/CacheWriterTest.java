@@ -70,7 +70,7 @@ public class CacheWriterTest extends TestSupport {
     config.setCacheWriterFactory(FactoryBuilder.factoryOf(cacheWriter));
     config.setWriteThrough(true);
 
-    cache = getCacheManager().configureCache(getTestCacheName(), config);
+    cache = getCacheManager().getOrCreateCache(getTestCacheName(), config);
   }
 
   @After

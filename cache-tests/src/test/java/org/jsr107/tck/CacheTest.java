@@ -99,7 +99,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         .setTransactions(IsolationLevel.READ_COMMITTED, Mode.LOCAL);
 
     CacheManager cacheManager = getCacheManager();
-    cacheManager.configureCache(cacheName, config);
+    cacheManager.getOrCreateCache(cacheName, config);
 
     fail("Should not be able to configure a transaction with a store-by-reference cache");
   }
@@ -296,8 +296,8 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     CacheManager cacheManager2 = Caching.getCachingProvider().getCacheManager(uri, cl2);
     assertNotSame(cacheManager1, cacheManager2);
 
-    Cache cache1 = cacheManager1.configureCache(cacheName, new MutableConfiguration());
-    Cache cache2 = cacheManager2.configureCache(cacheName, new MutableConfiguration());
+    Cache cache1 = cacheManager1.getOrCreateCache(cacheName, new MutableConfiguration());
+    Cache cache2 = cacheManager2.getOrCreateCache(cacheName, new MutableConfiguration());
 
     assertSame(cacheManager1, cache1.getCacheManager());
     assertSame(cacheManager2, cache2.getCacheManager());

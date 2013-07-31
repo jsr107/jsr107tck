@@ -86,7 +86,7 @@ public class CacheManagerTest extends TestSupport {
   public void configureCache_NullCacheName() {
     CacheManager cacheManager = getCacheManager();
     try {
-      cacheManager.configureCache(null, new MutableConfiguration());
+      cacheManager.getOrCreateCache(null, new MutableConfiguration());
       fail("should have thrown an exception - null cache name not allowed");
     } catch (NullPointerException e) {
       //good
@@ -97,7 +97,7 @@ public class CacheManagerTest extends TestSupport {
   public void configureCache_NullCacheConfiguration() {
     CacheManager cacheManager = getCacheManager();
     try {
-      cacheManager.configureCache("cache", null);
+      cacheManager.getOrCreateCache("cache", null);
       fail("should have thrown an exception - null cache configuration not allowed");
     } catch (NullPointerException e) {
       //good
@@ -108,7 +108,7 @@ public class CacheManagerTest extends TestSupport {
   public void createCache_Same() {
     String name = "c1";
     CacheManager cacheManager = getCacheManager();
-    Cache cache = cacheManager.configureCache(name, new MutableConfiguration());
+    Cache cache = cacheManager.getOrCreateCache(name, new MutableConfiguration());
     assertSame(cache, cacheManager.getCache(name));
   }
 
@@ -123,7 +123,7 @@ public class CacheManagerTest extends TestSupport {
     assertTrue(cacheManager.isClosed());
 
     try {
-      cacheManager.configureCache("Dog", null);
+      cacheManager.getOrCreateCache("Dog", null);
       fail();
     } catch (IllegalStateException e) {
       //expected
@@ -139,14 +139,14 @@ public class CacheManagerTest extends TestSupport {
   @Test
   public void createCache_NameOK() {
     String name = "c1";
-    Cache cache = getCacheManager().configureCache(name, new MutableConfiguration());
+    Cache cache = getCacheManager().getOrCreateCache(name, new MutableConfiguration());
     assertEquals(name, cache.getName());
   }
 
   @Test
   public void createCache_StatusOK() {
     String name = "c1";
-    Cache cache = getCacheManager().configureCache(name, new MutableConfiguration());
+    Cache cache = getCacheManager().getOrCreateCache(name, new MutableConfiguration());
     assertNotNull(cache);
     assertEquals(name, cache.getName());
   }
@@ -155,10 +155,10 @@ public class CacheManagerTest extends TestSupport {
   public void createCache_Different() {
     String name1 = "c1";
     CacheManager cacheManager = getCacheManager();
-    Cache cache1 = cacheManager.configureCache(name1, new MutableConfiguration());
+    Cache cache1 = cacheManager.getOrCreateCache(name1, new MutableConfiguration());
 
     String name2 = "c2";
-    Cache cache2 = cacheManager.configureCache(name2, new MutableConfiguration());
+    Cache cache2 = cacheManager.getOrCreateCache(name2, new MutableConfiguration());
 
     assertEquals(cache1, cacheManager.getCache(name1));
     assertEquals(cache2, cacheManager.getCache(name2));
@@ -168,11 +168,11 @@ public class CacheManagerTest extends TestSupport {
   public void createCache_DifferentSameName() {
     CacheManager cacheManager = getCacheManager();
     String name1 = "c1";
-    Cache cache1 = cacheManager.configureCache(name1, new MutableConfiguration());
+    Cache cache1 = cacheManager.getOrCreateCache(name1, new MutableConfiguration());
     assertEquals(cache1, cacheManager.getCache(name1));
     ensureOpen(cache1);
 
-    Cache cache2 = cacheManager.configureCache(name1, new MutableConfiguration());
+    Cache cache2 = cacheManager.getOrCreateCache(name1, new MutableConfiguration());
     assertSame(cache1, cache2);
   }
 
@@ -191,7 +191,7 @@ public class CacheManagerTest extends TestSupport {
   public void removeCache_There() {
     CacheManager cacheManager = getCacheManager();
     String name1 = "c1";
-    cacheManager.configureCache(name1, new MutableConfiguration());
+    cacheManager.getOrCreateCache(name1, new MutableConfiguration());
     cacheManager.destroyCache(name1);
     assertFalse(cacheManager.getCacheNames().iterator().hasNext());
   }
@@ -200,7 +200,7 @@ public class CacheManagerTest extends TestSupport {
   public void removeCache_CacheStopped() {
     CacheManager cacheManager = getCacheManager();
     String name1 = "c1";
-    Cache cache1 = cacheManager.configureCache(name1, new MutableConfiguration());
+    Cache cache1 = cacheManager.getOrCreateCache(name1, new MutableConfiguration());
     cacheManager.destroyCache(name1);
     ensureClosed(cache1);
   }
@@ -227,8 +227,8 @@ public class CacheManagerTest extends TestSupport {
   public void close_cachesClosed() {
     CacheManager cacheManager = getCacheManager();
 
-    Cache cache1 = cacheManager.configureCache("c1", new MutableConfiguration());
-    Cache cache2 = cacheManager.configureCache("c2", new MutableConfiguration());
+    Cache cache1 = cacheManager.getOrCreateCache("c1", new MutableConfiguration());
+    Cache cache2 = cacheManager.getOrCreateCache("c2", new MutableConfiguration());
 
     cacheManager.close();
 
@@ -257,8 +257,8 @@ public class CacheManagerTest extends TestSupport {
   public void close_cachesEmpty() {
     CacheManager cacheManager = getCacheManager();
 
-    cacheManager.configureCache("c1", new MutableConfiguration());
-    cacheManager.configureCache("c2", new MutableConfiguration());
+    cacheManager.getOrCreateCache("c1", new MutableConfiguration());
+    cacheManager.getOrCreateCache("c2", new MutableConfiguration());
 
     cacheManager.close();
     assertFalse(cacheManager.getCacheNames().iterator().hasNext());
@@ -287,7 +287,7 @@ public class CacheManagerTest extends TestSupport {
   public void getCache_There() {
     String name = this.toString();
     CacheManager cacheManager = getCacheManager();
-    Cache cache = cacheManager.configureCache(name, new MutableConfiguration());
+    Cache cache = cacheManager.getOrCreateCache(name, new MutableConfiguration());
     assertSame(cache, cacheManager.getCache(name));
   }
 
@@ -307,7 +307,7 @@ public class CacheManagerTest extends TestSupport {
   public void getCache_There_Stopped() {
     String name = this.toString();
     CacheManager cacheManager = getCacheManager();
-    cacheManager.configureCache(name, new MutableConfiguration());
+    cacheManager.getOrCreateCache(name, new MutableConfiguration());
     cacheManager.close();
     try {
       cacheManager.getCache(name);
@@ -328,10 +328,10 @@ public class CacheManagerTest extends TestSupport {
     CacheManager cacheManager = getCacheManager();
 
     ArrayList<String> caches1 = new ArrayList<String>();
-    caches1.add(cacheManager.configureCache("c1", new MutableConfiguration())
+    caches1.add(cacheManager.getOrCreateCache("c1", new MutableConfiguration())
         .getName());
-    caches1.add(cacheManager.configureCache("c2", new MutableConfiguration()).getName());
-    caches1.add(cacheManager.configureCache("c3", new MutableConfiguration()).getName());
+    caches1.add(cacheManager.getOrCreateCache("c2", new MutableConfiguration()).getName());
+    caches1.add(cacheManager.getOrCreateCache("c3", new MutableConfiguration()).getName());
 
     checkCollections(caches1, cacheManager.getCacheNames());
   }
@@ -340,7 +340,7 @@ public class CacheManagerTest extends TestSupport {
   public void getCaches_MutateReturn() {
     CacheManager cacheManager = getCacheManager();
 
-    cacheManager.configureCache("c1", new MutableConfiguration());
+    cacheManager.getOrCreateCache("c1", new MutableConfiguration());
 
     try {
       cacheManager.getCacheNames().iterator().remove();
@@ -356,10 +356,10 @@ public class CacheManagerTest extends TestSupport {
 
     String removeName = "c2";
     ArrayList<String> cacheNames1 = new ArrayList<String>();
-    cacheNames1.add(cacheManager.configureCache("c1", new MutableConfiguration())
+    cacheNames1.add(cacheManager.getOrCreateCache("c1", new MutableConfiguration())
         .getName());
-    cacheManager.configureCache(removeName, new MutableConfiguration());
-    cacheNames1.add(cacheManager.configureCache("c3", new MutableConfiguration())
+    cacheManager.getOrCreateCache(removeName, new MutableConfiguration());
+    cacheNames1.add(cacheManager.getOrCreateCache("c3", new MutableConfiguration())
         .getName());
 
     Iterable<String> cacheNames;
@@ -394,7 +394,7 @@ public class CacheManagerTest extends TestSupport {
     //configure an un-typed Cache
     MutableConfiguration config = new MutableConfiguration();
 
-    cacheManager.configureCache("untyped-cache", config);
+    cacheManager.getOrCreateCache("untyped-cache", config);
 
     Cache cache = cacheManager.getCache("untyped-cache");
 
@@ -409,7 +409,7 @@ public class CacheManagerTest extends TestSupport {
 
     MutableConfiguration<String, Long> config = new MutableConfiguration<String, Long>().setTypes(String.class, Long.class);
 
-    cacheManager.configureCache("typed-cache", config);
+    cacheManager.getOrCreateCache("typed-cache", config);
 
     Cache<String, Long> cache = cacheManager.getCache("typed-cache", String.class, Long.class);
 
@@ -424,7 +424,7 @@ public class CacheManagerTest extends TestSupport {
 
     MutableConfiguration<String, Long> config = new MutableConfiguration<String, Long>().setTypes(String.class, Long.class);
 
-    cacheManager.configureCache("typed-cache", config);
+    cacheManager.getOrCreateCache("typed-cache", config);
 
     Cache<Long, String> cache = cacheManager.getCache("typed-cache", Long.class, String.class);
   }
@@ -435,7 +435,7 @@ public class CacheManagerTest extends TestSupport {
 
     MutableConfiguration<String, Long> config = new MutableConfiguration<String, Long>().setTypes(String.class, Long.class);
 
-    cacheManager.configureCache("typed-cache", config);
+    cacheManager.getOrCreateCache("typed-cache", config);
 
     Cache cache = cacheManager.getCache("typed-cache");
   }
@@ -446,7 +446,7 @@ public class CacheManagerTest extends TestSupport {
 
     MutableConfiguration config = new MutableConfiguration();
 
-    cacheManager.configureCache("untyped-cache", config);
+    cacheManager.getOrCreateCache("untyped-cache", config);
 
     Cache cache = cacheManager.getCache("untyped-cache", null, null);
   }

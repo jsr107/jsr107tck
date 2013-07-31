@@ -93,7 +93,7 @@ public class CacheLoaderTest {
     configuration.setReadThrough(true);
 
     //configure the cache
-    cache = cacheManager.configureCache("cache-loader-test", configuration);
+    cache = cacheManager.getOrCreateCache("cache-loader-test", configuration);
   }
 
   /**

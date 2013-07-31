@@ -37,7 +37,7 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
 
   @Before
   public void setUp() {
-    cache = getCacheManager().configureCache(getTestCacheName(), extraSetup(newMutableConfiguration()));
+    cache = getCacheManager().getOrCreateCache(getTestCacheName(), extraSetup(newMutableConfiguration()));
   }
 
   @After

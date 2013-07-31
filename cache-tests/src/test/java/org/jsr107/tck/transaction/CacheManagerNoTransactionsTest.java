@@ -77,7 +77,7 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
   @Test
   public void isolationLevelForNonTransactionalCache() throws Exception {
     CacheManager cacheManager = getCacheManager();
-    Cache<?, ?> cache = cacheManager.configureCache("test", new MutableConfiguration());
+    Cache<?, ?> cache = cacheManager.getOrCreateCache("test", new MutableConfiguration());
     assertEquals(IsolationLevel.NONE, cache.getConfiguration().getTransactionIsolationLevel());
   }
 
@@ -87,7 +87,7 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
   @Test
   public void modeForNonTransactionalCache() throws Exception {
     CacheManager cacheManager = getCacheManager();
-    Cache<?, ?> cache = cacheManager.configureCache("test", new MutableConfiguration());
+    Cache<?, ?> cache = cacheManager.getOrCreateCache("test", new MutableConfiguration());
     assertEquals(Mode.NONE, cache.getConfiguration().getTransactionMode());
   }
 
@@ -102,7 +102,7 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
       MutableConfiguration<?, ?> config = new MutableConfiguration();
       config.setTransactions(IsolationLevel.READ_COMMITTED, Mode.NONE);
 
-      cacheManager.configureCache("test", config);
+      cacheManager.getOrCreateCache("test", config);
       Assert.fail("read_committed must have a valid mode");
     } catch (IllegalArgumentException e) {
       //expected
@@ -112,7 +112,7 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
       MutableConfiguration<?, ?> config = new MutableConfiguration();
       config.setTransactions(IsolationLevel.NONE, Mode.LOCAL);
 
-      cacheManager.configureCache("test", config);
+      cacheManager.getOrCreateCache("test", config);
       Assert.fail("failed to provide an isolation level");
     } catch (IllegalArgumentException e) {
       //expected

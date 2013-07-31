@@ -110,7 +110,7 @@ public class JMXTest {
   @Test
   public void testJMXGetsCacheAdditionsAndRemovals() throws Exception {
     assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(EMPTY));
-    cacheManager.configureCache("new cache", configuration);
+    cacheManager.getOrCreateCache("new cache", configuration);
     assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(2));
     //name does not exist so no change
     cacheManager.destroyCache("sampleCache1");
@@ -122,11 +122,11 @@ public class JMXTest {
 
   @Test
   public void testMultipleCacheManagers() throws Exception {
-    cacheManager.configureCache("new cache", configuration);
+    cacheManager.getOrCreateCache("new cache", configuration);
     assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(2));
 
     CacheManager cacheManager2 = getCacheManager();
-    cacheManager2.configureCache("other cache", configuration);
+    cacheManager2.getOrCreateCache("other cache", configuration);
 
     assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(4));
 
@@ -135,7 +135,7 @@ public class JMXTest {
 
   @Test
   public void testDoubleRegistration() throws MalformedObjectNameException {
-    cacheManager.configureCache("new cache", configuration);
+    cacheManager.getOrCreateCache("new cache", configuration);
     assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(2));
 
     cacheManager.enableStatistics("new cache", true);
@@ -147,14 +147,14 @@ public class JMXTest {
   public void testCacheStatisticsOffThenOnThenOff() throws Exception {
     MutableConfiguration configuration = new MutableConfiguration();
     configuration.setStatisticsEnabled(false);
-    cacheManager.configureCache("cache1", configuration);
-    cacheManager.configureCache("cache2", configuration);
+    cacheManager.getOrCreateCache("cache1", configuration);
+    cacheManager.getOrCreateCache("cache2", configuration);
     Set<? extends ObjectName> names = mBeanServer.queryNames(new ObjectName("javax.cache:*"), null);
     Assert.assertTrue(names.size() == 0);
 
     configuration.setStatisticsEnabled(true);
-    cacheManager.configureCache("cache3", configuration);
-    cacheManager.configureCache("cache4", configuration);
+    cacheManager.getOrCreateCache("cache3", configuration);
+    cacheManager.getOrCreateCache("cache4", configuration);
     assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(2));
 
     cacheManager.enableStatistics("cache3", false);
@@ -168,14 +168,14 @@ public class JMXTest {
   public void testCacheManagementOffThenOnThenOff() throws Exception {
     MutableConfiguration configuration = new MutableConfiguration();
     configuration.setManagementEnabled(false);
-    cacheManager.configureCache("cache1", configuration);
-    cacheManager.configureCache("cache2", configuration);
+    cacheManager.getOrCreateCache("cache1", configuration);
+    cacheManager.getOrCreateCache("cache2", configuration);
     Set<? extends ObjectName> names = mBeanServer.queryNames(new ObjectName("javax.cache:*"), null);
     Assert.assertTrue(names.size() == 0);
 
     configuration.setManagementEnabled(true);
-    cacheManager.configureCache("cache3", configuration);
-    cacheManager.configureCache("cache4", configuration);
+    cacheManager.getOrCreateCache("cache3", configuration);
+    cacheManager.getOrCreateCache("cache4", configuration);
     assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(2));
 
     cacheManager.enableManagement("cache3", false);
@@ -202,10 +202,10 @@ public class JMXTest {
           .setStatisticsEnabled(true)
           .setManagementEnabled(true);
 
-      cacheManager1.configureCache("greg cache1", configuration);
-      cacheManager1.configureCache("greg cache2", configuration);
-      cacheManager2.configureCache("luck cache1", configuration);
-      cacheManager2.configureCache("luck cache2", configuration);
+      cacheManager1.getOrCreateCache("greg cache1", configuration);
+      cacheManager1.getOrCreateCache("greg cache2", configuration);
+      cacheManager2.getOrCreateCache("luck cache1", configuration);
+      cacheManager2.getOrCreateCache("luck cache2", configuration);
 
 
       ObjectName search = new ObjectName("javax.cache:*");
