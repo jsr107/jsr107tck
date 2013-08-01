@@ -186,6 +186,15 @@ public class CacheManagerTest extends TestSupport {
   }
 
   @Test
+  public void cachingProviderGetCache() {
+    String name = "c1";
+    getCacheManager().createCache(name, new MutableConfiguration().setTypes(Long.class, String.class));
+    Cache cache = Caching.getCache(name, Long.class, String.class);
+    assertEquals(name, cache.getName());
+  }
+
+
+  @Test
   public void getOrCreateCache_StatusOK() {
     String name = "c1";
     Cache cache = getCacheManager().getOrCreateCache(name, new MutableConfiguration());
