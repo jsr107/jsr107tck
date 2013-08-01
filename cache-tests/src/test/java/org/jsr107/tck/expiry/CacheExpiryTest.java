@@ -17,8 +17,8 @@
 
 package org.jsr107.tck.expiry;
 
-import org.jsr107.tck.testutil.TestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
+import org.jsr107.tck.testutil.TestSupport;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,9 +26,9 @@ import org.junit.Test;
 import javax.cache.Cache;
 import javax.cache.Cache.Entry;
 import javax.cache.configuration.FactoryBuilder;
+import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
-import javax.cache.configuration.MutableConfiguration;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;

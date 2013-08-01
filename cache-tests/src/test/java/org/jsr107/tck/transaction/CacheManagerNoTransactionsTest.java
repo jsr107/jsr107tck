@@ -17,8 +17,8 @@
 package org.jsr107.tck.transaction;
 
 import junit.framework.Assert;
-import org.jsr107.tck.testutil.TestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
+import org.jsr107.tck.testutil.TestSupport;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

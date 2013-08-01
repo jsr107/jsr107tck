@@ -45,7 +45,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static javax.cache.event.EventType.*;
+import static javax.cache.event.EventType.CREATED;
+import static javax.cache.event.EventType.REMOVED;
+import static javax.cache.event.EventType.UPDATED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 

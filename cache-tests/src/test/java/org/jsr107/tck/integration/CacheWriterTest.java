@@ -16,8 +16,8 @@
  */
 package org.jsr107.tck.integration;
 
-import org.jsr107.tck.testutil.TestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
+import org.jsr107.tck.testutil.TestSupport;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,8 +25,8 @@ import org.junit.Test;
 
 import javax.cache.Cache;
 import javax.cache.configuration.FactoryBuilder;
-import javax.cache.integration.CacheWriter;
 import javax.cache.configuration.MutableConfiguration;
+import javax.cache.integration.CacheWriter;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
