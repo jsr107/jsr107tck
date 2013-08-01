@@ -26,12 +26,14 @@ import org.junit.rules.MethodRule;
 import javax.cache.Cache;
 import javax.cache.Cache.MutableEntry;
 import javax.cache.CacheManager;
+import javax.cache.configuration.CacheEntryListenerConfiguration;
 import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.event.CacheEntryCreatedListener;
 import javax.cache.event.CacheEntryEvent;
 import javax.cache.event.CacheEntryExpiredListener;
+import javax.cache.event.CacheEntryListener;
 import javax.cache.event.CacheEntryListenerException;
 import javax.cache.event.CacheEntryRemovedListener;
 import javax.cache.event.CacheEntryUpdatedListener;
@@ -50,6 +52,7 @@ import static javax.cache.event.EventType.REMOVED;
 import static javax.cache.event.EventType.UPDATED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 /**
  * Unit tests for Cache Listeners.
@@ -81,6 +84,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
   };
 
   private MyCacheEntryListener<Long, String> listener;
+  public MutableCacheEntryListenerConfiguration<Long,String> listenerConfiguration;
 
 
   @Override
@@ -91,10 +95,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
   @Override
   protected MutableConfiguration<Long, String> extraSetup(MutableConfiguration<Long, String> configuration) {
     listener = new MyCacheEntryListener<Long, String>();
-    MutableCacheEntryListenerConfiguration<Long,
-        String> listenerConfiguration = new
-        MutableCacheEntryListenerConfiguration<Long,
-        String>(FactoryBuilder.factoryOf(listener), null, false, true);
+    listenerConfiguration = new MutableCacheEntryListenerConfiguration<Long, String>(FactoryBuilder.factoryOf(listener), null, false, true);
     configuration.addCacheEntryListenerConfiguration(listenerConfiguration);
     return configuration.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ModifiedExpiryPolicy<Long, String>(new Duration(TimeUnit.MILLISECONDS, 20))));
   }
@@ -134,6 +135,12 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
       return (T) entry.getValue();
     }
   }
+
+
+
+
+
+
 
   /**
    * Check the listener is getting reads
@@ -351,6 +358,58 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
 //    assertEquals(4, listener.getUpdated());
 //    assertEquals(2, listener.getRemoved());
 //  }
+
+  @Test
+  public void  testDynamicRegistration() {
+
+    assertEquals(1, cache.getConfiguration().getCacheEntryListenerConfigurations().size());
+
+    MyCacheEntryListener secondListener = new MyCacheEntryListener<Long, String>();
+    MutableCacheEntryListenerConfiguration<Long,
+        String> listenerConfiguration = new
+        MutableCacheEntryListenerConfiguration(FactoryBuilder.factoryOf(secondListener), null, false, true);
+    cache.registerCacheEntryListener(listenerConfiguration);
+
+    assertEquals(2, cache.getConfiguration().getCacheEntryListenerConfigurations().size());
+
+    //Can only register the same configuration once
+    try {
+      cache.registerCacheEntryListener(listenerConfiguration);
+      fail();
+    } catch (IllegalArgumentException e) {
+      //expected
+    }
+
+
+  }
+
+  @Test
+  public void  testDeregistration() {
+
+    assertEquals(1, cache.getConfiguration().getCacheEntryListenerConfigurations().size());
+
+    MyCacheEntryListener secondListener = new MyCacheEntryListener<Long, String>();
+    MutableCacheEntryListenerConfiguration<Long,
+        String> secondListenerConfiguration = new
+        MutableCacheEntryListenerConfiguration(FactoryBuilder.factoryOf(secondListener), null, false, true);
+    cache.registerCacheEntryListener(secondListenerConfiguration);
+
+    assertEquals(2, cache.getConfiguration().getCacheEntryListenerConfigurations().size());
+
+    cache.deregisterCacheEntryListener(secondListenerConfiguration);
+
+    assertEquals(1, cache.getConfiguration().getCacheEntryListenerConfigurations().size());
+
+    //no effect if called after it has been removed
+    cache.deregisterCacheEntryListener(secondListenerConfiguration);
+    assertEquals(1, cache.getConfiguration().getCacheEntryListenerConfigurations().size());
+
+    //Deregister the listener registered at configuration time
+    cache.deregisterCacheEntryListener(listenerConfiguration);
+    assertEquals(0, cache.getConfiguration().getCacheEntryListenerConfigurations().size());
+
+
+  }
 
 
   /**
