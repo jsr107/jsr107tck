@@ -140,8 +140,10 @@ public class CacheManagerTest extends TestSupport {
     String name = "c1";
     CacheManager cacheManager = getCacheManager();
     try {
-      Cache cache1 = cacheManager.createCache(name, new MutableConfiguration());
-      Cache cache2 = cacheManager.createCache(name, new MutableConfiguration());
+      cacheManager.createCache(name, new MutableConfiguration());
+      Cache cache1 = cacheManager.getCache(name);
+      cacheManager.createCache(name, new MutableConfiguration());
+      Cache cache2 = cacheManager.getCache(name);
       fail();
     } catch (CacheException exception) {
       //expected
@@ -183,7 +185,8 @@ public class CacheManagerTest extends TestSupport {
   @Test
   public void createCache_NameOK() {
     String name = "c1";
-    Cache cache = getCacheManager().createCache(name, new MutableConfiguration());
+    getCacheManager().createCache(name, new MutableConfiguration());
+    Cache cache = getCacheManager().getCache(name);
     assertEquals(name, cache.getName());
   }
 
@@ -208,7 +211,8 @@ public class CacheManagerTest extends TestSupport {
   @Test
   public void createCache_StatusOK() {
     String name = "c1";
-    Cache cache = getCacheManager().createCache(name, new MutableConfiguration());
+    getCacheManager().createCache(name, new MutableConfiguration());
+    Cache cache = getCacheManager().getCache(name);
     assertNotNull(cache);
     assertEquals(name, cache.getName());
   }
@@ -232,10 +236,12 @@ public class CacheManagerTest extends TestSupport {
   public void createCache_Different() {
     String name1 = "c1";
     CacheManager cacheManager = getCacheManager();
-    Cache cache1 = cacheManager.createCache(name1, new MutableConfiguration());
+    cacheManager.createCache(name1, new MutableConfiguration());
+    Cache cache1 = cacheManager.getCache(name1);
 
     String name2 = "c2";
-    Cache cache2 = cacheManager.createCache(name2, new MutableConfiguration());
+    cacheManager.createCache(name2, new MutableConfiguration());
+    Cache cache2 = cacheManager.getCache(name2);
 
     assertEquals(cache1, cacheManager.getCache(name1));
     assertEquals(cache2, cacheManager.getCache(name2));
@@ -245,7 +251,8 @@ public class CacheManagerTest extends TestSupport {
   public void createCacheSameName() {
     CacheManager cacheManager = getCacheManager();
     String name1 = "c1";
-    Cache cache1 = cacheManager.createCache(name1, new MutableConfiguration());
+    cacheManager.createCache(name1, new MutableConfiguration());
+    Cache cache1 = cacheManager.getCache(name1);
     assertEquals(cache1, cacheManager.getCache(name1));
     ensureOpen(cache1);
 
