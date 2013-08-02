@@ -96,7 +96,8 @@ public class CacheLoaderTest {
     configuration.setReadThrough(true);
 
     //configure the cache
-    cache = cacheManager.getOrCreateCache("cache-loader-test", configuration);
+    cacheManager.createCache("cache-loader-test", configuration);
+    cache = cacheManager.getCache("cache-loader-test", String.class, String.class);
   }
 
   /**

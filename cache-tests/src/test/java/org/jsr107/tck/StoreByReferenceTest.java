@@ -58,8 +58,8 @@ public class StoreByReferenceTest extends CacheTestSupport<Date, Date> {
           new AllTestExcluder();
 
   @Before
-  public void setUp() {
-    super.setUp();
+  public void moreSetUp() {
+    cache = getCacheManager().getCache(getTestCacheName(), Date.class, Date.class);
   }
 
   @Override

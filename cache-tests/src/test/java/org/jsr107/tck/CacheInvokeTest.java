@@ -18,6 +18,7 @@ package org.jsr107.tck;
 
 import org.jsr107.tck.testutil.CacheTestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -47,6 +48,12 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
    */
   @Rule
   public ExcludeListExcluder rule = new ExcludeListExcluder(CacheInvokeTest.class);
+
+  @Before
+  public void moreSetUp() {
+    cache = getCacheManager().getCache(getTestCacheName(), Integer.class, String.class);
+  }
+
 
   @Override
   protected MutableConfiguration<Integer, String> newMutableConfiguration() {

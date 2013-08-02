@@ -20,6 +20,7 @@ package org.jsr107.tck;
 import manager.CacheNameOnEachMethodBlogManagerImpl;
 import org.jsr107.tck.testutil.CacheTestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
@@ -79,6 +80,11 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     }
   };
 
+  @Before
+  public void moreSetUp() {
+    cache = getCacheManager().getCache(getTestCacheName(), Long.class, String.class);
+  }
+
   @Override
   protected MutableConfiguration<Long, String> newMutableConfiguration() {
     return new MutableConfiguration<Long, String>().setTypes(Long.class, String.class);
@@ -99,7 +105,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
         .setTransactions(IsolationLevel.READ_COMMITTED, Mode.LOCAL);
 
     CacheManager cacheManager = getCacheManager();
-    cacheManager.getOrCreateCache(cacheName, config);
+    cacheManager.createCache(cacheName, config);
 
     fail("Should not be able to configure a transaction with a store-by-reference cache");
   }
@@ -296,15 +302,17 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     CacheManager cacheManager2 = Caching.getCachingProvider().getCacheManager(uri, cl2);
     assertNotSame(cacheManager1, cacheManager2);
 
-    Cache cache1 = cacheManager1.getOrCreateCache(cacheName, new MutableConfiguration());
-    Cache cache2 = cacheManager2.getOrCreateCache(cacheName, new MutableConfiguration());
+    cacheManager1.createCache(cacheName, new MutableConfiguration());
+    Cache cache1 = cacheManager1.getCache(cacheName);
+    cacheManager2.createCache(cacheName, new MutableConfiguration());
+    Cache cache2 = cacheManager2.getCache(cacheName);
 
     assertSame(cacheManager1, cache1.getCacheManager());
     assertSame(cacheManager2, cache2.getCacheManager());
   }
 
   /**
-   * todo this just illustrates how easily we could discover a runtime annotation. Remove eventually.
+   * This just illustrates how easily we could discover a runtime annotation.
    */
   @Test
   public void testAnnotations() {

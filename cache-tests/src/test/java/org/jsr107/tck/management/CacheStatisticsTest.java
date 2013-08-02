@@ -32,9 +32,11 @@ import static org.junit.Assert.assertThat;
  */
 public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
 
+
+
   @Before
-  public void setUp() {
-    super.setUp();
+  public void moreSetUp() {
+    cache = getCacheManager().getCache(getTestCacheName(), Long.class, String.class);
     cache.getCacheManager().enableStatistics(cache.getName(), true);
   }
 

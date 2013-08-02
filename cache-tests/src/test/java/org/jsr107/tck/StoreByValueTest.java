@@ -47,8 +47,8 @@ public class StoreByValueTest extends CacheTestSupport<Date, Date> {
   public MethodRule rule = new ExcludeListExcluder(this.getClass());
 
   @Before
-  public void setUp() {
-    super.setUp();
+  public void moreSetUp() {
+    cache = getCacheManager().getCache(getTestCacheName(), Date.class, Date.class);
   }
 
   @After

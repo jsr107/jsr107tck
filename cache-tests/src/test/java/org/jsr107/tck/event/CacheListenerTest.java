@@ -19,6 +19,7 @@ package org.jsr107.tck.event;
 
 import org.jsr107.tck.testutil.CacheTestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
@@ -83,6 +84,12 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
 
   private MyCacheEntryListener<Long, String> listener;
   public MutableCacheEntryListenerConfiguration<Long,String> listenerConfiguration;
+
+
+  @Before
+  public void moreSetUp() {
+    cache = getCacheManager().getCache(getTestCacheName(), Long.class, String.class);
+  }
 
 
   @Override

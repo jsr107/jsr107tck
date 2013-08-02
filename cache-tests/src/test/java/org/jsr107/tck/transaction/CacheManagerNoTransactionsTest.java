@@ -16,7 +16,6 @@
  */
 package org.jsr107.tck.transaction;
 
-import junit.framework.Assert;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.jsr107.tck.testutil.TestSupport;
 import org.junit.Before;
@@ -33,6 +32,7 @@ import javax.cache.transaction.Mode;
 import javax.transaction.UserTransaction;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Unit tests for CacheManagers that do not support transactions
@@ -77,7 +77,8 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
   @Test
   public void isolationLevelForNonTransactionalCache() throws Exception {
     CacheManager cacheManager = getCacheManager();
-    Cache<?, ?> cache = cacheManager.getOrCreateCache("test", new MutableConfiguration());
+    cacheManager.createCache("test", new MutableConfiguration());
+    Cache<?, ?> cache = cacheManager.getCache("test");
     assertEquals(IsolationLevel.NONE, cache.getConfiguration().getTransactionIsolationLevel());
   }
 
@@ -87,7 +88,8 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
   @Test
   public void modeForNonTransactionalCache() throws Exception {
     CacheManager cacheManager = getCacheManager();
-    Cache<?, ?> cache = cacheManager.getOrCreateCache("test", new MutableConfiguration());
+    cacheManager.createCache("test", new MutableConfiguration());
+    Cache<?, ?> cache = cacheManager.getCache("test");
     assertEquals(Mode.NONE, cache.getConfiguration().getTransactionMode());
   }
 
@@ -102,8 +104,8 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
       MutableConfiguration<?, ?> config = new MutableConfiguration();
       config.setTransactions(IsolationLevel.READ_COMMITTED, Mode.NONE);
 
-      cacheManager.getOrCreateCache("test", config);
-      Assert.fail("read_committed must have a valid mode");
+      cacheManager.createCache("test", config);
+      fail("read_committed must have a valid mode");
     } catch (IllegalArgumentException e) {
       //expected
     }
@@ -112,8 +114,8 @@ public class CacheManagerNoTransactionsTest extends TestSupport {
       MutableConfiguration<?, ?> config = new MutableConfiguration();
       config.setTransactions(IsolationLevel.NONE, Mode.LOCAL);
 
-      cacheManager.getOrCreateCache("test", config);
-      Assert.fail("failed to provide an isolation level");
+      cacheManager.createCache("test", config);
+      fail("failed to provide an isolation level");
     } catch (IllegalArgumentException e) {
       //expected
     }
