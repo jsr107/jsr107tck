@@ -536,15 +536,6 @@ public class CacheManagerTest extends TestSupport {
   }
 
   @Test
-  public void isSupported() {
-    CacheManager cacheManager = getCacheManager();
-
-    for (OptionalFeature feature : OptionalFeature.values()) {
-      assertSame(feature.toString(), Caching.getCachingProvider().isSupported(feature), cacheManager.isSupported(feature));
-    }
-  }
-
-  @Test
   public void testUnwrap() {
     //Assumes rule will exclude this test when no unwrapClass is specified
     final Class<?> unwrapClass = getUnwrapClass(CacheManager.class);
