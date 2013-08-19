@@ -17,10 +17,10 @@
 
 /**
  This package contains infrastructure so that loaders and writers can send
- information back to the JUnit test whic initiated them so that asserts can
+ information back to the JUnit test which initiated them so that asserts can
  happen.
 
- An instance of {@link CacheLoaderServer} is created in the JUnit test,
+ An instance of {@link CacheLoaderServer} or {@link CacheWriterServer} is created in the JUnit test,
  listening on port 10,000. Loaders create clients which make requests to the
  server for loading or writing.
 
