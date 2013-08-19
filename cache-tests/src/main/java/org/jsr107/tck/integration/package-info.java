@@ -17,7 +17,7 @@
 
 /**
  This package contains infrastructure so that loaders and writers can send
- information back to the JUnit test whic initiated them so that asserts can
+ information back to the JUnit test which initiated them so that asserts can
  happen.
 
  An instance of {@link CacheLoaderServer} is created in the JUnit test,

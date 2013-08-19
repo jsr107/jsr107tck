@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -573,7 +574,7 @@ public class CacheLoaderTest {
   }
 
   /**
-   * Ensure that {@link Cache#loadAll(Iterable, boolean, javax.cache.integration.CompletionListener)}
+   * Ensure that {@link Cache#loadAll(Set, boolean, javax.cache.integration.CompletionListener)}
    * for a non-existent single value will cause it to be loaded.
    */
   @Test
@@ -600,7 +601,7 @@ public class CacheLoaderTest {
   }
 
   /**
-   * Ensure that {@link Cache#loadAll(Iterable, boolean, javax.cache.integration.CompletionListener)}
+   * Ensure that {@link Cache#loadAll(Set, boolean, javax.cache.integration.CompletionListener)}
    * for an existing single entry will cause it to be reloaded.
    */
   @Test
@@ -633,7 +634,7 @@ public class CacheLoaderTest {
   }
 
   /**
-   * Ensure that {@link Cache#loadAll(Iterable, boolean, javax.cache.integration.CompletionListener)}
+   * Ensure that {@link Cache#loadAll(Set, boolean, javax.cache.integration.CompletionListener)} )}
    * for multiple non-existing entries will be loaded.
    */
   @Test
@@ -667,7 +668,7 @@ public class CacheLoaderTest {
   }
 
   /**
-   * Ensure that {@link Cache#loadAll(Iterable, boolean, javax.cache.integration.CompletionListener)}
+   * Ensure that {@link Cache#loadAll(Set, boolean, javax.cache.integration.CompletionListener)}
    * for multiple existing entries will be reloaded.
    */
   @Test
@@ -704,7 +705,7 @@ public class CacheLoaderTest {
   }
 
   /**
-   * Ensure that {@link Cache#loadAll(Iterable, boolean, javax.cache.integration.CompletionListener)}
+   * Ensure that {@link Cache#loadAll(Set, boolean, javax.cache.integration.CompletionListener)}
    * won't load <code>null</code> values.
    */
   @Test
@@ -732,7 +733,7 @@ public class CacheLoaderTest {
   }
 
   /**
-   * Ensure that {@link Cache#loadAll(Iterable, boolean, javax.cache.integration.CompletionListener)}
+   * Ensure that {@link Cache#loadAll(java.util.Set, boolean, javax.cache.integration.CompletionListener)}
    * won't load <code>null</code> entries.
    */
   @Test
@@ -760,7 +761,7 @@ public class CacheLoaderTest {
   }
 
   /**
-   * Ensure that {@link Cache#loadAll(Iterable, boolean, javax.cache.integration.CompletionListener)}
+   * Ensure that {@link Cache#loadAll(java.util.Set, boolean, javax.cache.integration.CompletionListener)} )}
    * using a <code>null</code> key will raise an exception
    */
   @Test
@@ -784,7 +785,7 @@ public class CacheLoaderTest {
   }
 
   /**
-   * Ensure that {@link Cache#loadAll(Iterable, boolean, javax.cache.integration.CompletionListener)}
+   * Ensure that {@link Cache#loadAll(java.util.Set, boolean, javax.cache.integration.CompletionListener)}
    * using a <code>null</code> key will raise an exception
    */
   @Test
@@ -824,7 +825,7 @@ public class CacheLoaderTest {
   }
 
   /**
-   * Ensure that {@link Cache#loadAll(Iterable, boolean, javax.cache.integration.CompletionListener)}
+   * Ensure that {@link Cache#loadAll(java.util.Set, boolean, javax.cache.integration.CompletionListener)}  )}
    * will propagate an exception from a {@link CacheLoader}.
    */
   @Test
