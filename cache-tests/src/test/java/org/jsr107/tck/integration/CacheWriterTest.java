@@ -14,1248 +14,606 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-
-
 package org.jsr107.tck.integration;
 
 import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.jsr107.tck.testutil.TestSupport;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import javax.cache.Cache;
+import javax.cache.configuration.FactoryBuilder;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.integration.CacheWriter;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
-
-import java.util.*;
-
-import javax.cache.Cache;
-import javax.cache.CacheException;
-import javax.cache.CacheManager;
-import javax.cache.Caching;
-import javax.cache.configuration.FactoryBuilder;
-import javax.cache.configuration.MutableConfiguration;
-import javax.cache.integration.CompletionListenerFuture;
-
 /**
- * Functional test for {@link javax.cache.integration.CacheWriter}s.
+ * Unit test for {@link javax.cache.integration.CacheWriter}s.
  *
- * Cache methods are tested in order listed in Write-Through Caching table in JCache specification.
- *
- * @author Joe Fialli
+ * @author Brian Oliver
  */
 public class CacheWriterTest extends TestSupport {
 
-    /**
-     * Rule used to exclude tests
-     */
-    @Rule
-    public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
+  /**
+   * Rule used to exclude tests
+   */
+  @Rule
+  public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
 
-    /**
-     * The test Cache that will be configured to use the CacheWriter.
-     */
-    private Cache<Integer, String> cache;
+  /**
+   * The CacheWriter used for the tests.
+   */
+  private RecordingCacheWriter<Integer, String> cacheWriter;
 
-    /**
-     * The {@link javax.cache.CacheManager} for the each test.
-     */
-    private CacheManager cacheManager;
-    private RecordingCacheWriter<Integer, String> cacheWriter;
+  /**
+   * The test Cache that will be configured to use the CacheWriter.
+   */
+  private Cache<Integer, String> cache;
 
-    /**
-     * A {@link CacheWriterServer} that will delegate {@link Cache} request
-     * onto the recording {@link javax.cache.integration.CacheWriter}.
-     */
-    private CacheWriterServer<Integer, String> cacheWriterServer;
+  @Before
+  public void setup() {
+    cacheWriter = new RecordingCacheWriter<Integer, String>();
 
-    /**
-     * Configure write-through before each test.
-     */
-    @Before
-    public void onBeforeEachTest() throws IOException {
+    MutableConfiguration<Integer, String> config = new MutableConfiguration<Integer, String>();
+    config.setCacheWriterFactory(FactoryBuilder.factoryOf(cacheWriter));
+    config.setWriteThrough(true);
 
-        // establish and open a CacheLoaderServer to handle cache
-        // cache loading requests from a CacheLoaderClient
-        cacheWriter = new RecordingCacheWriter<>();
-        cacheWriterServer = new CacheWriterServer<>(10000, cacheWriter);
-        cacheWriterServer.open();
+    getCacheManager().createCache(getTestCacheName(), config);
+    cache = getCacheManager().getCache(getTestCacheName());
+  }
 
-        // establish the CacheManager for the tests
-        cacheManager = Caching.getCachingProvider().getCacheManager();
+  @After
+  public void cleanup() {
+    for (String cacheName : getCacheManager().getCacheNames()) {
+      getCacheManager().destroyCache(cacheName);
+    }
+  }
 
-        // establish a CacheWriterClient that a Cache can use for writing/deleting entries
-        // (via the CacheWriterServer)
-        CacheWriterClient<Integer, String> theCacheWriter = new CacheWriterClient<>(cacheWriterServer.getInetAddress(),
-                                                                cacheWriterServer.getPort());
+  @Test
+  public void put_SingleEntry() {
+    assertEquals(0, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
 
-        MutableConfiguration<Integer, String> configuration = new MutableConfiguration<>();
-        configuration.setTypes(Integer.class, String.class);
-        configuration.setCacheWriterFactory(FactoryBuilder.factoryOf(theCacheWriter));
-        configuration.setWriteThrough(true);
+    cache.put(1, "Gudday World");
 
-        getCacheManager().createCache("cache-writer-test", configuration);
-        cache = getCacheManager().getCache("cache-writer-test", Integer.class, String.class);
+    assertEquals(1, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+    assertTrue(cacheWriter.containsKey(1));
+    assertEquals("Gudday World", cacheWriter.get(1));
+  }
+
+  @Test
+  public void put_SingleEntryMultipleTimes() {
+    assertEquals(0, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    cache.put(1, "Gudday World");
+    cache.put(1, "Bonjour World");
+    cache.put(1, "Hello World");
+
+    assertEquals(3, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+    assertTrue(cacheWriter.containsKey(1));
+    assertEquals("Hello World", cacheWriter.get(1));
+  }
+
+  @Test
+  public void put_DifferentEntries() {
+    assertEquals(0, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    cache.put(1, "Gudday World");
+    cache.put(2, "Bonjour World");
+    cache.put(3, "Hello World");
+
+    assertEquals(3, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    assertTrue(cacheWriter.containsKey(1));
+    assertEquals("Gudday World", cacheWriter.get(1));
+
+    assertTrue(cacheWriter.containsKey(2));
+    assertEquals("Bonjour World", cacheWriter.get(2));
+
+    assertTrue(cacheWriter.containsKey(3));
+    assertEquals("Hello World", cacheWriter.get(3));
+  }
+
+  @Test
+  public void getAndPut_SingleEntryMultipleTimes() {
+    assertEquals(0, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    cache.getAndPut(1, "Gudday World");
+    cache.getAndPut(1, "Bonjour World");
+    cache.getAndPut(1, "Hello World");
+
+    assertEquals(3, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+    assertTrue(cacheWriter.containsKey(1));
+    assertEquals("Hello World", cacheWriter.get(1));
+  }
+
+  @Test
+  public void getAndPut_DifferentEntries() {
+    assertEquals(0, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    cache.getAndPut(1, "Gudday World");
+    cache.getAndPut(2, "Bonjour World");
+    cache.getAndPut(3, "Hello World");
+
+    assertEquals(3, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    assertTrue(cacheWriter.containsKey(1));
+    assertEquals("Gudday World", cacheWriter.get(1));
+
+    assertTrue(cacheWriter.containsKey(2));
+    assertEquals("Bonjour World", cacheWriter.get(2));
+
+    assertTrue(cacheWriter.containsKey(3));
+    assertEquals("Hello World", cacheWriter.get(3));
+  }
+
+  @Test
+  public void putIfAbsent_SingleEntryMultipleTimes() {
+    assertEquals(0, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    cache.putIfAbsent(1, "Gudday World");
+    cache.putIfAbsent(1, "Bonjour World");
+    cache.putIfAbsent(1, "Hello World");
+
+    assertEquals(1, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+    assertTrue(cacheWriter.containsKey(1));
+    assertEquals("Gudday World", cacheWriter.get(1));
+  }
+
+  @Test
+  public void replaceMatching_SingleEntryMultipleTimes() {
+    assertEquals(0, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    cache.putIfAbsent(1, "Gudday World");
+    cache.replace(1, "Gudday World", "Bonjour World");
+    cache.replace(1, "Gudday World", "Hello World");
+    cache.replace(1, "Bonjour World", "Hello World");
+
+    assertEquals(3, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+    assertTrue(cacheWriter.containsKey(1));
+    assertEquals("Hello World", cacheWriter.get(1));
+  }
+
+  @Test
+  public void replaceExisting_SingleEntryMultipleTimes() {
+    assertEquals(0, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    cache.replace(1, "Gudday World");
+    cache.putIfAbsent(1, "Gudday World");
+    cache.replace(1, "Bonjour World");
+    cache.replace(1, "Hello World");
+
+    assertEquals(3, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+    assertTrue(cacheWriter.containsKey(1));
+    assertEquals("Hello World", cacheWriter.get(1));
+  }
+
+  @Test
+  public void getAndReplace_SingleEntryMultipleTimes() {
+    assertEquals(0, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    cache.getAndReplace(1, "Gudday World");
+    cache.putIfAbsent(1, "Gudday World");
+    cache.getAndReplace(1, "Bonjour World");
+    cache.getAndReplace(1, "Hello World");
+
+    assertEquals(3, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+    assertTrue(cacheWriter.containsKey(1));
+    assertEquals("Hello World", cacheWriter.get(1));
+  }
+
+  @Test
+  public void invoke_CreateEntry() {
+    assertEquals(0, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    cache.invoke(1, new Cache.EntryProcessor<Integer, String, Void>() {
+      @Override
+      public Void process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
+        entry.setValue("Gudday World");
+        return null;
+      }
+    });
+
+    assertEquals(1, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+    assertTrue(cacheWriter.containsKey(1));
+    assertEquals("Gudday World", cacheWriter.get(1));
+  }
+
+  @Test
+  public void invoke_UpdateEntry() {
+    assertEquals(0, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    cache.put(1, "Gudday World");
+    cache.invoke(1, new Cache.EntryProcessor<Integer, String, Void>() {
+      @Override
+      public Void process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
+        entry.setValue("Hello World");
+        return null;
+      }
+    });
+
+    assertEquals(2, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+    assertTrue(cacheWriter.containsKey(1));
+    assertEquals("Hello World", cacheWriter.get(1));
+  }
+
+  @Test
+  public void invoke_RemoveEntry() {
+    assertEquals(0, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    cache.put(1, "Gudday World");
+    cache.invoke(1, new Cache.EntryProcessor<Integer, String, Void>() {
+      @Override
+      public Void process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
+        entry.remove();
+        return null;
+      }
+    });
+
+    assertEquals(1, cacheWriter.getWriteCount());
+    assertEquals(1, cacheWriter.getDeleteCount());
+    assertFalse(cacheWriter.containsKey(1));
+  }
+
+  @Test
+  public void remove_SingleEntry() {
+    assertEquals(0, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    cache.put(1, "Gudday World");
+    cache.remove(1);
+
+    assertEquals(1, cacheWriter.getWriteCount());
+    assertEquals(1, cacheWriter.getDeleteCount());
+    assertFalse(cacheWriter.containsKey(1));
+  }
+
+  @Test
+  public void remove_SingleEntryMultipleTimes() {
+    assertEquals(0, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    cache.put(1, "Gudday World");
+    cache.remove(1);
+    cache.remove(1);
+    cache.remove(1);
+
+    assertEquals(1, cacheWriter.getWriteCount());
+    assertEquals(3, cacheWriter.getDeleteCount());
+    assertFalse(cacheWriter.containsKey(1));
+  }
+
+  @Test
+  public void remove_SpecificEntry() {
+    assertEquals(0, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    cache.put(1, "Gudday World");
+    cache.remove(1, "Hello World");
+    cache.remove(1, "Gudday World");
+    cache.remove(1, "Gudday World");
+    cache.remove(1);
+
+    assertEquals(1, cacheWriter.getWriteCount());
+    assertEquals(2, cacheWriter.getDeleteCount());
+    assertFalse(cacheWriter.containsKey(1));
+  }
+
+  @Test
+  public void getAndRemove_SingleEntry() {
+    assertEquals(0, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    cache.getAndRemove(1);
+    cache.put(1, "Gudday World");
+    cache.getAndRemove(1);
+
+    assertEquals(1, cacheWriter.getWriteCount());
+    assertEquals(2, cacheWriter.getDeleteCount());
+    assertFalse(cacheWriter.containsKey(1));
+  }
+
+  @Test
+  public void iterator_remove() {
+    assertEquals(0, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    cache.getAndPut(1, "Gudday World");
+    cache.getAndPut(2, "Bonjour World");
+    cache.getAndPut(3, "Hello World");
+
+    Iterator<Cache.Entry<Integer, String>> iterator = cache.iterator();
+
+    iterator.next();
+    iterator.remove();
+    iterator.next();
+    iterator.next();
+    iterator.remove();
+
+    assertEquals(3, cacheWriter.getWriteCount());
+    assertEquals(2, cacheWriter.getDeleteCount());
+  }
+
+  @Test
+  public void putAll() {
+    assertEquals(0, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    HashMap<Integer, String> map = new HashMap<Integer, String>();
+    map.put(1, "Gudday World");
+    map.put(2, "Bonjour World");
+    map.put(3, "Hello World");
+
+    cache.putAll(map);
+
+    assertEquals(3, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    for (Integer key : map.keySet()) {
+      assertTrue(cacheWriter.containsKey(key));
+      assertEquals(map.get(key), cacheWriter.get(key));
+      assertTrue(cache.containsKey(key));
+      assertEquals(map.get(key), cache.get(key));
     }
 
-    @After
-    public void cleanup() {
+    map.put(4, "Hola World");
 
-        // destroy the cache
-        String cacheName = cache.getName();
-        cacheManager.destroyCache(cacheName);
+    cache.putAll(map);
 
-        // close the CacheWriterServer
-        cacheWriterServer.close();
-        cacheWriterServer = null;
+    assertEquals(7, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
 
-        cache = null;
+    for (Integer key : map.keySet()) {
+      assertTrue(cacheWriter.containsKey(key));
+      assertEquals(map.get(key), cacheWriter.get(key));
+      assertTrue(cache.containsKey(key));
+      assertEquals(map.get(key), cache.get(key));
+    }
+  }
+
+  @Test
+  public void removeAll() {
+    assertEquals(0, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    HashMap<Integer, String> map = new HashMap<Integer, String>();
+    map.put(1, "Gudday World");
+    map.put(2, "Bonjour World");
+    map.put(3, "Hello World");
+
+    cache.putAll(map);
+
+    assertEquals(3, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    for (Integer key : map.keySet()) {
+      assertTrue(cacheWriter.containsKey(key));
+      assertEquals(map.get(key), cacheWriter.get(key));
+      assertTrue(cache.containsKey(key));
+      assertEquals(map.get(key), cache.get(key));
     }
 
-    @Test
-    public void shouldNotWriteThroughCallingContainsKeyOnExistingKey() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
+    cache.removeAll();
 
-        // containsKey returns true case.
-        cache.put(1, "Gudday World");
-        assertEquals(1, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
+    assertEquals(3, cacheWriter.getWriteCount());
+    assertEquals(3, cacheWriter.getDeleteCount());
 
-        cache.containsKey(1);
-        assertEquals(1, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
+    for (Integer key : map.keySet()) {
+      assertFalse(cacheWriter.containsKey(key));
+      assertFalse(cache.containsKey(key));
     }
 
-    @Test
-    public void shouldNotInvokeWriteThroughCallingContainsKeyOnMissingKey() {
+    map.put(4, "Hola World");
 
-        // containsKey returns false case.
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        cache.containsKey(1);
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
+    cache.putAll(map);
+
+    assertEquals(7, cacheWriter.getWriteCount());
+    assertEquals(3, cacheWriter.getDeleteCount());
+
+    for (Integer key : map.keySet()) {
+      assertTrue(cacheWriter.containsKey(key));
+      assertEquals(map.get(key), cacheWriter.get(key));
+      assertTrue(cache.containsKey(key));
+      assertEquals(map.get(key), cache.get(key));
+    }
+  }
+
+  @Test
+  public void removeAllSpecific() {
+    assertEquals(0, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    HashMap<Integer, String> map = new HashMap<Integer, String>();
+    map.put(1, "Gudday World");
+    map.put(2, "Bonjour World");
+    map.put(3, "Hello World");
+    map.put(4, "Hola World");
+
+    cache.putAll(map);
+
+    assertEquals(4, cacheWriter.getWriteCount());
+    assertEquals(0, cacheWriter.getDeleteCount());
+
+    for (Integer key : map.keySet()) {
+      assertTrue(cacheWriter.containsKey(key));
+      assertEquals(map.get(key), cacheWriter.get(key));
+      assertTrue(cache.containsKey(key));
+      assertEquals(map.get(key), cache.get(key));
     }
 
-    @Test
-    public void shouldNotInvokeWriteThroughCallingGetOnMissingEntry() {
+    HashSet<Integer> set = new HashSet<Integer>();
+    set.add(1);
+    set.add(4);
 
-        // get returns null case.
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        cache.get(1);
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
+    cache.removeAll(set);
+
+    assertEquals(4, cacheWriter.getWriteCount());
+    assertEquals(2, cacheWriter.getDeleteCount());
+
+    for (Integer key : set) {
+      assertFalse(cacheWriter.containsKey(key));
+      assertFalse(cache.containsKey(key));
     }
 
-    @Test
-    public void shouldNotInvokeWriteThroughCallingGetOnExistingEntry() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        // get returns non-null case.
-        cache.put(1, "Gudday World");
-        assertEquals(1, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        String value = cache.get(1);
-        assertEquals("Gudday World", value);
-        assertEquals(1, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-    }
-
-    @Test
-    public void shouldNotInvokeWriteThroughCallingGetAll() {
-        int NUM_KEYS = 4;
-        Set<Integer> keys = new HashSet<>();
-        for (int i = 1; i <= NUM_KEYS; i++) {
-            keys.add(i);
-        }
-
-        // getAll returns null case.
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        Map<Integer, String> map = cache.getAll(keys);
-        assertTrue(map.size() == 0);
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        // getAll returns non-null case.
-        for (Integer key : keys) {
-            cache.put(key, "value" + key);
-        }
-
-        assertEquals(NUM_KEYS, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        map = cache.getAll(keys);
-        assertEquals(keys.size(), map.size());
-        assertEquals(NUM_KEYS, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-    }
-
-    @Test
-    public void shouldWriteThroughUsingGetAndPut_SingleEntryMultipleTimes() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        cache.getAndPut(1, "Gudday World");
-        cache.getAndPut(1, "Gudday World");
-        cache.getAndPut(1, "Gudday World");
-
-        assertEquals(3, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        assertTrue(cacheWriter.hasWritten(1));
-        assertEquals("Gudday World", cacheWriter.get(1));
-    }
-
-    @Test
-    public void shouldWriteThroughUsingGetAndPut_DifferentEntries() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        cache.getAndPut(1, "Gudday World");
-        cache.getAndPut(2, "Bonjour World");
-        cache.getAndPut(3, "Hello World");
-
-        assertEquals(3, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        assertTrue(cacheWriter.hasWritten(1));
-        assertEquals("Gudday World", cacheWriter.get(1));
-
-        assertTrue(cacheWriter.hasWritten(2));
-        assertEquals("Bonjour World", cacheWriter.get(2));
-
-        assertTrue(cacheWriter.hasWritten(3));
-        assertEquals("Hello World", cacheWriter.get(3));
-    }
-
-    @Test
-    public void shouldWriteThroughUsingGetAndRemove_MissingSingleEntry() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        // remove a missing entry case
-        String value = cache.getAndRemove(1);
-        assertEquals(value, null);
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(1, cacheWriter.getDeleteCount());
-    }
-
-    @Test
-    public void shouldWriteThroughUsingGetAndRemove_ExistingSingleEntry() {
-        int nDelete = 0;
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        // actual remove of an entry case
-        cache.put(1, "Gudday World");
-        String value = cache.getAndRemove(1);
-        assertEquals("Gudday World", value);
-        nDelete++;
-
-        assertEquals(1, cacheWriter.getWriteCount());
-        assertEquals(nDelete, cacheWriter.getDeleteCount());
-        assertFalse(cacheWriter.hasWritten(1));
-    }
-
-    @Test
-    public void shouldNotWriteThroughUsingGetAndReplace_MissingSingleEntry() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        // replace does not occur since key 1 does not exist in cache
-        String value = cache.getAndReplace(1, "Gudday World");
-        assertEquals(value, null);
-        assertEquals(cache.containsKey(1), false);
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-    }
-
-    @Test
-    public void shouldWriteThroughUsingGetAndReplace_ExistingSingleEntry() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        // actual replace of an entry case
-        cache.put(1, "Gudday World");
-        String value = cache.getAndReplace(1, "Hello World");
-        assertEquals(value, "Gudday World");
-        assertEquals(2, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        assertEquals(cache.get(1), cacheWriter.get(1));
-        assertTrue(cacheWriter.hasWritten(1));
-    }
-
-    @Test
-    public void shouldWriteThroughUsingGetAndReplace_SingleEntryMultipleTimes() {
-        int nWrite = 0;
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        String previousValue = cache.getAndReplace(1, "Gudday World");
-        assertEquals(previousValue, null);
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        boolean result = cache.putIfAbsent(1, "Gudday World");
-        assertTrue(result);
-        nWrite++;
-        assertEquals(nWrite, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        previousValue = cache.getAndReplace(1, "Bonjour World");
-        assertEquals(previousValue, "Gudday World");
-        nWrite++;
-        assertEquals(cache.get(1), cacheWriter.get(1));
-        assertEquals("Bonjour World", cacheWriter.get(1));
-        assertEquals("Bonjour World", cache.get(1));
-        assertEquals(nWrite, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        previousValue = cache.getAndReplace(1, "Hello World");
-        assertEquals("Bonjour World", previousValue);
-        nWrite++;
-        assertEquals(cache.get(1), cacheWriter.get(1));
-        assertEquals(previousValue, "Bonjour World");
-        assertEquals(nWrite, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        assertTrue(cacheWriter.hasWritten(1));
-        assertEquals("Hello World", cacheWriter.get(1));
-    }
-
-    @Test
-    public void shouldWriteThroughUsingInvoke_setValue_CreateEntry() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        cache.invoke(1, new Cache.EntryProcessor<Integer, String, Void>() {
-            @Override
-            public Void process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
-                entry.setValue("Gudday World");
-
-                return null;
-            }
-        });
-
-        assertEquals(1, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        assertTrue(cacheWriter.hasWritten(1));
-        assertEquals("Gudday World", cacheWriter.get(1));
-    }
-
-    @Test
-    public void shouldWriteThroughUsingInvokeAll_setValue_CreateEntry() {
-        final String VALUE_PREFIX = "value_";
-        final int NUM_KEYS = 10;
-
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        Set<Integer> keys = new HashSet<>();
-        for (int key = 1; key <= NUM_KEYS; key++) {
-            keys.add(key);
-        }
-
-        cache.invokeAll(keys, new Cache.EntryProcessor<Integer, String, Void>() {
-            @Override
-            public Void process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
-                entry.setValue(VALUE_PREFIX + entry.getKey());
-
-                return null;
-            }
-        });
-
-        assertEquals(NUM_KEYS, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        for (Integer key : keys) {
-            String computedValue = VALUE_PREFIX + key;
-            assertTrue(cacheWriter.hasWritten(key));
-            assertEquals(computedValue, cacheWriter.get(key));
-            assertEquals(computedValue, cache.get(key));
-        }
-    }
-
-    @Test
-    public void shouldWriteThroughUsingInvoke_setValue_UpdateEntry() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        cache.put(1, "Gudday World");
-        cache.invoke(1, new Cache.EntryProcessor<Integer, String, Void>() {
-            @Override
-            public Void process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
-                entry.setValue("Hello World");
-
-                return null;
-            }
-        });
-
-        assertEquals(2, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        assertTrue(cacheWriter.hasWritten(1));
-        assertEquals("Hello World", cacheWriter.get(1));
-    }
-
-    @Test
-    public void shouldWriteThroughUsingInvokeAll_setValue_UpdateEntry() {
-        final String VALUE_PREFIX_ORIGINAL = "value_";
-        final String VALUE_PREFIX_UPDATED = "updateValue_";
-        final int NUMBER_OF_KEYS = 10;
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        Set<Integer> keys = new HashSet<>();
-        for (int key = 1; key <= NUMBER_OF_KEYS; key++) {
-            keys.add(key);
-            cache.put(key, VALUE_PREFIX_ORIGINAL + key);
-        }
-
-        assertEquals(NUMBER_OF_KEYS, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        cache.invokeAll(keys, new Cache.EntryProcessor<Integer, String, Void>() {
-            @Override
-            public Void process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
-                entry.setValue(VALUE_PREFIX_UPDATED + entry.getKey());
-
-                return null;
-            }
-        });
-
-        assertEquals(NUMBER_OF_KEYS * 2, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        for (Integer key : keys) {
-            String computedValue = VALUE_PREFIX_UPDATED + key;
-            assertTrue(cacheWriter.hasWritten(key));
-            assertEquals(computedValue, cacheWriter.get(key));
-            assertEquals(computedValue, cache.get(key));
-        }
-    }
-
-    @Test
-    public void shouldWriteThroughUsingInvoke_remove() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        cache.put(1, "Gudday World");
-        cache.invoke(1, new Cache.EntryProcessor<Integer, String, Void>() {
-            @Override
-            public Void process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
-                entry.remove();
-
-                return null;
-            }
-        });
-
-        assertEquals(1, cacheWriter.getWriteCount());
-        assertEquals(1, cacheWriter.getDeleteCount());
-        assertFalse(cacheWriter.hasWritten(1));
-    }
-
-    @Test
-    public void shouldWriteThroughUsingInvokeAll_setValue_RemoveEntry() {
-        final String VALUE_PREFIX = "value_";
-        final int NUM_KEYS = 10;
-
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        Set<Integer> keys = new HashSet<>();
-        for (int key = 1; key <= NUM_KEYS; key++) {
-            keys.add(key);
-            cache.put(key, VALUE_PREFIX + key);
-        }
-
-        assertEquals(NUM_KEYS, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        cache.invokeAll(keys, new Cache.EntryProcessor<Integer, String, Void>() {
-            @Override
-            public Void process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
-                entry.remove();
-
-                return null;
-            }
-        });
-        assertEquals(NUM_KEYS, cacheWriter.getWriteCount());
-        assertEquals(NUM_KEYS, cacheWriter.getDeleteCount());
-
-        for (Integer key : keys) {
-            assertFalse(cacheWriter.hasWritten(key));
-            assertEquals(null, cacheWriter.get(key));
-            assertEquals(null, cache.get(key));
-        }
-    }
-
-    @Test
-    public void shouldWriteThroughUsingInvoke_remove_nonExistingEntry() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        cache.invoke(1, new Cache.EntryProcessor<Integer, String, Void>() {
-            @Override
-            public Void process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
-                entry.remove();
-
-                return null;
-            }
-        });
-
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(1, cacheWriter.getDeleteCount());
-        assertFalse(cacheWriter.hasWritten(1));
-    }
-
-    @Test
-    public void shouldWriteThroughUsingInvoke_remove_createEntry() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        cache.put(1, "Gudday World");
-        cache.invoke(1, new Cache.EntryProcessor<Integer, String, Void>() {
-            @Override
-            public Void process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
-                entry.remove();
-                entry.setValue("After remove");
-
-                return null;
-            }
-        });
-
-        assertEquals(2, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        assertTrue(cacheWriter.hasWritten(1));
-    }
-
-    @Test
-    public void shouldWriteThroughUsingInvoke_setValue_CreateEntryThenRemove() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        cache.invoke(1, new Cache.EntryProcessor<Integer, String, Void>() {
-            @Override
-            public Void process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
-                entry.setValue("Gudday World");
-                entry.remove();
-
-                return null;
-            }
-        });
-
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        assertTrue(!cacheWriter.hasWritten(1));
-        assertTrue(cache.get(1) == null);
-        assertFalse(cache.containsKey(1));
-    }
-
-    @Test
-    public void shouldWriteThroughUsingInvoke_setValue_CreateEntryGetValue() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        String value = cache.invoke(1, new Cache.EntryProcessor<Integer, String, String>() {
-            @Override
-            public String process(Cache.MutableEntry<Integer, String> entry, Object... arguments) {
-                entry.setValue("Gudday World");
-
-                return entry.getValue();
-            }
-        });
-
-        assertEquals(value, "Gudday World");
-        assertEquals(value, cache.get(1));
-        assertEquals(cache.get(1), cacheWriter.get(1));
-        assertEquals(1, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        assertTrue(cacheWriter.hasWritten(1));
-        assertEquals("Gudday World", cacheWriter.get(1));
-    }
-
-    @Test
-    public void shouldNotWriteThroughUsingIterator() {
-        final String VALUE_PREFIX = "value_";
-        final int NUMBER_OF_KEYS = 10;
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        Set<Integer> keys = new HashSet<>();
-        for (int aKey = 1; aKey <= NUMBER_OF_KEYS; aKey++) {
-            keys.add(aKey);
-            cache.put(aKey, VALUE_PREFIX + aKey);
-        }
-
-        assertEquals(NUMBER_OF_KEYS, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        int i = 0;
-        for (Cache.Entry<Integer, String> entry : cache) {
-            i++;
-            assertEquals(entry.getValue(), cacheWriter.get(entry.getKey()));
-        }
-        assertEquals(NUMBER_OF_KEYS, i);
-
-        assertEquals(NUMBER_OF_KEYS, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-    }
-
-    @Test
-    public void shouldNotWriteThroughUsingLoadAll() throws Exception {
-        final int NUMBER_OF_KEYS = 10;
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        Set<Integer> keys = new HashSet<>();
-        for (int key = 1; key <= NUMBER_OF_KEYS; key++) {
-            keys.add(key);
-        }
-
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        CompletionListenerFuture future = new CompletionListenerFuture();
-
-        cache.loadAll(keys, true, future);
-
-        // wait for the load to complete
-        future.get();
-
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-    }
+    cache.put(4, "Howdy World");
+
+    assertEquals(5, cacheWriter.getWriteCount());
+    assertEquals(2, cacheWriter.getDeleteCount());
+
+    set.clear();
+    set.add(2);
+
+    cache.removeAll(set);
+
+    assertTrue(cacheWriter.containsKey(3));
+    assertTrue(cache.containsKey(3));
+    assertTrue(cacheWriter.containsKey(4));
+    assertTrue(cache.containsKey(4));
+  }
+
+  /**
+   * A CacheWriter implementation that records the entries written to it so
+   * that they may be later asserted.
+   *
+   * @param <K> the type of the keys
+   * @param <V> the type of the values
+   */
+  public static class RecordingCacheWriter<K, V> implements CacheWriter<K, V>,
+      Serializable {
 
     /**
-     * Test constraint that cache is not mutated when CacheException is thrown by
-     * {@link javax.cache.integration.CacheWriter#write(javax.cache.Cache.Entry)}
+     * A map of keys to values that have been written.
      */
-    @Test
-    public void shouldNotPutWhenWriteThroughFails() {
-        cacheWriterServer.setCacheWriter(new FailingCacheWriter<Integer, String>());
-
-        try {
-            cache.put(1, "Gudday World");
-            assertTrue("expected exception on write-through", false);
-        } catch (CacheException e) {
-
-            // ignore expected exception.
-
-        } catch (RuntimeException re) {
-
-            // possible path. reconcile with outcome of jsr 107 spec jira 222
-            //assertTrue("expected CacheException, handled " + re.getClass().getCanonicalName(), false);
-        }
-
-        assertFalse(cache.containsKey(1));
-    }
-
-    @Test
-    public void shouldWriteThoughUsingPutSingleEntry() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        cache.put(1, "Gudday World");
-
-        assertEquals(1, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        assertTrue(cacheWriter.hasWritten(1));
-        assertEquals("Gudday World", cacheWriter.get(1));
-    }
-
-    @Test
-    public void shouldWriteThroughUsingPutSingleEntryMultipleTimes() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        cache.put(1, "Gudday World");
-        cache.put(1, "Bonjour World");
-        cache.put(1, "Hello World");
-
-        assertEquals(3, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        assertTrue(cacheWriter.hasWritten(1));
-        assertEquals("Hello World", cacheWriter.get(1));
-    }
-
-    @Test
-    public void shouldWriteThroughUsingPutOfDifferentEntries() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        cache.put(1, "Gudday World");
-        cache.put(2, "Bonjour World");
-        cache.put(3, "Hello World");
-
-        assertEquals(3, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        assertTrue(cacheWriter.hasWritten(1));
-        assertEquals("Gudday World", cacheWriter.get(1));
-
-        assertTrue(cacheWriter.hasWritten(2));
-        assertEquals("Bonjour World", cacheWriter.get(2));
-
-        assertTrue(cacheWriter.hasWritten(3));
-        assertEquals("Hello World", cacheWriter.get(3));
-    }
-
-    @Test
-    public void shouldWriteThoughUsingPutAll() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        HashMap<Integer, String> map = new HashMap<>();
-        map.put(1, "Gudday World");
-        map.put(2, "Bonjour World");
-        map.put(3, "Hello World");
-
-        cache.putAll(map);
-
-        assertEquals(3, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        for (Integer key : map.keySet()) {
-            assertTrue(cacheWriter.hasWritten(key));
-            assertTrue(cache.containsKey(key));
-            assertEquals(cache.get(key), cacheWriter.get(key));
-            assertEquals(map.get(key), cache.get(key));
-        }
-
-        map.put(4, "Hola World");
-
-        cache.putAll(map);
-
-        assertEquals(7, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        for (Integer key : map.keySet()) {
-            assertTrue(cacheWriter.hasWritten(key));
-            assertEquals(map.get(key), cacheWriter.get(key));
-            assertTrue(cache.containsKey(key));
-            assertEquals(map.get(key), cache.get(key));
-        }
-    }
-
-    @Test
-    public void shouldWriteThoughUsingPutAll_partialSuccess() {
-        cacheWriter = new BatchPartialSuccessRecordingClassWriter<>(3, 100);
-        cacheWriterServer.setCacheWriter(cacheWriter);
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        HashMap<Integer, String> map = new HashMap<>();
-        map.put(1, "Gudday World");
-        map.put(2, "Bonjour World");
-        map.put(3, "Hello World");
-        map.put(4, "Ciao World");
-
-        try {
-            cache.putAll(map);
-            assertTrue("expected CacheException to be thrown for BatchPartialSuccessRecordingClassWriter", false);
-        } catch (CacheException ce) {
-
-            // ignore expected exception
-
-        } catch (RuntimeException re) {
-
-            // possible path. reconcile with outcome of jsr 107 spec jira 222
-            // assertTrue("expected CacheException, handled " + re.getClass().getCanonicalName(), false);
-        }
-
-        int numSuccess = 0;
-        int numFailure = 0;
-        for (Integer key : map.keySet()) {
-            if (cacheWriter.hasWritten(key)) {
-                assertTrue(cache.containsKey(key));
-                assertEquals(map.get(key), cacheWriter.get(key));
-                assertEquals(map.get(key), cache.get(key));
-                numSuccess++;
-            } else {
-                assertFalse(cache.containsKey(key));
-                assertFalse(cacheWriter.hasWritten(key));
-                assertEquals(cache.get(key), cacheWriter.get(key));
-                numFailure++;
-            }
-
-            assertEquals(cache.get(key), cacheWriter.get(key));
-        }
-
-        assertEquals(numSuccess + numFailure, map.size());
-        assertEquals(numSuccess, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-    }
-
-    @Test
-    public void shouldWriteThoughUsingPutIfAbsent_SingleEntryMultipleTimes() {
-        int nWrite = 0;
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        boolean result = cache.putIfAbsent(1, "Gudday World");
-        assertTrue(result);
-        nWrite++;
-
-        result = cache.putIfAbsent(1, "Bonjour World");
-        assertFalse(result);
-
-        result = cache.putIfAbsent(1, "Hello World");
-        assertFalse(result);
-
-        assertEquals(nWrite, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        assertTrue(cacheWriter.hasWritten(1));
-        assertEquals("Gudday World", cacheWriter.get(1));
-    }
-
-    @Test
-    public void shouldWriteThroughRemoveNonexistentKey() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        boolean result = cache.remove(1);
-        assertFalse(result);
-        assertEquals(1, cacheWriter.getDeleteCount());
-    }
-
-    @Test
-    public void shouldWriteThroughRemove_SingleEntry() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        cache.put(1, "Gudday World");
-        assertEquals(1, cacheWriter.getWriteCount());
-
-        boolean result = cache.remove(1);
-        assertTrue(result);
-
-        assertEquals(1, cacheWriter.getDeleteCount());
-        assertFalse(cacheWriter.hasWritten(1));
-    }
+    private ConcurrentHashMap<K, V> map;
 
     /**
-     * Test constraint that cache is not mutated when CacheException is thrown by
-     * {@link javax.cache.integration.CacheWriter#delete(Object)}
+     * The number of writes that have so far occurred.
      */
-    @Test
-    public void shouldNotRemoveWhenWriteThroughFails() {
-        cache.put(1, "Gudday World");
-        assertTrue(cache.containsKey(1));
+    private AtomicLong writeCount;
 
-        cacheWriterServer.setCacheWriter(new FailingCacheWriter<Integer, String>());
+    /**
+     * The number of deletes that have so far occurred.
+     */
+    private AtomicLong deleteCount;
 
-        try {
-            cache.remove(1);
-            assertTrue("expected exception on write-through", false);
-        } catch (CacheException e) {
-
-            // ignore expected exception.
-
-        } catch (RuntimeException re) {
-
-            // possible path. reconcile with outcome of jsr 107 spec jira 222
-            //assertTrue("expected CacheException, handled " + re.getClass().getCanonicalName(), false);
-        }
-
-        assertTrue(cache.containsKey(1));
+    /**
+     * Constructs a RecordingCacheWriter.
+     */
+    public RecordingCacheWriter() {
+      this.map = new ConcurrentHashMap<K, V>();
+      this.writeCount = new AtomicLong();
+      this.deleteCount = new AtomicLong();
     }
 
-    @Test
-    public void shouldWriteThroughRemove_SingleEntryMultipleTimes() {
-        int nDelete = 0;
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        cache.put(1, "Gudday World");
-        boolean result = cache.remove(1);
-        assertTrue(result);
-        nDelete++;
-
-        result = cache.remove(1);
-        assertFalse(result);
-        nDelete++;
-
-        result = cache.remove(1);
-        assertFalse(result);
-        nDelete++;
-
-        assertEquals(1, cacheWriter.getWriteCount());
-        assertEquals(nDelete, cacheWriter.getDeleteCount());
+    @Override
+    public void write(Cache.Entry<? extends K, ? extends V> entry) {
+      V previous = map.put(entry.getKey(), entry.getValue());
+      writeCount.incrementAndGet();
     }
 
-    @Test
-    public void shouldWriteThroughRemove_SpecificEntry() {
-        int nDelete = 0;
+    @Override
+    public void writeAll(Collection<Cache.Entry<? extends K, ? extends V>> entries) {
+      Iterator<Cache.Entry<? extends K, ? extends V>> iterator = entries.iterator();
 
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(nDelete, cacheWriter.getDeleteCount());
-
-        cache.put(1, "Gudday World");
-        boolean result = cache.remove(1, "Hello World");
-        assertFalse(result);
-        assertEquals(nDelete, cacheWriter.getDeleteCount());
-
-        result = cache.remove(1, "Gudday World");
-        assertTrue(result);
-        nDelete++;
-        assertEquals(nDelete, cacheWriter.getDeleteCount());
-
-        result = cache.remove(1, "Gudday World");
-        assertFalse(result);
-        assertEquals(nDelete, cacheWriter.getDeleteCount());
-
-        assertEquals(1, cacheWriter.getWriteCount());
-    }
-
-    @Test
-    public void shouldWriteThroughCacheIteratorRemove() {
-        int nDelete = 0;
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        cache.getAndPut(1, "Gudday World");
-        cache.getAndPut(2, "Bonjour World");
-        cache.getAndPut(3, "Hello World");
-
-        Iterator<Cache.Entry<Integer, String>> iterator = cache.iterator();
-        iterator.next();
+      while (iterator.hasNext()) {
+        write(iterator.next());
         iterator.remove();
-        nDelete++;
-
-        iterator.next();
-        iterator.next();
-        iterator.remove();
-        nDelete++;
-
-        assertEquals(3, cacheWriter.getWriteCount());
-        assertEquals(nDelete, cacheWriter.getDeleteCount());
+      }
     }
 
-    @Test
-    public void shouldWriteThroughRemoveAll() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        HashMap<Integer, String> map = new HashMap<>();
-        map.put(1, "Gudday World");
-        map.put(2, "Bonjour World");
-        map.put(3, "Hello World");
-
-        cache.putAll(map);
-
-        assertEquals(3, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        for (Integer key : map.keySet()) {
-            assertTrue(cacheWriter.hasWritten(key));
-            assertEquals(map.get(key), cacheWriter.get(key));
-            assertTrue(cache.containsKey(key));
-            assertEquals(map.get(key), cache.get(key));
-        }
-
-        cache.removeAll();
-
-        assertEquals(3, cacheWriter.getWriteCount());
-        assertEquals(3, cacheWriter.getDeleteCount());
-
-        for (Integer key : map.keySet()) {
-            assertFalse(cacheWriter.hasWritten(key));
-            assertFalse(cache.containsKey(key));
-        }
-
-        map.put(4, "Hola World");
-
-        cache.putAll(map);
-
-        assertEquals(7, cacheWriter.getWriteCount());
-        assertEquals(3, cacheWriter.getDeleteCount());
-
-        for (Integer key : map.keySet()) {
-            assertTrue(cacheWriter.hasWritten(key));
-            assertEquals(map.get(key), cacheWriter.get(key));
-            assertTrue(cache.containsKey(key));
-            assertEquals(map.get(key), cache.get(key));
-        }
+    @Override
+    public void delete(Object key) {
+      map.remove(key);
+      deleteCount.incrementAndGet();
     }
 
-    @Test
-    public void shouldWriteThroughRemoveAll_partialSuccess() {
-        cacheWriter = new BatchPartialSuccessRecordingClassWriter<>(100, 3);
-        cacheWriterServer.setCacheWriter(cacheWriter);
-
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        HashMap<Integer, String> map = new HashMap<>();
-        map.put(1, "Gudday World");
-        map.put(2, "Bonjour World");
-        map.put(3, "Hello World");
-
-        cache.putAll(map);
-
-        assertEquals(3, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        for (Integer key : map.keySet()) {
-            assertTrue(cacheWriter.hasWritten(key));
-            assertEquals(map.get(key), cacheWriter.get(key));
-            assertTrue(cache.containsKey(key));
-            assertEquals(map.get(key), cache.get(key));
-        }
-
-        try {
-            cache.removeAll();
-            assertTrue("expected CacheException to be thrown for BatchPartialSuccessRecordingClassWriter", false);
-        } catch (CacheException ce) {
-
-            // ignore expected exception
-
-        } catch (RuntimeException re) {
-
-            // possible path. reconcile with outcome of jsr 107 spec jira 222
-            // assertTrue("expected CacheException, handled " + re.getClass().getCanonicalName(), false);
-        }
-
-        int numSuccess = 0;
-        int numFailure = 0;
-        for (Integer key : map.keySet()) {
-            if (cacheWriter.hasWritten(key)) {
-                assertTrue(cache.containsKey(key));
-                assertEquals(map.get(key), cacheWriter.get(key));
-                assertEquals(map.get(key), cache.get(key));
-                numFailure++;
-            } else {
-                assertFalse(cache.containsKey(key));
-                numSuccess++;
-            }
-
-            assertEquals(cache.get(key), cacheWriter.get(key));
-        }
-
-        assertEquals(numSuccess + numFailure, map.size());
-        assertEquals(3, cacheWriter.getWriteCount());
-        assertEquals(numSuccess, cacheWriter.getDeleteCount());
-    }
-
-    @Test
-    public void shouldUseWriteThroughRemoveAllSpecific() {
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        HashMap<Integer, String> map = new HashMap<>();
-        map.put(1, "Gudday World");
-        map.put(2, "Bonjour World");
-        map.put(3, "Hello World");
-        map.put(4, "Hola World");
-
-        cache.putAll(map);
-
-        assertEquals(4, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        for (Integer key : map.keySet()) {
-            assertTrue(cacheWriter.hasWritten(key));
-            assertEquals(map.get(key), cacheWriter.get(key));
-            assertTrue(cache.containsKey(key));
-            assertEquals(map.get(key), cache.get(key));
-        }
-
-        HashSet<Integer> set = new HashSet<>();
-        set.add(1);
-        set.add(4);
-
-        cache.removeAll(set);
-
-        assertEquals(4, cacheWriter.getWriteCount());
-        assertEquals(2, cacheWriter.getDeleteCount());
-
-        for (Integer key : set) {
-            assertFalse(cacheWriter.hasWritten(key));
-            assertFalse(cache.containsKey(key));
-        }
-
-        cache.put(4, "Howdy World");
-
-        assertEquals(5, cacheWriter.getWriteCount());
-        assertEquals(2, cacheWriter.getDeleteCount());
-
-        set.clear();
-        set.add(2);
-
-        cache.removeAll(set);
-        assertEquals(3, cacheWriter.getDeleteCount());
-
-        assertTrue(cacheWriter.hasWritten(3));
-        assertTrue(cache.containsKey(3));
-        assertTrue(cacheWriter.hasWritten(4));
-        assertTrue(cache.containsKey(4));
-    }
-
-    @Test
-    public void shouldWriteThroughRemoveAllSpecific_partialSuccess() {
-        cacheWriter = new BatchPartialSuccessRecordingClassWriter<>(100, 3);
-        cacheWriterServer.setCacheWriter(cacheWriter);
-
-        assertEquals(0, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        HashMap<Integer, String> map = new HashMap<>();
-        map.put(1, "Gudday World");
-        map.put(2, "Bonjour World");
-        map.put(3, "Hello World");
-        map.put(4, "Hola World");
-        map.put(5, "Ciao World");
-
-        cache.putAll(map);
-
-        assertEquals(5, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        for (Integer key : map.keySet()) {
-            assertTrue(cacheWriter.hasWritten(key));
-            assertEquals(map.get(key), cacheWriter.get(key));
-            assertTrue(cache.containsKey(key));
-            assertEquals(map.get(key), cache.get(key));
-        }
-
-        HashSet<Integer> set = new HashSet<>();
-        set.add(1);
-        set.add(4);
-        set.add(3);
-        set.add(2);
-
-        try {
-            cache.removeAll(set);
-            assertTrue("expected CacheException to be thrown for BatchPartialSuccessRecordingClassWriter", false);
-        } catch (CacheException ce) {
-
-            // ignore expected exception
-
-        } catch (RuntimeException re) {
-
-            // possible path. reconcile with outcome of jsr 107 spec jira 222
-            // assertTrue("expected CacheException, handled " + re.getClass().getCanonicalName(), false);
-        }
-
-        int numSuccess = 0;
-        int numFailure = 0;
-        for (Integer key : map.keySet()) {
-            if (cacheWriter.hasWritten(key)) {
-                assertTrue(cache.containsKey(key));
-                assertEquals(map.get(key), cacheWriter.get(key));
-                assertEquals(map.get(key), cache.get(key));
-                numFailure++;
-            } else {
-                assertFalse(cache.containsKey(key));
-                numSuccess++;
-            }
-
-            assertEquals(cache.get(key), cacheWriter.get(key));
-        }
-
-        assertEquals(numSuccess + numFailure, map.size());
-        assertEquals(5, cacheWriter.getWriteCount());
-        assertEquals(numSuccess, cacheWriter.getDeleteCount());
+    @Override
+    public void deleteAll(Collection<?> entries) {
+      for (Iterator<?> keys = entries.iterator(); keys.hasNext(); ) {
+        delete(keys.next());
+        keys.remove();
+      }
     }
 
     /**
-     * Write-through Test for  method
-     * boolean replace(K key, V value)
+     * Gets the last written value of the specified key
+     *
+     * @param key the key
+     * @return the value last written
      */
-    @Test
-    public void shouldNotWriteThroughReplaceNonExistentKey() {
-        int nWrites = 0;
-        assertEquals(nWrites, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        boolean result = cache.replace(1, "Gudday World");
-        assertFalse(result);
-
-        assertEquals(nWrites, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
+    public V get(K key) {
+      return map.get(key);
     }
 
     /**
-     * Write-through Test for  method
-     * boolean replace(K key, V value)
+     * Determines if there is a last written value for the specified key
+     *
+     * @param key the key
+     * @return true if there is a last written value
      */
-    @Test
-    public void shouldWriteThroughReplaceExisting_SingleEntryMultipleTimes() {
-        int nWrites = 0;
-        assertEquals(nWrites, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        boolean result = cache.replace(1, "Gudday World");
-        assertFalse(result);
-
-        result = cache.putIfAbsent(1, "Gudday World");
-        assertTrue(result);
-        nWrites++;
-
-        result = cache.replace(1, "Bonjour World");
-        assertTrue(result);
-        nWrites++;
-
-        result = cache.replace(1, "Hello World");
-        assertTrue(result);
-        nWrites++;
-
-        assertEquals(nWrites, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        assertTrue(cacheWriter.hasWritten(1));
-        assertEquals("Hello World", cacheWriter.get(1));
-        assertEquals(cache.get(1), cacheWriter.get(1));
+    public boolean containsKey(K key) {
+      return map.containsKey(key);
     }
 
     /**
-     * Write-through Test for  method
-     * boolean replace(K key, V oldValue, V newValue)
+     * Gets the number of writes that have occurred.
+     *
+     * @return the number of writes
      */
-    @Test
-    public void shouldNotUseWriteThroughReplaceDoesNotMatch() {
-        int nWriter = 0;
-        assertEquals(nWriter, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-
-        boolean result = cache.putIfAbsent(1, "Gudday World");
-        assertTrue(result);
-        nWriter++;
-        assertEquals(1, cacheWriter.getWriteCount());
-
-        result = cache.replace(1, "Bonjour World", "Hello World");
-        assertFalse(result);
-        assertFalse("Hello World".equals(cache.get(1)));
-        assertEquals(nWriter, cacheWriter.getWriteCount());
-        assertEquals(0, cacheWriter.getDeleteCount());
-        assertTrue(cacheWriter.hasWritten(1));
-        assertEquals(cache.get(1), cacheWriter.get(1));
+    public long getWriteCount() {
+      return writeCount.get();
     }
 
-    static public class Entry<K, V> implements Cache.Entry<K, V> {
-        private K key;
-        private V value;
-
-        public Entry(K k, V v) {
-            this.key = k;
-            this.value = v;
-        }
-
-        @Override
-        public K getKey() {
-            return key;
-        }
-
-        @Override
-        public V getValue() {
-            return value;
-        }
-
-        @Override
-        public <T> T unwrap(Class<T> clazz) {
-            throw new UnsupportedOperationException("not implemented");
-        }
+    /**
+     * Gets the number of deletes that have occurred.
+     *
+     * @return the number of writes
+     */
+    public long getDeleteCount() {
+      return deleteCount.get();
     }
+
+    /**
+     * Clears the contents of stored values.
+     */
+    public void clear() {
+      map.clear();
+      this.writeCount = new AtomicLong();
+      this.deleteCount = new AtomicLong();
+    }
+  }
 }

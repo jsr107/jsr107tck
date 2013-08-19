@@ -16,6 +16,7 @@
  */
 package org.jsr107.tck.integration;
 
+import org.jsr107.tck.support.Client;
 import org.jsr107.tck.support.Operation;
 
 import javax.cache.Cache;
@@ -23,6 +24,7 @@ import javax.cache.integration.CacheLoader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,8 +37,21 @@ import java.util.concurrent.ExecutionException;
  * @param <V> the type of values
  * @author Brian Oliver
  */
-public class CacheLoaderClient<K, V> extends CacheClient implements CacheLoader<K, V> {
+public class CacheLoaderClient<K, V> implements CacheLoader<K, V>, AutoCloseable, Serializable {
+  /**
+   * The {@link InetAddress} on which to connect to the {@link CacheLoaderServer}.
+   */
+  private InetAddress address;
 
+  /**
+   * The port on which to connect to the {@link CacheLoaderServer}.
+   */
+  private int port;
+
+  /**
+   * The {@link Client} connection to the {@link CacheLoaderServer}.
+   */
+  private transient Client client;
 
   /**
    * Constructs a {@link CacheLoaderClient}.
@@ -45,7 +60,43 @@ public class CacheLoaderClient<K, V> extends CacheClient implements CacheLoader<
    * @param port    the port to which to connect to the {@link CacheLoaderServer}
    */
   public CacheLoaderClient(InetAddress address, int port) {
-    super(address, port);
+    this.address = address;
+    this.port = port;
+
+    this.client = null;
+  }
+
+  /**
+   * Obtains the internal {@link Client} used to communicate with the
+   * {@link CacheLoaderServer}.  If the {@link Client} is not connected, a
+   * connection will be attempted.
+   *
+   * @return the {@link Client}
+   */
+  private synchronized Client getClient() {
+    if (client == null) {
+      try {
+        client = new Client(address, port);
+      } catch (Exception e) {
+        throw new RuntimeException("Failed to acquire Client", e);
+      }
+    }
+
+    return client;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public synchronized void close() throws Exception {
+    if (client != null) {
+      try {
+        client.close();
+      } finally {
+        client = null;
+      }
+    }
   }
 
   @Override
@@ -127,7 +178,7 @@ public class CacheLoaderClient<K, V> extends CacheClient implements CacheLoader<
   }
 
   /**
-   * The {@link LoadAllOperation} representing a {@link Cache#loadAll(java.util.Set, boolean, javax.cache.integration.CompletionListener)}
+   * The {@link LoadAllOperation} representing a {@link Cache#loadAll(Iterable, boolean, javax.cache.integration.CompletionListener)}
    * request.
    *
    * @param <K> the type of keys
