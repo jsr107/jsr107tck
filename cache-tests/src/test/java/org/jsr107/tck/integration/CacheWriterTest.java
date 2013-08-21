@@ -1267,6 +1267,38 @@ public class CacheWriterTest extends TestSupport {
       //expected
     }
 
+    try {
+      HashMap<Integer, String> map = new HashMap<>();
+      map.put(12, "Tonto");
+      cache.putAll(map);
+      fail();
+    } catch (CacheWriterException e) {
+      //expected
+    }
+
+    try {
+      cache.remove(12);
+      fail();
+    } catch (CacheWriterException e) {
+      //expected
+    }
+
+    try {
+      HashSet<Integer> set = new HashSet<>();
+      set.add(12);
+      cache.removeAll(set);
+      fail();
+    } catch (CacheWriterException e) {
+      //expected
+    }
+
+    try {
+      cache.removeAll();
+      fail();
+    } catch (CacheWriterException e) {
+      //expected
+    }
+
   }
 
 
