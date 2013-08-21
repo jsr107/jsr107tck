@@ -1,5 +1,8 @@
 package org.jsr107.tck.management;
 
+import org.jsr107.tck.entryprocessor.GetEntryProcessor;
+import org.jsr107.tck.entryprocessor.RemoveEntryProcessor;
+import org.jsr107.tck.entryprocessor.SetEntryProcessor;
 import org.jsr107.tck.testutil.CacheTestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.junit.Before;
@@ -228,12 +231,8 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
   public void testCacheStatisticsInvokeEntryProcessorGet() throws Exception {
 
     cache.put(1l, "Sooty");
-    String result = cache.invoke(1l, new Cache.EntryProcessor<Long, String, String>() {
-      @Override
-      public String process(Cache.MutableEntry<Long, String> entry, Object... arguments) {
-        return entry.getValue();
-      }
-    });
+    String result = cache.invoke(1l, new GetEntryProcessor<Long,String, String>());
+    assertEquals(result, "Sooty");
     assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
     assertEquals(1.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
@@ -248,17 +247,11 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
 
 
   @Test
-  public void testCacheStatisticsInvokeEntryProcessorCreate() throws Exception {
+  public void testCacheStatisticsInvokeEntryProcessorUpdate() throws Exception {
 
     cache.put(1l, "Sooty");
-    String result = cache.invoke(1l, new Cache.EntryProcessor<Long, String, String>() {
-      @Override
-      public String process(Cache.MutableEntry<Long, String> entry, Object... arguments) {
-        String value = entry.getValue();
-        entry.setValue("Trinity");
-        return "Trinity";
-      }
-    });
+    String result = cache.invoke(1l, new SetEntryProcessor<Long, String, String>("Trinity"));
+    assertEquals(result, "Trinity");
     assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
     assertEquals(1.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
@@ -275,14 +268,8 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
   public void testCacheStatisticsInvokeEntryProcessorRemove() throws Exception {
 
     cache.put(1l, "Sooty");
-    String result = cache.invoke(1l, new Cache.EntryProcessor<Long, String, String>() {
-      @Override
-      public String process(Cache.MutableEntry<Long, String> entry, Object... arguments) {
-        String value = entry.getValue();
-        entry.remove();
-        return "removed";
-      }
-    });
+    String result = cache.invoke(1l, new RemoveEntryProcessor<Long, String, String>(true));
+    assertEquals(result, "Sooty");
     assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
     assertEquals(1.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));

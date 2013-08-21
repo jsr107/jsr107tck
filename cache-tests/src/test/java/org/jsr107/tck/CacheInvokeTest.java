@@ -16,6 +16,7 @@
  */
 package org.jsr107.tck;
 
+import org.jsr107.tck.entryprocessor.*;
 import org.jsr107.tck.testutil.CacheTestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.junit.Before;
@@ -25,7 +26,6 @@ import org.junit.Test;
 import javax.cache.Cache;
 import javax.cache.CacheException;
 import javax.cache.configuration.MutableConfiguration;
-import java.io.Serializable;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -40,8 +40,6 @@ import static org.junit.Assert.fail;
  * @since 1.0
  */
 public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
-  private static long SLEEP_HIGH = 10L;
-  private static long SLEEP_LOW = 1L;
 
   /**
    * Rule used to exclude tests
@@ -63,7 +61,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
   @Test
   public void nullKey() {
     try {
-      cache.invoke(null, new MockEntryProcessor<Integer, String, Void>());
+      cache.invoke(null, new ThrowExceptionEntryProcessor<Integer, String, Void>(UnsupportedOperationException.class));
       fail("null key");
     } catch (NullPointerException e) {
       //
@@ -84,91 +82,28 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
   public void close() {
     cache.close();
     try {
-      cache.invoke(123, new MockEntryProcessor<Integer, String, Void>());
+      cache.invoke(123, new ThrowExceptionEntryProcessor<Integer, String, Void>(UnsupportedOperationException.class));
       fail("null key");
     } catch (IllegalStateException e) {
       //
     }
   }
 
-  private static class MockEntryProcessor<K, V, T> implements Cache.EntryProcessor<K, V, T>, Serializable {
-
-    @Override
-    public T process(Cache.MutableEntry<K, V> kvMutableEntry, Object... arguments) {
-      throw new UnsupportedOperationException();
-    }
-  }
-
-  static public class NoValueNoMutationEntryProcessor<K, V, T> extends MockEntryProcessor<K, V, T> {
-    NoValueNoMutationEntryProcessor(T ret) {
-      this.ret = ret;
-    }
-
-    @Override
-    public T process(Cache.MutableEntry<K, V> entry, Object... arguments) {
-      assertFalse(entry.exists());
-      return ret;
-    }
-
-    private final T ret;
-  }
-
-  ;
-
   @Test
   public void noValueNoMutation() {
     final Integer key = 123;
     final Integer ret = 456;
-    Cache.EntryProcessor<Integer, String, Integer> processor =
-        new NoValueNoMutationEntryProcessor<Integer, String, Integer>(ret);
-    assertEquals(ret, cache.invoke(key, processor));
+    assertEquals(ret, cache.invoke(key, new AssertNotPresentEntryProcessor<Integer, String, Integer>(ret)));
     assertFalse(cache.containsKey(key));
-  }
-
-  static public class VarArgumentsPassedInEntryProcessor<K, V, T> extends MockEntryProcessor<K, V, T> {
-    VarArgumentsPassedInEntryProcessor(T ret) {
-      this.ret = ret;
-    }
-
-    @Override
-    public T process(Cache.MutableEntry<K, V> entry, Object... arguments) {
-      assertFalse(entry.exists());
-      assertEquals("These", arguments[0]);
-      assertEquals("are", arguments[1]);
-      assertEquals("arguments", arguments[2]);
-      assertEquals(1L, arguments[3]);
-      return ret;
-    }
-
-    private final T ret;
   }
 
   @Test
   public void varArgumentsPassedIn() {
     final Integer key = 123;
     final Integer ret = 456;
-    Cache.EntryProcessor<Integer, String, Integer> processor =
-        new VarArgumentsPassedInEntryProcessor<Integer, String, Integer>(ret);
-    assertEquals(ret, cache.invoke(key, processor, "These", "are", "arguments", 1L));
+    assertEquals(ret, cache.invoke(key, new MultiArgumentHandlingEntryProcessor<Integer, String, Integer>(ret),
+        "These", "are", "arguments", 1L));
     assertFalse(cache.containsKey(key));
-  }
-
-  static public class NoValueSetValueEntryProcessor<K, V, T> extends MockEntryProcessor<K, V, T> {
-    NoValueSetValueEntryProcessor(T ret, V newValue) {
-      this.ret = ret;
-      this.newValue = newValue;
-    }
-
-    @Override
-    public T process(Cache.MutableEntry<K, V> entry, Object... arguments) {
-      assertFalse(entry.exists());
-      entry.setValue(newValue);
-      assertTrue(entry.exists());
-      return ret;
-    }
-
-    private final V newValue;
-    private final T ret;
   }
 
 
@@ -176,63 +111,29 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
   public void noValueSetValue() {
     final Integer key = 123;
     final Integer ret = 456;
-    final String newValue = "abc";
-    Cache.EntryProcessor<Integer, String, Integer> processor =
-        new NoValueSetValueEntryProcessor<Integer, String, Integer>(ret, newValue);
-    assertEquals(ret, cache.invoke(key, processor));
-    assertEquals(newValue, cache.get(key));
-  }
-
-  static public class NoValueExceptionEntryProcessor<K, V, T> extends MockEntryProcessor<K, V, T> {
-    NoValueExceptionEntryProcessor(V setValue) {
-      this.setValue = setValue;
-    }
-
-    @Override
-    public T process(Cache.MutableEntry<K, V> entry, Object... arguments) {
-      assertFalse(entry.exists());
-      entry.setValue(setValue);
-      assertTrue(entry.exists());
-      throw new IllegalAccessError();
-    }
-
-    private final V setValue;
+    final String  value = "abc";
+    assertEquals(ret, cache.invoke(key, new SetValueCreateEntryReturnDifferentTypeEntryProcessor<Integer, String, Integer>(ret, value)));
+    assertEquals(value, cache.get(key));
   }
 
   @Test
   public void noValueException() {
     final Integer key = 123;
     final String setValue = "abc";
-    Cache.EntryProcessor<Integer, String, Void> processor =
-        new NoValueExceptionEntryProcessor<Integer, String, Void>(setValue);
+
+    Cache.EntryProcessor processors[] =
+        new Cache.EntryProcessor[]{
+                 new AssertNotPresentEntryProcessor(null),
+                 new SetEntryProcessor<Integer, String, Integer>(setValue),
+                 new ThrowExceptionEntryProcessor<Integer, String, String>(IllegalAccessError.class)
+             };
     try {
-      cache.invoke(key, processor);
+      cache.invoke(key, new CombineEntryProcessor(processors));
       fail();
     } catch (CacheException e) {
-      assertTrue(e.getCause() instanceof IllegalAccessError);
+      assertTrue("expected IllegalAccessException; observed " + e.getCause(), e.getCause() instanceof IllegalAccessError);
     }
     assertFalse(cache.containsKey(key));
-  }
-
-  static public class ExistingReplaceEntryProcessor<K, V, T> extends MockEntryProcessor<K, V, T> {
-    ExistingReplaceEntryProcessor(V oldValue, V newValue) {
-      this.newValue = newValue;
-      this.oldValue = oldValue;
-    }
-
-    @Override
-    public T process(Cache.MutableEntry<K, V> entry, Object... arguments) {
-      assertTrue(entry.exists());
-      V value1 = entry.getValue();
-      assertEquals(oldValue, entry.getValue());
-      entry.setValue(newValue);
-      assertTrue(entry.exists());
-      assertEquals(newValue, entry.getValue());
-      return (T) value1;
-    }
-
-    private final V oldValue;
-    private final V newValue;
   }
 
   @Test
@@ -240,30 +141,9 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     final Integer key = 123;
     final String oldValue = "abc";
     final String newValue = "def";
-    Cache.EntryProcessor<Integer, String, String> processor =
-        new ExistingReplaceEntryProcessor<Integer, String, String>(oldValue, newValue);
     cache.put(key, oldValue);
-    assertEquals(oldValue, cache.invoke(key, processor));
+    assertEquals(oldValue, cache.invoke(key, new ReplaceEntryProcessor<Integer, String, String>(oldValue, newValue)));
     assertEquals(newValue, cache.get(key));
-  }
-
-  static public class ExistingExceptionEntryProcessor<K, V, T> extends MockEntryProcessor<K, V, T> {
-    ExistingExceptionEntryProcessor(V oldValue, V newValue) {
-      this.newValue = newValue;
-      this.oldValue = oldValue;
-    }
-
-    @Override
-    public T process(Cache.MutableEntry<K, V> entry, Object... arguments) {
-      assertEquals(oldValue, entry.getValue());
-      entry.setValue(newValue);
-      assertTrue(entry.exists());
-      assertEquals(newValue, entry.getValue());
-      throw new IllegalAccessError();
-    }
-
-    private final V oldValue;
-    private final V newValue;
   }
 
   @Test
@@ -271,93 +151,58 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     final Integer key = 123;
     final String oldValue = "abc";
     final String newValue = "def";
-    Cache.EntryProcessor<Integer, String, String> processor =
-        new ExistingExceptionEntryProcessor<Integer, String, String>(oldValue, newValue);
     cache.put(key, oldValue);
+
+    Cache.EntryProcessor processors[] =
+        new Cache.EntryProcessor[]{
+            new ReplaceEntryProcessor<Integer, String, Integer>(oldValue, newValue),
+            new ThrowExceptionEntryProcessor<Integer, String, String>(IllegalAccessError.class)
+     };
     try {
-      cache.invoke(key, processor);
+      cache.invoke(key, new CombineEntryProcessor<Integer, String>(processors));
       fail();
     } catch (CacheException e) {
-      assertTrue(e.getCause() instanceof IllegalAccessError);
+      assertTrue("expected IllegalAccessException; observed " + e.getCause(), e.getCause() instanceof IllegalAccessError);
     }
     assertEquals(oldValue, cache.get(key));
-  }
-
-  static public class RemoveMissingEntryProcessor<K, V, T> extends MockEntryProcessor<K, V, T> {
-    RemoveMissingEntryProcessor(T ret) {
-      this.ret = ret;
-    }
-
-    @Override
-    public T process(Cache.MutableEntry<K, V> entry, Object... arguments) {
-      assertFalse(entry.exists());
-      entry.setValue((V) "aba");
-      assertTrue(entry.exists());
-      entry.remove();
-      assertFalse(entry.exists());
-      return ret;
-    }
-
-    private final T ret;
   }
 
   @Test
   public void removeMissing() {
     final Integer key = 123;
+    final String  value = "aba";
     final Integer ret = 456;
-    Cache.EntryProcessor<Integer, String, Integer> processor =
-        new RemoveMissingEntryProcessor<Integer, String, Integer>(ret);
-    assertEquals(ret, cache.invoke(key, processor));
+    Cache.EntryProcessor processors[] =
+        new Cache.EntryProcessor[]{
+            new AssertNotPresentEntryProcessor<Integer, String, Integer>(ret),
+            new SetEntryProcessor<Integer, String, String>(value),
+            new RemoveEntryProcessor<Integer, String, String>(true)
+        };
+    Object[] result = cache.invoke(key, new CombineEntryProcessor<Integer, String>(processors));
+    assertEquals(ret, result[0]);
     assertFalse(cache.containsKey(key));
-  }
-
-  static public class RemoveThereEntryProcessor<K, V, T> extends MockEntryProcessor<K, V, T> {
-
-    @Override
-    public T process(Cache.MutableEntry<K, V> entry, Object... arguments) {
-      assertTrue(entry.exists());
-      String oldValue = (String) entry.getValue();
-      entry.remove();
-      assertFalse(entry.exists());
-      return (T) oldValue;
-    }
   }
 
   @Test
-  public void removeThere() {
+  public void removeExisting() {
     final Integer key = 123;
     final String oldValue = "abc";
-    Cache.EntryProcessor<Integer, String, String> processor =
-        new RemoveThereEntryProcessor<Integer, String, String>();
     cache.put(key, oldValue);
-    assertEquals(oldValue, cache.invoke(key, processor));
+    assertEquals(oldValue, cache.invoke(key, new RemoveEntryProcessor<Integer, String, String>(true)));
     assertFalse(cache.containsKey(key));
   }
 
-
-  static public class RemoveExceptionEntryProcessor<K, V, T> extends MockEntryProcessor<K, V, T> {
-
-    @Override
-    public T process(Cache.MutableEntry<K, V> entry, Object... arguments) {
-      assertTrue(entry.exists());
-      entry.remove();
-      assertFalse(entry.exists());
-      throw new IllegalAccessError();
-    }
-  }
 
   @Test
   public void removeException() {
     final Integer key = 123;
     final String oldValue = "abc";
-    Cache.EntryProcessor<Integer, String, Void> processor =
-        new RemoveExceptionEntryProcessor<Integer, String, Void>();
     cache.put(key, oldValue);
     try {
-      cache.invoke(key, processor);
+      cache.invoke(key, new ThrowExceptionEntryProcessor<Integer, String, Void>(IllegalAccessError.class));
       fail();
     } catch (CacheException e) {
-      assertTrue(e.getCause() instanceof IllegalAccessError);
+      assertTrue("expected IllegalAccessException; observed " + e.getCause(), e.getCause() instanceof IllegalAccessError);
     }
     assertEquals(oldValue, cache.get(key));
   }
