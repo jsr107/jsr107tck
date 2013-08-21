@@ -28,21 +28,18 @@ import java.util.Map;
  * @param <V> the type of values
  * @author Brian Oliver
  */
-public class FailingCacheLoader<K, V> implements CacheLoader<K, V> {
+public class FailingCacheLoader<K, V> extends RecordingCacheLoader {
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public Cache.Entry<K, V> load(K key) {
+  public Cache.Entry load(Object key) {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
-  public Map<K, V> loadAll(Iterable<? extends K> keys) {
+  public Map loadAll(Iterable keys) {
     throw new UnsupportedOperationException();
   }
 }

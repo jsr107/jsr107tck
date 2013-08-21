@@ -9,6 +9,8 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.fail;
 
 import javax.cache.Cache;
+import javax.cache.integration.CacheWriterException;
+import java.io.IOException;
 
 /**
  * Functional Tests for the {@link CacheWriterClient} and {@link CacheWriterServer}
