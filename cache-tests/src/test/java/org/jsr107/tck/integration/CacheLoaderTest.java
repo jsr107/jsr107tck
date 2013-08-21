@@ -28,6 +28,7 @@ import javax.cache.Caching;
 import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.integration.CacheLoader;
+import javax.cache.integration.CacheLoaderException;
 import javax.cache.integration.CompletionListenerFuture;
 import java.io.IOException;
 import java.util.HashMap;
@@ -818,9 +819,9 @@ public class CacheLoaderTest {
       String key = "message";
       cache.get(key);
 
-      fail("Expected an UnsupportedOperationException");
-    } catch (UnsupportedOperationException e) {
-      //SKIP: expected
+      fail();
+    } catch (CacheLoaderException e) {
+      //expected
     }
   }
 
@@ -846,7 +847,7 @@ public class CacheLoaderTest {
     try{
       future.get();
     } catch (ExecutionException e) {
-      assertThat(e.getCause(), instanceOf(UnsupportedOperationException.class));
+      assertThat(e.getCause(), instanceOf(CacheLoaderException.class));
     }
   }
 }
