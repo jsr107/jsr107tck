@@ -17,6 +17,9 @@
 
 package org.jsr107.tck.event;
 
+import org.jsr107.tck.entryprocessor.MultiArgumentHandlingEntryProcessor;
+import org.jsr107.tck.entryprocessor.RemoveEntryProcessor;
+import org.jsr107.tck.entryprocessor.SetEntryProcessor;
 import org.jsr107.tck.testutil.CacheTestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.junit.Before;
@@ -25,7 +28,6 @@ import org.junit.Test;
 import org.junit.rules.MethodRule;
 
 import javax.cache.Cache;
-import javax.cache.Cache.MutableEntry;
 import javax.cache.CacheManager;
 import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
@@ -105,49 +107,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     return configuration.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ModifiedExpiryPolicy<Long, String>(new Duration(TimeUnit.MILLISECONDS, 20))));
   }
 
-  static public class SetEntryProcessor<K, V, T> implements Cache.EntryProcessor<K, V, T>, Serializable {
-
-    private V value;
-
-    public SetEntryProcessor(V value) {
-      this.value = value;
-    }
-
-    public T process(MutableEntry<K, V> entry, Object... arguments) {
-      entry.setValue(value);
-      return (T) entry.getValue();
-    }
-
-    public V getValue() {
-      return value;
-    }
-  }
-
-  static public class MultiArgumentEntryProcessor<K, V, T> implements Cache.EntryProcessor<K, V, T>, Serializable {
-    @Override
-    public T process(MutableEntry<K, V> entry, Object... arguments) {
-      assertEquals("These", arguments[0]);
-      assertEquals("are", arguments[1]);
-      assertEquals("arguments", arguments[2]);
-      return (T) entry.getValue();
-    }
-  }
-
-  static public class RemoveEntryProcessor<K, V, T> implements Cache.EntryProcessor<K, V, T>, Serializable {
-    @Override
-    public T process(MutableEntry<K, V> entry, Object... arguments) {
-      entry.remove();
-      return (T) entry.getValue();
-    }
-  }
-
-
-
-
-
-
-
-  /**
+    /**
    * Check the listener is getting reads
    */
   @Test
@@ -195,8 +155,8 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     assertEquals(0, listener.getRemoved());
 
 
-    Cache.EntryProcessor<Long, String, String> multiArgEP = new MultiArgumentEntryProcessor<Long, String, String>();
-    String result = cache.invoke(1l, multiArgEP, "These", "are", "arguments");
+    Cache.EntryProcessor<Long, String, String> multiArgEP = new MultiArgumentHandlingEntryProcessor<>(value);
+    String result = cache.invoke(1l, multiArgEP, "These", "are", "arguments", 1l);
     assertEquals(value, result);
     assertEquals(4, listener.getCreated());
     assertEquals(4, listener.getUpdated());

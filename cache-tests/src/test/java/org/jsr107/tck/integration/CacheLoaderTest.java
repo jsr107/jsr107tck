@@ -25,6 +25,7 @@ import org.junit.Test;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
+import javax.cache.CacheException;
 import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.integration.CacheLoader;
@@ -819,7 +820,7 @@ public class CacheLoaderTest {
       cache.get(key);
 
       fail("Expected an UnsupportedOperationException");
-    } catch (UnsupportedOperationException e) {
+    } catch (CacheException e) {
       //SKIP: expected
     }
   }
@@ -846,7 +847,7 @@ public class CacheLoaderTest {
     try{
       future.get();
     } catch (ExecutionException e) {
-      assertThat(e.getCause(), instanceOf(UnsupportedOperationException.class));
+      assertThat(e.getCause(), instanceOf(CacheException.class));
     }
   }
 }
