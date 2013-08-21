@@ -274,9 +274,15 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     }
 
     try {
-      cache.getAndPut(4l, "Cody");
-    } catch (CacheEntryListenerException e) {
-      //expected
+      cache.remove(4l);
+    } catch (IOError e) {
+      //expected. We don't wrap Error
+    }
+
+    try {
+      cache.remove(4l);
+    } catch (IOError e) {
+      //expected. We don't wrap Error
     }
 
     String value = cache.get(1l);
