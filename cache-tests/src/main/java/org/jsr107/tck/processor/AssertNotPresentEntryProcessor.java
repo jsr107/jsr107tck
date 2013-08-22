@@ -31,7 +31,7 @@ import static org.junit.Assert.assertFalse;
  * @param <V>  value type
  * @param <T>  process return type
  */
-public class AssertNotPresentEntryProcessor<K, V, T> implements EntryProcessor<K, V, T>, Serializable {
+public class AssertNotPresentEntryProcessor<K, V, T> extends EntryProcessor<K, V, T> implements Serializable {
     private final T ret;
 
     public AssertNotPresentEntryProcessor(T ret) {

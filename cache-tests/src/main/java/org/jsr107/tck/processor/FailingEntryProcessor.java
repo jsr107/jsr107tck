@@ -30,7 +30,7 @@ import java.io.Serializable;
  * @param <V> value type
  * @param <T> return type
  */
-public class FailingEntryProcessor<K, V, T> implements EntryProcessor<K, V, T>, Serializable {
+public class FailingEntryProcessor<K, V, T> extends EntryProcessor<K, V, T> implements Serializable {
 
     private final Class<? extends Throwable> clazz;
 

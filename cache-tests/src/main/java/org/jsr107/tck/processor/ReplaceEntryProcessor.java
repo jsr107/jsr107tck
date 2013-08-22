@@ -32,7 +32,7 @@ import static org.junit.Assert.assertTrue;
  * @param <V>  value type
  * @param <T>  process return type
  */
-public class ReplaceEntryProcessor<K, V, T> implements EntryProcessor<K, V, T>, Serializable {
+public class ReplaceEntryProcessor<K, V, T> extends EntryProcessor<K, V, T> implements Serializable {
     private final V newValue;
     private final V oldValue;
 

@@ -31,7 +31,7 @@ import java.io.Serializable;
  *
  * @author Joe Fialli
  */
-public class SetEntryWithComputedValueProcessor<K> implements EntryProcessor<K, String, String>, Serializable {
+public class SetEntryWithComputedValueProcessor<K> extends EntryProcessor<K, String, String> implements Serializable {
     private String valuePrefix;
     private String valuePostfix;
 

@@ -26,7 +26,7 @@ import java.io.Serializable;
  * @param <K>  key type
  * @param <V>  value type
  */
-public class CombineEntryProcessor<K,V> implements EntryProcessor<K,V,Object[]>, Serializable {
+public class CombineEntryProcessor<K,V> extends EntryProcessor<K,V,Object[]> implements Serializable {
 
     private EntryProcessor<K,V,Object>[] processors;
 

@@ -31,7 +31,7 @@ import java.io.Serializable;
  * @param <V>
  * @param <T>
  */
-public class MultiArgumentHandlingEntryProcessor<K, V, T> implements EntryProcessor<K, V, T>, Serializable {
+public class MultiArgumentHandlingEntryProcessor<K, V, T> extends EntryProcessor<K, V, T> implements Serializable {
     private final T ret;
 
     public MultiArgumentHandlingEntryProcessor(T ret) {

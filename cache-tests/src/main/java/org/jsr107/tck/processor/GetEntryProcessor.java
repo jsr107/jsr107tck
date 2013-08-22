@@ -29,7 +29,7 @@ import java.io.Serializable;
  * @param <V>  value type
  * @param <T>  process return type
  */
-public class GetEntryProcessor<K, V, T> implements EntryProcessor<K, V, T>, Serializable {
+public class GetEntryProcessor<K, V, T> extends EntryProcessor<K, V, T> implements Serializable {
 
     public T process(MutableEntry<K, V> entry, Object... arguments) {
         return (T) entry.getValue();
