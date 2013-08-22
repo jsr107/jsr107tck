@@ -14,16 +14,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.jsr107.tck;
+package org.jsr107.tck.processor;
 
-import org.jsr107.tck.processor.AssertNotPresentEntryProcessor;
-import org.jsr107.tck.processor.CombineEntryProcessor;
-import org.jsr107.tck.processor.MultiArgumentHandlingEntryProcessor;
-import org.jsr107.tck.processor.RemoveEntryProcessor;
-import org.jsr107.tck.processor.ReplaceEntryProcessor;
-import org.jsr107.tck.processor.SetEntryProcessor;
-import org.jsr107.tck.processor.SetValueCreateEntryReturnDifferentTypeEntryProcessor;
-import org.jsr107.tck.processor.ThrowExceptionEntryProcessor;
 import org.jsr107.tck.testutil.CacheTestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.junit.Before;
@@ -33,6 +25,7 @@ import org.junit.Test;
 import javax.cache.CacheException;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.processor.EntryProcessor;
+import javax.cache.processor.EntryProcessorException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -93,6 +86,19 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
       fail("null key");
     } catch (IllegalStateException e) {
       //
+    }
+  }
+
+
+  @Test
+  public void testProcessorExceptionIsWrapped() {
+    try {
+      cache.invoke(123, new FailingEntryProcessor<Integer, String,
+          Void>(UnsupportedOperationException.class));
+      fail();
+    } catch (EntryProcessorException e) {
+      assertTrue(e.getCause() instanceof RuntimeException);
+      //expected
     }
   }
 
