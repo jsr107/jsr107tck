@@ -44,15 +44,13 @@ public class MutableConfigurationTest {
    */
   @Test
   public void shouldUseDefaults() {
-    Configuration<?, ?> config = new MutableConfiguration<>();
+    Configuration<?, ?> config = new MutableConfiguration();
     assertFalse(config.isReadThrough());
     assertFalse(config.isWriteThrough());
     assertFalse(config.isStatisticsEnabled());
     assertTrue(config.isStoreByValue());
 
     ExpiryPolicy<?, ?> expiryPolicy = config.getExpiryPolicyFactory().create();
-
-    Duration duration = new Duration(TimeUnit.MINUTES, 10);
 
     assertThat(Duration.ETERNAL, equalTo(expiryPolicy.getExpiryForCreatedEntry(null)));
     assertThat(expiryPolicy.getExpiryForAccessedEntry(null), is(nullValue()));
@@ -64,22 +62,22 @@ public class MutableConfigurationTest {
    */
   @Test
   public void shouldBeEqualWhenUsingDefaults() {
-    Configuration<?, ?> config1 = new MutableConfiguration<>();
-    Configuration<?, ?> config2 = new MutableConfiguration<>();
+    Configuration config1 = new MutableConfiguration();
+    Configuration config2 = new MutableConfiguration();
     assertEquals(config1, config2);
   }
 
   /**
-   * Ensure that two {@link MutableConfiguration}s, one specifying types and
-   * another not specifying types should not be equal.
+   * Ensure that two {@link MutableConfiguration}s, one specifying types
+   * as Object and another not specifying types should be equal.
    */
   @Test
-  public void shouldNotBeEqualWhenUsingTypedAndUntypedConfigurations() {
-    Configuration<?, ?> config1 = new MutableConfiguration<>();
-    Configuration<?, ?> config2 = new MutableConfiguration<Object, Object>()
+  public void shouldBeEqualWhenUsingTypedAndUntypedConfigurationsWithObject() {
+    Configuration config1 = new MutableConfiguration();
+    Configuration config2 = new MutableConfiguration<Object, Object>()
         .setTypes(Object.class, Object.class);
 
-    assertThat(config1.equals(config2), is(false));
+    assertThat(config1.equals(config2), is(true));
   }
 
   /**
@@ -88,8 +86,8 @@ public class MutableConfigurationTest {
    */
   @Test
   public void shouldNotBeTheSameButAClone() {
-    Configuration<?, ?> config1 = new MutableConfiguration<>(new MutableConfiguration<>());
-    Configuration<?, ?> config2 = new MutableConfiguration<>();
+    Configuration config1 = new MutableConfiguration(new MutableConfiguration());
+    Configuration config2 = new MutableConfiguration();
     assertNotSame(config1, config2);
     assertEquals(config1, config2);
   }
@@ -100,8 +98,8 @@ public class MutableConfigurationTest {
    */
   @Test
   public void shouldNotBeTheSame() {
-    Configuration<?, ?> config1 = new MutableConfiguration<>();
-    Configuration<?, ?> config2 = new MutableConfiguration<>();
+    Configuration config1 = new MutableConfiguration();
+    Configuration config2 = new MutableConfiguration();
     assertNotSame(config1, config2);
   }
 
@@ -110,8 +108,8 @@ public class MutableConfigurationTest {
    */
   @Test
   public void shouldEqual() {
-    Configuration<?, ?> config1 = new MutableConfiguration<>();
-    Configuration<?, ?> config2 = new MutableConfiguration<>();
+    Configuration config1 = new MutableConfiguration();
+    Configuration config2 = new MutableConfiguration();
     assertEquals(config1, config2);
   }
 }

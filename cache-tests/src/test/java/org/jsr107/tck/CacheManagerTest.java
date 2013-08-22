@@ -496,8 +496,8 @@ public class CacheManagerTest extends TestSupport {
     Cache cache = cacheManager.getCache("untyped-cache");
 
     assertNotNull(cache);
-    assertNull(cache.getConfiguration().getKeyType());
-    assertNull(cache.getConfiguration().getValueType());
+    assertEquals(Object.class, cache.getConfiguration().getKeyType());
+    assertEquals(Object.class, cache.getConfiguration().getValueType());
   }
 
   @Test
