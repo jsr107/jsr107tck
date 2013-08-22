@@ -19,12 +19,11 @@
 
 package org.jsr107.tck.integration;
 
+import javax.cache.Cache;
+import javax.cache.CacheException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.cache.Cache;
-import javax.cache.CacheException;
 
 /**
  * Simulate Partial Success in batch operations.

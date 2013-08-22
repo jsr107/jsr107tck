@@ -19,11 +19,12 @@
 
 package org.jsr107.tck.entryprocessor;
 
+import javax.cache.processor.EntryProcessor;
+import javax.cache.processor.MutableEntry;
+import java.io.Serializable;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
-import javax.cache.Cache;
-import java.io.Serializable;
 
 /**
  * Replace entry processor
@@ -31,7 +32,7 @@ import java.io.Serializable;
  * @param <V>  value type
  * @param <T>  process return type
  */
-public class ReplaceEntryProcessor<K, V, T> implements Cache.EntryProcessor<K, V, T>, Serializable {
+public class ReplaceEntryProcessor<K, V, T> implements EntryProcessor<K, V, T>, Serializable {
     private final V newValue;
     private final V oldValue;
 
@@ -41,7 +42,7 @@ public class ReplaceEntryProcessor<K, V, T> implements Cache.EntryProcessor<K, V
     }
 
     @Override
-    public T process(Cache.MutableEntry<K, V> entry, Object... arguments) {
+    public T process(MutableEntry<K, V> entry, Object... arguments) {
         assertTrue(entry.exists());
         V value1 = entry.getValue();
         assertEquals(oldValue, entry.getValue());

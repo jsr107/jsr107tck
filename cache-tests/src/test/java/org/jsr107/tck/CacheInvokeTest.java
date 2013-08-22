@@ -16,16 +16,23 @@
  */
 package org.jsr107.tck;
 
-import org.jsr107.tck.entryprocessor.*;
+import org.jsr107.tck.entryprocessor.AssertNotPresentEntryProcessor;
+import org.jsr107.tck.entryprocessor.CombineEntryProcessor;
+import org.jsr107.tck.entryprocessor.MultiArgumentHandlingEntryProcessor;
+import org.jsr107.tck.entryprocessor.RemoveEntryProcessor;
+import org.jsr107.tck.entryprocessor.ReplaceEntryProcessor;
+import org.jsr107.tck.entryprocessor.SetEntryProcessor;
+import org.jsr107.tck.entryprocessor.SetValueCreateEntryReturnDifferentTypeEntryProcessor;
+import org.jsr107.tck.entryprocessor.ThrowExceptionEntryProcessor;
 import org.jsr107.tck.testutil.CacheTestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import javax.cache.Cache;
 import javax.cache.CacheException;
 import javax.cache.configuration.MutableConfiguration;
+import javax.cache.processor.EntryProcessor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -121,8 +128,8 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     final Integer key = 123;
     final String setValue = "abc";
 
-    Cache.EntryProcessor processors[] =
-        new Cache.EntryProcessor[]{
+    EntryProcessor processors[] =
+        new EntryProcessor[]{
                  new AssertNotPresentEntryProcessor(null),
                  new SetEntryProcessor<Integer, String, Integer>(setValue),
                  new ThrowExceptionEntryProcessor<Integer, String, String>(IllegalAccessError.class)
@@ -154,8 +161,8 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     final String newValue = "def";
     cache.put(key, oldValue);
 
-    Cache.EntryProcessor processors[] =
-        new Cache.EntryProcessor[]{
+    EntryProcessor processors[] =
+        new EntryProcessor[]{
             new ReplaceEntryProcessor<Integer, String, Integer>(oldValue, newValue),
             new ThrowExceptionEntryProcessor<Integer, String, String>(IllegalAccessError.class)
      };
@@ -174,8 +181,8 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     final Integer key = 123;
     final String  value = "aba";
     final Integer ret = 456;
-    Cache.EntryProcessor processors[] =
-        new Cache.EntryProcessor[]{
+    EntryProcessor processors[] =
+        new EntryProcessor[]{
             new AssertNotPresentEntryProcessor<Integer, String, Integer>(ret),
             new SetEntryProcessor<Integer, String, String>(value),
             new RemoveEntryProcessor<Integer, String, String>(true)

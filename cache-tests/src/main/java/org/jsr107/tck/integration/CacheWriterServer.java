@@ -22,15 +22,13 @@ package org.jsr107.tck.integration;
 import org.jsr107.tck.support.OperationHandler;
 import org.jsr107.tck.support.Server;
 
+import javax.cache.Cache;
+import javax.cache.integration.CacheWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
 import java.util.Collection;
 import java.util.HashSet;
-
-import javax.cache.Cache;
-import javax.cache.integration.CacheWriter;
 
 /**
  * A {@link Server} that handles {@link CacheWriter} requests from a

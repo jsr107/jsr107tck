@@ -19,9 +19,9 @@
 
 package org.jsr107.tck.entryprocessor;
 
+import javax.cache.processor.EntryProcessor;
+import javax.cache.processor.MutableEntry;
 import java.io.Serializable;
-
-import javax.cache.Cache;
 
 /**
  * Set entry processor that generates a value based on the entries key.
@@ -31,7 +31,7 @@ import javax.cache.Cache;
  *
  * @author Joe Fialli
  */
-public class SetEntryWithComputedValueProcessor<K> implements Cache.EntryProcessor<K, String, String>, Serializable {
+public class SetEntryWithComputedValueProcessor<K> implements EntryProcessor<K, String, String>, Serializable {
     private String valuePrefix;
     private String valuePostfix;
 
@@ -40,7 +40,7 @@ public class SetEntryWithComputedValueProcessor<K> implements Cache.EntryProcess
         this.valuePostfix = valuePostfix;
     }
 
-    public String process(Cache.MutableEntry<K, String> entry, Object... arguments) {
+    public String process(MutableEntry<K, String> entry, Object... arguments) {
         StringBuffer computedValue = new StringBuffer();
         if (valuePrefix != null) {
             computedValue.append(valuePrefix);

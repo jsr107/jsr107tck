@@ -35,7 +35,7 @@ package org.jsr107.tck.entryprocessor;
 
 import org.junit.Assert;
 
-import javax.cache.Cache;
+import javax.cache.processor.MutableEntry;
 
 /**
  * Specialized Entry processor that can return a different type and value than the entry value.
@@ -54,7 +54,7 @@ public class SetValueCreateEntryReturnDifferentTypeEntryProcessor<K, V, T> exten
     }
 
     @Override
-    public T process(Cache.MutableEntry<K, V> entry, Object... arguments) {
+    public T process(MutableEntry<K, V> entry, Object... arguments) {
         Assert.assertFalse(entry.exists());
         super.process(entry, arguments);
         Assert.assertTrue(entry.exists());

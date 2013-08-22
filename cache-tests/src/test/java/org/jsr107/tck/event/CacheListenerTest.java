@@ -32,10 +32,15 @@ import javax.cache.CacheManager;
 import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
 import javax.cache.configuration.MutableConfiguration;
-import javax.cache.event.*;
+import javax.cache.event.CacheEntryCreatedListener;
+import javax.cache.event.CacheEntryEvent;
+import javax.cache.event.CacheEntryExpiredListener;
+import javax.cache.event.CacheEntryListenerException;
+import javax.cache.event.CacheEntryRemovedListener;
+import javax.cache.event.CacheEntryUpdatedListener;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ModifiedExpiryPolicy;
-import javax.management.JMException;
+import javax.cache.processor.EntryProcessor;
 import java.io.IOError;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -152,7 +157,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     assertEquals(0, listener.getRemoved());
 
 
-    Cache.EntryProcessor<Long, String, String> multiArgEP = new MultiArgumentHandlingEntryProcessor<>(value);
+    EntryProcessor<Long, String, String> multiArgEP = new MultiArgumentHandlingEntryProcessor<>(value);
     String result = cache.invoke(1l, multiArgEP, "These", "are", "arguments", 1l);
     assertEquals(value, result);
     assertEquals(4, listener.getCreated());
@@ -252,7 +257,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     }
 
     String value = cache.get(1l);
-    Cache.EntryProcessor<Long, String, String> multiArgEP = new MultiArgumentHandlingEntryProcessor<>(null);
+    EntryProcessor<Long, String, String> multiArgEP = new MultiArgumentHandlingEntryProcessor<>(null);
     try {
       String result = cache.invoke(1l, multiArgEP, "These", "are", "arguments", 1l);
     } catch (CacheEntryListenerException e) {

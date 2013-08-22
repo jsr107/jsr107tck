@@ -34,8 +34,9 @@
 
 package org.jsr107.tck.entryprocessor;
 
+import javax.cache.processor.EntryProcessor;
+import javax.cache.processor.MutableEntry;
 import java.io.Serializable;
-import javax.cache.Cache;
 
 /**
  * Basic set entry processor.
@@ -43,14 +44,14 @@ import javax.cache.Cache;
  * @param <V>  value type
  * @param <T>  process return type
  */
-public class SetEntryProcessor<K, V, T> implements Cache.EntryProcessor<K, V, T>, Serializable {
+public class SetEntryProcessor<K, V, T> implements EntryProcessor<K, V, T>, Serializable {
     private V value;
 
     public SetEntryProcessor(V value) {
         this.value = value;
     }
 
-    public T process(Cache.MutableEntry<K, V> entry, Object... arguments) {
+    public T process(MutableEntry<K, V> entry, Object... arguments) {
         entry.setValue(value);
 
         return (T) entry.getValue();

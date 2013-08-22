@@ -19,8 +19,9 @@
 
 package org.jsr107.tck.entryprocessor;
 
-import javax.cache.Cache;
 import javax.cache.CacheException;
+import javax.cache.processor.EntryProcessor;
+import javax.cache.processor.MutableEntry;
 import java.io.Serializable;
 
 /**
@@ -30,7 +31,7 @@ import java.io.Serializable;
  * @param <V> value type
  * @param <T> return type
  */
-public class ThrowExceptionEntryProcessor<K, V, T> implements Cache.EntryProcessor<K, V, T>, Serializable {
+public class ThrowExceptionEntryProcessor<K, V, T> implements EntryProcessor<K, V, T>, Serializable {
 
     private final Class<? extends Throwable> clazz;
 
@@ -39,7 +40,7 @@ public class ThrowExceptionEntryProcessor<K, V, T> implements Cache.EntryProcess
     }
 
     @Override
-    public T process(Cache.MutableEntry<K, V> entry, Object... arguments) {
+    public T process(MutableEntry<K, V> entry, Object... arguments) {
         try {
             throw clazz.newInstance();
         } catch (Throwable t) {

@@ -18,18 +18,17 @@
 
 package org.jsr107.tck.integration;
 
-import org.jsr107.tck.entryprocessor.*;
+import org.jsr107.tck.entryprocessor.AssertNotPresentEntryProcessor;
+import org.jsr107.tck.entryprocessor.CombineEntryProcessor;
+import org.jsr107.tck.entryprocessor.RemoveEntryProcessor;
+import org.jsr107.tck.entryprocessor.SetEntryProcessor;
+import org.jsr107.tck.entryprocessor.SetEntryWithComputedValueProcessor;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.jsr107.tck.testutil.TestSupport;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.io.IOException;
-
-import java.util.*;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
@@ -39,8 +38,18 @@ import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.integration.CacheWriterException;
 import javax.cache.integration.CompletionListenerFuture;
+import javax.cache.processor.EntryProcessor;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Functional test for {@link javax.cache.integration.CacheWriter}s.
@@ -464,8 +473,8 @@ public class CacheWriterTest extends TestSupport {
     assertEquals(0, cacheWriter.getDeleteCount());
 
     cache.put(1, "Gudday World");
-        Cache.EntryProcessor processors[] =
-            new Cache.EntryProcessor[] {
+        EntryProcessor processors[] =
+            new EntryProcessor[] {
                 new RemoveEntryProcessor<Integer, String, Object>(true),
                 new AssertNotPresentEntryProcessor(null),
                 new SetEntryProcessor<Integer, String, String>("After remove")
@@ -482,8 +491,8 @@ public class CacheWriterTest extends TestSupport {
     assertEquals(0, cacheWriter.getWriteCount());
     assertEquals(0, cacheWriter.getDeleteCount());
 
-    Cache.EntryProcessor processors[] =
-            new Cache.EntryProcessor[] {
+    EntryProcessor processors[] =
+            new EntryProcessor[] {
                 new AssertNotPresentEntryProcessor(null),
                 new SetEntryProcessor<Integer, String, Object>("Gudday World"),
                 new RemoveEntryProcessor<Integer, String, Object>(true)
@@ -500,8 +509,8 @@ public class CacheWriterTest extends TestSupport {
   public void shouldWriteThroughUsingInvoke_setValue_CreateEntryGetValue() {
     assertEquals(0, cacheWriter.getWriteCount());
     assertEquals(0, cacheWriter.getDeleteCount());
-    Cache.EntryProcessor processors[] =
-        new Cache.EntryProcessor[] {
+    EntryProcessor processors[] =
+        new EntryProcessor[] {
             new AssertNotPresentEntryProcessor(null),
             new SetEntryProcessor<Integer, String, String>("Gudday World")
         };

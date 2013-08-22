@@ -21,20 +21,17 @@ package org.jsr107.tck.integration;
 
 import org.jsr107.tck.support.Operation;
 
+import javax.cache.Cache;
+import javax.cache.integration.CacheWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
 import java.net.InetAddress;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-
-import javax.cache.Cache;
-import javax.cache.integration.CacheWriter;
 
 /**
  * A {@link CacheWriter} that delegates requests to a {@link CacheWriterServer}.

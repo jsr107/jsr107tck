@@ -17,7 +17,8 @@
 
 package org.jsr107.tck.entryprocessor;
 
-import javax.cache.Cache;
+import javax.cache.processor.EntryProcessor;
+import javax.cache.processor.MutableEntry;
 import java.io.Serializable;
 
 /**
@@ -25,11 +26,11 @@ import java.io.Serializable;
  * @param <K>  key type
  * @param <V>  value type
  */
-public class CombineEntryProcessor<K,V> implements Cache.EntryProcessor<K,V,Object[]>, Serializable {
+public class CombineEntryProcessor<K,V> implements EntryProcessor<K,V,Object[]>, Serializable {
 
-    private Cache.EntryProcessor<K,V,Object>[] processors;
+    private EntryProcessor<K,V,Object>[] processors;
 
-    public CombineEntryProcessor(Cache.EntryProcessor<K,V,Object>[] processors) {
+    public CombineEntryProcessor(EntryProcessor<K,V,Object>[] processors) {
         if (processors == null) {
             throw new NullPointerException();
         }
@@ -38,7 +39,7 @@ public class CombineEntryProcessor<K,V> implements Cache.EntryProcessor<K,V,Obje
 
 
     @Override
-    public Object[] process(Cache.MutableEntry<K, V> entry, Object... arguments) {
+    public Object[] process(MutableEntry<K, V> entry, Object... arguments) {
         Object[] results = new Object[processors.length];
 
         for (int i = 0; i < processors.length; i++) {

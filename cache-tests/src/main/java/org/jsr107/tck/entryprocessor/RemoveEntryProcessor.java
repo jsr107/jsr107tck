@@ -19,9 +19,9 @@
 
 package org.jsr107.tck.entryprocessor;
 
+import javax.cache.processor.EntryProcessor;
+import javax.cache.processor.MutableEntry;
 import java.io.Serializable;
-
-import javax.cache.Cache;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -32,7 +32,7 @@ import static org.junit.Assert.assertTrue;
  * @param <V>  value type
  * @param <T>  process return type
  */
-public class RemoveEntryProcessor<K, V, T> implements Cache.EntryProcessor<K, V, T>, Serializable {
+public class RemoveEntryProcessor<K, V, T> implements EntryProcessor<K, V, T>, Serializable {
 
     private final boolean assertExists;
 
@@ -45,7 +45,7 @@ public class RemoveEntryProcessor<K, V, T> implements Cache.EntryProcessor<K, V,
     }
 
     @Override
-    public T process(Cache.MutableEntry<K, V> entry, Object... arguments) {
+    public T process(MutableEntry<K, V> entry, Object... arguments) {
         T result = null;
         if (assertExists) {
             assertTrue(entry.exists());
