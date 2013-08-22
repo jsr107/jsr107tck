@@ -15,45 +15,36 @@
  *  limitations under the License.
  */
 
-
-
-package org.jsr107.tck.entryprocessor;
+package org.jsr107.tck.processor;
 
 import javax.cache.processor.EntryProcessor;
 import javax.cache.processor.MutableEntry;
 import java.io.Serializable;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 /**
- * Remove entry processor
+ * Combine multiple elementary processors into a composite.
  * @param <K>  key type
  * @param <V>  value type
- * @param <T>  process return type
  */
-public class RemoveEntryProcessor<K, V, T> implements EntryProcessor<K, V, T>, Serializable {
+public class CombineEntryProcessor<K,V> implements EntryProcessor<K,V,Object[]>, Serializable {
 
-    private final boolean assertExists;
+    private EntryProcessor<K,V,Object>[] processors;
 
-    public RemoveEntryProcessor(){
-        this(false);
+    public CombineEntryProcessor(EntryProcessor<K,V,Object>[] processors) {
+        if (processors == null) {
+            throw new NullPointerException();
+        }
+        this.processors = processors;
     }
 
-    public RemoveEntryProcessor(boolean assertExists) {
-        this.assertExists = assertExists;
-    }
 
     @Override
-    public T process(MutableEntry<K, V> entry, Object... arguments) {
-        T result = null;
-        if (assertExists) {
-            assertTrue(entry.exists());
-            result = (T)entry.getValue();
-        }
-        entry.remove();
-        assertFalse(entry.exists());
+    public Object[] process(MutableEntry<K, V> entry, Object... arguments) {
+        Object[] results = new Object[processors.length];
 
-        return result;
+        for (int i = 0; i < processors.length; i++) {
+            results[i] = processors[i].process(entry, arguments);
+        }
+        return results;
     }
 }

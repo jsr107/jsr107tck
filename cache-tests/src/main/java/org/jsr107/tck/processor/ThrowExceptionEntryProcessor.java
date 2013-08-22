@@ -17,39 +17,34 @@
 
 
 
-package org.jsr107.tck.entryprocessor;
+package org.jsr107.tck.processor;
 
+import javax.cache.CacheException;
 import javax.cache.processor.EntryProcessor;
 import javax.cache.processor.MutableEntry;
 import java.io.Serializable;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 /**
- * Replace entry processor
- * @param <K>  key type
- * @param <V>  value type
- * @param <T>  process return type
+ * EntryProcessor that throws clazz exception.
+ *
+ * @param <K> key type
+ * @param <V> value type
+ * @param <T> return type
  */
-public class ReplaceEntryProcessor<K, V, T> implements EntryProcessor<K, V, T>, Serializable {
-    private final V newValue;
-    private final V oldValue;
+public class ThrowExceptionEntryProcessor<K, V, T> implements EntryProcessor<K, V, T>, Serializable {
 
-    public ReplaceEntryProcessor(V oldValue, V newValue) {
-        this.newValue = newValue;
-        this.oldValue = oldValue;
+    private final Class<? extends Throwable> clazz;
+
+    public ThrowExceptionEntryProcessor(Class<? extends Throwable> clazz) {
+        this.clazz = clazz;
     }
 
     @Override
     public T process(MutableEntry<K, V> entry, Object... arguments) {
-        assertTrue(entry.exists());
-        V value1 = entry.getValue();
-        assertEquals(oldValue, entry.getValue());
-        entry.setValue(newValue);
-        assertTrue(entry.exists());
-        assertEquals(newValue, entry.getValue());
-
-        return (T) value1;
+        try {
+            throw clazz.newInstance();
+        } catch (Throwable t) {
+            throw new CacheException(t);
+        }
     }
 }

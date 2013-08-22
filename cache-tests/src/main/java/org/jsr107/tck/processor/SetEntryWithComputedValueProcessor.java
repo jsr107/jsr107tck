@@ -17,7 +17,7 @@
 
 
 
-package org.jsr107.tck.entryprocessor;
+package org.jsr107.tck.processor;
 
 import javax.cache.processor.EntryProcessor;
 import javax.cache.processor.MutableEntry;

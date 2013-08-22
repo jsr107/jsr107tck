@@ -16,14 +16,14 @@
  */
 package org.jsr107.tck;
 
-import org.jsr107.tck.entryprocessor.AssertNotPresentEntryProcessor;
-import org.jsr107.tck.entryprocessor.CombineEntryProcessor;
-import org.jsr107.tck.entryprocessor.MultiArgumentHandlingEntryProcessor;
-import org.jsr107.tck.entryprocessor.RemoveEntryProcessor;
-import org.jsr107.tck.entryprocessor.ReplaceEntryProcessor;
-import org.jsr107.tck.entryprocessor.SetEntryProcessor;
-import org.jsr107.tck.entryprocessor.SetValueCreateEntryReturnDifferentTypeEntryProcessor;
-import org.jsr107.tck.entryprocessor.ThrowExceptionEntryProcessor;
+import org.jsr107.tck.processor.AssertNotPresentEntryProcessor;
+import org.jsr107.tck.processor.CombineEntryProcessor;
+import org.jsr107.tck.processor.MultiArgumentHandlingEntryProcessor;
+import org.jsr107.tck.processor.RemoveEntryProcessor;
+import org.jsr107.tck.processor.ReplaceEntryProcessor;
+import org.jsr107.tck.processor.SetEntryProcessor;
+import org.jsr107.tck.processor.SetValueCreateEntryReturnDifferentTypeEntryProcessor;
+import org.jsr107.tck.processor.ThrowExceptionEntryProcessor;
 import org.jsr107.tck.testutil.CacheTestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.junit.Before;

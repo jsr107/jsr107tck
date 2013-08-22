@@ -18,11 +18,11 @@
 
 package org.jsr107.tck.integration;
 
-import org.jsr107.tck.entryprocessor.AssertNotPresentEntryProcessor;
-import org.jsr107.tck.entryprocessor.CombineEntryProcessor;
-import org.jsr107.tck.entryprocessor.RemoveEntryProcessor;
-import org.jsr107.tck.entryprocessor.SetEntryProcessor;
-import org.jsr107.tck.entryprocessor.SetEntryWithComputedValueProcessor;
+import org.jsr107.tck.processor.AssertNotPresentEntryProcessor;
+import org.jsr107.tck.processor.CombineEntryProcessor;
+import org.jsr107.tck.processor.RemoveEntryProcessor;
+import org.jsr107.tck.processor.SetEntryProcessor;
+import org.jsr107.tck.processor.SetEntryWithComputedValueProcessor;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.jsr107.tck.testutil.TestSupport;
 import org.junit.After;

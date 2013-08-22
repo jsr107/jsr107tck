@@ -17,33 +17,30 @@
 
 
 
-package org.jsr107.tck.entryprocessor;
-
-import org.junit.Assert;
+package org.jsr107.tck.processor;
 
 import javax.cache.processor.EntryProcessor;
 import javax.cache.processor.MutableEntry;
 import java.io.Serializable;
 
+import static org.junit.Assert.assertFalse;
+
 /**
- *
- * @param <K>
- * @param <V>
- * @param <T>
+ * Assert entry is not present entry processor.
+ * @param <K>  key type
+ * @param <V>  value type
+ * @param <T>  process return type
  */
-public class MultiArgumentHandlingEntryProcessor<K, V, T> implements EntryProcessor<K, V, T>, Serializable {
+public class AssertNotPresentEntryProcessor<K, V, T> implements EntryProcessor<K, V, T>, Serializable {
     private final T ret;
 
-    public MultiArgumentHandlingEntryProcessor(T ret) {
+    public AssertNotPresentEntryProcessor(T ret) {
         this.ret = ret;
     }
 
     @Override
     public T process(MutableEntry<K, V> entry, Object... arguments) {
-        Assert.assertEquals("These", arguments[0]);
-        Assert.assertEquals("are", arguments[1]);
-        Assert.assertEquals("arguments", arguments[2]);
-        Assert.assertEquals(1L, arguments[3]);
+        assertFalse(entry.exists());
 
         return ret;
     }

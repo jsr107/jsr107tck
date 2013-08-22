@@ -25,4 +25,4 @@
  * @author Brian Oliver
  * @author Joe Fialli
  */
-package org.jsr107.tck.entryprocessor;
+package org.jsr107.tck.processor;

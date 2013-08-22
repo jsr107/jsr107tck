@@ -15,36 +15,23 @@
  *  limitations under the License.
  */
 
-package org.jsr107.tck.entryprocessor;
+
+
+package org.jsr107.tck.processor;
 
 import javax.cache.processor.EntryProcessor;
 import javax.cache.processor.MutableEntry;
 import java.io.Serializable;
 
 /**
- * Combine multiple elementary processors into a composite.
+ * Get entry processor
  * @param <K>  key type
  * @param <V>  value type
+ * @param <T>  process return type
  */
-public class CombineEntryProcessor<K,V> implements EntryProcessor<K,V,Object[]>, Serializable {
+public class GetEntryProcessor<K, V, T> implements EntryProcessor<K, V, T>, Serializable {
 
-    private EntryProcessor<K,V,Object>[] processors;
-
-    public CombineEntryProcessor(EntryProcessor<K,V,Object>[] processors) {
-        if (processors == null) {
-            throw new NullPointerException();
-        }
-        this.processors = processors;
-    }
-
-
-    @Override
-    public Object[] process(MutableEntry<K, V> entry, Object... arguments) {
-        Object[] results = new Object[processors.length];
-
-        for (int i = 0; i < processors.length; i++) {
-            results[i] = processors[i].process(entry, arguments);
-        }
-        return results;
+    public T process(MutableEntry<K, V> entry, Object... arguments) {
+        return (T) entry.getValue();
     }
 }

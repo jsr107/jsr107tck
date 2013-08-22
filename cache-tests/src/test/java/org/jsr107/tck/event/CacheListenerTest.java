@@ -17,9 +17,9 @@
 
 package org.jsr107.tck.event;
 
-import org.jsr107.tck.entryprocessor.MultiArgumentHandlingEntryProcessor;
-import org.jsr107.tck.entryprocessor.RemoveEntryProcessor;
-import org.jsr107.tck.entryprocessor.SetEntryProcessor;
+import org.jsr107.tck.processor.MultiArgumentHandlingEntryProcessor;
+import org.jsr107.tck.processor.RemoveEntryProcessor;
+import org.jsr107.tck.processor.SetEntryProcessor;
 import org.jsr107.tck.testutil.CacheTestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.junit.Before;

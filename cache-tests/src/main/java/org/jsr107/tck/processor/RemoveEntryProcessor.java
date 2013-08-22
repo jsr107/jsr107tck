@@ -17,34 +17,43 @@
 
 
 
-package org.jsr107.tck.entryprocessor;
+package org.jsr107.tck.processor;
 
-import javax.cache.CacheException;
 import javax.cache.processor.EntryProcessor;
 import javax.cache.processor.MutableEntry;
 import java.io.Serializable;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 /**
- * EntryProcessor that throws clazz exception.
- *
- * @param <K> key type
- * @param <V> value type
- * @param <T> return type
+ * Remove entry processor
+ * @param <K>  key type
+ * @param <V>  value type
+ * @param <T>  process return type
  */
-public class ThrowExceptionEntryProcessor<K, V, T> implements EntryProcessor<K, V, T>, Serializable {
+public class RemoveEntryProcessor<K, V, T> implements EntryProcessor<K, V, T>, Serializable {
 
-    private final Class<? extends Throwable> clazz;
+    private final boolean assertExists;
 
-    public ThrowExceptionEntryProcessor(Class<? extends Throwable> clazz) {
-        this.clazz = clazz;
+    public RemoveEntryProcessor(){
+        this(false);
+    }
+
+    public RemoveEntryProcessor(boolean assertExists) {
+        this.assertExists = assertExists;
     }
 
     @Override
     public T process(MutableEntry<K, V> entry, Object... arguments) {
-        try {
-            throw clazz.newInstance();
-        } catch (Throwable t) {
-            throw new CacheException(t);
+        T result = null;
+        if (assertExists) {
+            assertTrue(entry.exists());
+            result = (T)entry.getValue();
         }
+        entry.remove();
+        assertFalse(entry.exists());
+
+        return result;
     }
 }

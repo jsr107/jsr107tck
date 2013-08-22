@@ -31,7 +31,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.jsr107.tck.entryprocessor;
+package org.jsr107.tck.processor;
 
 import org.junit.Assert;
 
