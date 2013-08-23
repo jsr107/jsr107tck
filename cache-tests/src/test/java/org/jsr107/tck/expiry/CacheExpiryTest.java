@@ -68,7 +68,7 @@ public class CacheExpiryTest extends TestSupport {
   @Test
   public void expire_whenCreated() {
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
-    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ZERO, null, null)));
+    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ParameterizedExpiryPolicy<Integer>(Duration.ZERO, null, null)));
 
     getCacheManager().createCache(getTestCacheName(), config);
     Cache<Integer, Integer> cache = getCacheManager().getCache(getTestCacheName());
@@ -109,7 +109,7 @@ public class CacheExpiryTest extends TestSupport {
   @Test
   public void expire_whenAccessed() {
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
-    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ETERNAL, Duration.ZERO, null)));
+    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ParameterizedExpiryPolicy<Integer>(Duration.ETERNAL, Duration.ZERO, null)));
 
     getCacheManager().createCache(getTestCacheName(), config);
     Cache<Integer, Integer> cache = getCacheManager().getCache(getTestCacheName());
@@ -185,7 +185,7 @@ public class CacheExpiryTest extends TestSupport {
   @Test
   public void expire_whenModified() {
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
-    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ParameterizedExpiryPolicy<Integer, Integer>(Duration.ETERNAL, null, Duration.ZERO)));
+    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ParameterizedExpiryPolicy<Integer>(Duration.ETERNAL, null, Duration.ZERO)));
 
     getCacheManager().createCache(getTestCacheName(), config);
     Cache<Integer, Integer> cache = getCacheManager().getCache(getTestCacheName());
@@ -260,7 +260,7 @@ public class CacheExpiryTest extends TestSupport {
    * A {@link javax.cache.expiry.ExpiryPolicy} that updates the expiry time based on
    * defined parameters.
    */
-  public static class ParameterizedExpiryPolicy<K, V> implements ExpiryPolicy<K, V>, Serializable {
+  public static class ParameterizedExpiryPolicy<K> implements ExpiryPolicy<K>, Serializable {
     /**
      * The serialVersionUID required for {@link java.io.Serializable}.
      */
@@ -309,7 +309,7 @@ public class CacheExpiryTest extends TestSupport {
      * {@inheritDoc}
      */
     @Override
-    public Duration getExpiryForCreatedEntry(Entry<? extends K, ? extends V> entry) {
+    public <L extends K> Duration getExpiryForCreatedEntry(L key) {
       return createdExpiryDuration;
     }
 
@@ -317,7 +317,7 @@ public class CacheExpiryTest extends TestSupport {
      * {@inheritDoc}
      */
     @Override
-    public Duration getExpiryForAccessedEntry(Entry<? extends K, ? extends V> entry) {
+    public <L extends K> Duration getExpiryForAccessedEntry(L key) {
       return accessedExpiryDuration;
     }
 
@@ -325,7 +325,7 @@ public class CacheExpiryTest extends TestSupport {
      * {@inheritDoc}
      */
     @Override
-    public Duration getExpiryForModifiedEntry(Entry<? extends K, ? extends V> entry) {
+    public <L extends K> Duration getExpiryForModifiedEntry(L key) {
       return modifiedExpiryDuration;
     }
   }

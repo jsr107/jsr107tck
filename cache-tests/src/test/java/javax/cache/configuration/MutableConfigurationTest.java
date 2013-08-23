@@ -21,7 +21,6 @@ import org.junit.Test;
 
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
-import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -50,7 +49,7 @@ public class MutableConfigurationTest {
     assertFalse(config.isStatisticsEnabled());
     assertTrue(config.isStoreByValue());
 
-    ExpiryPolicy<?, ?> expiryPolicy = config.getExpiryPolicyFactory().create();
+    ExpiryPolicy<?> expiryPolicy = config.getExpiryPolicyFactory().create();
 
     assertThat(Duration.ETERNAL, equalTo(expiryPolicy.getExpiryForCreatedEntry(null)));
     assertThat(expiryPolicy.getExpiryForAccessedEntry(null), is(nullValue()));

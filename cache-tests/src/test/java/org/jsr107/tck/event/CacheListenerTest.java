@@ -106,7 +106,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     listener = new MyCacheEntryListener<Long, String>();
     listenerConfiguration = new MutableCacheEntryListenerConfiguration<Long, String>(FactoryBuilder.factoryOf(listener), null, false, true);
     configuration.addCacheEntryListenerConfiguration(listenerConfiguration);
-    return configuration.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ModifiedExpiryPolicy<Long, String>(new Duration(TimeUnit.MILLISECONDS, 20))));
+    return configuration.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ModifiedExpiryPolicy<Long>(new Duration(TimeUnit.MILLISECONDS, 20))));
   }
 
   /**
