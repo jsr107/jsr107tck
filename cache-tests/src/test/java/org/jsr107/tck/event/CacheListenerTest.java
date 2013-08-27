@@ -33,14 +33,24 @@ import javax.cache.configuration.CacheEntryListenerConfiguration;
 import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
 import javax.cache.configuration.MutableConfiguration;
-import javax.cache.event.*;
-import javax.cache.expiry.Duration;
-import javax.cache.expiry.ModifiedExpiryPolicy;
+
+import javax.cache.event.CacheEntryCreatedListener;
+import javax.cache.event.CacheEntryEvent;
+import javax.cache.event.CacheEntryEventFilter;
+import javax.cache.event.CacheEntryExpiredListener;
+import javax.cache.event.CacheEntryListenerException;
+import javax.cache.event.CacheEntryRemovedListener;
+import javax.cache.event.CacheEntryUpdatedListener;
 import javax.cache.processor.EntryProcessor;
 import java.io.IOError;
 import java.io.Serializable;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static javax.cache.event.EventType.CREATED;
@@ -305,104 +315,105 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
               event.getValue().contains("u");
       }
   }
-/**
- * Checks that the correct listeners are called the correct number of times from all of our access and mutation operations.
- *
- * @throws InterruptedException
- */
-@Test
-public void testFilteredListener() throws InterruptedException {
-  MyCacheEntryListener<Long, String> listener = new MyCacheEntryListener<>();
-  CacheEntryListenerConfiguration<Long, String> listenerConfiguration =
-      new MutableCacheEntryListenerConfiguration<Long, String>(
-          FactoryBuilder.factoryOf(listener),
-          FactoryBuilder.factoryOf(new MyCacheEntryEventFilter()),
-          true, true);
-  cache.registerCacheEntryListener(listenerConfiguration);
 
-  assertEquals(0, listener.getCreated());
-  assertEquals(0, listener.getUpdated());
-  assertEquals(0, listener.getRemoved());
+ /**
+  * Checks that the correct listeners are called the correct number of times from all of our access and mutation operations.
+  *
+  * @throws InterruptedException
+  */
+  @Test
+  public void testFilteredListener() throws InterruptedException {
+    MyCacheEntryListener<Long, String> listener = new MyCacheEntryListener<>();
+    CacheEntryListenerConfiguration<Long, String> listenerConfiguration =
+        new MutableCacheEntryListenerConfiguration<Long, String>(
+            FactoryBuilder.factoryOf(listener),
+            FactoryBuilder.factoryOf(new MyCacheEntryEventFilter()),
+            true, true);
+    cache.registerCacheEntryListener(listenerConfiguration);
 
-  cache.put(1l, "Sooty");
-  assertEquals(1, listener.getCreated());
-  assertEquals(0, listener.getUpdated());
-  assertEquals(0, listener.getRemoved());
+    assertEquals(0, listener.getCreated());
+    assertEquals(0, listener.getUpdated());
+    assertEquals(0, listener.getRemoved());
 
-  Map<Long, String> entries = new HashMap<Long, String>();
-  entries.put(2l, "Lucky");
-  entries.put(3l, "Bryn");
-  cache.putAll(entries);
-  assertEquals(2, listener.getCreated());
-  assertEquals(0, listener.getUpdated());
-  assertEquals(0, listener.getRemoved());
+    cache.put(1l, "Sooty");
+    assertEquals(1, listener.getCreated());
+    assertEquals(0, listener.getUpdated());
+    assertEquals(0, listener.getRemoved());
 
-  cache.put(1l, "Zyn");
-  assertEquals(2, listener.getCreated());
-  assertEquals(0, listener.getUpdated());
-  assertEquals(0, listener.getRemoved());
+    Map<Long, String> entries = new HashMap<Long, String>();
+    entries.put(2l, "Lucky");
+    entries.put(3l, "Bryn");
+    cache.putAll(entries);
+    assertEquals(2, listener.getCreated());
+    assertEquals(0, listener.getUpdated());
+    assertEquals(0, listener.getRemoved());
 
-  cache.remove(2l);
-  assertEquals(2, listener.getCreated());
-  assertEquals(0, listener.getUpdated());
-  assertEquals(1, listener.getRemoved());
+    cache.put(1l, "Zyn");
+    assertEquals(2, listener.getCreated());
+    assertEquals(0, listener.getUpdated());
+    assertEquals(0, listener.getRemoved());
 
-  cache.replace(1l, "Fred");
-  assertEquals(2, listener.getCreated());
-  assertEquals(1, listener.getUpdated());
-  assertEquals(1, listener.getRemoved());
+    cache.remove(2l);
+    assertEquals(2, listener.getCreated());
+    assertEquals(0, listener.getUpdated());
+    assertEquals(1, listener.getRemoved());
 
-  cache.replace(3l, "Bryn", "Sooty");
-  assertEquals(2, listener.getCreated());
-  assertEquals(2, listener.getUpdated());
-  assertEquals(1, listener.getRemoved());
+    cache.replace(1l, "Fred");
+    assertEquals(2, listener.getCreated());
+    assertEquals(1, listener.getUpdated());
+    assertEquals(1, listener.getRemoved());
 
-  cache.get(1L);
-  assertEquals(2, listener.getCreated());
-  assertEquals(2, listener.getUpdated());
-  assertEquals(1, listener.getRemoved());
+    cache.replace(3l, "Bryn", "Sooty");
+    assertEquals(2, listener.getCreated());
+    assertEquals(2, listener.getUpdated());
+    assertEquals(1, listener.getRemoved());
 
-  //containsKey is not a read for listener purposes.
-  cache.containsKey(1L);
-  assertEquals(2, listener.getCreated());
-  assertEquals(2, listener.getUpdated());
-  assertEquals(1, listener.getRemoved());
+    cache.get(1L);
+    assertEquals(2, listener.getCreated());
+    assertEquals(2, listener.getUpdated());
+    assertEquals(1, listener.getRemoved());
 
-  //iterating should cause read events on non-expired entries
-  for (Cache.Entry<Long, String> entry : cache) {
-    String value = entry.getValue();
-    System.out.println(value);
+    //containsKey is not a read for listener purposes.
+    cache.containsKey(1L);
+    assertEquals(2, listener.getCreated());
+    assertEquals(2, listener.getUpdated());
+    assertEquals(1, listener.getRemoved());
+
+    //iterating should cause read events on non-expired entries
+    for (Cache.Entry<Long, String> entry : cache) {
+      String value = entry.getValue();
+      System.out.println(value);
+    }
+    assertEquals(2, listener.getCreated());
+    assertEquals(2, listener.getUpdated());
+    assertEquals(1, listener.getRemoved());
+
+    cache.getAndPut(1l, "Pistachio");
+    assertEquals(2, listener.getCreated());
+    assertEquals(3, listener.getUpdated());
+    assertEquals(1, listener.getRemoved());
+
+    Set<Long> keys = new HashSet<Long>();
+    keys.add(1L);
+    cache.getAll(keys);
+    assertEquals(2, listener.getCreated());
+    assertEquals(3, listener.getUpdated());
+    assertEquals(1, listener.getRemoved());
+
+    cache.getAndReplace(1l, "Prince");
+    assertEquals(2, listener.getCreated());
+    assertEquals(4, listener.getUpdated());
+    assertEquals(1, listener.getRemoved());
+
+    cache.getAndRemove(1l);
+    assertEquals(2, listener.getCreated());
+    assertEquals(4, listener.getUpdated());
+    assertEquals(2, listener.getRemoved());
+
+    assertEquals(2, listener.getCreated());
+    assertEquals(4, listener.getUpdated());
+    assertEquals(2, listener.getRemoved());
   }
-  assertEquals(2, listener.getCreated());
-  assertEquals(2, listener.getUpdated());
-  assertEquals(1, listener.getRemoved());
-
-  cache.getAndPut(1l, "Pistachio");
-  assertEquals(2, listener.getCreated());
-  assertEquals(3, listener.getUpdated());
-  assertEquals(1, listener.getRemoved());
-
-  Set<Long> keys = new HashSet<Long>();
-  keys.add(1L);
-  cache.getAll(keys);
-  assertEquals(2, listener.getCreated());
-  assertEquals(3, listener.getUpdated());
-  assertEquals(1, listener.getRemoved());
-
-  cache.getAndReplace(1l, "Prince");
-  assertEquals(2, listener.getCreated());
-  assertEquals(4, listener.getUpdated());
-  assertEquals(1, listener.getRemoved());
-
-  cache.getAndRemove(1l);
-  assertEquals(2, listener.getCreated());
-  assertEquals(4, listener.getUpdated());
-  assertEquals(2, listener.getRemoved());
-
-  assertEquals(2, listener.getCreated());
-  assertEquals(4, listener.getUpdated());
-  assertEquals(2, listener.getRemoved());
-}
 
   @Test
   public void  testDynamicRegistration() {
@@ -526,7 +537,7 @@ public void testFilteredListener() throws InterruptedException {
    * @param <V>
    */
   static class MyBrokenCacheEntryListener<K, V> implements CacheEntryCreatedListener<K,
-      V>,
+        V>,
       CacheEntryUpdatedListener<K, V>, CacheEntryExpiredListener<K, V>,
       CacheEntryRemovedListener<K, V>, Serializable {
 
