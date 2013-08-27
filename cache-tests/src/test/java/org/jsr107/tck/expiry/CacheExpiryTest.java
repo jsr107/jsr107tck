@@ -307,25 +307,28 @@ public class CacheExpiryTest extends TestSupport {
 
     /**
      * {@inheritDoc}
+     * @param key
      */
     @Override
-    public <L extends K> Duration getExpiryForCreatedEntry(L key) {
+    public Duration getExpiryForCreatedEntry(K key) {
       return createdExpiryDuration;
     }
 
     /**
      * {@inheritDoc}
+     * @param key
      */
     @Override
-    public <L extends K> Duration getExpiryForAccessedEntry(L key) {
+    public Duration getExpiryForAccessedEntry(K key) {
       return accessedExpiryDuration;
     }
 
     /**
      * {@inheritDoc}
+     * @param key
      */
     @Override
-    public <L extends K> Duration getExpiryForModifiedEntry(L key) {
+    public Duration getExpiryForModifiedEntry(K key) {
       return modifiedExpiryDuration;
     }
   }
