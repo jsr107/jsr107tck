@@ -102,7 +102,7 @@ public abstract class AbstractBlogManagerInterceptionTest extends AbstractInterc
     Blog entryCached = blogManager.getEntryCached(testTitle);
     assertEquals(entryCached.getBody(), testBody);
 
-        /* clear from cache using annotation @CacheRemoveEntry */
+        /* clear from cache using annotation @CacheRemove */
     blogManager.clearEntryFromCache(testTitle);
 
         /* clear from map, but not from cache */

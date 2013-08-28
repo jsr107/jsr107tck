@@ -19,8 +19,8 @@ package manager;
 import domain.Blog;
 
 import javax.cache.annotation.CacheKey;
+import javax.cache.annotation.CacheRemove;
 import javax.cache.annotation.CacheRemoveAll;
-import javax.cache.annotation.CacheRemoveEntry;
 import javax.cache.annotation.CacheResult;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,7 +55,7 @@ public class UsingDefaultCacheNameBlogManagerImpl implements BlogManager {
    *
    * @see manager.BlogManager#clearEntryFromCache(java.lang.String)
    */
-  @CacheRemoveEntry(cacheName = "manager.UsingDefaultCacheNameBlogManagerImpl.getEntryCached(java.lang.String)")
+  @CacheRemove(cacheName = "manager.UsingDefaultCacheNameBlogManagerImpl.getEntryCached(java.lang.String)")
   public void clearEntryFromCache(String title) {
   }
 
