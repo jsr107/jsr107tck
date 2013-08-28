@@ -31,7 +31,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import javax.cache.Cache;
-import javax.cache.CacheException;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.configuration.FactoryBuilder;
@@ -577,7 +576,7 @@ public class CacheWriterTest extends TestSupport {
   }
 
   /**
-   * Test constraint that cache is not mutated when CacheException is thrown by
+   * Test constraint that cache is not mutated when CacheWriterException is thrown by
    * {@link javax.cache.integration.CacheWriter#write(javax.cache.Cache.Entry)}
    */
   @Test
@@ -587,14 +586,9 @@ public class CacheWriterTest extends TestSupport {
     try {
       cache.put(1, "Gudday World");
       assertTrue("expected exception on write-through", false);
-    } catch (CacheException e) {
+    } catch (CacheWriterException e) {
 
       // ignore expected exception.
-
-    } catch (RuntimeException re) {
-
-      // possible path. reconcile with outcome of jsr 107 spec jira 222
-      //assertTrue("expected CacheException, handled " + re.getClass().getCanonicalName(), false);
     }
 
     assertFalse(cache.containsKey(1));
@@ -702,15 +696,10 @@ public class CacheWriterTest extends TestSupport {
 
     try {
       cache.putAll(map);
-      assertTrue("expected CacheException to be thrown for BatchPartialSuccessRecordingClassWriter", false);
-    } catch (CacheException ce) {
+      assertTrue("expected CacheWriterException to be thrown for BatchPartialSuccessRecordingClassWriter", false);
+    } catch (CacheWriterException cwe) {
 
       // ignore expected exception
-
-    } catch (RuntimeException re) {
-
-      // possible path. reconcile with outcome of jsr 107 spec jira 222
-      // assertTrue("expected CacheException, handled " + re.getClass().getCanonicalName(), false);
     }
 
     int numSuccess = 0;
@@ -784,7 +773,7 @@ public class CacheWriterTest extends TestSupport {
   }
 
   /**
-   * Test constraint that cache is not mutated when CacheException is thrown by
+   * Test constraint that cache is not mutated when CacheWriterException is thrown by
    * {@link javax.cache.integration.CacheWriter#delete(Object)}
    */
   @Test
@@ -797,16 +786,11 @@ public class CacheWriterTest extends TestSupport {
     try {
       cache.remove(1);
       assertTrue("expected exception on write-through", false);
-    } catch (CacheException e) {
+    } catch (CacheWriterException e) {
 
       // ignore expected exception.
 
-    } catch (RuntimeException re) {
-
-      // possible path. reconcile with outcome of jsr 107 spec jira 222
-      //assertTrue("expected CacheException, handled " + re.getClass().getCanonicalName(), false);
     }
-
     assertTrue(cache.containsKey(1));
   }
 
@@ -955,15 +939,11 @@ public class CacheWriterTest extends TestSupport {
 
     try {
       cache.removeAll();
-      assertTrue("expected CacheException to be thrown for BatchPartialSuccessRecordingClassWriter", false);
-    } catch (CacheException ce) {
+      assertTrue("expected CacheWriterException to be thrown for BatchPartialSuccessRecordingClassWriter", false);
+    } catch (CacheWriterException cwe) {
 
       // ignore expected exception
 
-    } catch (RuntimeException re) {
-
-      // possible path. reconcile with outcome of jsr 107 spec jira 222
-      // assertTrue("expected CacheException, handled " + re.getClass().getCanonicalName(), false);
     }
 
     int numSuccess = 0;
@@ -1076,15 +1056,11 @@ public class CacheWriterTest extends TestSupport {
 
     try {
       cache.removeAll(set);
-      assertTrue("expected CacheException to be thrown for BatchPartialSuccessRecordingClassWriter", false);
-    } catch (CacheException ce) {
+      assertTrue("expected CacheWriterException to be thrown for BatchPartialSuccessRecordingClassWriter", false);
+    } catch (CacheWriterException ce) {
 
       // ignore expected exception
 
-    } catch (RuntimeException re) {
-
-      // possible path. reconcile with outcome of jsr 107 spec jira 222
-      // assertTrue("expected CacheException, handled " + re.getClass().getCanonicalName(), false);
     }
 
     int numSuccess = 0;
