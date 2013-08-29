@@ -15,24 +15,19 @@
  *  limitations under the License.
  */
 
-
-
-package org.jsr107.tck.processor;
-
-import javax.cache.processor.EntryProcessor;
-import javax.cache.processor.MutableEntry;
-import java.io.Serializable;
-
 /**
- * Get entry processor
- * @param <K>  key type
- * @param <V>  value type
- * @param <T>  process return type
- */
-public class GetEntryProcessor<K, V, T> extends EntryProcessor<K, V, T> implements Serializable {
+ This package contains infrastructure so that expiry policy can send
+ information back to the JUnit test which initiated them so that asserts can
+ happen.
 
-    @Override
-    public T process(MutableEntry<K, V> entry, Object... arguments) {
-        return (T) entry.getValue();
-    }
-}
+ An instance of {@link org.jsr107.tck.expiry.ExpiryPolicyServer} is created in the JUnit test,
+ listening on port 10,005.
+
+ This way no assumption is made about whether a expiry policy is running
+ in-process or out of process.
+
+ @author Greg Luck
+ @author Brian Oliver
+ @author Joe Fialli
+ */
+package org.jsr107.tck.expiry;

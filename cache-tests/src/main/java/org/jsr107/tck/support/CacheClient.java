@@ -14,10 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.jsr107.tck.integration;
-
-
-import org.jsr107.tck.support.Client;
+package org.jsr107.tck.support;
 
 import java.io.Serializable;
 import java.net.InetAddress;
@@ -30,17 +27,17 @@ import java.net.InetAddress;
  */
 public class CacheClient implements AutoCloseable, Serializable {
     /**
-     * The {@link java.net.InetAddress} on which to connect to the {@link CacheLoaderServer}.
+     * The {@link java.net.InetAddress} on which to connect to the {@link org.jsr107.tck.integration.CacheLoaderServer}.
      */
     protected InetAddress address;
 
     /**
-     * The port on which to connect to the {@link CacheLoaderServer}.
+     * The port on which to connect to the {@link org.jsr107.tck.integration.CacheLoaderServer}.
      */
     protected int port;
 
     /**
-     * The {@link org.jsr107.tck.support.Client} connection to the {@link CacheLoaderServer}.
+     * The {@link org.jsr107.tck.support.Client} connection to the {@link org.jsr107.tck.integration.CacheLoaderServer}.
      */
     protected transient Client client;
 
@@ -52,7 +49,7 @@ public class CacheClient implements AutoCloseable, Serializable {
 
     /**
      * Obtains the internal {@link Client} used to communicate with the
-     * {@link CacheLoaderServer}.  If the {@link Client} is not connected, a
+     * {@link org.jsr107.tck.integration.CacheLoaderServer}.  If the {@link Client} is not connected, a
      * connection will be attempted.
      *
      * @return the {@link Client}

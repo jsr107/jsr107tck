@@ -51,6 +51,7 @@ public class SetEntryProcessor<K, V, T> extends EntryProcessor<K, V, T> implemen
         this.value = value;
     }
 
+    @Override
     public T process(MutableEntry<K, V> entry, Object... arguments) {
         entry.setValue(value);
 
