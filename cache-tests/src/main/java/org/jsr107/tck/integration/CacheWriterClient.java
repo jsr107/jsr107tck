@@ -19,6 +19,7 @@
 
 package org.jsr107.tck.integration;
 
+import org.jsr107.tck.support.CacheClient;
 import org.jsr107.tck.support.Operation;
 
 import javax.cache.Cache;
