@@ -40,6 +40,7 @@ public class SetEntryWithComputedValueProcessor<K> extends EntryProcessor<K, Str
         this.valuePostfix = valuePostfix;
     }
 
+    @Override
     public String process(MutableEntry<K, String> entry, Object... arguments) {
         StringBuffer computedValue = new StringBuffer();
         if (valuePrefix != null) {
