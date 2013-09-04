@@ -356,19 +356,6 @@ public class CacheManagerTest extends TestSupport {
   }
 
   @Test
-  public void getUserTransaction() {
-    boolean transactions = Caching.getCachingProvider().isSupported(OptionalFeature.TRANSACTIONS);
-    try {
-      getCacheManager().getUserTransaction();
-      if (!transactions) {
-        fail();
-      }
-    } catch (UnsupportedOperationException e) {
-      assertFalse(transactions);
-    }
-  }
-
-  @Test
   public void getCache_Missing() {
     CacheManager cacheManager = getCacheManager();
     assertNull(cacheManager.getCache("notThere"));
