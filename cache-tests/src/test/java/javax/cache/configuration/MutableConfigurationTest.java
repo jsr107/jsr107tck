@@ -49,11 +49,11 @@ public class MutableConfigurationTest {
     assertFalse(config.isStatisticsEnabled());
     assertTrue(config.isStoreByValue());
 
-    ExpiryPolicy<?> expiryPolicy = config.getExpiryPolicyFactory().create();
+    ExpiryPolicy expiryPolicy = config.getExpiryPolicyFactory().create();
 
-    assertThat(Duration.ETERNAL, equalTo(expiryPolicy.getExpiryForCreatedEntry(null)));
-    assertThat(expiryPolicy.getExpiryForAccessedEntry(null), is(nullValue()));
-    assertThat(expiryPolicy.getExpiryForModifiedEntry(null), is(nullValue()));
+    assertThat(Duration.ETERNAL, equalTo(expiryPolicy.getExpiryForCreation()));
+    assertThat(expiryPolicy.getExpiryForAccess(), is(nullValue()));
+    assertThat(expiryPolicy.getExpiryForUpdate(), is(nullValue()));
   }
 
   /**

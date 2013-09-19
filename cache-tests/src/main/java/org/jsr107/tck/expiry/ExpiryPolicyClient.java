@@ -27,154 +27,82 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 
 /**
- *
- * @param <K>
  */
-public class ExpiryPolicyClient<K> extends CacheClient implements ExpiryPolicy<K> {
+public class ExpiryPolicyClient extends CacheClient implements ExpiryPolicy {
+
+  /**
+   * Constructs a {@link ExpiryPolicyClient}.
+   *
+   * @param address the {@link java.net.InetAddress} on which to connect to the {@link org.jsr107.tck.expiry.ExpiryPolicyServer}
+   * @param port    the port to which to connect to the {@link org.jsr107.tck.expiry.ExpiryPolicyServer}
+   */
+  public ExpiryPolicyClient(InetAddress address, int port) {
+    super(address, port);
+
+    this.client = null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Duration getExpiryForCreation() {
+    return getClient().invoke(new GetExpiryOperation(ExpiryPolicyServer.EntryOperation.CREATION));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Duration getExpiryForAccess() {
+    return getClient().invoke(new GetExpiryOperation(ExpiryPolicyServer.EntryOperation.ACCESSED));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Duration getExpiryForUpdate() {
+    return getClient().invoke(new GetExpiryOperation(ExpiryPolicyServer.EntryOperation.UPDATED));
+  }
+
+  /**
+   * The {@link GetExpiryOperation}.
+   */
+  private static class GetExpiryOperation implements Operation<Duration> {
+
+    private ExpiryPolicyServer.EntryOperation entryOperation;
 
     /**
-     * Constructs a {@link ExpiryPolicyClient}.
-     *
-     * @param address the {@link java.net.InetAddress} on which to connect to the {@link org.jsr107.tck.expiry.ExpiryPolicyServer}
-     * @param port    the port to which to connect to the {@link org.jsr107.tck.expiry.ExpiryPolicyServer}
+     * Constructs a {@link GetExpiryOperation}.
      */
-    public ExpiryPolicyClient(InetAddress address, int port) {
-        super(address, port);
-
-        this.client = null;
+    public GetExpiryOperation(ExpiryPolicyServer.EntryOperation entryOperation) {
+      this.entryOperation = entryOperation;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Duration getExpiryForCreatedEntry(K key) {
-        return getClient().invoke(new GetExpiryForCreatedEntryOperation<K>(key));
+    public String getType() {
+      return "getExpiry";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Duration getExpiryForAccessedEntry(K key) {
-        return getClient().invoke(new GetExpiryForAccessedEntryOperation<K>(key));
+    public Duration onInvoke(ObjectInputStream ois,
+                             ObjectOutputStream oos) throws IOException, ClassNotFoundException {
+      oos.writeObject(entryOperation.name());
+
+      Object o = ois.readObject();
+
+      if (o instanceof RuntimeException) {
+        throw (RuntimeException) o;
+      } else {
+        return (Duration) o;
+      }
     }
-
-    @Override
-    public Duration getExpiryForModifiedEntry(K key) {
-        return getClient().invoke(new GetExpiryForModifiedEntryOperation<K>(key));
-    }
-
-    /**
-     * The {@link AbstractGetExpiryForEntryOperation}.
-     *
-     * @param <K> the type for key
-     */
-    abstract private static class AbstractGetExpiryForEntryOperation<K> implements Operation<Duration> {
-        /**
-         * The key to load.
-         */
-        private K key;
-
-        /**
-         * Constructs a {@link AbstractGetExpiryForEntryOperation}.
-         *
-         * @param key the Key to load
-         */
-        public AbstractGetExpiryForEntryOperation(K key) {
-            this.key = key;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public Duration onInvoke(ObjectInputStream ois,
-                                 ObjectOutputStream oos) throws IOException, ClassNotFoundException {
-            oos.writeObject(key);
-
-            Object o = ois.readObject();
-
-            if (o instanceof RuntimeException) {
-                throw (RuntimeException) o;
-            } else {
-                return (Duration) o;
-            }
-        }
-    }
-
-
-
-    /**
-     * The {@link GetExpiryForCreatedEntryOperation} representing a {@link javax.cache.expiry.ExpiryPolicy#getExpiryForCreatedEntry(Object)}
-     * request.
-     *
-     * @param <K> the type for key
-     */
-    private static class GetExpiryForCreatedEntryOperation<K> extends AbstractGetExpiryForEntryOperation<K> {
-
-        /**
-         * Constructs a {@link GetExpiryForCreatedEntryOperation}.
-         *
-         * @param key the Key to compute expiry policy for
-         */
-        public GetExpiryForCreatedEntryOperation(K key) {
-            super(key);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getType() {
-            return "getExpiryForCreatedEntry";
-        }
-    }
-
-    /**
-     * The {@link GetExpiryForModifiedEntryOperation} representing a {@link javax.cache.expiry.ExpiryPolicy#getExpiryForCreatedEntry(Object)}
-     * request.
-     *
-     * @param <K> the type for key
-     */
-    private static class GetExpiryForModifiedEntryOperation<K> extends AbstractGetExpiryForEntryOperation<K> {
-
-        /**
-         * Constructs a {@link GetExpiryForModifiedEntryOperation}.
-         *
-         * @param key the Key to load
-         */
-        public GetExpiryForModifiedEntryOperation(K key) {
-            super(key);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getType() {
-            return "getExpiryForModifiedEntry";
-        }
-    }
-
-    /**
-     * The {@link GetExpiryForAccessedEntryOperation} representing a {@link javax.cache.expiry.ExpiryPolicy#getExpiryForAccessedEntry(Object)}
-     * request.
-     *
-     * @param <K> the type for key
-     */
-    private static class GetExpiryForAccessedEntryOperation<K> extends AbstractGetExpiryForEntryOperation<K> {
-
-        /**
-         * Constructs a {@link GetExpiryForAccessedEntryOperation}.
-         *
-         * @param key the Key to compute expiry policy for
-         */
-        public GetExpiryForAccessedEntryOperation(K key) {
-            super(key);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getType() {
-            return "getExpiryForAccessedEntry";
-        }
-    }
-
+  }
 }

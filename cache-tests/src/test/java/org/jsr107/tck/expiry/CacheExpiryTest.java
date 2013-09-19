@@ -53,15 +53,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Unit Tests for expiring cache entries with {@link javax.cache.expiry.ExpiryPolicy}s.
@@ -77,20 +73,20 @@ public class CacheExpiryTest extends TestSupport {
   @Rule
   public ExcludeListExcluder rule = new ExcludeListExcluder(this.getClass());
 
-  private ExpiryPolicyServer<Integer> expiryPolicyServer;
-  private ExpiryPolicyClient<Integer> expiryPolicyClient;
+  private ExpiryPolicyServer expiryPolicyServer;
+  private ExpiryPolicyClient expiryPolicyClient;
 
   @Before
   public void setupBeforeEachTest() throws IOException {
-    //establish and open a CacheLoaderServer to handle cache
-    //cache loading requests from a CacheLoaderClient
-    expiryPolicyServer = new ExpiryPolicyServer<Integer>(10005);
+    //establish and open a ExpiryPolicyServer to handle cache
+    //cache loading requests from a ExpiryPolicyClient
+    expiryPolicyServer = new ExpiryPolicyServer(10005);
     expiryPolicyServer.open();
 
     //establish a ExpiryPolicyClient that a Cache can use for computing expiry policy
     //(via the ExpiryPolicyServer)
     expiryPolicyClient =
-      new ExpiryPolicyClient<>(expiryPolicyServer.getInetAddress(), expiryPolicyServer.getPort());
+        new ExpiryPolicyClient(expiryPolicyServer.getInetAddress(), expiryPolicyServer.getPort());
 
   }
 
@@ -124,69 +120,76 @@ public class CacheExpiryTest extends TestSupport {
    * return a {@link Duration#ZERO} for newly created entries will immediately
    * expire said entries.
    */
-  private void expire_whenCreated(Factory<? extends ExpiryPolicy<Integer>> expiryPolicyFactory) {
+  private void expire_whenCreated(Factory<? extends ExpiryPolicy> expiryPolicyFactory) {
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
     config.setExpiryPolicyFactory(expiryPolicyFactory);
 
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
 
     cache.put(1, 1);
+
     assertFalse(cache.containsKey(1));
     assertNull(cache.get(1));
 
     cache.put(1, 1);
+
     assertFalse(cache.remove(1));
 
     cache.put(1, 1);
+
     assertFalse(cache.remove(1, 1));
 
     cache.getAndPut(1, 1);
+
     assertFalse(cache.containsKey(1));
     assertNull(cache.get(1));
 
     cache.putIfAbsent(1, 1);
+
     assertFalse(cache.containsKey(1));
     assertNull(cache.get(1));
 
     HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
     map.put(1, 1);
     cache.putAll(map);
+
     assertFalse(cache.containsKey(1));
     assertNull(cache.get(1));
 
     cache.put(1, 1);
+
     assertFalse(cache.iterator().hasNext());
   }
 
   @Test
   public void expire_whenCreated_ParameterizedExpiryPolicy() {
-    expire_whenCreated(FactoryBuilder.factoryOf(new ParameterizedExpiryPolicy<Integer>(Duration.ZERO, null, null)));
+    expire_whenCreated(FactoryBuilder.factoryOf(new ParameterizedExpiryPolicy(Duration.ZERO, null, null)));
   }
 
   @Test
   public void expire_whenCreated_CreatedExpiryPolicy() {
-    expire_whenCreated(FactoryBuilder.factoryOf(new CreatedExpiryPolicy<Integer>(Duration.ZERO)));
+    expire_whenCreated(FactoryBuilder.factoryOf(new CreatedExpiryPolicy(Duration.ZERO)));
   }
 
   @Test
   public void expire_whenCreated_AccessedExpiryPolicy() {
     // since AccessedExpiryPolicy uses same duration for created and accessed, this policy will work same as
     // CreatedExpiryPolicy for this test.
-    expire_whenCreated(FactoryBuilder.factoryOf(new AccessedExpiryPolicy<Integer>(Duration.ZERO)));
+    expire_whenCreated(FactoryBuilder.factoryOf(new AccessedExpiryPolicy(Duration.ZERO)));
   }
 
   @Test
   public void expire_whenCreated_TouchedExpiryPolicy() {
     // since TouchedExpiryPolicy uses same duration for created and accessed, this policy will work same as
     // CreatedExpiryPolicy for this test.
-    expire_whenCreated(FactoryBuilder.factoryOf(new TouchedExpiryPolicy<Integer>(Duration.ZERO)));
+    expire_whenCreated(FactoryBuilder.factoryOf(new TouchedExpiryPolicy(Duration.ZERO)));
   }
 
   @Test
   public void expire_whenCreated_ModifiedExpiryPolicy() {
     // since TouchedExpiryPolicy uses same duration for created and accessed, this policy will work same as
     // CreatedExpiryPolicy for this test.
-    expire_whenCreated(FactoryBuilder.factoryOf(new ModifiedExpiryPolicy<Integer>(Duration.ZERO)));
+    expire_whenCreated(FactoryBuilder.factoryOf(new ModifiedExpiryPolicy(Duration.ZERO)));
   }
 
   /**
@@ -197,23 +200,26 @@ public class CacheExpiryTest extends TestSupport {
   @Test
   public void expire_whenAccessed() {
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
-    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ParameterizedExpiryPolicy<Integer>(Duration.ETERNAL, Duration.ZERO, null)));
+    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ParameterizedExpiryPolicy(Duration.ETERNAL, Duration.ZERO, null)));
 
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
 
     cache.put(1, 1);
+
     assertTrue(cache.containsKey(1));
     assertNotNull(cache.get(1));
     assertFalse(cache.containsKey(1));
     assertNull(cache.get(1));
 
     cache.put(1, 1);
+
     assertTrue(cache.containsKey(1));
     assertNotNull(cache.get(1));
     assertFalse(cache.containsKey(1));
     assertNull(cache.getAndReplace(1, 2));
 
     cache.put(1, 1);
+
     assertTrue(cache.containsKey(1));
     assertNotNull(cache.get(1));
     assertFalse(cache.containsKey(1));
@@ -225,17 +231,20 @@ public class CacheExpiryTest extends TestSupport {
     assertFalse(cache.remove(1));
 
     cache.put(1, 1);
+
     assertTrue(cache.containsKey(1));
     assertNotNull(cache.get(1));
     assertFalse(cache.remove(1, 1));
 
     cache.getAndPut(1, 1);
+
     assertTrue(cache.containsKey(1));
     assertNotNull(cache.get(1));
     assertFalse(cache.containsKey(1));
     assertNull(cache.get(1));
 
     cache.getAndPut(1, 1);
+
     assertTrue(cache.containsKey(1));
     assertNotNull(cache.getAndPut(1, 1));
     assertTrue(cache.containsKey(1));
@@ -244,6 +253,7 @@ public class CacheExpiryTest extends TestSupport {
     assertNull(cache.get(1));
 
     cache.putIfAbsent(1, 1);
+
     assertTrue(cache.containsKey(1));
     assertNotNull(cache.get(1));
     assertFalse(cache.containsKey(1));
@@ -252,6 +262,7 @@ public class CacheExpiryTest extends TestSupport {
     HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
     map.put(1, 1);
     cache.putAll(map);
+
     assertTrue(cache.containsKey(1));
     assertNotNull(cache.get(1));
     assertFalse(cache.containsKey(1));
@@ -259,6 +270,7 @@ public class CacheExpiryTest extends TestSupport {
 
     cache.put(1, 1);
     Iterator<Entry<Integer, Integer>> iterator = cache.iterator();
+
     assertTrue(iterator.hasNext());
     assertEquals((Integer) 1, iterator.next().getValue());
     assertFalse(cache.iterator().hasNext());
@@ -272,73 +284,98 @@ public class CacheExpiryTest extends TestSupport {
   @Test
   public void expire_whenModified() {
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
-    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ParameterizedExpiryPolicy<Integer>(Duration.ETERNAL, null, Duration.ZERO)));
+    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new ParameterizedExpiryPolicy(Duration.ETERNAL, null, Duration.ZERO)));
 
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
 
     cache.put(1, 1);
+
     assertTrue(cache.containsKey(1));
     assertTrue(cache.containsKey(1));
     assertEquals((Integer) 1, cache.get(1));
     assertEquals((Integer) 1, cache.get(1));
+
     cache.put(1, 2);
+
     assertFalse(cache.containsKey(1));
     assertNull(cache.get(1));
 
     cache.put(1, 1);
+
     assertTrue(cache.containsKey(1));
     assertEquals((Integer) 1, cache.get(1));
+
     cache.put(1, 2);
+
     assertFalse(cache.remove(1));
 
     cache.put(1, 1);
+
     assertTrue(cache.containsKey(1));
     assertEquals((Integer) 1, cache.get(1));
+
     cache.put(1, 2);
+
     assertFalse(cache.remove(1, 2));
 
     cache.getAndPut(1, 1);
+
     assertTrue(cache.containsKey(1));
     assertEquals((Integer) 1, cache.get(1));
+
     cache.put(1, 2);
+
     assertFalse(cache.containsKey(1));
     assertNull(cache.get(1));
 
     cache.getAndPut(1, 1);
+
     assertTrue(cache.containsKey(1));
     assertEquals((Integer) 1, cache.getAndPut(1, 2));
     assertFalse(cache.containsKey(1));
     assertNull(cache.get(1));
 
     cache.put(1, 1);
+
     assertTrue(cache.containsKey(1));
     assertEquals((Integer) 1, cache.get(1));
+
     HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
     map.put(1, 2);
     cache.putAll(map);
+
     assertFalse(cache.containsKey(1));
     assertNull(cache.get(1));
 
     cache.put(1, 1);
+
     assertTrue(cache.containsKey(1));
     assertEquals((Integer) 1, cache.get(1));
+
     cache.replace(1, 2);
+
     assertFalse(cache.containsKey(1));
     assertNull(cache.get(1));
 
     cache.put(1, 1);
+
     assertTrue(cache.containsKey(1));
     assertEquals((Integer) 1, cache.get(1));
+
     cache.replace(1, 1, 2);
+
     assertFalse(cache.containsKey(1));
     assertNull(cache.get(1));
 
     cache.put(1, 1);
+
     assertTrue(cache.iterator().hasNext());
     assertEquals((Integer) 1, cache.iterator().next().getValue());
     assertTrue(cache.containsKey(1));
     assertEquals((Integer) 1, cache.iterator().next().getValue());
+
     cache.put(1, 2);
+
     assertFalse(cache.iterator().hasNext());
   }
 
@@ -353,12 +390,13 @@ public class CacheExpiryTest extends TestSupport {
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
 
     // allow creation, throw exception on access or modify
-    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new FaultyExpiryPolicy<Integer>(true, false, false)));
+    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new FaultyExpiryPolicy(true, false, false)));
 
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
 
     // next line should cause an exception in call to getExpiryForCreatedEntry
     cache.put(1, 1);
+
     assertTrue(cache.containsKey(1));
     assertEquals((Integer) 1, cache.get(1));
   }
@@ -374,17 +412,19 @@ public class CacheExpiryTest extends TestSupport {
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
 
     // allow creation, throw exception on access or modify
-    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new FaultyExpiryPolicy<Integer>(false, false, true)));
+    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new FaultyExpiryPolicy(false, false, true)));
 
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
 
     cache.put(1, 1);
+
     assertTrue(cache.containsKey(1));
     // next line should cause an exception in call to getExpiryForAccessedEntry
     assertEquals((Integer) 1, cache.get(1));
 
     // modify is returing Duration.ZERO.  So make certain expired.
     cache.put(1, 2);
+
     assertFalse(cache.containsKey(1));
     assertNull(cache.get(1));
   }
@@ -396,58 +436,72 @@ public class CacheExpiryTest extends TestSupport {
   @Test
   public void containsKeyShouldNotCallExpiryPolicyMethods() {
 
-    RecordingExpiryPolicy<Integer> expiryPolicy = new RecordingExpiryPolicy<>();
+    CountingExpiryPolicy expiryPolicy = new CountingExpiryPolicy();
     expiryPolicyServer.setExpiryPolicy(expiryPolicy);
-    Map<Integer, String> recordedExpiryPolicyCallMap = expiryPolicy.getCallMap();
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient));
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
 
     cache.containsKey(1);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     cache.put(1, 1);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     cache.containsKey(1);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
   }
 
   @Test
   public void getShouldCallGetExpiryForAccessedEntry() {
-    RecordingExpiryPolicy<Integer> expiryPolicy = new RecordingExpiryPolicy<>();
+    CountingExpiryPolicy expiryPolicy = new CountingExpiryPolicy();
     expiryPolicyServer.setExpiryPolicy(expiryPolicy);
-    Map<Integer, String> recordedExpiryPolicyCallMap = expiryPolicy.getCallMap();
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient));
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
 
     cache.containsKey(1);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     // when getting a non-existent entry, getExpiryForAccessedEntry is not called.
     cache.get(1);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     cache.put(1, 1);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     // when getting an existing entry, getExpiryForAccessedEntry is called.
     cache.get(1);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    assertEquals("called getExpiryForAccessedEntry", recordedExpiryPolicyCallMap.get(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(1));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
   }
 
   @Test
   public void getAllShouldCallGetExpiryForAccessedEntry() {
-    RecordingExpiryPolicy<Integer> expiryPolicy = new RecordingExpiryPolicy<>();
+    CountingExpiryPolicy expiryPolicy = new CountingExpiryPolicy();
     expiryPolicyServer.setExpiryPolicy(expiryPolicy);
-    Map<Integer, String> recordedExpiryPolicyCallMap = expiryPolicy.getCallMap();
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient));
@@ -458,52 +512,59 @@ public class CacheExpiryTest extends TestSupport {
 
     // when getting a non-existent entry, getExpiryForAccessedEntry is not called.
     cache.getAll(keys);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(1));
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(2));
+
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     cache.put(1, 1);
     cache.put(2, 2);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(1));
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(2));
-    assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(2));
+
+    assertThat(expiryPolicy.getCreationCount(), is(2));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     // when getting an existing entry, getExpiryForAccessedEntry is called.
     cache.get(1);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    assertEquals("called getExpiryForAccessedEntry", recordedExpiryPolicyCallMap.get(1));
-    cache.get(1);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(2));
-    assertEquals("called getExpiryForAccessedEntry", recordedExpiryPolicyCallMap.get(1));
+    cache.get(2);
+
+    assertThat(expiryPolicy.getCreationCount(), is(2));
+    assertThat(expiryPolicy.getAccessCount(), is(2));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
   }
 
   @Test
   public void getAndPutShouldCallEitherCreatedOrModifiedExpiryPolicy() {
-    RecordingExpiryPolicy<Integer> expiryPolicy = new RecordingExpiryPolicy<>();
+    CountingExpiryPolicy expiryPolicy = new CountingExpiryPolicy();
     expiryPolicyServer.setExpiryPolicy(expiryPolicy);
-    Map<Integer, String> recordedExpiryPolicyCallMap = expiryPolicy.getCallMap();
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient));
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
 
     cache.containsKey(1);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     cache.getAndPut(1, 1);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     cache.getAndPut(1, 2);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    assertEquals("called getExpiryForModifiedEntry", recordedExpiryPolicyCallMap.get(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(1));
   }
 
   @Test
   public void getAndRemoveShouldNotCallExpiryPolicyMethods() {
-    RecordingExpiryPolicy<Integer> expiryPolicy = new RecordingExpiryPolicy<>();
+    CountingExpiryPolicy expiryPolicy = new CountingExpiryPolicy();
     expiryPolicyServer.setExpiryPolicy(expiryPolicy);
-    Map<Integer, String> recordedExpiryPolicyCallMap = expiryPolicy.getCallMap();
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient));
@@ -511,47 +572,64 @@ public class CacheExpiryTest extends TestSupport {
 
     // verify case when entry is non-existent
     cache.containsKey(1);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(1));
-    cache.getAndRemove(1);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(1));
 
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
+
+    cache.getAndRemove(1);
+
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     // verify case when entry exist
     cache.put(1, 1);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(1));
-    recordedExpiryPolicyCallMap.remove(1);
 
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     int value = cache.getAndRemove(1);
-    assertEquals(1, value);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
   }
 
   @Test
   public void getAndReplaceShouldCallGetExpiryForModifiedEntry() {
-    RecordingExpiryPolicy<Integer> expiryPolicy = new RecordingExpiryPolicy<>();
+    CountingExpiryPolicy expiryPolicy = new CountingExpiryPolicy();
     expiryPolicyServer.setExpiryPolicy(expiryPolicy);
-    Map<Integer, String> recordedExpiryPolicyCallMap = expiryPolicy.getCallMap();
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient));
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
 
     cache.containsKey(1);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     cache.getAndReplace(1, 1);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     cache.put(1, 1);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    recordedExpiryPolicyCallMap.remove(1);
+
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     int oldValue = cache.getAndReplace(1, 2);
+
     assertEquals(1, oldValue);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    assertEquals("called getExpiryForModifiedEntry", recordedExpiryPolicyCallMap.get(1));
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(1));
   }
 
   // Skip negative to verify getCacheManager, getConfiguration or getName not calling getExpiryFor*.
@@ -559,10 +637,8 @@ public class CacheExpiryTest extends TestSupport {
 
   @Test
   public void iteratorNextShouldCallGetExpiryForAccessedEntry() {
-    final String EXPIRY_CALLS_RECORDING_CACHE = "recordedExpiryPolicyCallMap";
-    RecordingExpiryPolicy<Integer> expiryPolicy = new RecordingExpiryPolicy<>();
+    CountingExpiryPolicy expiryPolicy = new CountingExpiryPolicy();
     expiryPolicyServer.setExpiryPolicy(expiryPolicy);
-    Map<Integer, String> recordedExpiryPolicyCallMap = expiryPolicy.getCallMap();
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient));
@@ -573,17 +649,20 @@ public class CacheExpiryTest extends TestSupport {
 
     cache.put(1, 1);
     cache.put(2, 2);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(1));
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(2));
-    assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(2));
+
+    assertThat(expiryPolicy.getCreationCount(), is(2));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     // when getting an existing entry, getExpiryForAccessedEntry is called.
     Iterator<Entry<Integer, Integer>> iter = cache.iterator();
+    int count = 0;
     while (iter.hasNext()) {
       Entry<Integer, Integer> entry = iter.next();
-      assertTrue(recordedExpiryPolicyCallMap.containsKey(entry.getKey()));
-      assertEquals("called getExpiryForAccessedEntry", recordedExpiryPolicyCallMap.get(entry.getKey()));
+
+      assertThat(expiryPolicy.getCreationCount(), is(2));
+      assertThat(expiryPolicy.getAccessCount(), is(++count));
+      assertThat(expiryPolicy.getUpdatedCount(), is(0));
     }
   }
 
@@ -600,11 +679,10 @@ public class CacheExpiryTest extends TestSupport {
       //establish a CacheLoaderClient that a Cache can use for loading entries
       //(via the CacheLoaderServer)
       CacheLoaderClient<Integer, Integer> cacheLoader =
-        new CacheLoaderClient<>(cacheLoaderServer.getInetAddress(), cacheLoaderServer.getPort());
+          new CacheLoaderClient<>(cacheLoaderServer.getInetAddress(), cacheLoaderServer.getPort());
 
-      RecordingExpiryPolicy<Integer> expiryPolicy = new RecordingExpiryPolicy<>();
+      CountingExpiryPolicy expiryPolicy = new CountingExpiryPolicy();
       expiryPolicyServer.setExpiryPolicy(expiryPolicy);
-      Map<Integer, String> recordedExpiryPolicyCallMap = expiryPolicy.getCallMap();
 
       MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
       config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient));
@@ -613,11 +691,10 @@ public class CacheExpiryTest extends TestSupport {
 
       Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
 
-
       final Integer INITIAL_KEY = 123;
       final Integer MAX_KEY_VALUE = INITIAL_KEY + 4;
 
-      // set half of the keys so half of invokeAll will be modify and rest will be create.
+      // set half of the keys so half of loadAdd will be loaded
       Set<Integer> keys = new HashSet<>();
       for (int key = INITIAL_KEY; key <= MAX_KEY_VALUE; key++) {
         keys.add(key);
@@ -631,16 +708,19 @@ public class CacheExpiryTest extends TestSupport {
       future.get();
 
       assertThat(future.isDone(), is(true));
-      for (Integer key : keys) {
-        assertThat(recordingCacheLoader.hasLoaded(key), is(true));
-        assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(key));
-        assertThat(cache.get(key), is(equalTo(key)));
-      }
       assertThat(recordingCacheLoader.getLoadCount(), is(keys.size()));
 
+      assertThat(expiryPolicy.getCreationCount(), is(keys.size()));
+      assertThat(expiryPolicy.getAccessCount(), is(0));
+      assertThat(expiryPolicy.getUpdatedCount(), is(0));
+
+      for (Integer key : keys) {
+        assertThat(recordingCacheLoader.hasLoaded(key), is(true));
+        assertThat(cache.get(key), is(equalTo(key)));
+      }
 
       // verify read-through of getValue for existing entries AND replaceExistingValues is true.
-      final boolean REPLACE_EXISTING_VALUES=true;
+      final boolean REPLACE_EXISTING_VALUES = true;
       future = new CompletionListenerFuture();
       cache.loadAll(keys, REPLACE_EXISTING_VALUES, future);
 
@@ -648,43 +728,52 @@ public class CacheExpiryTest extends TestSupport {
       future.get();
 
       assertThat(future.isDone(), is(true));
+      assertThat(recordingCacheLoader.getLoadCount(), is(keys.size() * 2));
+
+      assertThat(expiryPolicy.getCreationCount(), is(keys.size()));
+      assertThat(expiryPolicy.getAccessCount(), is(keys.size()));
+      assertThat(expiryPolicy.getUpdatedCount(), is(keys.size()));
+
       for (Integer key : keys) {
         assertThat(recordingCacheLoader.hasLoaded(key), is(true));
-        assertEquals("called getExpiryForModifiedEntry", recordedExpiryPolicyCallMap.get(key));
         assertThat(cache.get(key), is(equalTo(key)));
       }
-      assertThat(recordingCacheLoader.getLoadCount(), is(keys.size() * 2));
     }
   }
 
 
   @Test
   public void putShouldCallGetExpiry() {
-    RecordingExpiryPolicy<Integer> expiryPolicy = new RecordingExpiryPolicy<>();
+    CountingExpiryPolicy expiryPolicy = new CountingExpiryPolicy();
     expiryPolicyServer.setExpiryPolicy(expiryPolicy);
-    Map<Integer, String> recordedExpiryPolicyCallMap = expiryPolicy.getCallMap();
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient));
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
 
     cache.containsKey(1);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     cache.put(1, 1);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     cache.put(1, 1);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    assertEquals("called getExpiryForModifiedEntry", recordedExpiryPolicyCallMap.get(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(1));
   }
 
   @Test
   public void putAllShouldCallGetExpiry() {
-    RecordingExpiryPolicy<Integer> expiryPolicy = new RecordingExpiryPolicy<>();
+    CountingExpiryPolicy expiryPolicy = new CountingExpiryPolicy();
     expiryPolicyServer.setExpiryPolicy(expiryPolicy);
-    Map<Integer, String> recordedExpiryPolicyCallMap = expiryPolicy.getCallMap();
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient));
@@ -695,92 +784,105 @@ public class CacheExpiryTest extends TestSupport {
     map.put(2, 2);
 
     cache.put(1, 1);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     cache.putAll(map);
 
-    // verify modify
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    assertEquals("called getExpiryForModifiedEntry", recordedExpiryPolicyCallMap.get(1));
-
-    // verify created
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(2));
-    assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(2));
+    assertThat(expiryPolicy.getCreationCount(), is(2));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(1));
   }
 
   @Test
   public void putIfAbsentShouldCallGetExpiry() {
-    RecordingExpiryPolicy<Integer> expiryPolicy = new RecordingExpiryPolicy<>();
+    CountingExpiryPolicy expiryPolicy = new CountingExpiryPolicy();
     expiryPolicyServer.setExpiryPolicy(expiryPolicy);
-    Map<Integer, String> recordedExpiryPolicyCallMap = expiryPolicy.getCallMap();
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient));
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
 
     cache.containsKey(1);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     boolean result = cache.putIfAbsent(1, 1);
+
     assertTrue(result);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(1));
-    recordedExpiryPolicyCallMap.remove(1);
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     result = cache.putIfAbsent(1, 2);
+
     assertFalse(result);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(1));
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
   }
 
   @Test
   public void removeEntryShouldNotCallExpiryPolicyMethods() {
-    RecordingExpiryPolicy<Integer> expiryPolicy = new RecordingExpiryPolicy<>();
+    CountingExpiryPolicy expiryPolicy = new CountingExpiryPolicy();
     expiryPolicyServer.setExpiryPolicy(expiryPolicy);
-    Map<Integer, String> recordedExpiryPolicyCallMap = expiryPolicy.getCallMap();
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient));
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
 
-
     boolean result = cache.remove(1);
+
     assertFalse(result);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(1));
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     cache.put(1, 1);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(1));
-    recordedExpiryPolicyCallMap.remove(1);
+
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     result = cache.remove(1);
+
     assertTrue(result);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(1));
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
   }
 
   @Test
   public void removeSpecifiedEntryShouldNotCallExpiryPolicyMethods() {
-    RecordingExpiryPolicy<Integer> expiryPolicy = new RecordingExpiryPolicy<>();
+    CountingExpiryPolicy expiryPolicy = new CountingExpiryPolicy();
     expiryPolicyServer.setExpiryPolicy(expiryPolicy);
-    Map<Integer, String> recordedExpiryPolicyCallMap = expiryPolicy.getCallMap();
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient));
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
 
-
     boolean result = cache.remove(1, 1);
-    assertFalse(result);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     cache.put(1, 1);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(1));
-    recordedExpiryPolicyCallMap.remove(1);
+
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     result = cache.remove(1, 1);
+
     assertTrue(result);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(1));
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
   }
 
   // skipping test for removeAll and removeAll specified keys for now. negative test of remove seems enough.
@@ -788,14 +890,12 @@ public class CacheExpiryTest extends TestSupport {
   @Test
   public void invokeSetValueShouldCallGetExpiry() {
 
-    RecordingExpiryPolicy<Integer> expiryPolicy = new RecordingExpiryPolicy<>();
+    CountingExpiryPolicy expiryPolicy = new CountingExpiryPolicy();
     expiryPolicyServer.setExpiryPolicy(expiryPolicy);
-    Map<Integer, String> recordedExpiryPolicyCallMap = expiryPolicy.getCallMap();
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient));
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
-
 
     final Integer key = 123;
     final Integer setValue = 456;
@@ -803,39 +903,41 @@ public class CacheExpiryTest extends TestSupport {
 
     // verify create
     EntryProcessor processors[] =
-      new EntryProcessor[]{
-        new AssertNotPresentEntryProcessor(null),
-        new SetEntryProcessor<Integer, Integer, Integer>(setValue),
-        new GetEntryProcessor<Integer, Integer, Integer>()
-      };
+        new EntryProcessor[]{
+            new AssertNotPresentEntryProcessor(null),
+            new SetEntryProcessor<Integer, Integer, Integer>(setValue),
+            new GetEntryProcessor<Integer, Integer, Integer>()
+        };
     Object[] result = (Object[]) cache.invoke(key, new CombineEntryProcessor(processors));
+
     assertEquals(result[1], setValue);
     assertEquals(result[2], setValue);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(key));
 
     // expiry called should be for create, not for the get or modify.
     // Operations get combined in entry processor and only net result should be expiryPolicy method called.
-    assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(key));
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     // verify modify
     Integer resultValue = cache.invoke(key, new SetEntryProcessor<Integer, Integer, Integer>(modifySetValue));
     assertEquals(modifySetValue, resultValue);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(key));
-    assertEquals("called getExpiryForModifiedEntry", recordedExpiryPolicyCallMap.get(key));
+
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(1));
   }
 
 
   @Test
   public void invokeMultiSetValueShouldCallGetExpiry() {
 
-    RecordingExpiryPolicy<Integer> expiryPolicy = new RecordingExpiryPolicy<>();
+    CountingExpiryPolicy expiryPolicy = new CountingExpiryPolicy();
     expiryPolicyServer.setExpiryPolicy(expiryPolicy);
-    Map<Integer, String> recordedExpiryPolicyCallMap = expiryPolicy.getCallMap();
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient));
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
-
 
     final Integer key = 123;
     final Integer setValue = 456;
@@ -843,53 +945,59 @@ public class CacheExpiryTest extends TestSupport {
 
     // verify create
     EntryProcessor processors[] =
-      new EntryProcessor[]{
-        new AssertNotPresentEntryProcessor(null),
-        new SetEntryProcessor<Integer, Integer, Integer>(111),
-        new SetEntryProcessor<Integer, Integer, Integer>(setValue),
-        new GetEntryProcessor<Integer, Integer, Integer>()
-      };
+        new EntryProcessor[]{
+            new AssertNotPresentEntryProcessor(null),
+            new SetEntryProcessor<Integer, Integer, Integer>(111),
+            new SetEntryProcessor<Integer, Integer, Integer>(setValue),
+            new GetEntryProcessor<Integer, Integer, Integer>()
+        };
     Object[] result = (Object[]) cache.invoke(key, new CombineEntryProcessor(processors));
+
     assertEquals(result[1], 111);
     assertEquals(result[2], setValue);
     assertEquals(result[3], setValue);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(key));
 
     // expiry called should be for create, not for the get or modify.
     // Operations get combined in entry processor and only net result should be expiryPolicy method called.
-    assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(key));
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
   }
 
   @Test
   public void invokeGetValueShouldCallGetExpiry() {
-    RecordingExpiryPolicy<Integer> expiryPolicy = new RecordingExpiryPolicy<>();
+    CountingExpiryPolicy expiryPolicy = new CountingExpiryPolicy();
     expiryPolicyServer.setExpiryPolicy(expiryPolicy);
-    Map<Integer, String> recordedExpiryPolicyCallMap = expiryPolicy.getCallMap();
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient));
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
-
 
     final Integer key = 123;
     final Integer setValue = 456;
 
     // verify non-access to non-existent entry does not call getExpiryForAccessedEntry. no read-through scenario.
     Integer resultValue = cache.invoke(key, new GetEntryProcessor<Integer, Integer, Integer>());
+
     assertEquals(null, resultValue);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(key));
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     // verify access to existing entry.
     resultValue = cache.invoke(key, new SetEntryProcessor<Integer, Integer, Integer>(setValue));
-    assertEquals(resultValue, setValue);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(key));
-    assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(key));
-    recordedExpiryPolicyCallMap.clear();
-    resultValue = cache.invoke(key, new GetEntryProcessor<Integer, Integer, Integer>());
-    assertEquals(setValue, resultValue);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(key));
-    assertEquals("called getExpiryForAccessedEntry", recordedExpiryPolicyCallMap.get(key));
 
+    assertEquals(resultValue, setValue);
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
+
+    resultValue = cache.invoke(key, new GetEntryProcessor<Integer, Integer, Integer>());
+
+    assertEquals(setValue, resultValue);
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(1));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
   }
 
   @Test
@@ -906,11 +1014,10 @@ public class CacheExpiryTest extends TestSupport {
       //establish a CacheLoaderClient that a Cache can use for loading entries
       //(via the CacheLoaderServer)
       CacheLoaderClient<Integer, Integer> cacheLoader =
-        new CacheLoaderClient<>(cacheLoaderServer.getInetAddress(), cacheLoaderServer.getPort());
+          new CacheLoaderClient<>(cacheLoaderServer.getInetAddress(), cacheLoaderServer.getPort());
 
-      RecordingExpiryPolicy<Integer> expiryPolicy = new RecordingExpiryPolicy<>();
+      CountingExpiryPolicy expiryPolicy = new CountingExpiryPolicy();
       expiryPolicyServer.setExpiryPolicy(expiryPolicy);
-      Map<Integer, String> recordedExpiryPolicyCallMap = expiryPolicy.getCallMap();
 
       MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
       config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient));
@@ -918,30 +1025,30 @@ public class CacheExpiryTest extends TestSupport {
       config.setReadThrough(true);
       Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
 
-
       final Integer key = 123;
       final Integer recordingCacheLoaderValue = key;
 
       // verify create when read through is enabled and entry was non-existent in cache.
       Integer resultValue = cache.invoke(key, new GetEntryProcessor<Integer, Integer, Integer>());
+
       assertEquals(recordingCacheLoaderValue, resultValue);
       assertTrue(recordingCacheLoader.hasLoaded(key));
-      assertTrue(recordedExpiryPolicyCallMap.containsKey(key));
-      assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(key));
+
+      assertThat(expiryPolicy.getCreationCount(), is(1));
+      assertThat(expiryPolicy.getAccessCount(), is(0));
+      assertThat(expiryPolicy.getUpdatedCount(), is(0));
     }
   }
 
   @Test
   public void invokeAllSetValueShouldCallGetExpiry() {
 
-    RecordingExpiryPolicy<Integer> expiryPolicy = new RecordingExpiryPolicy<>();
+    CountingExpiryPolicy expiryPolicy = new CountingExpiryPolicy();
     expiryPolicyServer.setExpiryPolicy(expiryPolicy);
-    Map<Integer, String> recordedExpiryPolicyCallMap = expiryPolicy.getCallMap();
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient));
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
-
 
     final Integer INITIAL_KEY = 123;
     final Integer MAX_KEY_VALUE = INITIAL_KEY + 4;
@@ -950,36 +1057,32 @@ public class CacheExpiryTest extends TestSupport {
 
     // set half of the keys so half of invokeAll will be modify and rest will be create.
     Set<Integer> keys = new HashSet<>();
+    int createdCount = 0;
     for (int key = INITIAL_KEY; key <= MAX_KEY_VALUE; key++) {
       keys.add(key);
       if (key <= MAX_KEY_VALUE - 2) {
         cache.put(key, setValue);
+        createdCount++;
       }
     }
+
+    assertThat(expiryPolicy.getCreationCount(), is(createdCount));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     // verify modify or create
     Map<Integer, Integer> resultMap = cache.invokeAll(keys, new SetEntryProcessor<Integer, Integer, Integer>(setValue));
 
-    for (Map.Entry<Integer, Integer> entry : resultMap.entrySet()) {
-      assertTrue(recordedExpiryPolicyCallMap.containsKey(entry.getKey()));
-      if (entry.getKey() <= MAX_KEY_VALUE - 2) {
-
-        // verify modify
-        assertEquals("called getExpiryForModifiedEntry", recordedExpiryPolicyCallMap.get(entry.getKey()));
-      } else {
-
-        // verify create
-        assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(entry.getKey()));
-      }
-    }
-    recordedExpiryPolicyCallMap.clear();
+    assertThat(expiryPolicy.getCreationCount(), is(keys.size()));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(createdCount));
 
     // verify accessed
-    resultMap = cache.invokeAll(keys, new GetEntryProcessor<Integer, Integer, Integer>());
-    for (Map.Entry<Integer, Integer> entry : resultMap.entrySet()) {
-      assertTrue(recordedExpiryPolicyCallMap.containsKey(entry.getKey()));
-      assertEquals("called getExpiryForAccessedEntry", recordedExpiryPolicyCallMap.get(entry.getKey()));
-    }
+    cache.invokeAll(keys, new GetEntryProcessor<Integer, Integer, Integer>());
+
+    assertThat(expiryPolicy.getCreationCount(), is(keys.size()));
+    assertThat(expiryPolicy.getAccessCount(), is(keys.size()));
+    assertThat(expiryPolicy.getUpdatedCount(), is(createdCount));
   }
 
   @Test
@@ -995,11 +1098,10 @@ public class CacheExpiryTest extends TestSupport {
       //establish a CacheLoaderClient that a Cache can use for loading entries
       //(via the CacheLoaderServer)
       CacheLoaderClient<Integer, Integer> cacheLoader =
-        new CacheLoaderClient<>(cacheLoaderServer.getInetAddress(), cacheLoaderServer.getPort());
+          new CacheLoaderClient<>(cacheLoaderServer.getInetAddress(), cacheLoaderServer.getPort());
 
-      RecordingExpiryPolicy<Integer> expiryPolicy = new RecordingExpiryPolicy<>();
+      CountingExpiryPolicy expiryPolicy = new CountingExpiryPolicy();
       expiryPolicyServer.setExpiryPolicy(expiryPolicy);
-      Map<Integer, String> recordedExpiryPolicyCallMap = expiryPolicy.getCallMap();
 
       MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
       config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient));
@@ -1008,12 +1110,10 @@ public class CacheExpiryTest extends TestSupport {
 
       Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
 
-
       final Integer INITIAL_KEY = 123;
       final Integer MAX_KEY_VALUE = INITIAL_KEY + 4;
 
-
-      // set half of the keys so half of invokeAll will be modify and rest will be create.
+      // set keys to read through
       Set<Integer> keys = new HashSet<>();
       for (int key = INITIAL_KEY; key <= MAX_KEY_VALUE; key++) {
         keys.add(key);
@@ -1022,79 +1122,95 @@ public class CacheExpiryTest extends TestSupport {
       // verify read-through of getValue of non-existent entries
       Map<Integer, Integer> resultMap = cache.invokeAll(keys, new GetEntryProcessor<Integer, Integer, Integer>());
 
-      for (Map.Entry<Integer, Integer> entry : resultMap.entrySet()) {
-        assertTrue(recordedExpiryPolicyCallMap.containsKey(entry.getKey()));
-
-        // verify read-through caused a create
-        assertEquals("called getExpiryForCreatedEntry", recordedExpiryPolicyCallMap.get(entry.getKey()));
-        assertEquals(entry.getKey(), cache.get(entry.getKey()));
-      }
+      assertThat(expiryPolicy.getCreationCount(), is(keys.size()));
+      assertThat(expiryPolicy.getAccessCount(), is(0));
+      assertThat(expiryPolicy.getUpdatedCount(), is(0));
     }
   }
 
   @Test
   public void replaceShouldCallGetExpiryForModifiedEntry() {
-    RecordingExpiryPolicy<Integer> expiryPolicy = new RecordingExpiryPolicy<>();
+    CountingExpiryPolicy expiryPolicy = new CountingExpiryPolicy();
     expiryPolicyServer.setExpiryPolicy(expiryPolicy);
-    Map<Integer, String> recordedExpiryPolicyCallMap = expiryPolicy.getCallMap();
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient));
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
 
     cache.containsKey(1);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     // verify case that replace does not occur so no expiry policy called
     boolean result = cache.replace(1, 1);
+
     assertFalse(result);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     cache.put(1, 1);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    recordedExpiryPolicyCallMap.remove(1);
+
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     result = cache.replace(1, 2);
+
     assertTrue(result);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    assertEquals("called getExpiryForModifiedEntry", recordedExpiryPolicyCallMap.get(1));
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(1));
   }
 
   // optimized out test for unwrap method since it does not access/mutate an entry.
 
   @Test
   public void replaceSpecificShouldCallGetExpiry() {
-    RecordingExpiryPolicy<Integer> expiryPolicy = new RecordingExpiryPolicy<>();
+    CountingExpiryPolicy expiryPolicy = new CountingExpiryPolicy();
     expiryPolicyServer.setExpiryPolicy(expiryPolicy);
-    Map<Integer, String> recordedExpiryPolicyCallMap = expiryPolicy.getCallMap();
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient));
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
 
     cache.containsKey(1);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(1));
+
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     boolean result = cache.replace(1, 1, 2);
+
     assertFalse(result);
-    assertFalse(recordedExpiryPolicyCallMap.containsKey(1));
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     cache.put(1, 1);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    recordedExpiryPolicyCallMap.remove(1);
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     // verify case when entry exist for key, but oldValue is incorrect. So replacement does not happen.
     // this counts as an access of entry referred to by key.
     result = cache.replace(1, 2, 5);
+
     assertFalse(result);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    assertEquals("called getExpiryForAccessedEntry", recordedExpiryPolicyCallMap.get(1));
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(1));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     // verify the modify case when replace does succeed.
     result = cache.replace(1, 1, 2);
+
     assertTrue(result);
-    assertTrue(recordedExpiryPolicyCallMap.containsKey(1));
-    assertEquals("called getExpiryForModifiedEntry", recordedExpiryPolicyCallMap.get(1));
+    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getAccessCount(), is(1));
+    assertThat(expiryPolicy.getUpdatedCount(), is(1));
   }
 
 
@@ -1103,7 +1219,7 @@ public class CacheExpiryTest extends TestSupport {
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
 
     // allow creation, throw exception on access or modify
-    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new FaultyExpiryPolicy<Integer>(false, true, false)));
+    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new FaultyExpiryPolicy(false, true, false)));
 
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
 
@@ -1122,62 +1238,132 @@ public class CacheExpiryTest extends TestSupport {
     assertNull(cache.get(1));
   }
 
-  public static class RecordingExpiryPolicy<K> implements ExpiryPolicy<K>, Serializable {
-    private transient Map<K, String> callMap = new HashMap<>();
+  public static class CountingExpiryPolicy implements ExpiryPolicy, Serializable {
 
-    Map<K, String> getCallMap() {
-      return callMap;
+    /**
+     * The number of times {@link #getExpiryForCreation()} was called.
+     */
+    private AtomicInteger creationCount;
+
+    /**
+     * The number of times {@link #getExpiryForAccess()} ()} was called.
+     */
+    private AtomicInteger accessedCount;
+
+    /**
+     * The number of times {@link #getExpiryForUpdate()} was called.
+     */
+    private AtomicInteger updatedCount;
+
+    /**
+     * Constructs a new {@link CountingExpiryPolicy}.
+     */
+    public CountingExpiryPolicy() {
+      this.creationCount = new AtomicInteger(0);
+      this.accessedCount = new AtomicInteger(0);
+      this.updatedCount = new AtomicInteger(0);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Duration getExpiryForCreatedEntry(K key) {
-      callMap.put(key, "called getExpiryForCreatedEntry");
+    public Duration getExpiryForCreation() {
+      creationCount.incrementAndGet();
       return Duration.ETERNAL;
     }
 
+    /**
+     * Obtains the number of times {@link #getExpiryForCreation()} has been called.
+     *
+     * @return the count
+     */
+    public int getCreationCount() {
+      return creationCount.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Duration getExpiryForAccessedEntry(K key) {
-      callMap.put(key, "called getExpiryForAccessedEntry");
+    public Duration getExpiryForAccess() {
+      accessedCount.incrementAndGet();
       return null;
     }
 
+    /**
+     * Obtains the number of times {@link #getExpiryForAccess()} has been called.
+     *
+     * @return the count
+     */
+    public int getAccessCount() {
+      return accessedCount.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Duration getExpiryForModifiedEntry(K key) {
-      callMap.put(key, "called getExpiryForModifiedEntry");
+    public Duration getExpiryForUpdate() {
+      updatedCount.incrementAndGet();
       return null;
+    }
+
+    /**
+     * Obtains the number of times {@link #getExpiryForUpdate()} has been called.
+     *
+     * @return the count
+     */
+    public int getUpdatedCount() {
+      return updatedCount.get();
     }
   }
 
-  public static class FaultyExpiryPolicy<K> implements ExpiryPolicy<K>, Serializable {
+  public static class FaultyExpiryPolicy implements ExpiryPolicy, Serializable {
     private boolean failOnCreate;
     private boolean failOnModify;
     private boolean failOnAccess;
 
-
+    /**
+     * Constructs a {@link FaultyExpiryPolicy}.
+     *
+     * @param failOnCreate
+     * @param failOnModify
+     * @param failOnAccess
+     */
     public FaultyExpiryPolicy(boolean failOnCreate, boolean failOnModify, boolean failOnAccess) {
       this.failOnCreate = failOnCreate;
       this.failOnModify = failOnModify;
       this.failOnAccess = failOnAccess;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Duration getExpiryForCreatedEntry(K key) {
+    public Duration getExpiryForCreation() {
       if (failOnCreate) {
         throw new UnsupportedOperationException("not implemented");
       }
       return Duration.ETERNAL;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Duration getExpiryForAccessedEntry(K key) {
+    public Duration getExpiryForAccess() {
       if (failOnAccess) {
         throw new UnsupportedOperationException("not implemented");
       }
       return Duration.ZERO;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Duration getExpiryForModifiedEntry(K key) {
+    public Duration getExpiryForUpdate() {
       if (failOnModify) {
         throw new UnsupportedOperationException("not implemented");
       }
@@ -1190,7 +1376,7 @@ public class CacheExpiryTest extends TestSupport {
    * A {@link javax.cache.expiry.ExpiryPolicy} that updates the expiry time based on
    * defined parameters.
    */
-  public static class ParameterizedExpiryPolicy<K> implements ExpiryPolicy<K>, Serializable {
+  public static class ParameterizedExpiryPolicy implements ExpiryPolicy, Serializable {
     /**
      * The serialVersionUID required for {@link java.io.Serializable}.
      */
@@ -1211,7 +1397,7 @@ public class CacheExpiryTest extends TestSupport {
      * The {@link Duration} after which a Cache Entry will expire when modified.
      * (when <code>null</code> the current expiry duration will be used)
      */
-    private Duration modifiedExpiryDuration;
+    private Duration updatedExpiryDuration;
 
     /**
      * Constructs an {@link ParameterizedExpiryPolicy}.
@@ -1220,49 +1406,43 @@ public class CacheExpiryTest extends TestSupport {
      *                               (must not be <code>null</code>)
      * @param accessedExpiryDuration the {@link Duration} to expire when an entry is accessed
      *                               (<code>null</code> means don't change the expiry)
-     * @param modifiedExpiryDuration the {@link Duration} to expire when an entry is modified
+     * @param updatedExpiryDuration  the {@link Duration} to expire when an entry is updated
      *                               (<code>null</code> means don't change the expiry)
      */
     public ParameterizedExpiryPolicy(Duration createdExpiryDuration,
                                      Duration accessedExpiryDuration,
-                                     Duration modifiedExpiryDuration) {
+                                     Duration updatedExpiryDuration) {
       if (createdExpiryDuration == null) {
         throw new NullPointerException("createdExpiryDuration can't be null");
       }
 
       this.createdExpiryDuration = createdExpiryDuration;
       this.accessedExpiryDuration = accessedExpiryDuration;
-      this.modifiedExpiryDuration = modifiedExpiryDuration;
+      this.updatedExpiryDuration = updatedExpiryDuration;
     }
 
     /**
      * {@inheritDoc}
-     *
-     * @param key
      */
     @Override
-    public Duration getExpiryForCreatedEntry(K key) {
+    public Duration getExpiryForCreation() {
       return createdExpiryDuration;
     }
 
     /**
      * {@inheritDoc}
-     *
-     * @param key
      */
     @Override
-    public Duration getExpiryForAccessedEntry(K key) {
+    public Duration getExpiryForAccess() {
       return accessedExpiryDuration;
     }
 
     /**
      * {@inheritDoc}
-     *
-     * @param key
      */
     @Override
-    public Duration getExpiryForModifiedEntry(K key) {
-      return modifiedExpiryDuration;
+    public Duration getExpiryForUpdate() {
+      return updatedExpiryDuration;
     }
   }
 }
