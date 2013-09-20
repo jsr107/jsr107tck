@@ -57,6 +57,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.*;
 
 /**
@@ -451,13 +452,14 @@ public class CacheExpiryTest extends TestSupport {
 
     cache.put(1, 1);
 
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(1));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    expiryPolicy.resetCount();
 
     cache.containsKey(1);
 
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), is(0));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
   }
@@ -486,16 +488,18 @@ public class CacheExpiryTest extends TestSupport {
 
     cache.put(1, 1);
 
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(1));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    expiryPolicy.resetCount();
 
     // when getting an existing entry, getExpiryForAccessedEntry is called.
     cache.get(1);
 
-    assertThat(expiryPolicy.getCreationCount(), is(1));
-    assertThat(expiryPolicy.getAccessCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(),is(0));
+    assertThat(expiryPolicy.getAccessCount(), greaterThanOrEqualTo(1));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    expiryPolicy.resetCount();
   }
 
   @Test
@@ -520,17 +524,19 @@ public class CacheExpiryTest extends TestSupport {
     cache.put(1, 1);
     cache.put(2, 2);
 
-    assertThat(expiryPolicy.getCreationCount(), is(2));
+    assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(2));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    expiryPolicy.resetCount();
 
     // when getting an existing entry, getExpiryForAccessedEntry is called.
     cache.get(1);
     cache.get(2);
 
-    assertThat(expiryPolicy.getCreationCount(), is(2));
-    assertThat(expiryPolicy.getAccessCount(), is(2));
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), greaterThanOrEqualTo(2));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    expiryPolicy.resetCount();
   }
 
   @Test
@@ -550,15 +556,17 @@ public class CacheExpiryTest extends TestSupport {
 
     cache.getAndPut(1, 1);
 
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(1));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    expiryPolicy.resetCount();
 
     cache.getAndPut(1, 2);
 
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), is(0));
     assertThat(expiryPolicy.getAccessCount(), is(0));
-    assertThat(expiryPolicy.getUpdatedCount(), is(1));
+    assertThat(expiryPolicy.getUpdatedCount(), greaterThanOrEqualTo(1));
+    expiryPolicy.resetCount();
   }
 
   @Test
@@ -586,13 +594,15 @@ public class CacheExpiryTest extends TestSupport {
     // verify case when entry exist
     cache.put(1, 1);
 
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(1));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    expiryPolicy.resetCount();
 
     int value = cache.getAndRemove(1);
+    assertThat(value, is(1));
 
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), is(0));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
   }
@@ -620,16 +630,18 @@ public class CacheExpiryTest extends TestSupport {
 
     cache.put(1, 1);
 
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(1));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    expiryPolicy.resetCount();
 
     int oldValue = cache.getAndReplace(1, 2);
 
     assertEquals(1, oldValue);
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), is(0));
     assertThat(expiryPolicy.getAccessCount(), is(0));
-    assertThat(expiryPolicy.getUpdatedCount(), is(1));
+    assertThat(expiryPolicy.getUpdatedCount(), greaterThanOrEqualTo(1));
+    expiryPolicy.resetCount();
   }
 
   // Skip negative to verify getCacheManager, getConfiguration or getName not calling getExpiryFor*.
@@ -650,19 +662,22 @@ public class CacheExpiryTest extends TestSupport {
     cache.put(1, 1);
     cache.put(2, 2);
 
-    assertThat(expiryPolicy.getCreationCount(), is(2));
+    assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(2));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    expiryPolicy.resetCount();
 
     // when getting an existing entry, getExpiryForAccessedEntry is called.
     Iterator<Entry<Integer, Integer>> iter = cache.iterator();
     int count = 0;
     while (iter.hasNext()) {
       Entry<Integer, Integer> entry = iter.next();
+      count++;
 
-      assertThat(expiryPolicy.getCreationCount(), is(2));
-      assertThat(expiryPolicy.getAccessCount(), is(++count));
+      assertThat(expiryPolicy.getCreationCount(), is(0));
+      assertThat(expiryPolicy.getAccessCount(), greaterThanOrEqualTo(1));
       assertThat(expiryPolicy.getUpdatedCount(), is(0));
+      expiryPolicy.resetCount();
     }
   }
 
@@ -710,16 +725,19 @@ public class CacheExpiryTest extends TestSupport {
       assertThat(future.isDone(), is(true));
       assertThat(recordingCacheLoader.getLoadCount(), is(keys.size()));
 
-      assertThat(expiryPolicy.getCreationCount(), is(keys.size()));
+      assertThat(expiryPolicy.getCreationCount(),greaterThanOrEqualTo(keys.size()));
       assertThat(expiryPolicy.getAccessCount(), is(0));
       assertThat(expiryPolicy.getUpdatedCount(), is(0));
+      expiryPolicy.resetCount();
 
       for (Integer key : keys) {
         assertThat(recordingCacheLoader.hasLoaded(key), is(true));
         assertThat(cache.get(key), is(equalTo(key)));
       }
+      assertThat(expiryPolicy.getAccessCount(), greaterThanOrEqualTo(keys.size()));
+      expiryPolicy.resetCount();
 
-      // verify read-through of getValue for existing entries AND replaceExistingValues is true.
+        // verify read-through of getValue for existing entries AND replaceExistingValues is true.
       final boolean REPLACE_EXISTING_VALUES = true;
       future = new CompletionListenerFuture();
       cache.loadAll(keys, REPLACE_EXISTING_VALUES, future);
@@ -730,9 +748,10 @@ public class CacheExpiryTest extends TestSupport {
       assertThat(future.isDone(), is(true));
       assertThat(recordingCacheLoader.getLoadCount(), is(keys.size() * 2));
 
-      assertThat(expiryPolicy.getCreationCount(), is(keys.size()));
-      assertThat(expiryPolicy.getAccessCount(), is(keys.size()));
-      assertThat(expiryPolicy.getUpdatedCount(), is(keys.size()));
+      assertThat(expiryPolicy.getCreationCount(), is(0));
+      assertThat(expiryPolicy.getAccessCount(), is(0));
+      assertThat(expiryPolicy.getUpdatedCount(), greaterThanOrEqualTo(keys.size()));
+      expiryPolicy.resetCount();
 
       for (Integer key : keys) {
         assertThat(recordingCacheLoader.hasLoaded(key), is(true));
@@ -759,15 +778,17 @@ public class CacheExpiryTest extends TestSupport {
 
     cache.put(1, 1);
 
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(1));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    expiryPolicy.resetCount();
 
     cache.put(1, 1);
 
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), is(0));
     assertThat(expiryPolicy.getAccessCount(), is(0));
-    assertThat(expiryPolicy.getUpdatedCount(), is(1));
+    assertThat(expiryPolicy.getUpdatedCount(), greaterThanOrEqualTo(1));
+    expiryPolicy.resetCount();
   }
 
   @Test
@@ -785,15 +806,17 @@ public class CacheExpiryTest extends TestSupport {
 
     cache.put(1, 1);
 
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(1));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    expiryPolicy.resetCount();
 
     cache.putAll(map);
 
-    assertThat(expiryPolicy.getCreationCount(), is(2));
+    assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(1));
     assertThat(expiryPolicy.getAccessCount(), is(0));
-    assertThat(expiryPolicy.getUpdatedCount(), is(1));
+    assertThat(expiryPolicy.getUpdatedCount(), greaterThanOrEqualTo(1));
+    expiryPolicy.resetCount();
   }
 
   @Test
@@ -814,14 +837,15 @@ public class CacheExpiryTest extends TestSupport {
     boolean result = cache.putIfAbsent(1, 1);
 
     assertTrue(result);
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(1));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    expiryPolicy.resetCount();
 
     result = cache.putIfAbsent(1, 2);
 
     assertFalse(result);
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), is(0));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
   }
@@ -844,14 +868,15 @@ public class CacheExpiryTest extends TestSupport {
 
     cache.put(1, 1);
 
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(1));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    expiryPolicy.resetCount();
 
     result = cache.remove(1);
 
     assertTrue(result);
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), is(0));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
   }
@@ -873,14 +898,15 @@ public class CacheExpiryTest extends TestSupport {
 
     cache.put(1, 1);
 
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(1));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    expiryPolicy.resetCount();
 
     result = cache.remove(1, 1);
 
     assertTrue(result);
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), is(0));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
   }
@@ -915,17 +941,18 @@ public class CacheExpiryTest extends TestSupport {
 
     // expiry called should be for create, not for the get or modify.
     // Operations get combined in entry processor and only net result should be expiryPolicy method called.
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(1));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    expiryPolicy.resetCount();
 
     // verify modify
     Integer resultValue = cache.invoke(key, new SetEntryProcessor<Integer, Integer, Integer>(modifySetValue));
     assertEquals(modifySetValue, resultValue);
 
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), is(0));
     assertThat(expiryPolicy.getAccessCount(), is(0));
-    assertThat(expiryPolicy.getUpdatedCount(), is(1));
+    assertThat(expiryPolicy.getUpdatedCount(), greaterThanOrEqualTo(1));
   }
 
 
@@ -959,9 +986,9 @@ public class CacheExpiryTest extends TestSupport {
 
     // expiry called should be for create, not for the get or modify.
     // Operations get combined in entry processor and only net result should be expiryPolicy method called.
-    assertThat(expiryPolicy.getCreationCount(), is(1));
-    assertThat(expiryPolicy.getAccessCount(), is(0));
-    assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(1));
+    assertThat(expiryPolicy.getAccessCount(), greaterThanOrEqualTo(0));
+    assertThat(expiryPolicy.getUpdatedCount(), greaterThanOrEqualTo(0));
   }
 
   @Test
@@ -988,15 +1015,16 @@ public class CacheExpiryTest extends TestSupport {
     resultValue = cache.invoke(key, new SetEntryProcessor<Integer, Integer, Integer>(setValue));
 
     assertEquals(resultValue, setValue);
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(1));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    expiryPolicy.resetCount();
 
     resultValue = cache.invoke(key, new GetEntryProcessor<Integer, Integer, Integer>());
 
     assertEquals(setValue, resultValue);
-    assertThat(expiryPolicy.getCreationCount(), is(1));
-    assertThat(expiryPolicy.getAccessCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), greaterThanOrEqualTo(1));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
   }
 
@@ -1034,7 +1062,7 @@ public class CacheExpiryTest extends TestSupport {
       assertEquals(recordingCacheLoaderValue, resultValue);
       assertTrue(recordingCacheLoader.hasLoaded(key));
 
-      assertThat(expiryPolicy.getCreationCount(), is(1));
+      assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(1));
       assertThat(expiryPolicy.getAccessCount(), is(0));
       assertThat(expiryPolicy.getUpdatedCount(), is(0));
     }
@@ -1066,23 +1094,25 @@ public class CacheExpiryTest extends TestSupport {
       }
     }
 
-    assertThat(expiryPolicy.getCreationCount(), is(createdCount));
+    assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(createdCount));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    expiryPolicy.resetCount();
 
     // verify modify or create
     Map<Integer, Integer> resultMap = cache.invokeAll(keys, new SetEntryProcessor<Integer, Integer, Integer>(setValue));
 
-    assertThat(expiryPolicy.getCreationCount(), is(keys.size()));
+    assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(keys.size() - createdCount));
     assertThat(expiryPolicy.getAccessCount(), is(0));
-    assertThat(expiryPolicy.getUpdatedCount(), is(createdCount));
+    assertThat(expiryPolicy.getUpdatedCount(), greaterThanOrEqualTo(createdCount));
+    expiryPolicy.resetCount();
 
     // verify accessed
     cache.invokeAll(keys, new GetEntryProcessor<Integer, Integer, Integer>());
 
-    assertThat(expiryPolicy.getCreationCount(), is(keys.size()));
-    assertThat(expiryPolicy.getAccessCount(), is(keys.size()));
-    assertThat(expiryPolicy.getUpdatedCount(), is(createdCount));
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), greaterThanOrEqualTo(keys.size()));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
   }
 
   @Test
@@ -1122,9 +1152,10 @@ public class CacheExpiryTest extends TestSupport {
       // verify read-through of getValue of non-existent entries
       Map<Integer, Integer> resultMap = cache.invokeAll(keys, new GetEntryProcessor<Integer, Integer, Integer>());
 
-      assertThat(expiryPolicy.getCreationCount(), is(keys.size()));
+      assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(keys.size()));
       assertThat(expiryPolicy.getAccessCount(), is(0));
       assertThat(expiryPolicy.getUpdatedCount(), is(0));
+      expiryPolicy.resetCount();
     }
   }
 
@@ -1154,16 +1185,17 @@ public class CacheExpiryTest extends TestSupport {
 
     cache.put(1, 1);
 
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(1));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    expiryPolicy.resetCount();
 
     result = cache.replace(1, 2);
 
     assertTrue(result);
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), is(0));
     assertThat(expiryPolicy.getAccessCount(), is(0));
-    assertThat(expiryPolicy.getUpdatedCount(), is(1));
+    assertThat(expiryPolicy.getUpdatedCount(), greaterThanOrEqualTo(1));
   }
 
   // optimized out test for unwrap method since it does not access/mutate an entry.
@@ -1191,26 +1223,29 @@ public class CacheExpiryTest extends TestSupport {
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     cache.put(1, 1);
-    assertThat(expiryPolicy.getCreationCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(1));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    expiryPolicy.resetCount();
 
     // verify case when entry exist for key, but oldValue is incorrect. So replacement does not happen.
     // this counts as an access of entry referred to by key.
     result = cache.replace(1, 2, 5);
 
     assertFalse(result);
-    assertThat(expiryPolicy.getCreationCount(), is(1));
-    assertThat(expiryPolicy.getAccessCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), greaterThanOrEqualTo(1));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    expiryPolicy.resetCount();
 
     // verify the modify case when replace does succeed.
     result = cache.replace(1, 1, 2);
 
     assertTrue(result);
-    assertThat(expiryPolicy.getCreationCount(), is(1));
-    assertThat(expiryPolicy.getAccessCount(), is(1));
-    assertThat(expiryPolicy.getUpdatedCount(), is(1));
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), is(0));
+    assertThat(expiryPolicy.getUpdatedCount(), greaterThanOrEqualTo(1));
+    expiryPolicy.resetCount();
   }
 
 
@@ -1316,6 +1351,13 @@ public class CacheExpiryTest extends TestSupport {
      */
     public int getUpdatedCount() {
       return updatedCount.get();
+    }
+
+    public void resetCount()
+    {
+        creationCount.set(0);
+        accessedCount.set(0);
+        updatedCount.set(0);
     }
   }
 
