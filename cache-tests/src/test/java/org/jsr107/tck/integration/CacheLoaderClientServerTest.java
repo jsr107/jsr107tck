@@ -35,10 +35,10 @@ public class CacheLoaderClientServerTest {
 
       CacheLoaderClient<String, String> clientCacheLoader = new CacheLoaderClient<>(serverCacheLoader.getInetAddress(), 10000);
 
-      Cache.Entry<String, String> entry = clientCacheLoader.load("gudday");
+      String value = clientCacheLoader.load("gudday");
 
-      Assert.assertThat(entry, is(notNullValue()));
-      Assert.assertThat(entry.getValue(), is("gudday"));
+      Assert.assertThat(value, is(notNullValue()));
+      Assert.assertThat(value, is("gudday"));
       Assert.assertThat(recordingCacheLoader.hasLoaded("gudday"), is(true));
     } catch (Exception e) {
 
@@ -63,7 +63,7 @@ public class CacheLoaderClientServerTest {
 
       CacheLoaderClient<String, String> clientCacheLoader = new CacheLoaderClient<>(serverCacheLoader.getInetAddress(), 10000);
 
-      Cache.Entry<String, String> entry = clientCacheLoader.load("gudday");
+      String value = clientCacheLoader.load("gudday");
 
       fail("An UnsupportedOperationException should have been thrown");
     } catch (Exception e) {
@@ -78,9 +78,9 @@ public class CacheLoaderClientServerTest {
    * {@link CacheLoaderServer} back to the {@link CacheLoaderClient}.
    */
   @Test
-  public void shouldLoadNullEntriesFromServerWithClient() {
+  public void shouldLoadNullValuesFromServerWithClient() {
 
-    NullEntryCacheLoader<String, String> nullCacheLoader = new NullEntryCacheLoader<>();
+    NullValueCacheLoader<String, String> nullCacheLoader = new NullValueCacheLoader<>();
 
     CacheLoaderServer<String, String> serverCacheLoader = new CacheLoaderServer<String, String>(10000, nullCacheLoader);
 
@@ -89,9 +89,9 @@ public class CacheLoaderClientServerTest {
 
       CacheLoaderClient<String, String> clientCacheLoader = new CacheLoaderClient<>(serverCacheLoader.getInetAddress(), 10000);
 
-      Cache.Entry<String, String> entry = clientCacheLoader.load("gudday");
+      String value = clientCacheLoader.load("gudday");
 
-      Assert.assertThat(entry, is(nullValue()));
+      Assert.assertThat(value, is(nullValue()));
     } catch (Exception e) {
 
     } finally {

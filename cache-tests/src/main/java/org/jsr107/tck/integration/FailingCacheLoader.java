@@ -16,7 +16,6 @@
  */
 package org.jsr107.tck.integration;
 
-import javax.cache.Cache;
 import javax.cache.integration.CacheLoader;
 import java.util.Map;
 
@@ -34,7 +33,7 @@ public class FailingCacheLoader<K, V> extends RecordingCacheLoader {
    * {@inheritDoc}
    */
   @Override
-  public Cache.Entry load(Object key) {
+  public V load(Object key) {
     throw new UnsupportedOperationException();
   }
 

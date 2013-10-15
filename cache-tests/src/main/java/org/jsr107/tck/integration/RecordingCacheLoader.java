@@ -16,7 +16,6 @@
  */
 package org.jsr107.tck.integration;
 
-import javax.cache.Cache;
 import javax.cache.integration.CacheLoader;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,29 +49,14 @@ public class RecordingCacheLoader<K> implements CacheLoader<K, K> {
    * {@inheritDoc}
    */
   @Override
-  public Cache.Entry<K, K> load(final K key) {
+  public K load(final K key) {
     if (key == null) {
       throw new NullPointerException("Attempted to load a null key!");
     } else {
       loaded.put(key, key);
       loadCount.incrementAndGet();
 
-      return new Cache.Entry<K, K>() {
-        @Override
-        public K getKey() {
-          return key;
-        }
-
-        @Override
-        public K getValue() {
-          return key;
-        }
-
-        @Override
-        public <T> T unwrap(Class<T> clazz) {
-          throw new UnsupportedOperationException();
-        }
-      };
+      return key;
     }
   }
 

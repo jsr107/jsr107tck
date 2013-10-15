@@ -16,7 +16,6 @@
  */
 package org.jsr107.tck.integration;
 
-import javax.cache.Cache;
 import javax.cache.integration.CacheLoader;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,23 +34,8 @@ public class NullValueCacheLoader<K, V> implements CacheLoader<K, V> {
    * {@inheritDoc}
    */
   @Override
-  public Cache.Entry<K, V> load(final K key) {
-    return new Cache.Entry<K, V>() {
-      @Override
-      public K getKey() {
-        return key;
-      }
-
-      @Override
-      public V getValue() {
-        return null;
-      }
-
-      @Override
-      public <T> T unwrap(Class<T> clazz) {
-        throw new UnsupportedOperationException("Can't unwrap a NullValueCacheLoader.Entry");
-      }
-    };
+  public V load(K key) {
+    return null;
   }
 
   /**

@@ -282,7 +282,7 @@ public class CacheLoaderTest {
    */
   @Test
   public void shouldNotLoadNullEntries() {
-    NullEntryCacheLoader<String, String> nullCacheLoader = new NullEntryCacheLoader<>();
+    NullValueCacheLoader<String, String> nullCacheLoader = new NullValueCacheLoader<>();
     cacheLoaderServer.setCacheLoader(nullCacheLoader);
 
     //construct a set of keys
@@ -739,7 +739,7 @@ public class CacheLoaderTest {
    */
   @Test
   public void shouldNotLoadMultipleNullEntriesUsingLoadAll() throws Exception {
-    NullEntryCacheLoader<String, String> cacheLoader = new NullEntryCacheLoader<>();
+    NullValueCacheLoader<String, String> cacheLoader = new NullValueCacheLoader<>();
     cacheLoaderServer.setCacheLoader(cacheLoader);
 
     HashSet<String> keys = new HashSet<>();

@@ -19,7 +19,6 @@ package org.jsr107.tck.integration;
 import org.jsr107.tck.support.OperationHandler;
 import org.jsr107.tck.support.Server;
 
-import javax.cache.Cache;
 import javax.cache.integration.CacheLoader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -146,16 +145,12 @@ public class CacheLoaderServer<K, V> extends Server {
       } else {
         K key = (K) ois.readObject();
 
-        Cache.Entry<K, V> entry = null;
+        V value = null;
         try {
-          entry = cacheLoader.load(key);
+          value = cacheLoader.load(key);
+          oos.writeObject(value);
         } catch (Exception e) {
           oos.writeObject(e);
-        }
-        if (entry == null) {
-          oos.writeObject(null);
-        } else {
-          oos.writeObject(entry.getValue());
         }
       }
     }

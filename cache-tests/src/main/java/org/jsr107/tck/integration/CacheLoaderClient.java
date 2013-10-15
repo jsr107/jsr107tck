@@ -51,25 +51,8 @@ public class CacheLoaderClient<K, V> extends CacheClient implements CacheLoader<
   }
 
   @Override
-  public Cache.Entry<K, V> load(final K key) {
-    final V value = getClient().invoke(new LoadOperation<K, V>(key));
-
-    return value == null ? null : new Cache.Entry<K, V>() {
-      @Override
-      public K getKey() {
-        return key;
-      }
-
-      @Override
-      public V getValue() {
-        return value;
-      }
-
-      @Override
-      public <T> T unwrap(Class<T> clazz) {
-        throw new UnsupportedOperationException("Can't unwrap a loaded entry");
-      }
-    };
+  public V load(final K key) {
+    return getClient().invoke(new LoadOperation<K, V>(key));
   }
 
   /**
