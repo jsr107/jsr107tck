@@ -903,6 +903,14 @@ public class CacheExpiryTest extends TestSupport {
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
     expiryPolicy.resetCount();
 
+    result = cache.remove(1, 2);
+
+    assertFalse(result);
+    assertThat(expiryPolicy.getCreationCount(), is(0));
+    assertThat(expiryPolicy.getAccessCount(), is(1));
+    assertThat(expiryPolicy.getUpdatedCount(), is(0));
+    expiryPolicy.resetCount();
+
     result = cache.remove(1, 1);
 
     assertTrue(result);
