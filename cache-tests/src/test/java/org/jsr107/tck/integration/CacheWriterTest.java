@@ -897,6 +897,17 @@ public class CacheWriterTest extends TestSupport {
       assertFalse(cache.containsKey(key));
     }
 
+    //the following should not change the state of the cache
+    cache.removeAll();
+
+    assertEquals(3, cacheWriter.getWriteCount());
+    assertEquals(3, cacheWriter.getDeleteCount());
+
+    for (Integer key : map.keySet()) {
+      assertFalse(cacheWriter.hasWritten(key));
+      assertFalse(cache.containsKey(key));
+    }
+
     map.put(4, "Hola World");
 
     cache.putAll(map);
@@ -1158,7 +1169,7 @@ public class CacheWriterTest extends TestSupport {
   }
 
   @Test
-  public void testWriterExceptionsAreWrapped() throws IOException {
+  public void shouldWrapWriterExceptions() throws IOException {
     //we need to create a custom writer
     cleanup();
 
@@ -1217,13 +1228,9 @@ public class CacheWriterTest extends TestSupport {
       //expected
     }
 
-    try {
-      cache.removeAll();
-      fail();
-    } catch (CacheWriterException e) {
-      //expected
-    }
-
+    // the following should not throw an exception as there are no entries
+    // in the cache
+    cache.removeAll();
   }
 
 
