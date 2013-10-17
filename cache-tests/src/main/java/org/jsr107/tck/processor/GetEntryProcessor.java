@@ -15,8 +15,6 @@
  *  limitations under the License.
  */
 
-
-
 package org.jsr107.tck.processor;
 
 import javax.cache.processor.EntryProcessor;
@@ -24,16 +22,18 @@ import javax.cache.processor.MutableEntry;
 import java.io.Serializable;
 
 /**
- * Get entry processor
+ * An {@link EntryProcessor} to return the current value of an entry.
+ *
  * @param <K>  key type
  * @param <V>  value type
- * @param <T>  process return type
  */
-public class GetEntryProcessor<K, V, T> implements EntryProcessor<K, V,
-    T>, Serializable {
+public class GetEntryProcessor<K, V> implements EntryProcessor<K, V, V>, Serializable {
 
-    @Override
-    public T process(MutableEntry<K, V> entry, Object... arguments) {
-        return (T) entry.getValue();
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public V process(MutableEntry<K, V> entry, Object... arguments) {
+      return entry.getValue();
+  }
 }

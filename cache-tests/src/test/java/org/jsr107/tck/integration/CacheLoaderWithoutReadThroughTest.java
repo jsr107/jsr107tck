@@ -28,54 +28,52 @@ import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableConfiguration;
-import javax.cache.integration.CacheLoader;
+import javax.cache.expiry.Duration;
+import javax.cache.expiry.ExpiryPolicy;
 import javax.cache.integration.CacheLoaderException;
 import javax.cache.integration.CompletionListenerFuture;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 /**
- * Functional Tests for {@link CacheLoader}s.
+ * Functional Tests for {@link javax.cache.integration.CacheLoader}s with
+ * {@link javax.cache.Cache}s that have read-through disabled.
  *
  * @author Brian Oliver
  */
-public class CacheLoaderTest {
+public class CacheLoaderWithoutReadThroughTest {
 
   /**
    * Rule used to exclude tests
    */
   @Rule
-  public ExcludeListExcluder rule = new ExcludeListExcluder(CacheLoaderTest.class);
+  public ExcludeListExcluder rule = new ExcludeListExcluder(CacheLoaderWithoutReadThroughTest.class);
 
   /**
-   * The {@link CacheManager} for the each test.
+   * The {@link javax.cache.CacheManager} for the each test.
    */
   private CacheManager cacheManager;
 
   /**
-   * A {@link CacheLoaderServer} that will delegate {@link Cache} request
-   * onto the recording {@link CacheLoader}.
+   * A {@link CacheLoaderServer} that will delegate {@link javax.cache.Cache} request
+   * onto the recording {@link javax.cache.integration.CacheLoader}.
    */
   private CacheLoaderServer<String, String> cacheLoaderServer;
 
   /**
-   * The {@link Cache} for the each test.
+   * The {@link javax.cache.Cache} for the each test.
    */
   private Cache<String, String> cache;
 
   /**
-   * Establish the {@link CacheManager} and {@link Cache} for a test.
+   * Establish the {@link javax.cache.CacheManager} and {@link javax.cache.Cache} for a test.
    */
   @Before
   public void onBeforeEachTest() throws IOException {
@@ -92,11 +90,11 @@ public class CacheLoaderTest {
     CacheLoaderClient<String, String> cacheLoader =
         new CacheLoaderClient<>(cacheLoaderServer.getInetAddress(), cacheLoaderServer.getPort());
 
-    //establish a Cache Configuration that uses a CacheLoader and Read-Through
+    //establish a Cache Configuration that uses a CacheLoader (no Read-Through)
     MutableConfiguration<String, String> configuration = new MutableConfiguration<>();
     configuration.setTypes(String.class, String.class);
     configuration.setCacheLoaderFactory(FactoryBuilder.factoryOf(cacheLoader));
-    configuration.setReadThrough(true);
+    configuration.setReadThrough(false);
 
     //configure the cache
     cacheManager.createCache("cache-loader-test", configuration);
@@ -104,7 +102,7 @@ public class CacheLoaderTest {
   }
 
   /**
-   * Clean up the {@link CacheManager} and {@link Cache} after a test.
+   * Clean up the {@link javax.cache.CacheManager} and {@link javax.cache.Cache} after a test.
    */
   @After
   public void onAfterEachTest() {
@@ -121,10 +119,10 @@ public class CacheLoaderTest {
 
   /**
    * Ensure that a {@link Cache#get(Object)} for a non-existent entry will
-   * cause it to be loaded.
+   * not cause it to be loaded.
    */
   @Test
-  public void shouldLoadWhenCacheMissUsingGet() {
+  public void shouldNotLoadWhenCacheMissUsingGet() {
     RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
     cacheLoaderServer.setCacheLoader(cacheLoader);
 
@@ -134,14 +132,14 @@ public class CacheLoaderTest {
 
     String value = cache.get(key);
 
-    assertThat(value, is(equalTo(key)));
-    assertThat(cacheLoader.getLoadCount(), is(1));
-    assertThat(cacheLoader.hasLoaded(key), is(true));
+    assertThat(value, is(nullValue()));
+    assertThat(cacheLoader.getLoadCount(), is(0));
+    assertThat(cacheLoader.hasLoaded(key), is(false));
   }
 
   /**
    * Ensure accessing an entry from an {@link javax.cache.processor.EntryProcessor}
-   * will cause a {@link CacheLoader} to load an entry.
+   * will not cause a {@link javax.cache.integration.CacheLoader} to load an entry.
    */
   @Test
   public void shouldLoadWhenAccessingWithEntryProcessor() {
@@ -154,9 +152,9 @@ public class CacheLoaderTest {
 
     String value = cache.invoke(key, new GetEntryProcessor<String, String>());
 
-    assertThat(value, is(equalTo(key)));
-    assertThat(cacheLoader.getLoadCount(), is(1));
-    assertThat(cacheLoader.hasLoaded(key), is(true));
+    assertThat(value, is(nullValue()));
+    assertThat(cacheLoader.getLoadCount(), is(0));
+    assertThat(cacheLoader.hasLoaded(key), is(false));
   }
 
   /**
@@ -199,11 +197,10 @@ public class CacheLoaderTest {
   }
 
   /**
-   * Ensure that a {@link Cache#getAll(java.util.Set)} will load the expected
-   * entries.
+   * Ensure that a {@link Cache#getAll(java.util.Set)} will not load entries.
    */
   @Test
-  public void shouldLoadUsingGetAll() {
+  public void shouldNotLoadUsingGetAll() {
     RecordingCacheLoader<String> cacheLoader = new RecordingCacheLoader<String>();
     cacheLoaderServer.setCacheLoader(cacheLoader);
 
@@ -218,23 +215,22 @@ public class CacheLoaderTest {
     Map<String, String> map = cache.getAll(keys);
 
     //assert that the map content is as expected
-    assertThat(map.size(), is(keys.size()));
+    assertThat(map.size(), is(0));
 
     for (String key : keys) {
-      assertThat(map.containsKey(key), is(true));
-      assertThat(map.get(key), is(key));
+      assertThat(map.containsKey(key), is(false));
     }
 
     //assert that the loader state is as expected
-    assertThat(cacheLoader.getLoadCount(), is(keys.size()));
+    assertThat(cacheLoader.getLoadCount(), is(0));
 
     for (String key : keys) {
-      assertThat(cacheLoader.hasLoaded(key), is(true));
+      assertThat(cacheLoader.hasLoaded(key), is(false));
     }
 
-    //attempting to load the same keys should not result in another load
+    //attempting to load the same keys should not result in loading
     cache.getAll(keys);
-    assertThat(cacheLoader.getLoadCount(), is(keys.size()));
+    assertThat(cacheLoader.getLoadCount(), is(0));
   }
 
   /**
@@ -298,7 +294,7 @@ public class CacheLoaderTest {
   }
 
   /**
-   * Ensure that a {@link CacheLoader} that returns <code>null</code> entries
+   * Ensure that a {@link javax.cache.integration.CacheLoader} that returns <code>null</code> entries
    * aren't placed in the cache.
    */
   @Test
@@ -321,7 +317,7 @@ public class CacheLoaderTest {
   }
 
   /**
-   * Ensure that a {@link CacheLoader} that returns <code>null</code> values
+   * Ensure that a {@link javax.cache.integration.CacheLoader} that returns <code>null</code> values
    * aren't placed in the cache.
    */
   @Test
@@ -596,7 +592,7 @@ public class CacheLoaderTest {
   }
 
   /**
-   * Ensure that {@link Cache#loadAll(Set, boolean, javax.cache.integration.CompletionListener)}
+   * Ensure that {@link Cache#loadAll(java.util.Set, boolean, javax.cache.integration.CompletionListener)}
    * for a non-existent single value will cause it to be loaded.
    */
   @Test
@@ -623,7 +619,7 @@ public class CacheLoaderTest {
   }
 
   /**
-   * Ensure that {@link Cache#loadAll(Set, boolean, javax.cache.integration.CompletionListener)}
+   * Ensure that {@link Cache#loadAll(java.util.Set, boolean, javax.cache.integration.CompletionListener)}
    * for an existing single entry will cause it to be reloaded.
    */
   @Test
@@ -656,7 +652,7 @@ public class CacheLoaderTest {
   }
 
   /**
-   * Ensure that {@link Cache#loadAll(Set, boolean, javax.cache.integration.CompletionListener)} )}
+   * Ensure that {@link Cache#loadAll(java.util.Set, boolean, javax.cache.integration.CompletionListener)} )}
    * for multiple non-existing entries will be loaded.
    */
   @Test
@@ -690,7 +686,7 @@ public class CacheLoaderTest {
   }
 
   /**
-   * Ensure that {@link Cache#loadAll(Set, boolean, javax.cache.integration.CompletionListener)}
+   * Ensure that {@link Cache#loadAll(java.util.Set, boolean, javax.cache.integration.CompletionListener)}
    * for multiple existing entries will be reloaded.
    */
   @Test
@@ -727,7 +723,7 @@ public class CacheLoaderTest {
   }
 
   /**
-   * Ensure that {@link Cache#loadAll(Set, boolean, javax.cache.integration.CompletionListener)}
+   * Ensure that {@link Cache#loadAll(java.util.Set, boolean, javax.cache.integration.CompletionListener)}
    * won't load <code>null</code> values.
    */
   @Test
@@ -829,26 +825,24 @@ public class CacheLoaderTest {
 
   /**
    * Ensure that {@link Cache#get(Object)} will propagate an exception from a
-   * {@link CacheLoader}.
+   * {@link javax.cache.integration.CacheLoader}.
    */
   @Test
-  public void shouldPropagateExceptionUsingGet() {
+  public void shouldNotPropagateExceptionUsingGet() {
     FailingCacheLoader<String, String> cacheLoader = new FailingCacheLoader<>();
     cacheLoaderServer.setCacheLoader(cacheLoader);
 
     try {
       String key = "message";
       cache.get(key);
-
-      fail();
     } catch (CacheLoaderException e) {
-      //expected
+      fail();
     }
   }
 
   /**
    * Ensure that {@link Cache#loadAll(java.util.Set, boolean, javax.cache.integration.CompletionListener)}  )}
-   * will propagate an exception from a {@link CacheLoader}.
+   * will propagate an exception from a {@link javax.cache.integration.CacheLoader}.
    */
   @Test
   public void shouldPropagateExceptionUsingLoadAll() throws Exception {
@@ -865,7 +859,7 @@ public class CacheLoaderTest {
     cache.loadAll(keys, false, future);
 
     //wait for the load to complete
-    try{
+    try {
       future.get();
     } catch (ExecutionException e) {
       assertThat(e.getCause(), instanceOf(CacheLoaderException.class));

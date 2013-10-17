@@ -39,27 +39,43 @@ import javax.cache.processor.MutableEntry;
 import java.io.Serializable;
 
 /**
- * Basic set entry processor.
- * @param <K>  key type
- * @param <V>  value type
- * @param <T>  process return type
+ * An {@link EntryProcessor} to set the value of an entry.
+ *
+ * @param <K> key type
+ * @param <V> value type
  */
-public class SetEntryProcessor<K, V, T> implements EntryProcessor<K, V,
-    T>, Serializable {
-    private V value;
+public class SetEntryProcessor<K, V> implements EntryProcessor<K, V, V>, Serializable {
 
-    public SetEntryProcessor(V value) {
-        this.value = value;
-    }
+  /**
+   * The value to set.
+   */
+  private V value;
 
-    @Override
-    public T process(MutableEntry<K, V> entry, Object... arguments) {
-        entry.setValue(value);
+  /**
+   * Constructs a {@link SetEntryProcessor}.
+   *
+   * @param value
+   */
+  public SetEntryProcessor(V value) {
+    this.value = value;
+  }
 
-        return (T) entry.getValue();
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public V process(MutableEntry<K, V> entry, Object... arguments) {
+    entry.setValue(value);
 
-    public V getValue() {
-        return value;
-    }
+    return entry.getValue();
+  }
+
+  /**
+   * Obtains the value to set.
+   *
+   * @return the value to set
+   */
+  public V getValue() {
+    return value;
+  }
 }

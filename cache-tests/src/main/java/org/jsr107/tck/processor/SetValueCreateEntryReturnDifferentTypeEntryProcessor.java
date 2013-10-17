@@ -35,30 +35,50 @@ package org.jsr107.tck.processor;
 
 import org.junit.Assert;
 
+import javax.cache.processor.EntryProcessor;
 import javax.cache.processor.MutableEntry;
+import java.io.Serializable;
 
 /**
  * Specialized Entry processor that can return a different type and value than the entry value.
  *
- * @param <K>  key type
- * @param <V>  value type
- * @param <T>  process return type
- *
+ * @param <K> key type
+ * @param <V> value type
+ * @param <T> process return type
  */
-public class SetValueCreateEntryReturnDifferentTypeEntryProcessor<K, V, T> extends SetEntryProcessor<K, V, T> {
-    private final T ret;
+public class SetValueCreateEntryReturnDifferentTypeEntryProcessor<K, V, T> implements EntryProcessor<K, V, T>, Serializable {
 
-    public SetValueCreateEntryReturnDifferentTypeEntryProcessor(T ret, V newValue) {
-        super(newValue);
-        this.ret = ret;
-    }
+  /**
+   * The value to set.
+   */
+  private V value;
 
-    @Override
-    public T process(MutableEntry<K, V> entry, Object... arguments) {
-        Assert.assertFalse(entry.exists());
-        super.process(entry, arguments);
-        Assert.assertTrue(entry.exists());
+  /**
+   * The result to return.
+   */
+  private T result;
 
-        return ret;
-    }
+
+  /**
+   * Constructs a {@link SetValueCreateEntryReturnDifferentTypeEntryProcessor}.
+   *
+   * @param result
+   * @param newValue
+   */
+  public SetValueCreateEntryReturnDifferentTypeEntryProcessor(T result, V newValue) {
+    this.value = newValue;
+    this.result = result;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public T process(MutableEntry<K, V> entry, Object... arguments) {
+    Assert.assertFalse(entry.exists());
+    entry.setValue(value);
+    Assert.assertTrue(entry.exists());
+
+    return result;
+  }
 }

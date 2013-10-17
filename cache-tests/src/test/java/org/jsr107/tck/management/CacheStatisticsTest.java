@@ -231,7 +231,7 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
   public void testCacheStatisticsInvokeEntryProcessorGet() throws Exception {
 
     cache.put(1l, "Sooty");
-    String result = cache.invoke(1l, new GetEntryProcessor<Long,String, String>());
+    String result = cache.invoke(1l, new GetEntryProcessor<Long, String>());
     assertEquals(result, "Sooty");
     assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
     assertEquals(1.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
@@ -250,7 +250,7 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
   public void testCacheStatisticsInvokeEntryProcessorUpdate() throws Exception {
 
     cache.put(1l, "Sooty");
-    String result = cache.invoke(1l, new SetEntryProcessor<Long, String, String>("Trinity"));
+    String result = cache.invoke(1l, new SetEntryProcessor<Long, String>("Trinity"));
     assertEquals(result, "Trinity");
     assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
     assertEquals(1.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));

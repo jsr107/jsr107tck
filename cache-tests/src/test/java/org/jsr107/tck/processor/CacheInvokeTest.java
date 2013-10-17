@@ -137,7 +137,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     EntryProcessor processors[] =
         new EntryProcessor[]{
                  new AssertNotPresentEntryProcessor(null),
-                 new SetEntryProcessor<Integer, String, Integer>(setValue),
+                 new SetEntryProcessor<Integer, String>(setValue),
                  new ThrowExceptionEntryProcessor<Integer, String, String>(IllegalAccessError.class)
              };
     try {
@@ -190,7 +190,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     EntryProcessor processors[] =
         new EntryProcessor[]{
             new AssertNotPresentEntryProcessor<Integer, String, Integer>(ret),
-            new SetEntryProcessor<Integer, String, String>(value),
+            new SetEntryProcessor<Integer, String>(value),
             new RemoveEntryProcessor<Integer, String, String>(true)
         };
     Object[] result = cache.invoke(key, new CombineEntryProcessor<Integer, String>(processors));

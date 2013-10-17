@@ -939,8 +939,8 @@ public class CacheExpiryTest extends TestSupport {
     EntryProcessor processors[] =
         new EntryProcessor[]{
             new AssertNotPresentEntryProcessor(null),
-            new SetEntryProcessor<Integer, Integer, Integer>(setValue),
-            new GetEntryProcessor<Integer, Integer, Integer>()
+            new SetEntryProcessor<Integer, Integer>(setValue),
+            new GetEntryProcessor<Integer, Integer>()
         };
     Object[] result = (Object[]) cache.invoke(key, new CombineEntryProcessor(processors));
 
@@ -955,7 +955,7 @@ public class CacheExpiryTest extends TestSupport {
     expiryPolicy.resetCount();
 
     // verify modify
-    Integer resultValue = cache.invoke(key, new SetEntryProcessor<Integer, Integer, Integer>(modifySetValue));
+    Integer resultValue = cache.invoke(key, new SetEntryProcessor<Integer, Integer>(modifySetValue));
     assertEquals(modifySetValue, resultValue);
 
     assertThat(expiryPolicy.getCreationCount(), is(0));
@@ -982,9 +982,9 @@ public class CacheExpiryTest extends TestSupport {
     EntryProcessor processors[] =
         new EntryProcessor[]{
             new AssertNotPresentEntryProcessor(null),
-            new SetEntryProcessor<Integer, Integer, Integer>(111),
-            new SetEntryProcessor<Integer, Integer, Integer>(setValue),
-            new GetEntryProcessor<Integer, Integer, Integer>()
+            new SetEntryProcessor<Integer, Integer>(111),
+            new SetEntryProcessor<Integer, Integer>(setValue),
+            new GetEntryProcessor<Integer, Integer>()
         };
     Object[] result = (Object[]) cache.invoke(key, new CombineEntryProcessor(processors));
 
@@ -1012,7 +1012,7 @@ public class CacheExpiryTest extends TestSupport {
     final Integer setValue = 456;
 
     // verify non-access to non-existent entry does not call getExpiryForAccessedEntry. no read-through scenario.
-    Integer resultValue = cache.invoke(key, new GetEntryProcessor<Integer, Integer, Integer>());
+    Integer resultValue = cache.invoke(key, new GetEntryProcessor<Integer, Integer>());
 
     assertEquals(null, resultValue);
     assertThat(expiryPolicy.getCreationCount(), is(0));
@@ -1020,7 +1020,7 @@ public class CacheExpiryTest extends TestSupport {
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
 
     // verify access to existing entry.
-    resultValue = cache.invoke(key, new SetEntryProcessor<Integer, Integer, Integer>(setValue));
+    resultValue = cache.invoke(key, new SetEntryProcessor<Integer, Integer>(setValue));
 
     assertEquals(resultValue, setValue);
     assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(1));
@@ -1028,7 +1028,7 @@ public class CacheExpiryTest extends TestSupport {
     assertThat(expiryPolicy.getUpdatedCount(), is(0));
     expiryPolicy.resetCount();
 
-    resultValue = cache.invoke(key, new GetEntryProcessor<Integer, Integer, Integer>());
+    resultValue = cache.invoke(key, new GetEntryProcessor<Integer, Integer>());
 
     assertEquals(setValue, resultValue);
     assertThat(expiryPolicy.getCreationCount(), is(0));
@@ -1065,7 +1065,7 @@ public class CacheExpiryTest extends TestSupport {
       final Integer recordingCacheLoaderValue = key;
 
       // verify create when read through is enabled and entry was non-existent in cache.
-      Integer resultValue = cache.invoke(key, new GetEntryProcessor<Integer, Integer, Integer>());
+      Integer resultValue = cache.invoke(key, new GetEntryProcessor<Integer, Integer>());
 
       assertEquals(recordingCacheLoaderValue, resultValue);
       assertTrue(recordingCacheLoader.hasLoaded(key));
@@ -1108,7 +1108,7 @@ public class CacheExpiryTest extends TestSupport {
     expiryPolicy.resetCount();
 
     // verify modify or create
-    Map<Integer, Integer> resultMap = cache.invokeAll(keys, new SetEntryProcessor<Integer, Integer, Integer>(setValue));
+    Map<Integer, Integer> resultMap = cache.invokeAll(keys, new SetEntryProcessor<Integer, Integer>(setValue));
 
     assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(keys.size() - createdCount));
     assertThat(expiryPolicy.getAccessCount(), is(0));
@@ -1116,7 +1116,7 @@ public class CacheExpiryTest extends TestSupport {
     expiryPolicy.resetCount();
 
     // verify accessed
-    cache.invokeAll(keys, new GetEntryProcessor<Integer, Integer, Integer>());
+    cache.invokeAll(keys, new GetEntryProcessor<Integer, Integer>());
 
     assertThat(expiryPolicy.getCreationCount(), is(0));
     assertThat(expiryPolicy.getAccessCount(), greaterThanOrEqualTo(keys.size()));
@@ -1158,7 +1158,7 @@ public class CacheExpiryTest extends TestSupport {
       }
 
       // verify read-through of getValue of non-existent entries
-      Map<Integer, Integer> resultMap = cache.invokeAll(keys, new GetEntryProcessor<Integer, Integer, Integer>());
+      Map<Integer, Integer> resultMap = cache.invokeAll(keys, new GetEntryProcessor<Integer, Integer>());
 
       assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(keys.size()));
       assertThat(expiryPolicy.getAccessCount(), is(0));

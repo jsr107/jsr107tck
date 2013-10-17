@@ -87,9 +87,8 @@ public class CacheWriterTest extends TestSupport {
    */
   @Before
   public void onBeforeEachTest() throws IOException {
-
-    // establish and open a CacheLoaderServer to handle cache
-    // cache loading requests from a CacheLoaderClient
+    // establish and open a CacheWriterServer to handle cache
+    // cache loading requests from a CacheWriterClient
     cacheWriter = new RecordingCacheWriter<>();
     cacheWriterServer = new CacheWriterServer<>(10000, cacheWriter);
     cacheWriterServer.open();
@@ -342,7 +341,7 @@ public class CacheWriterTest extends TestSupport {
     assertEquals(0, cacheWriter.getWriteCount());
     assertEquals(0, cacheWriter.getDeleteCount());
 
-        cache.invoke(1, new SetEntryProcessor<Integer, String, String>("Gudday World"));
+        cache.invoke(1, new SetEntryProcessor<Integer, String>("Gudday World"));
     assertEquals(1, cacheWriter.getWriteCount());
     assertEquals(0, cacheWriter.getDeleteCount());
     assertTrue(cacheWriter.hasWritten(1));
@@ -476,7 +475,7 @@ public class CacheWriterTest extends TestSupport {
             new EntryProcessor[] {
                 new RemoveEntryProcessor<Integer, String, Object>(true),
                 new AssertNotPresentEntryProcessor(null),
-                new SetEntryProcessor<Integer, String, String>("After remove")
+                new SetEntryProcessor<Integer, String>("After remove")
         };
     cache.invoke(1, new CombineEntryProcessor<Integer, String>(processors));
 
@@ -493,7 +492,7 @@ public class CacheWriterTest extends TestSupport {
     EntryProcessor processors[] =
             new EntryProcessor[] {
                 new AssertNotPresentEntryProcessor(null),
-                new SetEntryProcessor<Integer, String, Object>("Gudday World"),
+                new SetEntryProcessor<Integer, String>("Gudday World"),
                 new RemoveEntryProcessor<Integer, String, Object>(true)
             };
     cache.invoke(1, new CombineEntryProcessor<Integer, String>(processors));
@@ -511,7 +510,7 @@ public class CacheWriterTest extends TestSupport {
     EntryProcessor processors[] =
         new EntryProcessor[] {
             new AssertNotPresentEntryProcessor(null),
-            new SetEntryProcessor<Integer, String, String>("Gudday World")
+            new SetEntryProcessor<Integer, String>("Gudday World")
         };
     Object[] result = cache.invoke(1, new CombineEntryProcessor<Integer, String>(processors));
 

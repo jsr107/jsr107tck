@@ -153,7 +153,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     assertEquals(4, listener.getUpdated());
     assertEquals(0, listener.getRemoved());
 
-    result = cache.invoke(1l, new SetEntryProcessor<Long, String, String>("Zoot"));
+    result = cache.invoke(1l, new SetEntryProcessor<Long, String>("Zoot"));
     assertEquals("Zoot", result);
     assertEquals(4, listener.getCreated());
     assertEquals(5, listener.getUpdated());
@@ -165,7 +165,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     assertEquals(5, listener.getUpdated());
     assertEquals(1, listener.getRemoved());
 
-    result = cache.invoke(1l, new SetEntryProcessor<Long, String, String>("Moose"));
+    result = cache.invoke(1l, new SetEntryProcessor<Long, String>("Moose"));
     assertEquals("Moose", result);
     assertEquals(5, listener.getCreated());
     assertEquals(5, listener.getUpdated());
@@ -254,8 +254,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     }
 
     try {
-      String result = cache.invoke(1l, new SetEntryProcessor<Long, String,
-          String>("Zoot"));
+      String result = cache.invoke(1l, new SetEntryProcessor<Long, String>("Zoot"));
 
       Iterator<Cache.Entry<Long, String>> iterator = cache.iterator();
       while (iterator.hasNext()) {
