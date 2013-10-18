@@ -16,18 +16,10 @@
  */
 
 /**
- This package contains infrastructure so that loaders and writers can send
- information back to the JUnit test which initiated them so that asserts can
- happen.
-
- An instance of {@link CacheLoaderServer} or {@link CacheWriterServer} is created in the JUnit test,
- listening on port 10,000. Loaders create clients which make requests to the
- server for loading or writing.
-
- This way no assumption is made about whether a loader or writer is running
- in-process or out of process.
+ This package contains integration test infrastructure. Writers and Loaders
+ might not be in the same JVM, so this infrastructure ensures we can resolve
+ them.
 
  @author Greg Luck
- @author Brian Oliver
  */
 package org.jsr107.tck.integration;

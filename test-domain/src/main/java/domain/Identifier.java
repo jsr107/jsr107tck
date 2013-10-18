@@ -29,7 +29,6 @@ public class Identifier implements Serializable {
   /**
    * Constructor
    *
-   * @param name
    */
   public Identifier(String name) {
     this.name = name;
@@ -38,8 +37,6 @@ public class Identifier implements Serializable {
   /**
    * Implemented without class checking
    *
-   * @param o
-   * @return
    */
   @Override
   public boolean equals(Object o) {

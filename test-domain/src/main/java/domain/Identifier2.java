@@ -27,7 +27,6 @@ public class Identifier2 {
   /**
    * Constructor
    *
-   * @param name
    */
   public Identifier2(String name) {
     this.name = name;
@@ -36,8 +35,6 @@ public class Identifier2 {
   /**
    * Implemented without class checking
    *
-   * @param o
-   * @return
    */
   @Override
   public boolean equals(Object o) {

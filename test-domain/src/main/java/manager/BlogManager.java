@@ -23,42 +23,18 @@ import domain.Blog;
  */
 public interface BlogManager {
 
-  /**
-   * @param title
-   * @return
-   */
   Blog getEntryCached(String title);
 
-  /**
-   * @param title
-   * @return
-   */
   Blog getEntryCached(String randomArg, String title, String randomArg2);
 
-  /**
-   * @param title
-   * @return
-   */
   Blog getEntryRaw(String title);
 
-  /**
-   * @param title
-   */
   void clearEntryFromCache(String title);
 
-  /**
-   * @param title
-   */
   void clearEntry(String title);
 
-  /**
-   *
-   */
   void clearCache();
 
-  /**
-   * @param blog
-   */
   void createEntry(Blog blog);
 
 }
