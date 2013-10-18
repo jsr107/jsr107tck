@@ -22,7 +22,6 @@ import org.jsr107.tck.support.Server;
 
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

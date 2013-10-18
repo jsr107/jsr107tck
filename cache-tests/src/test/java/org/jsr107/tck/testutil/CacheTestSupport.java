@@ -20,7 +20,11 @@ import org.junit.After;
 import org.junit.Before;
 
 import javax.cache.Cache;
+import javax.cache.CacheException;
 import javax.cache.configuration.MutableConfiguration;
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 
@@ -83,4 +87,22 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
   protected LinkedHashMap<Long, String> createLSData(int count) {
     return createLSData(count, System.currentTimeMillis());
   }
+
+  /**
+   * To test your implementation specify system properties per the following RI
+   * examples:
+   * -Djavax.management.builder.initial=org.jsr107.ri .RITCKMBeanServerBuilder
+   * -Dorg.jsr107.tck.management.agentId=RIMBeanServer
+   */
+  public static MBeanServer resolveMBeanServer() {
+    String agentId = System.getProperty("org.jsr107.tck.management.agentId");
+    ArrayList<MBeanServer> mBeanServers = MBeanServerFactory.findMBeanServer(agentId);
+    if (mBeanServers.size() < 1) {
+      throw new CacheException("The specification requires registration of " +
+          "MBeans in an implementation specific MBeanServer. A search for an " +
+          "MBeanServer did not find any.");
+    }
+    return mBeanServers.get(0);
+  }
+
 }

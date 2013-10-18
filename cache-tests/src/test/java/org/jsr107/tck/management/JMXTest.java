@@ -19,6 +19,7 @@
 package org.jsr107.tck.management;
 
 import org.hamcrest.collection.IsEmptyCollection;
+import org.jsr107.tck.testutil.CacheTestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.junit.After;
 import org.junit.Assert;
@@ -48,15 +49,29 @@ import static org.junit.Assert.assertThat;
  * To examine a typical cache in JConsole, run the main() method and start JConsole. As we only using OpenMBeans there is
  * no need to add any classpath.
  *
+ * As the specification states that the MBeanServer in which mBeans are
+ * registered is implementation dependent, the TCK needs a way to test MBeans.
+ *
+ * Implementations must provide a subclass of javax.management.MBeanServerBuilder
+ * with an empty constructor.
+ *
+ * When running the TCK the specifies the MBeanServerBuilder
+ * is specified using the system property <code>javax.management.builder.initial</code>
+ *
+ * e.g. for the RI it will be -D javax.management.builder.initial=org.jsr107.ri
+ * .RITCKMBeanServerBuilder
+ *
+ *
+ *
  * @author Greg Luck
- * @version $Id: ManagementServiceTest.java 5945 2012-07-10 17:43:48Z teck $
  */
 public class JMXTest {
 
   private CacheManager cacheManager;
   public static final int EMPTY = 0;
 
-  MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+  private MBeanServer mBeanServer;
+
   MutableConfiguration<Integer, String> configuration = new MutableConfiguration<Integer, String>()
       .setStatisticsEnabled(true)
       .setManagementEnabled(true);
@@ -82,16 +97,28 @@ public class JMXTest {
     return Caching.getCachingProvider().getCacheManager(uri, provider.getDefaultClassLoader());
   }
 
+
+
   /**
    * setup test
    */
   @Before
   public void setUp() throws Exception {
+
     //ensure that the caching provider is closed
     Caching.getCachingProvider().close();
 
     //now get a new cache manager
     cacheManager = getCacheManager();
+
+    //make sure the implementation has created an MBeanServer
+    cacheManager.createCache("ensure_mbeanserver_created_cache", configuration);
+    cacheManager.destroyCache("ensure_mbeanserver_created_cache");
+
+    //lookup the implementation's MBeanServer
+    mBeanServer = CacheTestSupport.resolveMBeanServer();
+
+
   }
 
   @After
@@ -101,6 +128,7 @@ public class JMXTest {
     //All registered object names should be removed during shutdown
     assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), IsEmptyCollection.<ObjectName>empty());
   }
+
 
   @Test
   public void testNoEntriesWhenNoCaches() throws Exception {
@@ -185,6 +213,7 @@ public class JMXTest {
     cacheManager.enableManagement("cache3", true);
     assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(2));
   }
+
 
 
   /**

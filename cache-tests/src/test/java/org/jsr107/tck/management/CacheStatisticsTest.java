@@ -17,7 +17,6 @@ import javax.cache.configuration.MutableConfiguration;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import java.lang.management.ManagementFactory;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -81,7 +80,7 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
   static Object lookupCacheStatisticsAttribute(Cache cache, String attributeName) throws Exception {
 
     Set<ObjectName> registeredObjectNames = null;
-    MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+    MBeanServer mBeanServer = CacheTestSupport.resolveMBeanServer();
 
     ObjectName objectName = calculateObjectName(cache);
     return mBeanServer.getAttribute(objectName, attributeName);

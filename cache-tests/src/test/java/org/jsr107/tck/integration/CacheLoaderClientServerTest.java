@@ -3,8 +3,6 @@ package org.jsr107.tck.integration;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.cache.Cache;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;

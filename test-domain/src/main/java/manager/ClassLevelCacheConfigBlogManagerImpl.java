@@ -20,8 +20,8 @@ import domain.Blog;
 
 import javax.cache.annotation.CacheDefaults;
 import javax.cache.annotation.CacheKey;
-import javax.cache.annotation.CacheRemoveAll;
 import javax.cache.annotation.CacheRemove;
+import javax.cache.annotation.CacheRemoveAll;
 import javax.cache.annotation.CacheResult;
 import java.util.HashMap;
 import java.util.Map;
