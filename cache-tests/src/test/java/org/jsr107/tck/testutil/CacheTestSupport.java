@@ -91,7 +91,7 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
   /**
    * To test your implementation specify system properties per the following RI
    * examples:
-   * -Djavax.management.builder.initial=org.jsr107.ri .RITCKMBeanServerBuilder
+   * -Djavax.management.builder.initial=org.jsr107.ri.management.RITCKMBeanServerBuilder
    * -Dorg.jsr107.tck.management.agentId=RIMBeanServer
    */
   public static MBeanServer resolveMBeanServer() {
