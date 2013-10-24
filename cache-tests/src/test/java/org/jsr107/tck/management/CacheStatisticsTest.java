@@ -201,7 +201,7 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
 
     cache.getAndPut(4l, "Cody");
     assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
-    assertEquals(1f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+    assertEquals(100.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
     assertEquals(0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
     assertEquals(8L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
@@ -213,7 +213,7 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
 
     String value = cache.get(1l);
     assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
-    assertEquals(1f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+    assertEquals(100.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
     assertEquals(0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
     assertEquals(8L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
@@ -222,6 +222,21 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
     assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
     assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
     assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"));
+
+
+    //now do a miss
+    value = cache.get(1234324324l);
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
+    assertEquals(66.66667f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+    assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
+    assertEquals(33.333336f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
+    assertEquals(8L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
+    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"));
+
 
   }
 
@@ -233,7 +248,7 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
     String result = cache.invoke(1l, new GetEntryProcessor<Long, String>());
     assertEquals(result, "Sooty");
     assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
-    assertEquals(1.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+    assertEquals(100.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
     assertEquals(0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
     assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
@@ -252,7 +267,7 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
     String result = cache.invoke(1l, new SetEntryProcessor<Long, String>("Trinity"));
     assertEquals(result, "Trinity");
     assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
-    assertEquals(1.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+    assertEquals(100.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
     assertEquals(0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
     assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
@@ -270,7 +285,7 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
     String result = cache.invoke(1l, new RemoveEntryProcessor<Long, String, String>(true));
     assertEquals(result, "Sooty");
     assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
-    assertEquals(1.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+    assertEquals(100.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
     assertEquals(0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
     assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
