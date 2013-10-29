@@ -13,7 +13,11 @@ import org.junit.rules.MethodRule;
 import javax.cache.Cache;
 import javax.cache.CacheException;
 import javax.cache.CacheManager;
+
+import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.Duration;
+import javax.cache.expiry.ExpiryPolicy;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -141,9 +145,9 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
     assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageGetTime"));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AveragePutTime"));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
 
     Map<Long, String> entries = new HashMap<Long, String>();
     entries.put(2l, "Lucky");
@@ -156,9 +160,9 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
     assertEquals(3L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageGetTime"));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AveragePutTime"));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
 
 
     //Update. But we count these simply as puts for stats
@@ -170,10 +174,9 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
     assertEquals(4L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageGetTime"));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AveragePutTime"));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"));
-
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
 
     cache.putAll(entries);
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
@@ -183,49 +186,35 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
     assertEquals(6L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageGetTime"));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AveragePutTime"));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
 
     cache.getAndPut(4l, "Cody");
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
     assertEquals(0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
-    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
+    assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
+    assertEquals(100.0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
     assertEquals(7L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageGetTime"));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AveragePutTime"));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
 
     cache.getAndPut(4l, "Cody");
     assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
-    assertEquals(100.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
-    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+    assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
     assertEquals(8L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
     assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
     assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
 
     String value = cache.get(1l);
-    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
-    assertEquals(100.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
-    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
-    assertEquals(8L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
-    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
-    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
-    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"));
-
-
-    //now do a miss
-    value = cache.get(1234324324l);
     assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
     assertEquals(66.66667f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
     assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
@@ -235,7 +224,21 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
     assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
     assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+
+
+    //now do a second miss
+    value = cache.get(1234324324l);
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
+    assertEquals(8L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
+    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
 
 
   }
@@ -256,7 +259,7 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
     assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
     assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
   }
 
 
@@ -275,7 +278,7 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
     assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
     assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
   }
 
   @Test
@@ -312,14 +315,13 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
       iterator.remove();
     }
 
-    //todo iterator is not updating stats so all these are 0
-    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
-    assertEquals(0.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+    assertEquals(100L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
+    assertEquals(100.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
     assertEquals(0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
-    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheGets"));
+    assertEquals(100L, lookupCacheStatisticsAttribute(cache, "CacheGets"));
     assertEquals(100L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
-    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
+    assertEquals(100L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
     assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
     assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
@@ -328,5 +330,48 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
 
   }
 
+  @Test
+  public void testExpiryOnCreation() throws Exception {
 
+      // close cache since need to configure cache with ExpireOnCreationPolicy
+      CacheManager mgr = cache.getCacheManager();
+      mgr.destroyCache(cache.getName());
+
+      MutableConfiguration<Long, String> config = new MutableConfiguration<Long, String>();
+      config.setStatisticsEnabled(true);
+      config.setTypes(Long.class, String.class);
+      config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(ExpireOnCreationPolicy.class));
+
+      cache = mgr.createCache(getTestCacheName(), config);
+      cache.put(1L, "hello");
+      assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+
+      Map<Long, String> map = new HashMap<Long, String>();
+      map.put(2L, "goodbye");
+      map.put(3L, "world");
+      cache.putAll(map);
+      assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+  }
+
+    /**
+     * An {@link javax.cache.expiry.ExpiryPolicy} that will expire {@link Cache} entries
+     * before they are created.
+     */
+    public static class ExpireOnCreationPolicy implements ExpiryPolicy
+    {
+        @Override
+        public Duration getExpiryForCreation() {
+            return Duration.ZERO;
+        }
+
+        @Override
+        public Duration getExpiryForAccess() {
+            return Duration.ZERO;
+        }
+
+        @Override
+        public Duration getExpiryForUpdate() {
+            return Duration.ZERO;
+        }
+    }
 }
