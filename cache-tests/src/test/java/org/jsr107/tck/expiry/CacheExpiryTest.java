@@ -24,6 +24,7 @@ import org.jsr107.tck.processor.AssertNotPresentEntryProcessor;
 import org.jsr107.tck.processor.CombineEntryProcessor;
 import org.jsr107.tck.processor.GetEntryProcessor;
 import org.jsr107.tck.processor.SetEntryProcessor;
+import org.jsr107.tck.testutil.CacheTestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.jsr107.tck.testutil.TestSupport;
 import org.junit.After;
@@ -35,6 +36,7 @@ import javax.cache.Cache;
 import javax.cache.Cache.Entry;
 import javax.cache.configuration.Factory;
 import javax.cache.configuration.FactoryBuilder;
+import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.AccessedExpiryPolicy;
 import javax.cache.expiry.CreatedExpiryPolicy;
@@ -71,7 +73,7 @@ import static org.junit.Assert.assertTrue;
  * @author Brian Oliver
  * @author Joe Fialli
  */
-public class CacheExpiryTest extends TestSupport {
+public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
 
   /**
    * Rule used to exclude tests
@@ -83,7 +85,7 @@ public class CacheExpiryTest extends TestSupport {
   private ExpiryPolicyClient expiryPolicyClient;
 
   @Before
-  public void setupBeforeEachTest() throws IOException {
+  public void setUp() throws IOException {
     //establish and open a ExpiryPolicyServer to handle cache
     //cache loading requests from a ExpiryPolicyClient
     expiryPolicyServer = new ExpiryPolicyServer(10005);
@@ -94,6 +96,18 @@ public class CacheExpiryTest extends TestSupport {
     expiryPolicyClient =
         new ExpiryPolicyClient(expiryPolicyServer.getInetAddress(), expiryPolicyServer.getPort());
 
+  }
+
+  @Override
+  protected MutableConfiguration<Integer, Integer> newMutableConfiguration() {
+    return new MutableConfiguration<Integer, Integer>().setTypes(Integer.class, Integer.class);
+  }
+
+  @Override
+  protected MutableConfiguration<Integer, Integer> extraSetup(MutableConfiguration<Integer, Integer> configuration) {
+    listener = new CacheTestSupport.MyCacheEntryListener<Integer, Integer>();
+    listenerConfiguration = new MutableCacheEntryListenerConfiguration<Integer, Integer>(FactoryBuilder.factoryOf(listener), null, false, true);
+    return configuration.addCacheEntryListenerConfiguration(listenerConfiguration);
   }
 
 
@@ -125,17 +139,21 @@ public class CacheExpiryTest extends TestSupport {
    * Ensure that a cache using a {@link javax.cache.expiry.ExpiryPolicy} configured to
    * return a {@link Duration#ZERO} for newly created entries will immediately
    * expire said entries.
+   * todo Greg partially implemented RI32
    */
   private void expire_whenCreated(Factory<? extends ExpiryPolicy> expiryPolicyFactory) {
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
     config.setExpiryPolicyFactory(expiryPolicyFactory);
+    config = extraSetup(config);
 
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
 
     cache.put(1, 1);
 
+
     assertFalse(cache.containsKey(1));
     assertNull(cache.get(1));
+    assertEquals(0, listener.getCreated());
 
     cache.put(1, 1);
 

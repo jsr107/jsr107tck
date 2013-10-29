@@ -87,10 +87,6 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     }
   };
 
-  private MyCacheEntryListener<Long, String> listener;
-  public MutableCacheEntryListenerConfiguration<Long,String> listenerConfiguration;
-
-
   @Before
   public void moreSetUp() {
     cache = getCacheManager().getCache(getTestCacheName(), Long.class, String.class);
@@ -464,67 +460,7 @@ public void testFilteredListener() throws InterruptedException {
   }
 
 
-  /**
-   * Test listener
-   *
-   * @param <K>
-   * @param <V>
-   */
-  static class MyCacheEntryListener<K, V> implements CacheEntryCreatedListener<K, V>,
-      CacheEntryUpdatedListener<K, V>, CacheEntryExpiredListener<K, V>,
-      CacheEntryRemovedListener<K, V>, Serializable {
 
-    AtomicInteger created = new AtomicInteger();
-    AtomicInteger updated = new AtomicInteger();
-    AtomicInteger removed = new AtomicInteger();
-
-    ArrayList<CacheEntryEvent<K, V>> entries = new ArrayList<CacheEntryEvent<K, V>>();
-
-    public int getCreated() {
-      return created.get();
-    }
-
-    public int getUpdated() {
-      return updated.get();
-    }
-
-    public int getRemoved() {
-      return removed.get();
-    }
-
-    public ArrayList<CacheEntryEvent<K, V>> getEntries() {
-      return entries;
-    }
-
-    @Override
-    public void onCreated(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
-      for (CacheEntryEvent<? extends K, ? extends V> event : events) {
-        assertEquals(CREATED, event.getEventType());
-        created.incrementAndGet();
-      }
-    }
-
-    @Override
-    public void onExpired(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
-      //SKIP: we don't count expiry events as they can occur asynchronously
-    }
-
-    @Override
-    public void onRemoved(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
-      for (CacheEntryEvent<? extends K, ? extends V> event : events) {
-        assertEquals(REMOVED, event.getEventType());
-        removed.incrementAndGet();
-      }
-    }
-
-    @Override
-    public void onUpdated(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
-      for (CacheEntryEvent<? extends K, ? extends V> event : events) {
-        assertEquals(UPDATED, event.getEventType());
-        updated.incrementAndGet();
-      }
-    }
-  }
 
   /**
    * Test listener which throws all sorts of Throwables.

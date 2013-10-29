@@ -21,12 +21,27 @@ import org.junit.Before;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
+import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
 import javax.cache.configuration.MutableConfiguration;
+import javax.cache.event.CacheEntryCreatedListener;
+import javax.cache.event.CacheEntryEvent;
+import javax.cache.event.CacheEntryExpiredListener;
+import javax.cache.event.CacheEntryListenerException;
+import javax.cache.event.CacheEntryRemovedListener;
+import javax.cache.event.CacheEntryUpdatedListener;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static javax.cache.event.EventType.CREATED;
+import static javax.cache.event.EventType.REMOVED;
+import static javax.cache.event.EventType.UPDATED;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Unit test support base class
@@ -39,8 +54,12 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
 
   protected Cache<K, V> cache;
 
+  protected MyCacheEntryListener<K, V> listener;
+  protected MutableCacheEntryListenerConfiguration<K, V> listenerConfiguration;
+
+
   @Before
-  public void setUp() {
+  public void setUp() throws IOException  {
     getCacheManager().createCache(getTestCacheName(), extraSetup(newMutableConfiguration()));
 
   }
@@ -104,5 +123,68 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
     }
     return mBeanServers.get(0);
   }
+
+  /**
+   * Test listener
+   *
+   * @param <K>
+   * @param <V>
+   */
+  public static class MyCacheEntryListener<K, V> implements CacheEntryCreatedListener<K, V>,
+      CacheEntryUpdatedListener<K, V>, CacheEntryExpiredListener<K, V>,
+      CacheEntryRemovedListener<K, V>, Serializable {
+
+    AtomicInteger created = new AtomicInteger();
+    AtomicInteger updated = new AtomicInteger();
+    AtomicInteger removed = new AtomicInteger();
+
+    ArrayList<CacheEntryEvent<K, V>> entries = new ArrayList<CacheEntryEvent<K, V>>();
+
+    public int getCreated() {
+      return created.get();
+    }
+
+    public int getUpdated() {
+      return updated.get();
+    }
+
+    public int getRemoved() {
+      return removed.get();
+    }
+
+    public ArrayList<CacheEntryEvent<K, V>> getEntries() {
+      return entries;
+    }
+
+    @Override
+    public void onCreated(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
+      for (CacheEntryEvent<? extends K, ? extends V> event : events) {
+        assertEquals(CREATED, event.getEventType());
+        created.incrementAndGet();
+      }
+    }
+
+    @Override
+    public void onExpired(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
+      //SKIP: we don't count expiry events as they can occur asynchronously
+    }
+
+    @Override
+    public void onRemoved(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
+      for (CacheEntryEvent<? extends K, ? extends V> event : events) {
+        assertEquals(REMOVED, event.getEventType());
+        removed.incrementAndGet();
+      }
+    }
+
+    @Override
+    public void onUpdated(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
+      for (CacheEntryEvent<? extends K, ? extends V> event : events) {
+        assertEquals(UPDATED, event.getEventType());
+        updated.incrementAndGet();
+      }
+    }
+  }
+
 
 }
