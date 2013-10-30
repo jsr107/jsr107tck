@@ -139,7 +139,6 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
    * Ensure that a cache using a {@link javax.cache.expiry.ExpiryPolicy} configured to
    * return a {@link Duration#ZERO} for newly created entries will immediately
    * expire said entries.
-   * todo Greg partially implemented RI32
    */
   private void expire_whenCreated(Factory<? extends ExpiryPolicy> expiryPolicyFactory) {
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
@@ -164,11 +163,13 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
     assertFalse(cache.remove(1, 1));
 
     cache.getAndPut(1, 1);
+    assertEquals(0, listener.getCreated());
 
     assertFalse(cache.containsKey(1));
     assertNull(cache.get(1));
 
     cache.putIfAbsent(1, 1);
+    assertEquals(0, listener.getCreated());
 
     assertFalse(cache.containsKey(1));
     assertNull(cache.get(1));
@@ -176,11 +177,13 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
     HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
     map.put(1, 1);
     cache.putAll(map);
+    assertEquals(0, listener.getCreated());
 
     assertFalse(cache.containsKey(1));
     assertNull(cache.get(1));
 
     cache.put(1, 1);
+    assertEquals(0, listener.getCreated());
 
     assertFalse(cache.iterator().hasNext());
   }
