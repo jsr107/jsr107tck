@@ -17,8 +17,10 @@
 
 package javax.cache.configuration;
 
+import org.jsr107.tck.testutil.CacheTestSupport;
 import org.junit.Test;
 
+import javax.cache.Cache;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.EternalExpiryPolicy;
 import javax.cache.expiry.ExpiryPolicy;
@@ -38,15 +40,15 @@ import static org.junit.Assert.assertTrue;
  * Functional tests for the {@link MutableConfiguration} class.
  *
  * @author Brian Oliver
+ * @author Greg Luck
  */
-public class MutableConfigurationTest {
+public class MutableConfigurationTest extends CacheTestSupport {
 
   /**
    * Ensure that a {@link MutableConfiguration} correctly uses the defaults.
+   * @param config
    */
-  @Test
-  public void NewMutableConfigurationShouldUseDefaults() {
-    Configuration<?, ?> config = new MutableConfiguration();
+  private void validateDefaults(Configuration<?, ?> config) {
     assertEquals(Object.class, config.getKeyType());
     assertEquals(Object.class, config.getValueType());
     assertFalse(config.isReadThrough());
@@ -67,6 +69,25 @@ public class MutableConfigurationTest {
     assertThat(expiryPolicy.getExpiryForAccess(), is(nullValue()));
     assertThat(expiryPolicy.getExpiryForUpdate(), is(nullValue()));
   }
+
+  /**
+   * Ensure that a {@link MutableConfiguration} correctly uses the defaults.
+   */
+  @Test
+  public void testDefaultCacheFromCacheManagerUsesCorrectDefaults() {
+    Cache cache = getCacheManager().getCache(getTestCacheName());
+    Configuration configuration = cache.getConfiguration();
+    validateDefaults(configuration);
+
+  }
+
+  @Test
+  public void testNewMutableConfigurationUsesCorrectDefaults() {
+
+    Configuration<?, ?> config = new MutableConfiguration();
+    validateDefaults(config);
+  }
+
 
   /**
    * Ensure that two {@link MutableConfiguration}s are equal.
@@ -122,5 +143,10 @@ public class MutableConfigurationTest {
     Configuration config1 = new MutableConfiguration();
     Configuration config2 = new MutableConfiguration();
     assertEquals(config1, config2);
+  }
+
+  @Override
+  protected MutableConfiguration newMutableConfiguration() {
+    return new MutableConfiguration();
   }
 }
