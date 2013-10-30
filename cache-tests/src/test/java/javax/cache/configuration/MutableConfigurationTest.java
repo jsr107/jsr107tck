@@ -20,8 +20,11 @@ package javax.cache.configuration;
 import org.junit.Test;
 
 import javax.cache.expiry.Duration;
+import javax.cache.expiry.EternalExpiryPolicy;
 import javax.cache.expiry.ExpiryPolicy;
+import java.util.List;
 
+import static junit.framework.Assert.assertNull;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -42,15 +45,24 @@ public class MutableConfigurationTest {
    * Ensure that a {@link MutableConfiguration} correctly uses the defaults.
    */
   @Test
-  public void shouldUseDefaults() {
+  public void NewMutableConfigurationShouldUseDefaults() {
     Configuration<?, ?> config = new MutableConfiguration();
+    assertEquals(Object.class, config.getKeyType());
+    assertEquals(Object.class, config.getValueType());
     assertFalse(config.isReadThrough());
     assertFalse(config.isWriteThrough());
-    assertFalse(config.isStatisticsEnabled());
     assertTrue(config.isStoreByValue());
+    assertFalse(config.isStatisticsEnabled());
+    assertFalse(config.isManagementEnabled());
+    List<? extends CacheEntryListenerConfiguration<?,?>> cacheEntryListenerConfigurations = config.getCacheEntryListenerConfigurations();
+    assertTrue(cacheEntryListenerConfigurations == null ||
+        cacheEntryListenerConfigurations.size() == 0);
+    assertNull(config.getCacheLoaderFactory());
+    assertNull(config.getCacheWriterFactory());
 
+    //expiry policies
     ExpiryPolicy expiryPolicy = config.getExpiryPolicyFactory().create();
-
+    assertTrue(expiryPolicy instanceof EternalExpiryPolicy);
     assertThat(Duration.ETERNAL, equalTo(expiryPolicy.getExpiryForCreation()));
     assertThat(expiryPolicy.getExpiryForAccess(), is(nullValue()));
     assertThat(expiryPolicy.getExpiryForUpdate(), is(nullValue()));
