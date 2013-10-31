@@ -8,4 +8,7 @@
     <!-- Suppress duplicate checking of copyright notice -->
     <suppress checks="StrictDuplicateCode" files=".java" lines="1-15"/>
 
+    <!--Exclude Clover instrumented sources-->
+    <suppress checks="" files="[\\/]src-instrumented[\\/]"/>
+
 </suppressions>
