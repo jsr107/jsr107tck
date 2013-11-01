@@ -30,6 +30,7 @@ import javax.cache.spi.CachingProvider;
 import java.net.URI;
 import java.util.logging.Logger;
 
+import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
@@ -59,6 +60,7 @@ public class CachingTest {
 
     Assert.assertEquals(provider1, provider2);
   }
+
 
 
   /**
@@ -119,6 +121,17 @@ public class CachingTest {
     Caching.getCachingProvider().getCacheManager().createCache(name, new MutableConfiguration().setTypes(Long.class, String.class));
     Cache cache = Caching.getCache(name, Long.class, String.class);
     assertEquals(name, cache.getName());
+  }
+
+  /**
+   * DO NOT DELETE THIS
+   * It is skipped by implementation-test/src/test/resources/ExcludeList
+   * Used to confirm that file exclusion works.
+   * @see #rule
+   */
+  @Test
+  public void dummyTest() {
+    fail();
   }
 
 }

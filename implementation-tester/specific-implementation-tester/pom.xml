@@ -1,0 +1,221 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>javax.cache</groupId>
+        <artifactId>tck-parent</artifactId>
+        <version>0.12-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>specific-implementation-tester</artifactId>
+    <packaging>jar</packaging>
+    <name>Implementation Tester - Specific Implementation</name>
+    <url>https://github.com/jsr107/jsr107tck</url>
+    <description>Wires together cache-tests with the RI implementation and runs
+        JUnit against them. Create
+        a similar module for each new implementation you wish to test. See
+        README.md for details.
+    </description>
+
+
+
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <domain-lib-dir>${project.build.directory}/domainlib</domain-lib-dir>
+        <domain-jar>domain.jar</domain-jar>
+        <!--Change the following properties on the command line to override with the coordinates for your implementation-->
+        <!--e.g. mvn clean test -Dimplementation-groupId=org.jsr107.ri
+                                -Dimplementation-artifactId=cache-ri
+                                -Dimplementation-version=0.2-->
+        <implementation-groupId>org.jsr107.ri</implementation-groupId>
+        <implementation-artifactId>cache-ri-impl</implementation-artifactId>
+        <implementation-version>${project.parent.version}</implementation-version>
+
+
+        <!-- Used by the unwrap tests, leave blank and the tests will be ignored -->
+        <CacheManagerImpl>org.jsr107.ri.RICacheManager</CacheManagerImpl>
+        <CacheImpl>org.jsr107.ri.RICache</CacheImpl>
+        <CacheInvocationContextImpl>
+            javax.cache.annotation.impl.cdi.CdiCacheKeyInvocationContextImpl
+        </CacheInvocationContextImpl>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>${implementation-groupId}</groupId>
+            <artifactId>${implementation-artifactId}</artifactId>
+            <version>${implementation-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-tests</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-tests</artifactId>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <version>1.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Logging to figure out what the heck is going on -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.5.11</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>1.5.11</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jul-to-slf4j</artifactId>
+            <version>1.5.11</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <testResources>
+            <testResource>
+                <directory>../src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.8</version>
+                <executions>
+                    <!--Required because JUnit will not detect tests simply included in a dep-->
+                    <execution>
+                        <id>copy-cache-tests</id>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.testOutputDirectory}
+                            </outputDirectory>
+                            <includeArtifactIds>cache-tests</includeArtifactIds>
+                            <includeScope>test</includeScope>
+                            <excludes>**/unwrap.properties</excludes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-domain</id>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>javax.cache</groupId>
+                                    <artifactId>app-domain</artifactId>
+                                    <version>${project.parent.version}</version>
+                                    <outputDirectory>${domain-lib-dir}
+                                    </outputDirectory>
+                                    <destFileName>${domain-jar}</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.0.3</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.9</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <domainJar>${domain-lib-dir}/${domain-jar}</domainJar>
+                    </systemPropertyVariables>
+                    <excludes>
+                        <exclude>**/annotation/*Test.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <profiles>
+
+        <!--To run all tests do not specify any profile-->
+
+        <!-- Profile for running basic tests.
+             Use mvn -P test-basic-cache clean install -->
+        <profile>
+            <id>test-basic-cache</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <include>**/interceptor/*Test.java</include>
+                            </excludes>
+                            <systemPropertyVariables>
+                                <domainJar>${domain-lib-dir}/${domain-jar}
+                                </domainJar>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Profile for running optional tests.
+             Use mvn -P test-optional-cache clean install -->
+        <profile>
+            <id>test-optional-cache</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <includes>
+                                <include>**/interceptor/*Test.java</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

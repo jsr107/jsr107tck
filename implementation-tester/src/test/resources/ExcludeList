@@ -4,3 +4,6 @@
 
 # This is a dummy test that fails if not in the exclude list.
 org.jsr107.tck.CachingTest#dummyTest
+
+# An example of how to exclude a test
+#org.jsr107.tck.CachingTest#cachingProviderGetCache
