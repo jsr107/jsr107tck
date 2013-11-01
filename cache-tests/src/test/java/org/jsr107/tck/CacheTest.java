@@ -122,35 +122,6 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     assertNull(cache.get(key));
   }
 
-//TODO: move these into a new type-based test class
-//    /**
-//     * All these work with get(Object)
-//     */
-//    @Test
-//    public void genericsTest() {
-//
-//        String cacheName = "genericsCache";
-//        CacheManager cacheManager = getCacheManager();
-//        Cache<Identifier, Beagle> cacheGeneric = cacheManager.getCache(cacheName);
-//        cacheGeneric = cacheManager.configureCache(cacheName, new MutableConfiguration<Identifier, Beagle>());
-//        Beagle pistachio = new Beagle();
-//        cacheGeneric.put(new Identifier("Pistachio"), pistachio);
-//        //Illegal with change to get(K)
-//        //Object value = cacheGeneric.get(new Identifier2("Pistachio"));
-//
-//        Cache cacheNonGeneric = cacheManager.getCache(cacheName);
-//        //Illegal with change to get(K)
-//        //value = cacheNonGeneric.get(new Identifier2("Pistachio"));
-//        //assertNotNull(value);
-//    }
-//
-//    @Test
-//    public void hashcode() {
-//        Identifier identifier = new Identifier("Pistachio");
-//        System.out.println(identifier.hashCode());
-//        System.out.println("Pistachio".hashCode());
-//    }
-
   @Test
   public void getCacheName() {
     assertEquals(getTestCacheName(), cache.getName());
