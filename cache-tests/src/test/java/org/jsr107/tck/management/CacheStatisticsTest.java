@@ -26,6 +26,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -240,6 +242,19 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
     assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
     assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
 
+    //containsKey() should not affect statistics
+    assertTrue(cache.containsKey(1l));
+    assertFalse(cache.containsKey(1234324324l));
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
+    assertEquals(8L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
+    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
 
   }
 
