@@ -256,6 +256,126 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
     assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
     assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
 
+
+    assertTrue(cache.remove(1L));
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
+    assertEquals(8L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+    assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
+    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+
+    //no update to cache removals as does not exist
+    assertFalse(cache.remove(1L));
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
+    assertEquals(8L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+    assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
+    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+
+    //should update removals as succeeded
+    cache.put(1l, "Sooty");
+    assertTrue(cache.remove(1L, "Sooty"));
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
+    assertEquals(9L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
+    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+
+
+    //should not update removals as remove failed
+    assertFalse(cache.remove(1L, "Sooty"));
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
+    assertEquals(9L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
+    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+
+
+    cache.clear();
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
+    assertEquals(9L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
+    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+
+
+    cache.removeAll();
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
+    assertEquals(9L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
+    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+
+    entries.put(21L, "Trinity");
+    cache.putAll(entries);
+    cache.removeAll();
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
+    assertEquals(12L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+    assertEquals(5L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
+    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+
+
+    cache.putAll(entries);
+    entries.remove(21L);
+    cache.removeAll(entries.keySet());
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
+    assertEquals(15L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+    assertEquals(7L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
+    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+
+    cache.removeAll(entries.keySet());
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
+    assertEquals(50.0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
+    assertEquals(15L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+    assertEquals(7L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
+    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
   }
 
 

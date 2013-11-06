@@ -10,6 +10,8 @@
 
     <suppress checks="NPathComplexity" files="Dog.java"/>
 
+
+
     <!--Exclude Clover instrumented sources-->
     <suppress checks="" files="[\\/]src-instrumented[\\/]"/>
 

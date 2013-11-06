@@ -1039,33 +1039,33 @@ public class CacheWriterTest extends TestSupport {
     assertEquals(0, cacheWriter.getWriteCount());
     assertEquals(0, cacheWriter.getDeleteCount());
 
-    HashMap<Integer, String> map = new HashMap<>();
-    map.put(1, "Gudday World");
-    map.put(2, "Bonjour World");
-    map.put(3, "Hello World");
-    map.put(4, "Hola World");
-    map.put(5, "Ciao World");
+    HashMap<Integer, String> entriesAdded = new HashMap<>();
+    entriesAdded.put(1, "Gudday World");
+    entriesAdded.put(2, "Bonjour World");
+    entriesAdded.put(3, "Hello World");
+    entriesAdded.put(4, "Hola World");
+    entriesAdded.put(5, "Ciao World");
 
-    cache.putAll(map);
+    cache.putAll(entriesAdded);
 
     assertEquals(5, cacheWriter.getWriteCount());
     assertEquals(0, cacheWriter.getDeleteCount());
 
-    for (Integer key : map.keySet()) {
+    for (Integer key : entriesAdded.keySet()) {
       assertTrue(cacheWriter.hasWritten(key));
-      assertEquals(map.get(key), cacheWriter.get(key));
+      assertEquals(entriesAdded.get(key), cacheWriter.get(key));
       assertTrue(cache.containsKey(key));
-      assertEquals(map.get(key), cache.get(key));
+      assertEquals(entriesAdded.get(key), cache.get(key));
     }
 
-    HashSet<Integer> set = new HashSet<>();
-    set.add(1);
-    set.add(4);
-    set.add(3);
-    set.add(2);
+    HashSet<Integer> keysToRemove = new HashSet<>();
+    keysToRemove.add(1);
+    keysToRemove.add(2);
+    keysToRemove.add(3);
+    keysToRemove.add(4);
 
     try {
-      cache.removeAll(set);
+      cache.removeAll(keysToRemove);
       assertTrue("expected CacheWriterException to be thrown for BatchPartialSuccessRecordingClassWriter", false);
     } catch (CacheWriterException ce) {
 
@@ -1073,25 +1073,19 @@ public class CacheWriterTest extends TestSupport {
 
     }
 
-    int numSuccess = 0;
-    int numFailure = 0;
-    for (Integer key : map.keySet()) {
-      if (cacheWriter.hasWritten(key)) {
-        assertTrue(cache.containsKey(key));
-        assertEquals(map.get(key), cacheWriter.get(key));
-        assertEquals(map.get(key), cache.get(key));
-        numFailure++;
-      } else {
-        assertFalse(cache.containsKey(key));
-        numSuccess++;
-      }
+    //Fails at entry 3, therefore only 1 and 2 get deleted at writer and 3 and 4 should be
+    //still in the cache
 
-      assertEquals(cache.get(key), cacheWriter.get(key));
-    }
+    assertFalse(cache.containsKey(1));
+    assertTrue(cacheWriter.hasDeleted(1));
+    assertFalse(cache.containsKey(2));
+    assertTrue(cacheWriter.hasDeleted(2));
+    assertTrue(cache.containsKey(3));
+    assertFalse(cacheWriter.hasDeleted(3));
+    assertTrue(cache.containsKey(4));
+    assertFalse(cacheWriter.hasDeleted(4));
+    assertEquals(2, cacheWriter.getDeleteCount());
 
-    assertEquals(numSuccess + numFailure, map.size());
-    assertEquals(5, cacheWriter.getWriteCount());
-    assertEquals(numSuccess, cacheWriter.getDeleteCount());
   }
 
   /**

@@ -33,15 +33,15 @@ import java.util.concurrent.atomic.AtomicLong;
 public class RecordingCacheWriter<K, V> implements CacheWriter<K, V> {
 
     /**
-     * A map of keys to values that have been written.
+     * A writtenKeys of keys to values that have been written.
      */
-    private ConcurrentHashMap<K, V> map;
+    private ConcurrentHashMap<K, V> writtenKeys;
 
 
     /**
-     * A map of keys to values that have been deleted.
+     * A writtenKeys of keys to values that have been deleted.
      */
-    private ConcurrentHashMap<K, V> deletedMap;
+    private ConcurrentHashMap<K, V> deletedEntries;
 
     /**
      * The number of writes that have so far occurred.
@@ -57,15 +57,15 @@ public class RecordingCacheWriter<K, V> implements CacheWriter<K, V> {
      * Constructs a RecordingCacheWriter.
      */
     public RecordingCacheWriter() {
-        this.map = new ConcurrentHashMap<>();
-        this.deletedMap = new ConcurrentHashMap<>();
+        this.writtenKeys = new ConcurrentHashMap<>();
+        this.deletedEntries = new ConcurrentHashMap<>();
         this.writeCount = new AtomicLong();
         this.deleteCount = new AtomicLong();
     }
 
     @Override
     public void write(Cache.Entry<? extends K, ? extends V> entry) {
-        map.put(entry.getKey(), entry.getValue());
+        writtenKeys.put(entry.getKey(), entry.getValue());
         writeCount.incrementAndGet();
     }
 
@@ -80,9 +80,9 @@ public class RecordingCacheWriter<K, V> implements CacheWriter<K, V> {
 
     @Override
     public void delete(Object key) {
-        V value = map.remove((K)key);
+        V value = writtenKeys.remove((K)key);
         if (value != null) {
-            deletedMap.put((K)key, value);
+            deletedEntries.put((K) key, value);
         }
         deleteCount.incrementAndGet();
     }
@@ -102,7 +102,7 @@ public class RecordingCacheWriter<K, V> implements CacheWriter<K, V> {
      * @return the value last written
      */
     public V get(K key) {
-        return map.get(key);
+        return writtenKeys.get(key);
     }
 
     /**
@@ -112,7 +112,7 @@ public class RecordingCacheWriter<K, V> implements CacheWriter<K, V> {
      * @return true if there is a last written value
      */
     public boolean hasWritten(K key) {
-        return map.containsKey(key);
+        return writtenKeys.containsKey(key);
     }
 
     /**
@@ -121,8 +121,8 @@ public class RecordingCacheWriter<K, V> implements CacheWriter<K, V> {
      * @param key the key
      * @return true if there is a last written value
      */
-    public boolean wasDeleted(K key) {
-        return deletedMap.containsKey(key);
+    public boolean hasDeleted(K key) {
+        return deletedEntries.containsKey(key);
     }
 
     /**
@@ -147,8 +147,8 @@ public class RecordingCacheWriter<K, V> implements CacheWriter<K, V> {
      * Clears the contents of stored values.
      */
     public void clear() {
-        map.clear();
-        deletedMap.clear();
+        writtenKeys.clear();
+        deletedEntries.clear();
         this.writeCount = new AtomicLong();
         this.deleteCount = new AtomicLong();
     }

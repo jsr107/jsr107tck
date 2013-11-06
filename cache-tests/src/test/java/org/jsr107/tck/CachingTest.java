@@ -127,6 +127,7 @@ public class CachingTest {
    * DO NOT DELETE THIS
    * It is skipped by implementation-test/src/test/resources/ExcludeList
    * Used to confirm that file exclusion works.
+   * It will fail when run from the IDE.
    * @see #rule
    */
   @Test

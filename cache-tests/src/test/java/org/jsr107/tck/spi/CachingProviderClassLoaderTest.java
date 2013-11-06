@@ -278,6 +278,7 @@ public class CachingProviderClassLoaderTest {
 
         domainJarFileName = new File(root.getParentFile().getParentFile().getParentFile(),
             "implementation-tester" + File.separatorChar +
+                "specific-implementation-tester" + File.separatorChar +
                 "target" + File.separatorChar +
                 "domainlib" + File.separatorChar +
                 "domain.jar").toString();

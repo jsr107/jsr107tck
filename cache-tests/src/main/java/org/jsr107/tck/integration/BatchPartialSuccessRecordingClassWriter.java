@@ -73,7 +73,7 @@ public class BatchPartialSuccessRecordingClassWriter<K, V> extends RecordingCach
      */
     public void delete(Object key) {
         if ((numDelete.getAndIncrement() % simulatedDeleteFailure) == 0) {
-            throw new CacheException("simulated failure of delete(" + key + ")");
+          throw new CacheException("simulated failure of delete(" + key + ")");
         } else {
             super.delete(key);
         }
@@ -95,7 +95,7 @@ public class BatchPartialSuccessRecordingClassWriter<K, V> extends RecordingCach
                 throw new CacheException("simulated write failure for entry " + entry.getKey() + ","
                                              + entry.getValue());
             } else {
-                write(entry);
+                super.write(entry);
                 iterator.remove();
             }
         }
@@ -110,12 +110,13 @@ public class BatchPartialSuccessRecordingClassWriter<K, V> extends RecordingCach
      */
     @Override
     public void deleteAll(Collection<?> entries) {
+
         for (Iterator<?> keys = entries.iterator(); keys.hasNext(); ) {
             Object key = keys.next();
             if ((numDelete.getAndIncrement() % simulatedDeleteFailure) == 0) {
-                throw new CacheException("simulated delete failure for key " + key);
+              throw new CacheException("simulated delete failure for key " + key);
             } else {
-                delete(key);
+                super.delete(key);
                 keys.remove();
             }
         }
