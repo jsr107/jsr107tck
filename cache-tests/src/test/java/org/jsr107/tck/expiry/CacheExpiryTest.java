@@ -26,7 +26,6 @@ import org.jsr107.tck.processor.GetEntryProcessor;
 import org.jsr107.tck.processor.SetEntryProcessor;
 import org.jsr107.tck.testutil.CacheTestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
-import org.jsr107.tck.testutil.TestSupport;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

@@ -1,6 +1,7 @@
 package org.jsr107.tck.management;
 
 import org.jsr107.tck.processor.GetEntryProcessor;
+import org.jsr107.tck.processor.NoOpEntryProcessor;
 import org.jsr107.tck.processor.RemoveEntryProcessor;
 import org.jsr107.tck.processor.SetEntryProcessor;
 import org.jsr107.tck.testutil.CacheTestSupport;
@@ -13,7 +14,6 @@ import org.junit.rules.MethodRule;
 import javax.cache.Cache;
 import javax.cache.CacheException;
 import javax.cache.CacheManager;
-
 import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.Duration;
@@ -29,6 +29,7 @@ import java.util.Set;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -378,17 +379,55 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
     assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
   }
 
+  /**
+   * The lookup and locking of the key is enough to invoke the hit or miss. No
+   * Cache.Entry or MutableEntry operation is required.
+   */
+  @Test
+  public void testCacheStatisticsInvokeEntryProcessorNoOp() throws Exception {
+
+    cache.put(1l, "Sooty");
+
+    //existent key. cache hit even though this entry processor does not call anything
+    cache.invoke(1l, new NoOpEntryProcessor<Long, String>());
+    cache.invoke(1l, new NoOpEntryProcessor<Long, String>());
+
+    //non-existent key. cache miss.
+    cache.invoke(1000l, new NoOpEntryProcessor<Long, String>());
+
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"), greaterThanOrEqualTo(66.65f));
+    assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"), lessThanOrEqualTo(33.34f));
+    assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
+    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageGetTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+  }
+
+
 
   @Test
   public void testCacheStatisticsInvokeEntryProcessorGet() throws Exception {
 
     cache.put(1l, "Sooty");
+
+    //cache hit
     String result = cache.invoke(1l, new GetEntryProcessor<Long, String>());
+
+    //existent key. cache hit even though this entry processor does not call anything
+    cache.invoke(1l, new NoOpEntryProcessor<Long, String>());
+
+    //non-existent key. cache miss.
+    cache.invoke(1000l, new NoOpEntryProcessor<Long, String>());
+
     assertEquals(result, "Sooty");
-    assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
-    assertEquals(100.0f, lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"));
-    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
-    assertEquals(0f, lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"));
+    assertEquals(2L, lookupCacheStatisticsAttribute(cache, "CacheHits"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "CacheHitPercentage"), greaterThanOrEqualTo(66.65f));
+    assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CacheMisses"));
+    assertThat((Float) lookupCacheStatisticsAttribute(cache, "CacheMissPercentage"), lessThanOrEqualTo(33.34f));
     assertEquals(1L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
     assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheEvictions"));

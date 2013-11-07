@@ -6,7 +6,6 @@ import domain.Chihuahua;
 import domain.Dachshund;
 import domain.Dog;
 import domain.Identifier;
-import domain.Identifier2;
 import domain.RoughCoatedCollie;
 import org.jsr107.tck.testutil.CacheTestSupport;
 import org.junit.After;
@@ -17,7 +16,6 @@ import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.AccessedExpiryPolicy;
-import javax.swing.border.Border;
 
 import static domain.Sex.FEMALE;
 import static domain.Sex.MALE;
