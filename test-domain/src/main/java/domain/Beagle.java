@@ -26,6 +26,11 @@ import java.io.Serializable;
  */
 public class Beagle extends Dog implements Hound, Serializable {
 
+
+  public Beagle getThis() {
+    return this;
+  }
+
   /**
    * Tells the hound to bay
    *
@@ -35,6 +40,8 @@ public class Beagle extends Dog implements Hound, Serializable {
   public void bay(int loudness, int duration) {
 
   }
+
+
 
 
 }

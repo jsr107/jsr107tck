@@ -1,7 +1,13 @@
 package org.jsr107.tck;
 
 import domain.Beagle;
+import domain.BorderCollie;
+import domain.Chihuahua;
+import domain.Dachshund;
+import domain.Dog;
 import domain.Identifier;
+import domain.Identifier2;
+import domain.RoughCoatedCollie;
 import org.jsr107.tck.testutil.CacheTestSupport;
 import org.junit.After;
 import org.junit.Test;
@@ -11,11 +17,15 @@ import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.AccessedExpiryPolicy;
-import javax.cache.spi.CachingProvider;
+import javax.swing.border.Border;
 
+import static domain.Sex.FEMALE;
+import static domain.Sex.MALE;
 import static javax.cache.expiry.Duration.ONE_HOUR;
-import static junit.framework.Assert.assertNull;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests of type interactions with Caches
@@ -26,7 +36,13 @@ public class TypesTest extends CacheTestSupport<Identifier, String> {
 
   private CacheManager cacheManager = getCacheManager();
 
-  @Override
+  private Beagle pistachio = (Beagle) new Beagle().name(new Identifier("Pistachio")).color("tricolor").sex(MALE).weight(7);
+  private RoughCoatedCollie juno = (RoughCoatedCollie) new RoughCoatedCollie().name(new Identifier("Juno")).sex(MALE).weight(7);
+  private Dachshund skinny = (Dachshund) new Dachshund().name(new Identifier("Skinny")).sex(MALE).weight(5).neutered(true);
+  private Chihuahua tonto = (Chihuahua) new Chihuahua().name(new Identifier("Tonto")).weight(3).sex(MALE).neutered(false);
+  private BorderCollie bonzo = (BorderCollie) new BorderCollie().name(new Identifier("Bonzo")).color("tricolor").sex(FEMALE).weight(10);
+  private final String cacheName = "sampleCache";
+
   protected MutableConfiguration<Identifier, String> newMutableConfiguration() {
     return new MutableConfiguration<Identifier, String>().setTypes(Identifier.class, String.class);
   }
@@ -36,59 +52,63 @@ public class TypesTest extends CacheTestSupport<Identifier, String> {
     cacheManager.close();
   }
 
-
   /**
-   * All these work with get(Object)
+   * What happens when you:
+   *
+   * 1) don't declare using generics and
+   * 2) don't specify types during configuration.
    */
-  @Test
-  public void genericsTest() {
-
-    String cacheName = "genericsCache";
-    CacheManager cacheManager = getCacheManager();
-    Cache<Identifier, Beagle> cacheGeneric = cacheManager.getCache(cacheName);
-    //no runtime enforcement
-    cacheGeneric = cacheManager.createCache(cacheName, new MutableConfiguration<Identifier, Beagle>());
-    Beagle pistachio = new Beagle();
-
-    cacheGeneric.put(new Identifier("Pistachio"), pistachio);
-    //Illegal with change to get(K)
-    //Object value = cacheGeneric.get(new Identifier2("Pistachio"));
-
-    Cache cacheNonGeneric = cacheManager.getCache(cacheName);
-    //Illegal with change to get(K)
-    //value = cacheNonGeneric.get(new Identifier2("Pistachio"));
-    //assertNotNull(value);
-  }
-
   @Test
   public void simpleAPINoGenericsAndNoTypeEnforcement() {
 
-    //configure the cache
-    String cacheName = "sampleCache";
     MutableConfiguration config = new MutableConfiguration();
-    config.setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(ONE_HOUR))
-        .setStatisticsEnabled(true);
+    Cache cache = cacheManager.createCache(cacheName, config);
 
-    //create the cache
-    cacheManager.createCache(cacheName, config);
+    //can put different things in
+    cache.put(1, "something");
+    cache.put(pistachio.getName(), pistachio);
+    cache.put(tonto.getName(), tonto);
 
-    //... and then later to get the cache
-    Cache cache = cacheManager.getCache(cacheName);
+    //can get them out
+    assertNotNull(cache.get(1));
+    assertNotNull(cache.get(pistachio.getName()));
 
-    //use the cache
-    String key = "key";
-    Integer value1 = 1;
-    cache.put(key, value1);
+    //can remove them
+    assertTrue(cache.remove(1));
+    assertTrue(cache.remove(pistachio.getName()));
+  }
 
-    cache.put("Pistachio", new Beagle());
+  /**
+   * What happens when you:
+   *
+   * 1) declare using generics and
+   * 2) don't specify types during configuration.
+   */
+  @Test
+  public void simpleAPIWithGenericsAndNoTypeEnforcement() {
 
-    //wrong
-    cache.put(value1, key);
-    Integer value2 = (Integer) cache.get(key);
-    assertEquals(value1, value2);
+    MutableConfiguration config = new MutableConfiguration<String, Integer>();
+    Cache<Identifier, Dog> cache = cacheManager.createCache(cacheName, config);
 
-    cache.remove(key);
-    assertNull(cache.get(key));
+
+    //Types are restricted
+    //Cannot put in wrong types
+    //cache.put(1, "something");
+
+    //can put in
+    cache.put(pistachio.getName(), pistachio);
+    cache.put(tonto.getName(), tonto);
+
+    //cannot get out wrong key types
+    //assertNotNull(cache.get(1));
+    assertNotNull(cache.get(pistachio.getName()));
+    assertNotNull(cache.get(tonto.getName()));
+
+    //cannot remove wrong key types
+    //assertTrue(cache.remove(1));
+    assertTrue(cache.remove(pistachio.getName()));
+    assertTrue(cache.remove(tonto.getName()));
+
   }
 
 
@@ -178,33 +198,7 @@ public class TypesTest extends CacheTestSupport<Identifier, String> {
     assertNull(cache.get("key"));
   }
 
-  @Test
-  public void simpleAPIWithGenericsAndNoTypeEnforcement() {
 
-    //configure the cache
-    String cacheName = "sampleCache3";
-    MutableConfiguration config = new MutableConfiguration<String, Integer>();
-    config.setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(ONE_HOUR))
-        .setStatisticsEnabled(true);
-
-    //create the cache
-    cacheManager.createCache(cacheName, config);
-
-    //... and then later to get the cache
-    Cache<String, Integer> cache = cacheManager.getCache(cacheName);
-
-    //use the cache
-    String key = "key";
-    Integer value1 = 1;
-    cache.put("key", value1);
-
-    //The following line gives a compile error
-    //cache.put(value1, "key1");
-    Integer value2 = (Integer) cache.get(key);
-
-    cache.remove(key);
-    assertNull(cache.get(key));
-  }
 
 
 

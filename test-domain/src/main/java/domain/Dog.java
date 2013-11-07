@@ -51,12 +51,21 @@ public class Dog {
     this.neutered = neutered;
   }
 
+  protected Dog getThis() {
+    return this;
+  }
+
   public Identifier getName() {
     return name;
   }
 
   public void setName(Identifier name) {
     this.name = name;
+  }
+
+  public Dog name(Identifier name) {
+    this.name = name;
+    return getThis();
   }
 
   public String getColor() {
@@ -67,28 +76,49 @@ public class Dog {
     this.color = color;
   }
 
-  public int getWeightInKg() {
+  public Dog color(String color) {
+    this.color = color;
+    return getThis();
+  }
+
+  public int getWeight() {
     return weightInKg;
   }
 
-  public void setWeightInKg(int weighInKg) {
+  public void setWeight(int weighInKg) {
     this.weightInKg = weighInKg;
+  }
+
+  public Dog weight(int weighInKg) {
+    this.weightInKg = weighInKg;
+    return getThis();
   }
 
   public long getLengthInCm() {
     return lengthInCm;
   }
 
-  public void setLengthInCm(long lengthInCm) {
+  public void setLength(long lengthInCm) {
     this.lengthInCm = lengthInCm;
   }
 
-  public long getHeightInCm() {
+  public Dog length(long lengthInCm) {
+    this.lengthInCm = lengthInCm;
+    return getThis();
+  }
+
+
+  public long getHeight() {
     return heightInCm;
   }
 
-  public void setHeightInCm(long heightInCm) {
+  public void setHeight(long heightInCm) {
     this.heightInCm = heightInCm;
+  }
+
+  public Dog height(long heightInCm) {
+    this.heightInCm = heightInCm;
+    return getThis();
   }
 
   public Sex getSex() {
@@ -99,12 +129,22 @@ public class Dog {
     this.sex = sex;
   }
 
+  public Dog sex(Sex sex) {
+    this.sex = sex;
+    return getThis();
+  }
+
   public boolean isNeutered() {
     return neutered;
   }
 
   public void setNeutered(boolean neutered) {
     this.neutered = neutered;
+  }
+
+  public Dog neutered(boolean neutered) {
+    this.neutered = neutered;
+    return getThis();
   }
 
   @Override

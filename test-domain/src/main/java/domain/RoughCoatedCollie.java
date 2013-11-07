@@ -20,17 +20,19 @@ package domain;
 /**
  * @author Greg Luck
  */
-public class Daschund extends Dog implements Hound {
+public class RoughCoatedCollie extends Dog implements Collie {
 
   /**
-   * Tells the hound to bay
-   *
-   * @param loudness 0 for mute, 1 is the softest and 255 is the loudest
-   * @param duration the duraction of the bay in seconds
+   * Tells the Collie to herd
    */
   @Override
-  public void bay(int loudness, int duration) {
+  public void herd() {
 
   }
+
+  protected RoughCoatedCollie getThis() {
+    return this;
+  }
+
 }
 

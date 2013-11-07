@@ -20,18 +20,22 @@ package domain;
 /**
  * @author Greg Luck
  */
-public class BorderCollie extends Dog implements Collie {
+public class Dachshund extends Dog implements Hound {
 
   /**
-   * Tells the Collie to herd
+   * Tells the hound to bay
+   *
+   * @param loudness 0 for mute, 1 is the softest and 255 is the loudest
+   * @param duration the duraction of the bay in seconds
    */
   @Override
-  public void herd() {
+  public void bay(int loudness, int duration) {
 
   }
 
-  protected BorderCollie getThis() {
+  protected Dachshund getThis() {
     return this;
   }
+
 }
 

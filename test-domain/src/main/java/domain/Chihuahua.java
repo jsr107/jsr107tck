@@ -27,5 +27,8 @@ import java.io.Serializable;
 public class Chihuahua extends Dog implements Serializable {
 
 
+  protected Chihuahua getThis() {
+    return this;
+  }
 
 }
