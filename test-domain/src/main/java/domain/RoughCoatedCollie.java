@@ -18,6 +18,10 @@
 package domain;
 
 /**
+ * These are Lassie dogs.
+ *
+ * Incidentally though Lassie was a she, the actors were male dogs
+ * as they have the bigger coats.
  * @author Greg Luck
  */
 public class RoughCoatedCollie extends Dog implements Collie {

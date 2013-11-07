@@ -6,6 +6,7 @@ import domain.Chihuahua;
 import domain.Dachshund;
 import domain.Dog;
 import domain.Identifier;
+import domain.Papillon;
 import domain.RoughCoatedCollie;
 import org.jsr107.tck.testutil.CacheTestSupport;
 import org.junit.After;
@@ -41,6 +42,7 @@ public class TypesTest extends CacheTestSupport<Identifier, String> {
   private Dachshund skinny = (Dachshund) new Dachshund().name(new Identifier("Skinny")).sex(MALE).weight(5).neutered(true);
   private Chihuahua tonto = (Chihuahua) new Chihuahua().name(new Identifier("Tonto")).weight(3).sex(MALE).neutered(false);
   private BorderCollie bonzo = (BorderCollie) new BorderCollie().name(new Identifier("Bonzo")).color("tricolor").sex(FEMALE).weight(10);
+  private Papillon talker = (Papillon) new Papillon().name(new Identifier("Talker")).color("Black and White").weight(4).sex(MALE);
   private final String cacheName = "sampleCache";
 
   protected MutableConfiguration<Identifier, String> newMutableConfiguration() {
@@ -70,6 +72,7 @@ public class TypesTest extends CacheTestSupport<Identifier, String> {
     cache.put(tonto.getName(), tonto);
     cache.put(bonzo.getName(), bonzo);
     cache.put(juno.getName(), juno);
+    cache.put(talker.getName(), talker);
 
     try {
       cache.put(skinny.getName(), skinny);

@@ -20,14 +20,14 @@ package domain;
 import java.io.Serializable;
 
 /**
- * A Chihuahua is a Dog but not a Hound or a Collie.
+ * A Papillon is a Dog but not a Hound or a Collie.
  *
  * @author Greg Luck
  */
-public class Chihuahua extends Dog implements Serializable {
+public class Papillon extends Dog implements Serializable {
 
 
-  protected Chihuahua getThis() {
+  protected Papillon getThis() {
     return this;
   }
 
