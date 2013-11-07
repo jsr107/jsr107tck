@@ -5,6 +5,7 @@ import domain.BorderCollie;
 import domain.Chihuahua;
 import domain.Dachshund;
 import domain.Dog;
+import domain.Hound;
 import domain.Identifier;
 import domain.Papillon;
 import domain.RoughCoatedCollie;
@@ -122,32 +123,43 @@ public class TypesTest extends CacheTestSupport<Identifier, String> {
   }
 
 
+  /**
+   * Set generics to Identifier and Dog
+   * Bypass generics with a raw MutableConfiguration but set runtime to Identifier and Hound
+   * todo add check to EntryProcessor.setValue();
+   */
   @Test
   public void simpleAPITypeEnforcement() {
 
     //configure the cache
-    MutableConfiguration<String, Integer> config = new MutableConfiguration<>();
-    config.setStoreByValue(true)
-        .setTypes(String.class, Integer.class)
-        .setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(ONE_HOUR))
-        .setStatisticsEnabled(true);
+    MutableConfiguration config = new MutableConfiguration<>();
+    config.setTypes(Identifier.class, Hound.class);
+    Cache<Identifier, Dog> cache = cacheManager.createCache(cacheName, config);
 
-    //create the cache
-    cacheManager.createCache("simpleCache", config);
+    //Types are restricted and types are enforced
+    //Cannot put in wrong types
+    //cache.put(1, "something");
 
-    //... and then later to get the cache
-    Cache<String, Integer> cache = Caching.getCache("simpleCache",
-        String.class, Integer.class);
+    //can put in
+    cache.put(pistachio.getName(), pistachio);
+    //can put in with generics but possibly not with configuration as not a hound
+    try {
+      cache.put(tonto.getName(), tonto);
+    } catch (ClassCastException e) {
+      //expected but not mandatory. The RI throws these.
+    }
 
-    //use the cache
-    String key = "key";
-    Integer value1 = 1;
-    cache.put("key", value1);
-    Integer value2 = cache.get(key);
-    assertEquals(value1, value2);
+    //cannot get out wrong key types
+    //assertNotNull(cache.get(1));
+    assertNotNull(cache.get(pistachio.getName()));
+    //not necessarily
+    //assertNotNull(cache.get(tonto.getName()));
 
-    cache.remove("key");
-    assertNull(cache.get("key"));
+    //cannot remove wrong key types
+    //assertTrue(cache.remove(1));
+    assertTrue(cache.remove(pistachio.getName()));
+    //not necessarily
+    //assertTrue(cache.remove(tonto.getName()));
   }
 
   /**
