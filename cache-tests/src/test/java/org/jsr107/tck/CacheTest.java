@@ -122,6 +122,7 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     assertNull(cache.get(key));
   }
 
+
   @Test
   public void getCacheName() {
     assertEquals(getTestCacheName(), cache.getName());
