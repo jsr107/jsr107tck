@@ -17,12 +17,14 @@
 
 package domain;
 
+import java.io.Serializable;
+
 /**
  * A Collie which is can be characterised by its herding instinct.
  *
  * @author Greg Luck
  */
-public interface Collie {
+public interface Collie extends Serializable {
 
   /**
    * Tells the hound to bay

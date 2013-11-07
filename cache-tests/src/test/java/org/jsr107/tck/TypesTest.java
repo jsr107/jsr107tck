@@ -17,6 +17,8 @@ import javax.cache.Caching;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.AccessedExpiryPolicy;
 
+import java.io.NotSerializableException;
+
 import static domain.Sex.FEMALE;
 import static domain.Sex.MALE;
 import static javax.cache.expiry.Duration.ONE_HOUR;
@@ -66,7 +68,14 @@ public class TypesTest extends CacheTestSupport<Identifier, String> {
     cache.put(1, "something");
     cache.put(pistachio.getName(), pistachio);
     cache.put(tonto.getName(), tonto);
+    cache.put(bonzo.getName(), bonzo);
+    cache.put(juno.getName(), juno);
 
+    try {
+      cache.put(skinny.getName(), skinny);
+    } catch(Exception e) {
+      //not serializable expected
+    }
     //can get them out
     assertNotNull(cache.get(1));
     assertNotNull(cache.get(pistachio.getName()));

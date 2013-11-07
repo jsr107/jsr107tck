@@ -18,6 +18,7 @@
 package domain;
 
 /**
+ * Poor old Dachshund is not Serializable
  * @author Greg Luck
  */
 public class Dachshund extends Dog implements Hound {
