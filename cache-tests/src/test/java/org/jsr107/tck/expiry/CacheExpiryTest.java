@@ -1133,7 +1133,7 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
     expiryPolicy.resetCount();
 
     // verify modify or create
-    Map<Integer, Integer> resultMap = cache.invokeAll(keys, new SetEntryProcessor<Integer, Integer>(setValue));
+    cache.invokeAll(keys, new SetEntryProcessor<Integer, Integer>(setValue));
 
     assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(keys.size() - createdCount));
     assertThat(expiryPolicy.getAccessCount(), is(0));
@@ -1183,7 +1183,7 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
       }
 
       // verify read-through of getValue of non-existent entries
-      Map<Integer, Integer> resultMap = cache.invokeAll(keys, new GetEntryProcessor<Integer, Integer>());
+      cache.invokeAll(keys, new GetEntryProcessor<Integer, Integer>());
 
       assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(keys.size()));
       assertThat(expiryPolicy.getAccessCount(), is(0));
