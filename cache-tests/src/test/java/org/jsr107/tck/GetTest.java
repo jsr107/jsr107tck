@@ -16,6 +16,8 @@
  */
 package org.jsr107.tck;
 
+import domain.Identifier2;
+import junit.framework.Assert;
 import org.jsr107.tck.testutil.CacheTestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.junit.Before;
@@ -23,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 
+import javax.cache.Cache;
 import javax.cache.configuration.MutableConfiguration;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -42,7 +45,9 @@ import static org.junit.Assert.fail;
  * Map<K, V> getAll(Collection<? extends K> keys);
  * </pre>
  * <p/>
- * When it matters whether the cache is stored by reference or by value, see {@link StoreByValueTest} and
+ * When it matters whether the cache is stored by reference or by value, see
+ * {@link
+ * StoreByValueTest} and
  * {@link StoreByReferenceTest}.
  *
  * @author Yannis Cosmadopoulos
@@ -173,4 +178,22 @@ public class GetTest extends CacheTestSupport<Long, String> {
       assertEquals("value: key=" + key, "value" + key, map.get(key));
     }
   }
+
+  /**
+   * Identifier2 has transient fields that will not match. But equals is consulted
+   * and will match. This test works because Identifier2 was correctly implemented
+   * per the spec and transient fields are not used in equals or hashcode.
+   */
+  public void testGetUsesEqualityNotequalsequals() {
+
+    Cache identifier2Cache = getCacheManager().createCache("identifierCache",newMutableConfiguration().setStoreByValue(false));
+
+    Identifier2 one = new Identifier2("1");
+    identifier2Cache.put(one, "something");
+    Identifier2 one_ = new Identifier2("1");
+    Assert.assertEquals(one, one_);
+    Assert.assertEquals(one.hashCode(), one_.hashCode());
+    assertEquals("something", identifier2Cache.get(one_));
+  }
+
 }

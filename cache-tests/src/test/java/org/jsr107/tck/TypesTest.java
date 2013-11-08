@@ -7,8 +7,10 @@ import domain.Dachshund;
 import domain.Dog;
 import domain.Hound;
 import domain.Identifier;
+import domain.Identifier2;
 import domain.Papillon;
 import domain.RoughCoatedCollie;
+import junit.framework.Assert;
 import org.jsr107.tck.testutil.CacheTestSupport;
 import org.junit.After;
 import org.junit.Test;
@@ -62,13 +64,14 @@ public class TypesTest extends CacheTestSupport<Identifier, String> {
    * 2) don't specify types during configuration.
    */
   @Test
-  public void simpleAPINoGenericsAndNoTypeEnforcement() {
+  public void simpleAPINoGenericsAndNoTypeEnforcementStoreByReference() {
 
-    MutableConfiguration config = new MutableConfiguration();
+    MutableConfiguration config = new MutableConfiguration().setStoreByValue(false);
     Cache cache = cacheManager.createCache(cacheName, config);
+    Identifier2 one = new Identifier2("1");
 
     //can put different things in
-    cache.put(1, "something");
+    cache.put(one, "something");
     cache.put(pistachio.getName(), pistachio);
     cache.put(tonto.getName(), tonto);
     cache.put(bonzo.getName(), bonzo);
@@ -81,11 +84,52 @@ public class TypesTest extends CacheTestSupport<Identifier, String> {
       //not serializable expected
     }
     //can get them out
-    assertNotNull(cache.get(1));
+    Identifier2 one_ = new Identifier2("1");
+    Assert.assertEquals(one, one_);
+    Assert.assertEquals(one.hashCode(), one_.hashCode());
+    assertNotNull(cache.get(one_));
+    assertNotNull(cache.get(one));
     assertNotNull(cache.get(pistachio.getName()));
 
     //can remove them
-    assertTrue(cache.remove(1));
+    assertTrue(cache.remove(one));
+    assertTrue(cache.remove(pistachio.getName()));
+  }
+
+  /**
+   * What happens when you:
+   *
+   * 1) don't declare using generics and
+   * 2) don't specify types during configuration.
+   */
+  @Test
+  public void simpleAPINoGenericsAndNoTypeEnforcementStoreByValue() {
+
+    MutableConfiguration config = new MutableConfiguration();
+    Cache cache = cacheManager.createCache(cacheName, config);
+    Identifier2 one = new Identifier2("1");
+
+    //can put different things in
+    //But not non-serializable things
+    //cache.put(one, "something");
+    cache.put(1L, "something");
+    cache.put(pistachio.getName(), pistachio);
+    cache.put(tonto.getName(), tonto);
+    cache.put(bonzo.getName(), bonzo);
+    cache.put(juno.getName(), juno);
+    cache.put(talker.getName(), talker);
+
+    try {
+      cache.put(skinny.getName(), skinny);
+    } catch(Exception e) {
+      //not serializable expected
+    }
+    //can get them out
+    assertNotNull(cache.get(1L));
+    assertNotNull(cache.get(pistachio.getName()));
+
+    //can remove them
+    assertTrue(cache.remove(1L));
     assertTrue(cache.remove(pistachio.getName()));
   }
 

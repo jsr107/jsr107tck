@@ -18,11 +18,16 @@
 package domain;
 
 /**
+ * This is a key type with a transient field. Per the spec portability recommendations
+ * transient fields should not be taken into account in equals and hashcode.
+ *
  * @author Greg Luck
  */
 public class Identifier2 {
 
   private final String name;
+
+  private transient long timeStamp;
 
   /**
    * Constructor
@@ -30,25 +35,25 @@ public class Identifier2 {
    */
   public Identifier2(String name) {
     this.name = name;
+    timeStamp = System.currentTimeMillis();
   }
 
-  /**
-   * Implemented without class checking
-   *
-   */
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
+    if (!(o instanceof Identifier2)) return false;
 
-    return o.toString().equals(this.toString());
+    Identifier2 that = (Identifier2) o;
+
+    if (name != null ? !name.equals(that.name) : that.name != null) return false;
+
+    return true;
   }
 
   @Override
   public int hashCode() {
-//        return name != null ? name.hashCode() : 0;
-    return 10;
+    return name != null ? name.hashCode() : 0;
   }
-
 
   @Override
   public String toString() {

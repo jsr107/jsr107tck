@@ -107,6 +107,8 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     assertEquals(value1, value2);
   }
 
+
+
   @Test()
   public void clearTest() {
     Long key = 1L;
