@@ -124,12 +124,57 @@ public class TypesTest extends CacheTestSupport<Identifier, String> {
 
 
   /**
+   * What happens when you:
+   *
+   * 1) declare using generics with a super class
+   * 2) declare using configuration with a sub class
+   *
    * Set generics to Identifier and Dog
    * Bypass generics with a raw MutableConfiguration but set runtime to Identifier and Hound
-   * todo add check to EntryProcessor.setValue();
+   *
+   * The configuration checking gets done on put.
    */
   @Test
-  public void simpleAPITypeEnforcement() {
+  public void genericsEnforcementAndStricterTypeEnforcement() {
+
+    //configure the cache
+    MutableConfiguration config = new MutableConfiguration<>();
+    config.setTypes(Identifier.class, Hound.class);
+    Cache<Identifier, Dog> cache = cacheManager.createCache(cacheName, config);
+
+    //Types are restricted and types are enforced
+    //Cannot put in wrong types
+    //cache.put(1, "something");
+
+    //can put in
+    cache.put(pistachio.getName(), pistachio);
+    //can put in with generics but possibly not with configuration as not a hound
+    try {
+      cache.put(tonto.getName(), tonto);
+    } catch (ClassCastException e) {
+      //expected but not mandatory. The RI throws these.
+    }
+
+    //cannot get out wrong key types
+    //assertNotNull(cache.get(1));
+    assertNotNull(cache.get(pistachio.getName()));
+    //not necessarily
+    //assertNotNull(cache.get(tonto.getName()));
+
+    //cannot remove wrong key types
+    //assertTrue(cache.remove(1));
+    assertTrue(cache.remove(pistachio.getName()));
+    //not necessarily
+    //assertTrue(cache.remove(tonto.getName()));
+  }
+
+
+  /**
+   * Same as above but using the shorthand Caching to acquire.
+   * Should work the same.
+   */
+  @Test
+  public void genericsEnforcementAndStricterTypeEnforcementFromCaching() {
 
     //configure the cache
     MutableConfiguration config = new MutableConfiguration<>();
@@ -163,7 +208,10 @@ public class TypesTest extends CacheTestSupport<Identifier, String> {
   }
 
   /**
-   * Shows the consequences of using Object, Object where you want no enforcement
+   * What happens when you:
+   *
+   * 1) declare using generics and
+   * 2) specify types during configuration but using Object.class, which is permissive
    */
   @Test
   public void simpleAPITypeEnforcementObject() {
@@ -171,55 +219,31 @@ public class TypesTest extends CacheTestSupport<Identifier, String> {
 
     //configure the cache
     MutableConfiguration<Object, Object> config = new MutableConfiguration<>();
-    config.setTypes(Object.class, Object.class)
-        .setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(ONE_HOUR))
-        .setStatisticsEnabled(true);
+    config.setTypes(Object.class, Object.class);
 
     //create the cache
-    cacheManager.createCache("simpleCache4", config);
+    Cache<Object, Object> cache = cacheManager.createCache("simpleCache4", config);
 
-    //... and then later to get the cache
-    Cache<Object, Object> cache = Caching.getCache("simpleCache4",
-        Object.class, Object.class);
+    //can put different things in
+    cache.put(1, "something");
+    cache.put(pistachio.getName(), pistachio);
+    cache.put(tonto.getName(), tonto);
+    cache.put(bonzo.getName(), bonzo);
+    cache.put(juno.getName(), juno);
+    cache.put(talker.getName(), talker);
+    try {
+      cache.put(skinny.getName(), skinny);
+    } catch(Exception e) {
+      //not serializable expected
+    }
+    //can get them out
+    assertNotNull(cache.get(1));
+    assertNotNull(cache.get(pistachio.getName()));
 
-    //use the cache
-    String key = "key";
-    Integer value1 = 1;
-    cache.put("key", value1);
-    Object value2 = cache.get(key);
-    assertEquals(value1, value2);
-
-    cache.remove("key");
-    assertNull(cache.get("key"));
+    //can remove them
+    assertTrue(cache.remove(1));
+    assertTrue(cache.remove(pistachio.getName()));
   }
-
-
-  @Test
-  public void simpleAPITypeEnforcementUsingCaching() {
-
-    //configure the cache
-    MutableConfiguration<String, Integer> config = new MutableConfiguration<>();
-    config.setTypes(String.class, Integer.class)
-        .setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(ONE_HOUR))
-        .setStatisticsEnabled(true);
-
-    //create the cache
-    cacheManager.createCache("simpleCache2", config);
-
-    //... and then later to get the cache
-    Cache<String, Integer> cache = Caching.getCache("simpleCache2",
-        String.class, Integer.class);
-
-    //use the cache
-    String key = "key";
-    Integer value1 = 1;
-    cache.put("key", value1);
-    Integer value2 = cache.get(key);
-    assertEquals(value1, value2);
-    cache.remove("key");
-    assertNull(cache.get("key"));
-  }
-
 
 
 
