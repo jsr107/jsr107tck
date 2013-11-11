@@ -17,18 +17,11 @@ import org.junit.Test;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
-import javax.cache.Caching;
 import javax.cache.configuration.MutableConfiguration;
-import javax.cache.expiry.AccessedExpiryPolicy;
-
-import java.io.NotSerializableException;
 
 import static domain.Sex.FEMALE;
 import static domain.Sex.MALE;
-import static javax.cache.expiry.Duration.ONE_HOUR;
 import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertNull;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**

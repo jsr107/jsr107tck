@@ -48,7 +48,7 @@ public class MutableConfigurationTest extends CacheTestSupport {
    * Ensure that a {@link MutableConfiguration} correctly uses the defaults.
    * @param config
    */
-  private void validateDefaults(Configuration<?, ?> config) {
+  private void validateDefaults(CompleteConfiguration<?, ?> config) {
     assertEquals(Object.class, config.getKeyType());
     assertEquals(Object.class, config.getValueType());
     assertFalse(config.isReadThrough());
@@ -75,19 +75,30 @@ public class MutableConfigurationTest extends CacheTestSupport {
    */
   @Test
   public void testDefaultCacheFromCacheManagerUsesCorrectDefaults() {
-    Cache cache = getCacheManager().getCache(getTestCacheName());
-    Configuration configuration = cache.getConfiguration(Configuration.class);
+    Cache<Object, Object> cache = getCacheManager().getCache(getTestCacheName());
+    //get a basic configuration from the Cache
+    CompleteConfiguration configuration = cache.getConfiguration(CompleteConfiguration.class);
     validateDefaults(configuration);
 
+  }
+
+  /**
+   * Ensure a cache's config isn't changed by its configuration object after construction.
+   */
+  @Test
+  public void testModifyihgConfigurationAfterCreateCacheDoesNotModifyCacheConfiguration() {
+    MutableConfiguration mutableConfiguration = new MutableConfiguration().setStoreByValue(false);
+    Cache<Object, Object> cache = getCacheManager().createCache(getTestCacheName() + "_", mutableConfiguration);
+    mutableConfiguration.setStoreByValue(true);
+    assertEquals(false, cache.getConfiguration(MutableConfiguration.class).isStoreByValue());
   }
 
   @Test
   public void testNewMutableConfigurationUsesCorrectDefaults() {
 
     Configuration<?, ?> config = new MutableConfiguration();
-    validateDefaults(config);
+    validateDefaults((CompleteConfiguration)config);
   }
-
 
   /**
    * Ensure that two {@link MutableConfiguration}s are equal.
