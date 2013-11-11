@@ -76,7 +76,7 @@ public class MutableConfigurationTest extends CacheTestSupport {
   @Test
   public void testDefaultCacheFromCacheManagerUsesCorrectDefaults() {
     Cache cache = getCacheManager().getCache(getTestCacheName());
-    Configuration configuration = cache.getConfiguration();
+    Configuration configuration = cache.getConfiguration(Configuration.class);
     validateDefaults(configuration);
 
   }

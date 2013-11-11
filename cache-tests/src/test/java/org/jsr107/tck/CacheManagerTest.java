@@ -27,6 +27,7 @@ import javax.cache.Cache;
 import javax.cache.CacheException;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
+import javax.cache.configuration.CompleteConfiguration;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.spi.CachingProvider;
 import java.net.URI;
@@ -482,8 +483,8 @@ public class CacheManagerTest extends TestSupport {
     Cache cache = cacheManager.getCache("untyped-cache");
 
     assertNotNull(cache);
-    assertEquals(Object.class, cache.getConfiguration().getKeyType());
-    assertEquals(Object.class, cache.getConfiguration().getValueType());
+    assertEquals(Object.class, cache.getConfiguration(CompleteConfiguration.class).getKeyType());
+    assertEquals(Object.class, cache.getConfiguration(CompleteConfiguration.class).getValueType());
   }
 
   @Test
@@ -497,8 +498,8 @@ public class CacheManagerTest extends TestSupport {
     Cache<String, Long> cache = cacheManager.getCache("typed-cache", String.class, Long.class);
 
     assertNotNull(cache);
-    assertEquals(String.class, cache.getConfiguration().getKeyType());
-    assertEquals(Long.class, cache.getConfiguration().getValueType());
+    assertEquals(String.class, cache.getConfiguration(CompleteConfiguration.class).getKeyType());
+    assertEquals(Long.class, cache.getConfiguration(CompleteConfiguration.class).getValueType());
   }
 
   @Test(expected = ClassCastException.class)
