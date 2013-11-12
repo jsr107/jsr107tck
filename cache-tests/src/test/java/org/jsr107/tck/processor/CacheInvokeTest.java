@@ -153,8 +153,8 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
       cache.invoke(key, new CombineEntryProcessor(processors));
       fail();
     } catch (CacheException e) {
-      assertTrue("expected IllegalAccessException; observed " + e.getCause(),
-          e.getCause().getCause() instanceof IllegalAccessError);
+      assertTrue("expected IllegalAccessError; observed " + e.getCause(),
+          e.getCause() instanceof IllegalAccessError);
     }
     assertFalse(cache.containsKey(key));
   }
@@ -185,8 +185,8 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
       cache.invoke(key, new CombineEntryProcessor<Integer, String>(processors));
       fail();
     } catch (CacheException e) {
-      assertTrue("expected IllegalAccessException; observed " + e.getCause(),
-          e.getCause().getCause() instanceof IllegalAccessError);
+      assertTrue("expected IllegalAccessError; observed " + e.getCause(),
+          e.getCause() instanceof IllegalAccessError);
     }
     assertEquals(oldValue, cache.get(key));
   }
@@ -226,8 +226,8 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
       cache.invoke(key, new ThrowExceptionEntryProcessor<Integer, String, Void>(IllegalAccessError.class));
       fail();
     } catch (CacheException e) {
-      assertTrue("expected IllegalAccessException; observed " + e.getCause(),
-          e.getCause().getCause() instanceof IllegalAccessError);
+      assertTrue("expected IllegalAccessError; observed " + e.getCause(),
+          e.getCause() instanceof IllegalAccessError);
     }
     assertEquals(oldValue, cache.get(key));
   }
