@@ -10,6 +10,7 @@ import domain.Identifier;
 import domain.Identifier2;
 import domain.Papillon;
 import domain.RoughCoatedCollie;
+
 import junit.framework.Assert;
 import org.jsr107.tck.testutil.CacheTestSupport;
 import org.junit.After;
@@ -18,6 +19,8 @@ import org.junit.Test;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.configuration.MutableConfiguration;
+
+import javax.cache.configuration.OptionalFeature;
 
 import static domain.Sex.FEMALE;
 import static domain.Sex.MALE;
@@ -59,34 +62,36 @@ public class TypesTest extends CacheTestSupport<Identifier, String> {
   @Test
   public void simpleAPINoGenericsAndNoTypeEnforcementStoreByReference() {
 
-    MutableConfiguration config = new MutableConfiguration().setStoreByValue(false);
-    Cache cache = cacheManager.createCache(cacheName, config);
-    Identifier2 one = new Identifier2("1");
+    if (cacheManager.getCachingProvider().isSupported(OptionalFeature.STORE_BY_REFERENCE)) {
+      MutableConfiguration config = new MutableConfiguration().setStoreByValue(false);
+      Cache cache = cacheManager.createCache(cacheName, config);
+      Identifier2 one = new Identifier2("1");
 
-    //can put different things in
-    cache.put(one, "something");
-    cache.put(pistachio.getName(), pistachio);
-    cache.put(tonto.getName(), tonto);
-    cache.put(bonzo.getName(), bonzo);
-    cache.put(juno.getName(), juno);
-    cache.put(talker.getName(), talker);
+      //can put different things in
+      cache.put(one, "something");
+      cache.put(pistachio.getName(), pistachio);
+      cache.put(tonto.getName(), tonto);
+      cache.put(bonzo.getName(), bonzo);
+      cache.put(juno.getName(), juno);
+      cache.put(talker.getName(), talker);
 
-    try {
-      cache.put(skinny.getName(), skinny);
-    } catch(Exception e) {
-      //not serializable expected
+      try {
+        cache.put(skinny.getName(), skinny);
+      } catch(Exception e) {
+        //not serializable expected
+      }
+      //can get them out
+      Identifier2 one_ = new Identifier2("1");
+      Assert.assertEquals(one, one_);
+      Assert.assertEquals(one.hashCode(), one_.hashCode());
+      assertNotNull(cache.get(one_));
+      assertNotNull(cache.get(one));
+      assertNotNull(cache.get(pistachio.getName()));
+
+      //can remove them
+      assertTrue(cache.remove(one));
+      assertTrue(cache.remove(pistachio.getName()));
     }
-    //can get them out
-    Identifier2 one_ = new Identifier2("1");
-    Assert.assertEquals(one, one_);
-    Assert.assertEquals(one.hashCode(), one_.hashCode());
-    assertNotNull(cache.get(one_));
-    assertNotNull(cache.get(one));
-    assertNotNull(cache.get(pistachio.getName()));
-
-    //can remove them
-    assertTrue(cache.remove(one));
-    assertTrue(cache.remove(pistachio.getName()));
   }
 
   /**
@@ -281,12 +286,4 @@ public class TypesTest extends CacheTestSupport<Identifier, String> {
     assertTrue(cache.remove(1));
     assertTrue(cache.remove(pistachio.getName()));
   }
-
-
-
-
-
-
-
-
 }
