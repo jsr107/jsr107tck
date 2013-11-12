@@ -12,13 +12,19 @@ import domain.Papillon;
 import domain.RoughCoatedCollie;
 
 import junit.framework.Assert;
+import org.jsr107.tck.testutil.AllTestExcluder;
 import org.jsr107.tck.testutil.CacheTestSupport;
+import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.MethodRule;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
+import javax.cache.Caching;
 import javax.cache.configuration.MutableConfiguration;
+import javax.cache.configuration.OptionalFeature;
 
 import javax.cache.configuration.OptionalFeature;
 
@@ -33,6 +39,21 @@ import static org.junit.Assert.assertTrue;
  * @author Greg Luck
  */
 public class TypesTest extends CacheTestSupport<Identifier, String> {
+
+  /**
+   * Rule used to exclude tests
+   */
+  @Rule
+  public MethodRule rule = new ExcludeListExcluder(this.getClass()) {
+
+    /**
+     * @see org.jsr107.tck.testutil.ExcludeListExcluder#isExcluded(String)
+     */
+    @Override
+    protected boolean isExcluded(String methodName) {
+      return "simpleAPINoGenericsAndNoTypeEnforcementStoreByReference".equals(methodName) && !cacheManager.getCachingProvider().isSupported(OptionalFeature.STORE_BY_REFERENCE) || super.isExcluded(methodName);
+    }
+  };
 
   private CacheManager cacheManager = getCacheManager();
 
@@ -62,7 +83,6 @@ public class TypesTest extends CacheTestSupport<Identifier, String> {
   @Test
   public void simpleAPINoGenericsAndNoTypeEnforcementStoreByReference() {
 
-    if (cacheManager.getCachingProvider().isSupported(OptionalFeature.STORE_BY_REFERENCE)) {
       MutableConfiguration config = new MutableConfiguration().setStoreByValue(false);
       Cache cache = cacheManager.createCache(cacheName, config);
       Identifier2 one = new Identifier2("1");
@@ -91,7 +111,6 @@ public class TypesTest extends CacheTestSupport<Identifier, String> {
       //can remove them
       assertTrue(cache.remove(one));
       assertTrue(cache.remove(pistachio.getName()));
-    }
   }
 
   /**
