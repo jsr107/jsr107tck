@@ -405,56 +405,6 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
     assertFalse(cache.iterator().hasNext());
   }
 
-  /**
-   * Assert following from all ExpiryPolicy methods javadoc:
-   * Should an exception occur while determining the Duration, an implementation specific default Duration will be used.
-   * <p/>
-   * This test assumes that implementation specific duration would never be Duration.ZERO.
-   */
-  @Test
-  public void testCreateExpiryPolicyThrowingRuntimeException() {
-    MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
-
-    // allow creation, throw exception on access or modify
-    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new FaultyExpiryPolicy(true, false, false)));
-
-    Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
-
-    // next line should cause an exception in call to getExpiryForCreatedEntry
-    cache.put(1, 1);
-
-    assertTrue(cache.containsKey(1));
-    assertEquals((Integer) 1, cache.get(1));
-  }
-
-  /**
-   * Assert following from all ExpiryPolicy methods javadoc:
-   * Should an exception occur while determining the Duration, an implementation specific default Duration will be used.
-   * <p/>
-   * This test assumes that implementation specific duration would never be Duration.ZERO.
-   */
-  @Test
-  public void testAccessExpiryPolicyThrowingRuntimeException() {
-    MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
-
-    // allow creation, throw exception on access or modify
-    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new FaultyExpiryPolicy(false, false, true)));
-
-    Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
-
-    cache.put(1, 1);
-
-    assertTrue(cache.containsKey(1));
-    // next line should cause an exception in call to getExpiryForAccessedEntry
-    assertEquals((Integer) 1, cache.get(1));
-
-    // modify is returing Duration.ZERO.  So make certain expired.
-    cache.put(1, 2);
-
-    assertFalse(cache.containsKey(1));
-    assertNull(cache.get(1));
-  }
-
   // Next set of tests verify table from jsr 107 spec on how each of the cache methods interact with a
   // configured ExpiryPolicy method getting called.
   // There is one test per row in table.
@@ -1282,30 +1232,6 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
   }
 
 
-  @Test
-  public void testModifiedExpiryPolicyThrowingRuntimeException() {
-    MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
-
-    // allow creation, throw exception on access or modify
-    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(new FaultyExpiryPolicy(false, true, false)));
-
-    Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
-
-    cache.put(1, 1);
-    assertTrue(cache.containsKey(1));
-
-
-    // modify should throw exception calling FaultyExpiryPolicy.getExpiryForModifiedEntry,
-    // jcache implementation should handle and use an implementation default duration.
-    cache.put(1, 2);
-    assertTrue(cache.containsKey(1));
-    assertNotNull(cache.get(1));
-
-    cache.get(1);
-    assertFalse(cache.containsKey(1));
-    assertNull(cache.get(1));
-  }
-
   public static class CountingExpiryPolicy implements ExpiryPolicy, Serializable {
 
     /**
@@ -1391,58 +1317,6 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
         creationCount.set(0);
         accessedCount.set(0);
         updatedCount.set(0);
-    }
-  }
-
-  public static class FaultyExpiryPolicy implements ExpiryPolicy, Serializable {
-    private boolean failOnCreate;
-    private boolean failOnModify;
-    private boolean failOnAccess;
-
-    /**
-     * Constructs a {@link FaultyExpiryPolicy}.
-     *
-     * @param failOnCreate
-     * @param failOnModify
-     * @param failOnAccess
-     */
-    public FaultyExpiryPolicy(boolean failOnCreate, boolean failOnModify, boolean failOnAccess) {
-      this.failOnCreate = failOnCreate;
-      this.failOnModify = failOnModify;
-      this.failOnAccess = failOnAccess;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Duration getExpiryForCreation() {
-      if (failOnCreate) {
-        throw new UnsupportedOperationException("not implemented");
-      }
-      return Duration.ETERNAL;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Duration getExpiryForAccess() {
-      if (failOnAccess) {
-        throw new UnsupportedOperationException("not implemented");
-      }
-      return Duration.ZERO;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Duration getExpiryForUpdate() {
-      if (failOnModify) {
-        throw new UnsupportedOperationException("not implemented");
-      }
-      return Duration.ZERO;
     }
   }
 
