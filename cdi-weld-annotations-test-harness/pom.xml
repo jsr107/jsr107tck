@@ -50,6 +50,7 @@
             <artifactId>javassist</artifactId>
             <version>3.14.0-GA</version>
         </dependency>
+
     </dependencies>
 
     <repositories>
