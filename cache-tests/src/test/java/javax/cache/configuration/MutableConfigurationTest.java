@@ -87,10 +87,11 @@ public class MutableConfigurationTest extends CacheTestSupport {
    */
   @Test
   public void testModifyingConfigurationAfterCreateCacheDoesNotModifyCacheConfiguration() {
-    MutableConfiguration mutableConfiguration = new MutableConfiguration().setStoreByValue(false);
+    MutableConfiguration mutableConfiguration = new MutableConfiguration().setTypes(Integer.class, Integer.class);
     Cache<Object, Object> cache = getCacheManager().createCache(getTestCacheName() + "_", mutableConfiguration);
-    mutableConfiguration.setStoreByValue(true);
-    assertEquals(false, cache.getConfiguration(CompleteConfiguration.class).isStoreByValue());
+    mutableConfiguration.setTypes(String.class, String.class);
+    assertEquals(Integer.class, cache.getConfiguration(CompleteConfiguration.class).getKeyType());
+    assertEquals(Integer.class, cache.getConfiguration(CompleteConfiguration.class).getValueType());
   }
 
   @Test

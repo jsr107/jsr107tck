@@ -1073,18 +1073,24 @@ public class CacheWriterTest extends TestSupport {
 
     }
 
-    //Fails at entry 3, therefore only 1 and 2 get deleted at writer and 3 and 4 should be
-    //still in the cache
+    int numSuccess = 0;
+    int numFailure = 0;
+    for (Integer key : entriesAdded.keySet()) {
+      if (cacheWriter.hasWritten(key)) {
+        assertTrue(cache.containsKey(key));
+        assertEquals(entriesAdded.get(key), cacheWriter.get(key));
+        assertEquals(entriesAdded.get(key), cache.get(key));
+        numFailure++;
+      } else {
+        assertFalse(cache.containsKey(key));
+        numSuccess++;
+      }
+      assertEquals(cache.get(key), cacheWriter.get(key));
+    }
 
-    assertFalse(cache.containsKey(1));
-    assertTrue(cacheWriter.hasDeleted(1));
-    assertFalse(cache.containsKey(2));
-    assertTrue(cacheWriter.hasDeleted(2));
-    assertTrue(cache.containsKey(3));
-    assertFalse(cacheWriter.hasDeleted(3));
-    assertTrue(cache.containsKey(4));
-    assertFalse(cacheWriter.hasDeleted(4));
-    assertEquals(2, cacheWriter.getDeleteCount());
+    assertEquals(numSuccess + numFailure, entriesAdded.size());
+    assertEquals(5, cacheWriter.getWriteCount());
+    assertEquals(numSuccess, cacheWriter.getDeleteCount());
 
   }
 
