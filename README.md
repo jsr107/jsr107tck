@@ -40,4 +40,4 @@ The optional features are JTA and Annotations. To run optional tests:
 
 Finally, to run a single test class:
 
-    mvn $BUILD_VARS -DfailIfNoTests=false -Dtest=CacheTest test
+    mvn $BUILD_VARS -pl :specific-implementation-tester -Dtest=CacheTest test
