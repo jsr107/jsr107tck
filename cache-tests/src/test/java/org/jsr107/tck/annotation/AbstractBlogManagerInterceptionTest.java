@@ -26,9 +26,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 /**
- * todo use a factory to lookup a CDI implementation rather than hardcoding in Weld.  - Rick
- * todo enable these tests to be used to test Eric's Spring implementation and any others that come
- *
  * @author Rick Hightower
  */
 public abstract class AbstractBlogManagerInterceptionTest extends AbstractInterceptionTest {

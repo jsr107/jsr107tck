@@ -59,6 +59,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.jsr107.tck.testutil.TestSupport.MBeanType.CacheStatistics;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -138,9 +139,9 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
     Thread.sleep(50);
     cache.removeAll();
 
-    assertEquals(100L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+    assertEquals(100L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
     //Removals does not count expired entries
-    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
+    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
 
   }
 
@@ -161,9 +162,8 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
 
     cache.removeAll();
 
-    assertEquals(100L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
-    assertEquals(100L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
-
+    assertEquals(100L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    assertEquals(100L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
   }
 
 

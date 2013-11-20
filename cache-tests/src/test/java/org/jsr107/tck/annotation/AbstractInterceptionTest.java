@@ -60,7 +60,7 @@ public class AbstractInterceptionTest {
     @Override
     protected boolean isExcluded(String methodName) {
       //Exclude all tests if annotations are not supported or no beanProvider has been set
-      return beanProvider == null; //TODO: determine how to support this moving forward || !Caching.isAnnotationsSupported();
+      return beanProvider == null;
     }
   };
 

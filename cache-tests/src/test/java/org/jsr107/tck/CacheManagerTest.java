@@ -570,13 +570,4 @@ public class CacheManagerTest extends TestSupport {
       fail();
     }
   }
-
-//    todo GL adapt this test to its new home @Test
-//    public void setStatisticsEnabled() {
-//        Configuration<?, ?> config = getConfiguration();
-//        boolean isStatisticsEnabled = config.isStatisticsEnabled();
-//        config.setStatisticsEnabled(!isStatisticsEnabled);
-//        assertEquals(!isStatisticsEnabled, config.isStatisticsEnabled());
-//    }
-
 }
