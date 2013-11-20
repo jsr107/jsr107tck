@@ -4,8 +4,6 @@
 
 [implementation-tester](https://github.com/jsr107/jsr107tck/tree/master/implementation-tester) uses the TCK to test the [RI](https://github.com/jsr107/RI)
 
-For a test outside the jsr107 depot look [here](https://github.com/yannis666/AcmeCache/)
-
 ##Building the domain and tests
 
 To build all modules but not run any tests:
@@ -27,47 +25,19 @@ The following commands should be run from the implementation-tester directory:
 
 
 
-To run basic tests on the RI:
+To run basic tests on the RI (NOTE setting BUILD_VARS as below is unneccessary as these are the
+default values but illustrates how to set values for an alternate implementation):
 
-    mvn \
-        -Dimplementation-groupId=org.jsr107.ri \
-        -Dimplementation-artifactId=cache-ri \
-        -Dimplementation-version=0.2 \
-        -P test-basic-cache \
-        test
+    BUILD_VARS="-Dimplementation-groupId=org.jsr107.ri \
+     -Dimplementation-artifactId=cache-ri-impl \
+     -Dimplementation-version=0.12-SNAPSHOT"
+
+    mvn $BUILD_VARS -P test-basic-cache test
 
 The optional features are JTA and Annotations. To run optional tests:
 
-    mvn \
-        -Dimplementation-groupId=org.jsr107.ri \
-        -Dimplementation-artifactId=cache-ri \
-        -Dimplementation-version=0.2 \
-        -P test-optional-cache \
-        test
+    mvn $BUILD_VARS -P test-optional-cache test
 
 Finally, to run a single test class:
 
-    mvn \
-        -Dimplementation-groupId=org.jsr107.ri \
-        -Dimplementation-artifactId=cache-ri \
-        -Dimplementation-version=0.2 \
-        -Dtest=CacheManagerFactoryTest \
-        test
-
-An example for something other than the RI, a cache implementation by the fictional Acme company,
-illustrates Acme cache failing to pass the TCK:
-
-    mvn \
-        -Dimplementation-groupId=acme.cache \
-        -Dimplementation-artifactId=acme-cache \
-        -Dimplementation-version=0.1 \
-        test
-
-The single class CacheManagerFactoryTest passes for Acme cache
-
-    mvn \
-        -Dimplementation-groupId=acme.cache \
-        -Dimplementation-artifactId=acme-cache \
-        -Dimplementation-version=0.1 \
-        -Dtest=CacheManagerFactoryTest \
-        test
+    mvn $BUILD_VARS -DfailIfNoTests=false -Dtest=CacheTest test
