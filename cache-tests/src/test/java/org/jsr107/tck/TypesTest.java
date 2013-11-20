@@ -10,9 +10,7 @@ import domain.Identifier;
 import domain.Identifier2;
 import domain.Papillon;
 import domain.RoughCoatedCollie;
-
 import junit.framework.Assert;
-import org.jsr107.tck.testutil.AllTestExcluder;
 import org.jsr107.tck.testutil.CacheTestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.junit.After;
@@ -22,10 +20,7 @@ import org.junit.rules.MethodRule;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
-import javax.cache.Caching;
 import javax.cache.configuration.MutableConfiguration;
-import javax.cache.configuration.OptionalFeature;
-
 import javax.cache.configuration.OptionalFeature;
 
 import static domain.Sex.FEMALE;

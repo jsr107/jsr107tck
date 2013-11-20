@@ -59,6 +59,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.jsr107.tck.testutil.TestSupport.MBeanType.CacheStatistics;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -118,6 +119,53 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
     expiryPolicyServer.close();
     expiryPolicyServer = null;
   }
+
+
+  @Test
+  public void testCacheStatisticsRemoveAll() throws Exception {
+
+    //cannot be zero or will not be added to the cache
+    ExpiryPolicy policy = new CreatedExpiryPolicy(new Duration(TimeUnit.MILLISECONDS, 20));
+    expiryPolicyServer.setExpiryPolicy(policy);
+
+    MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
+    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient)).setStatisticsEnabled(true);
+    Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
+
+    for (int i = 0; i < 100; i++) {
+      cache.put(i, i+100);
+    }
+    //should work with all implementations
+    Thread.sleep(50);
+    cache.removeAll();
+
+    assertEquals(100L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    //Removals does not count expired entries
+    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+
+  }
+
+  @Test
+  public void testCacheStatisticsRemoveAllNoneExpired() throws Exception {
+
+    ExpiryPolicy policy = new CreatedExpiryPolicy(Duration.ETERNAL);
+    expiryPolicyServer.setExpiryPolicy(policy);
+
+    MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
+    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient))
+        .setStatisticsEnabled(true);
+    Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
+
+    for (int i = 0; i < 100; i++) {
+      cache.put(i, i+100);
+    }
+
+    cache.removeAll();
+
+    assertEquals(100L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    assertEquals(100L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+  }
+
 
   /**
    * Assert "The minimum allowed TimeUnit is TimeUnit.MILLISECONDS.

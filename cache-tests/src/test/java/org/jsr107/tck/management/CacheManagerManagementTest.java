@@ -19,8 +19,8 @@
 package org.jsr107.tck.management;
 
 import org.hamcrest.collection.IsEmptyCollection;
-import org.jsr107.tck.testutil.CacheTestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
+import org.jsr107.tck.testutil.TestSupport;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,7 +35,6 @@ import javax.cache.spi.CachingProvider;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import java.lang.management.ManagementFactory;
 import java.net.URI;
 import java.util.Set;
 
@@ -44,7 +43,7 @@ import static org.junit.Assert.assertThat;
 
 
 /**
- * Tests the Cache Statistics using the platform MBeanServer
+ * Tests the Cache  using the platform MBeanServer
  * <p/>
  * To examine a typical cache in JConsole, run the main() method and start JConsole. As we only using OpenMBeans there is
  * no need to add any classpath.
@@ -55,7 +54,7 @@ import static org.junit.Assert.assertThat;
  * Implementations must provide a subclass of javax.management.MBeanServerBuilder
  * with an empty constructor.
  *
- * When running the TCK the specifies the MBeanServerBuilder
+ * When running the TCK the MBeanServerBuilder
  * is specified using the system property <code>javax.management.builder.initial</code>
  *
  * e.g. for the RI it will be -D javax.management.builder.initial=org.jsr107.ri
@@ -65,7 +64,7 @@ import static org.junit.Assert.assertThat;
  *
  * @author Greg Luck
  */
-public class JMXTest {
+public class CacheManagerManagementTest {
 
   private CacheManager cacheManager;
   public static final int EMPTY = 0;
@@ -116,7 +115,7 @@ public class JMXTest {
     cacheManager.destroyCache("ensure_mbeanserver_created_cache");
 
     //lookup the implementation's MBeanServer
-    mBeanServer = CacheTestSupport.resolveMBeanServer();
+    mBeanServer = TestSupport.resolveMBeanServer();
 
 
   }
@@ -212,39 +211,6 @@ public class JMXTest {
 
     cacheManager.enableManagement("cache3", true);
     assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(2));
-  }
-
-
-
-  /**
-   * To view in JConsole, start main then run JConsole and connect then go to the
-   * MBeans tab and expand javax.cache.&lt;CacheManager&gt;
-   */
-  public static void main(String[] args) throws Exception {
-    System.out.println("Starting...");
-    CacheManager cacheManager1 = getCacheManager();
-    CacheManager cacheManager2 = getCacheManager();
-    try {
-
-      MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-      MutableConfiguration configuration = new MutableConfiguration()
-          .setStatisticsEnabled(true)
-          .setManagementEnabled(true);
-
-      cacheManager1.createCache("greg cache1", configuration);
-      cacheManager1.createCache("greg cache2", configuration);
-      cacheManager2.createCache("luck cache1", configuration);
-      cacheManager2.createCache("luck cache2", configuration);
-
-
-      ObjectName search = new ObjectName("javax.cache:*");
-      System.out.println("size=" + mBeanServer.queryNames(search, null).size());
-      Thread.sleep(60 * 10000);
-      System.out.println("Done...");
-    } finally {
-      cacheManager1.close();
-      cacheManager2.close();
-    }
   }
 }
 

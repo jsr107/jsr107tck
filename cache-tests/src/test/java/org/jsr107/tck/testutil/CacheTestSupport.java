@@ -20,7 +20,6 @@ import org.junit.After;
 import org.junit.Before;
 
 import javax.cache.Cache;
-import javax.cache.CacheException;
 import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.event.CacheEntryCreatedListener;
@@ -29,8 +28,6 @@ import javax.cache.event.CacheEntryExpiredListener;
 import javax.cache.event.CacheEntryListenerException;
 import javax.cache.event.CacheEntryRemovedListener;
 import javax.cache.event.CacheEntryUpdatedListener;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -107,22 +104,6 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
     return createLSData(count, System.currentTimeMillis());
   }
 
-  /**
-   * To test your implementation specify system properties per the following RI
-   * examples:
-   * -Djavax.management.builder.initial=org.jsr107.ri.management.RITCKMBeanServerBuilder
-   * -Dorg.jsr107.tck.management.agentId=RIMBeanServer
-   */
-  public static MBeanServer resolveMBeanServer() {
-    String agentId = System.getProperty("org.jsr107.tck.management.agentId");
-    ArrayList<MBeanServer> mBeanServers = MBeanServerFactory.findMBeanServer(agentId);
-    if (mBeanServers.size() < 1) {
-      throw new CacheException("The specification requires registration of " +
-          "MBeans in an implementation specific MBeanServer. A search for an " +
-          "MBeanServer did not find any.");
-    }
-    return mBeanServers.get(0);
-  }
 
   /**
    * Test listener
