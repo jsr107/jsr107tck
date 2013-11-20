@@ -12,19 +12,14 @@ import org.junit.Test;
 import org.junit.rules.MethodRule;
 
 import javax.cache.Cache;
-import javax.cache.CacheException;
 import javax.cache.CacheManager;
 import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -78,45 +73,6 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
       return super.isExcluded(methodName);
     }
   };
-
-  /**
-   * Removes registered CacheStatistics for a Cache
-   *
-   * @throws javax.cache.CacheException - all exceptions are wrapped in CacheException
-   */
-  static Object lookupCacheStatisticsAttribute(Cache cache, String attributeName) throws Exception {
-
-    Set<ObjectName> registeredObjectNames = null;
-    MBeanServer mBeanServer = CacheTestSupport.resolveMBeanServer();
-
-    ObjectName objectName = calculateObjectName(cache);
-    return mBeanServer.getAttribute(objectName, attributeName);
-  }
-
-  /**
-   * Creates an object name using the scheme
-   * "javax.cache:type=Cache&lt;Statistics|Configuration&gt;,CacheManager=&lt;cacheManagerName&gt;,name=&lt;cacheName&gt;"
-   */
-  private static ObjectName calculateObjectName(Cache cache) {
-    try {
-      return new ObjectName("javax.cache:type=CacheStatistics" + ",CacheManager="
-          + mbeanSafe(cache.getCacheManager().getURI().toString()) + ",Cache=" + mbeanSafe(cache.getName()));
-    } catch (MalformedObjectNameException e) {
-      throw new CacheException(e);
-    }
-  }
-
-
-  /**
-   * Filter out invalid ObjectName characters from string.
-   *
-   * @param string input string
-   * @return A valid JMX ObjectName attribute value.
-   */
-  private static String mbeanSafe(String string) {
-    return string == null ? "" : string.replaceAll(":|=|\n|,", ".");
-  }
-
 
   /**
    * Check that zeroes work
@@ -378,6 +334,7 @@ public class CacheStatisticsTest extends CacheTestSupport<Long, String> {
     assertThat((Float) lookupCacheStatisticsAttribute(cache, "AveragePutTime"), greaterThanOrEqualTo(0f));
     assertThat((Float) lookupCacheStatisticsAttribute(cache, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
   }
+
 
   /**
    * The lookup and locking of the key is enough to invoke the hit or miss. No

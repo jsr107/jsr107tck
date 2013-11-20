@@ -31,6 +31,8 @@ import javax.cache.event.CacheEntryRemovedListener;
 import javax.cache.event.CacheEntryUpdatedListener;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -105,6 +107,44 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
 
   protected LinkedHashMap<Long, String> createLSData(int count) {
     return createLSData(count, System.currentTimeMillis());
+  }
+
+  /**
+   * Looks up the given attributeName for the given cache.
+   *
+   * @throws javax.cache.CacheException - all exceptions are wrapped in CacheException
+   */
+  public static Object lookupCacheStatisticsAttribute(Cache cache,
+                                                      String attributeName) throws Exception {
+
+    MBeanServer mBeanServer = CacheTestSupport.resolveMBeanServer();
+
+    ObjectName objectName = calculateObjectName(cache);
+    return mBeanServer.getAttribute(objectName, attributeName);
+  }
+
+  /**
+   * Creates an object name using the scheme
+   * "javax.cache:type=Cache&lt;Statistics|Configuration&gt;,CacheManager=&lt;cacheManagerName&gt;,name=&lt;cacheName&gt;"
+   */
+  public static ObjectName calculateObjectName(Cache cache) {
+    try {
+      return new ObjectName("javax.cache:type=CacheStatistics" + ",CacheManager="
+          + mbeanSafe(cache.getCacheManager().getURI().toString()) + ",Cache=" + mbeanSafe(cache.getName()));
+    } catch (MalformedObjectNameException e) {
+      throw new CacheException(e);
+    }
+  }
+
+
+  /**
+   * Filter out invalid ObjectName characters from string.
+   *
+   * @param string input string
+   * @return A valid JMX ObjectName attribute value.
+   */
+  public static String mbeanSafe(String string) {
+    return string == null ? "" : string.replaceAll(":|=|\n|,", ".");
   }
 
   /**

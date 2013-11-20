@@ -119,6 +119,54 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
     expiryPolicyServer = null;
   }
 
+
+  @Test
+  public void testCacheStatisticsRemoveAll() throws Exception {
+
+    //cannot be zero or will not be added to the cache
+    ExpiryPolicy policy = new CreatedExpiryPolicy(new Duration(TimeUnit.MILLISECONDS, 20));
+    expiryPolicyServer.setExpiryPolicy(policy);
+
+    MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
+    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient)).setStatisticsEnabled(true);
+    Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
+
+    for (int i = 0; i < 100; i++) {
+      cache.put(i, i+100);
+    }
+    //should work with all implementations
+    Thread.sleep(50);
+    cache.removeAll();
+
+    assertEquals(100L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+    //Removals does not count expired entries
+    assertEquals(0L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
+
+  }
+
+  @Test
+  public void testCacheStatisticsRemoveAllNoneExpired() throws Exception {
+
+    ExpiryPolicy policy = new CreatedExpiryPolicy(Duration.ETERNAL);
+    expiryPolicyServer.setExpiryPolicy(policy);
+
+    MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
+    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(expiryPolicyClient))
+        .setStatisticsEnabled(true);
+    Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
+
+    for (int i = 0; i < 100; i++) {
+      cache.put(i, i+100);
+    }
+
+    cache.removeAll();
+
+    assertEquals(100L, lookupCacheStatisticsAttribute(cache, "CachePuts"));
+    assertEquals(100L, lookupCacheStatisticsAttribute(cache, "CacheRemovals"));
+
+  }
+
+
   /**
    * Assert "The minimum allowed TimeUnit is TimeUnit.MILLISECONDS.
    */
