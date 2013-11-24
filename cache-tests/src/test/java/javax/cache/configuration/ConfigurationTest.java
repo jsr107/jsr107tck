@@ -89,14 +89,16 @@ public class ConfigurationTest extends CacheTestSupport {
    * Ensure a cache's config isn't changed by its configuration object after construction.
    */
   @Test
-  public void testModifyihgConfigurationAfterCreateCacheDoesNotModifyCacheConfiguration() {
-    MutableBasicConfiguration mutableConfiguration = new MutableBasicConfiguration().setStoreByValue(false);
+  public void testModifyingConfigurationAfterCreateCacheDoesNotModifyCacheConfiguration() {
+    MutableBasicConfiguration mutableConfiguration = new MutableBasicConfiguration().setTypes(Integer.class, Integer.class);
     Cache<Object, Object> cache = getCacheManager().createCache(getTestCacheName() + "_", mutableConfiguration);
-    mutableConfiguration.setStoreByValue(true);
-    assertEquals(false, cache.getConfiguration(CompleteConfiguration.class).isStoreByValue());
+    mutableConfiguration.setTypes(String.class, String.class);
+    assertEquals(Integer.class, cache.getConfiguration(Configuration.class).getKeyType());
+    assertEquals(Integer.class, cache.getConfiguration(Configuration.class).getValueType());
   }
 
-  @Override
+
+    @Override
   protected MutableConfiguration newMutableConfiguration() {
     return new MutableConfiguration();
   }

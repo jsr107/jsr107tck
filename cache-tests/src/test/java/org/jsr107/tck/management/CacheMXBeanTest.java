@@ -9,7 +9,6 @@ import org.junit.rules.MethodRule;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
-import javax.cache.configuration.CompleteConfiguration;
 import javax.cache.configuration.MutableConfiguration;
 
 import static junit.framework.TestCase.fail;
@@ -87,20 +86,27 @@ public class CacheMXBeanTest extends CacheTestSupport<Long, String> {
 
   @Test
   public void testCustomConfiguration() throws Exception {
-    CompleteConfiguration configuration = new MutableConfiguration()
-        .setReadThrough(true).setWriteThrough(true).setStoreByValue(false)
+    boolean storeByValue = false;
+    MutableConfiguration configuration = new MutableConfiguration()
+        .setReadThrough(true).setWriteThrough(true).setStoreByValue(storeByValue)
         .setTypes(java.math.BigDecimal.class, java.awt.Color.class)
         .setManagementEnabled(true).setStatisticsEnabled(false);
-    Cache cache = getCacheManager().createCache("customCache", configuration);
-
+    Cache cache = null;
+    try
+    {
+      cache = getCacheManager().createCache("customCache", configuration);
+    } catch (UnsupportedOperationException e) {
+      storeByValue = true;
+      configuration.setStoreByValue(storeByValue);
+      cache = getCacheManager().createCache("customCache", configuration);
+    }
     assertEquals("java.math.BigDecimal", lookupManagementAttribute(cache, CacheConfiguration, "KeyType"));
     assertEquals("java.awt.Color", lookupManagementAttribute(cache, CacheConfiguration, "ValueType"));
     assertEquals(true, lookupManagementAttribute(cache, CacheConfiguration, "ReadThrough"));
     assertEquals(true, lookupManagementAttribute(cache, CacheConfiguration, "WriteThrough"));
-    assertEquals(false, lookupManagementAttribute(cache, CacheConfiguration, "StoreByValue"));
+    assertEquals(storeByValue, lookupManagementAttribute(cache, CacheConfiguration, "StoreByValue"));
     assertEquals(false, lookupManagementAttribute(cache, CacheConfiguration, "StatisticsEnabled"));
     assertEquals(true, lookupManagementAttribute(cache, CacheConfiguration, "ManagementEnabled"));
-
     cache.close();
   }
 
