@@ -25,7 +25,9 @@ import javax.cache.configuration.OptionalFeature;
 
 import static domain.Sex.FEMALE;
 import static domain.Sex.MALE;
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -52,7 +54,7 @@ public class TypesTest extends CacheTestSupport<Identifier, String> {
 
   private CacheManager cacheManager = getCacheManager();
 
-  private Beagle pistachio = (Beagle) new Beagle().name(new Identifier("Pistachio")).color("tricolor").sex(MALE).weight(7);
+  private Beagle pistachio = (Beagle) new Beagle().name(new Identifier("Pistachio")).color("tricolor").sex(MALE).weight(7).length(50l).height(30l).neutered(false);
   private RoughCoatedCollie juno = (RoughCoatedCollie) new RoughCoatedCollie().name(new Identifier("Juno")).sex(MALE).weight(7);
   private Dachshund skinny = (Dachshund) new Dachshund().name(new Identifier("Skinny")).sex(MALE).weight(5).neutered(true);
   private Chihuahua tonto = (Chihuahua) new Chihuahua().name(new Identifier("Tonto")).weight(3).sex(MALE).neutered(false);
@@ -67,6 +69,36 @@ public class TypesTest extends CacheTestSupport<Identifier, String> {
   @After
   public void teardown() {
     cacheManager.close();
+  }
+
+  @Test
+  public void sanityCheckTestDomain() {
+    Identifier pistachio2Id = new Identifier("Pistachio");
+    Beagle pistachio2 = (Beagle) new Beagle().name(pistachio2Id).color("tricolor")
+        .sex(MALE).weight(7).length(50l).height(30l).neutered(false);
+    Identifier pistachio3Id = new Identifier("Pistachio 2");
+    Beagle pistachio3 = (Beagle) new Beagle().name(pistachio3Id).color("tricolor")
+        .sex(MALE).weight(7).length(50l).height(30l).neutered(true);
+
+    assertNotEquals(pistachio2Id, pistachio3Id);
+    assertNotEquals(pistachio2Id.hashCode(), pistachio3Id.hashCode());
+
+    Identifier2 id2 = new Identifier2("22");
+    Identifier2 id3 = new Identifier2("23");
+    assertNotEquals(id2, id3);
+    assertNotEquals(id2.hashCode(), id3.hashCode());
+
+    assertEquals(pistachio, pistachio2);
+    assertEquals(pistachio.hashCode(), pistachio2.hashCode());
+    assertNotEquals(pistachio, pistachio3);
+    assertNotEquals(pistachio.hashCode(), pistachio3.hashCode());
+
+    pistachio.bay(10, 30);
+    skinny.bay(20,32);
+    juno.herd();
+
+
+
   }
 
   /**

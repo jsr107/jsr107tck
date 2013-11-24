@@ -47,10 +47,8 @@ public class Identifier implements Serializable {
 
   @Override
   public int hashCode() {
-//        return name != null ? name.hashCode() : 0;
-    return 10;
+    return name.hashCode();
   }
-
 
   @Override
   public String toString() {

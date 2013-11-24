@@ -72,9 +72,6 @@ public class Dog {
     return color;
   }
 
-  public void setColor(String color) {
-    this.color = color;
-  }
 
   public Dog color(String color) {
     this.color = color;
@@ -85,10 +82,6 @@ public class Dog {
     return weightInKg;
   }
 
-  public void setWeight(int weighInKg) {
-    this.weightInKg = weighInKg;
-  }
-
   public Dog weight(int weighInKg) {
     this.weightInKg = weighInKg;
     return getThis();
@@ -96,10 +89,6 @@ public class Dog {
 
   public long getLengthInCm() {
     return lengthInCm;
-  }
-
-  public void setLength(long lengthInCm) {
-    this.lengthInCm = lengthInCm;
   }
 
   public Dog length(long lengthInCm) {
@@ -112,10 +101,6 @@ public class Dog {
     return heightInCm;
   }
 
-  public void setHeight(long heightInCm) {
-    this.heightInCm = heightInCm;
-  }
-
   public Dog height(long heightInCm) {
     this.heightInCm = heightInCm;
     return getThis();
@@ -125,10 +110,6 @@ public class Dog {
     return sex;
   }
 
-  public void setSex(Sex sex) {
-    this.sex = sex;
-  }
-
   public Dog sex(Sex sex) {
     this.sex = sex;
     return getThis();
@@ -136,10 +117,6 @@ public class Dog {
 
   public boolean isNeutered() {
     return neutered;
-  }
-
-  public void setNeutered(boolean neutered) {
-    this.neutered = neutered;
   }
 
   public Dog neutered(boolean neutered) {
@@ -167,13 +144,13 @@ public class Dog {
 
   @Override
   public int hashCode() {
-    int result = name != null ? name.hashCode() : 0;
-    result = 31 * result + (color != null ? color.hashCode() : 0);
-    result = 31 * result + weightInKg;
-    result = 31 * result + (int) (lengthInCm ^ (lengthInCm >>> 32));
-    result = 31 * result + (int) (heightInCm ^ (heightInCm >>> 32));
-    result = 31 * result + (sex != null ? sex.hashCode() : 0);
-    result = 31 * result + (neutered ? 1 : 0);
+    int result = getName() != null ? getName().hashCode() : 0;
+    result = 31 * result + (getColor() != null ? getColor().hashCode() : 0);
+    result = 31 * result + getWeight();
+    result = 31 * result + (int) (getLengthInCm() ^ (getLengthInCm() >>> 32));
+    result = 31 * result + (int) (getHeight() ^ (getHeight() >>> 32));
+    result = 31 * result + (getSex() != null ? getSex().hashCode() : 0);
+    result = 31 * result + (isNeutered() ? 1 : 0);
     return result;
   }
 
