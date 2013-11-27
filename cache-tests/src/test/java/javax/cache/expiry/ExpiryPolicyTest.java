@@ -32,7 +32,8 @@ public class ExpiryPolicyTest {
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(policy)).setStatisticsEnabled(true);
-    Cache<Integer, Integer> cache = Caching.getCachingProvider().getCacheManager().createCache("test", config);
+    Cache<Integer, Integer> cache = Caching.getCachingProvider().getCacheManager
+        ().createCache("test5", config);
 
     assertEquals(20, policy.getExpiryForCreation().getDurationAmount());
     assertNull(policy.getExpiryForAccess());
@@ -52,7 +53,8 @@ public class ExpiryPolicyTest {
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(policy)).setStatisticsEnabled(true);
-    Cache<Integer, Integer> cache = Caching.getCachingProvider().getCacheManager().createCache("test", config);
+    Cache<Integer, Integer> cache = Caching.getCachingProvider().getCacheManager
+        ().createCache("test1", config);
 
     assertEquals(20, policy.getExpiryForCreation().getDurationAmount());
     assertNull(policy.getExpiryForAccess());
@@ -72,7 +74,8 @@ public class ExpiryPolicyTest {
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(policy)).setStatisticsEnabled(true);
-    Cache<Integer, Integer> cache = Caching.getCachingProvider().getCacheManager().createCache("test", config);
+    Cache<Integer, Integer> cache = Caching.getCachingProvider().getCacheManager
+        ().createCache("test2", config);
 
     assertEquals(20, policy.getExpiryForCreation().getDurationAmount());
     assertEquals(20, policy.getExpiryForAccess().getDurationAmount());
@@ -92,7 +95,8 @@ public class ExpiryPolicyTest {
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(policy)).setStatisticsEnabled(true);
-    Cache<Integer, Integer> cache = Caching.getCachingProvider().getCacheManager().createCache("test", config);
+    Cache<Integer, Integer> cache = Caching.getCachingProvider().getCacheManager
+        ().createCache("test3", config);
 
     //any operation adds the duration onto the expiry
     assertEquals(20, policy.getExpiryForCreation().getDurationAmount());
@@ -110,7 +114,8 @@ public class ExpiryPolicyTest {
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(policy)).setStatisticsEnabled(true);
-    Cache<Integer, Integer> cache = Caching.getCachingProvider().getCacheManager().createCache("test", config);
+    Cache<Integer, Integer> cache = Caching.getCachingProvider().getCacheManager
+        ().createCache("test4", config);
 
     assertEquals(ETERNAL, policy.getExpiryForCreation());
     assertNull(policy.getExpiryForAccess());
