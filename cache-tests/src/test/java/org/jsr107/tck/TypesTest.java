@@ -68,6 +68,9 @@ public class TypesTest extends CacheTestSupport<Identifier, String> {
 
   @After
   public void teardown() {
+    for (String cacheName : cacheManager.getCacheNames()) {
+       cacheManager.destroyCache(cacheName);
+    }
     cacheManager.close();
   }
 

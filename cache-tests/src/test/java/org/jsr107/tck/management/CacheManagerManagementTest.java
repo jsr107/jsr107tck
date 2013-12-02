@@ -123,6 +123,9 @@ public class CacheManagerManagementTest {
   @After
   public void tearDown() throws MalformedObjectNameException {
     //assertEquals(0, mBeanServer.queryNames(new ObjectName("java.cache:*"), null).size());
+    for (String cacheName : cacheManager.getCacheNames()) {
+      cacheManager.destroyCache(cacheName);
+    }
     cacheManager.close();
     //All registered object names should be removed during shutdown
     assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), IsEmptyCollection.<ObjectName>empty());
@@ -156,7 +159,8 @@ public class CacheManagerManagementTest {
     cacheManager2.createCache("other cache", configuration);
 
     assertThat(mBeanServer.queryNames(new ObjectName("javax.cache:*"), null), hasSize(4));
-
+    cacheManager.destroyCache("new cache");
+    cacheManager2.destroyCache("other cache");
     cacheManager2.close();
   }
 

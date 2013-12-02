@@ -20,6 +20,7 @@ package org.jsr107.tck;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.jsr107.tck.testutil.TestSupport;
 import org.junit.Before;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -80,6 +81,16 @@ public class CacheManagerTest extends TestSupport {
     } catch (CacheException e) {
       //this will happen if we call close twice in a row.
     }
+  }
+
+
+  @After
+  public void teardown() {
+    CacheManager cacheManager = getCacheManager();
+    for (String cacheName : cacheManager.getCacheNames()) {
+      cacheManager.destroyCache(cacheName);
+    }
+    cacheManager.close();
   }
 
   @Test
