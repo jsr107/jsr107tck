@@ -102,7 +102,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
   @Override
   protected MutableConfiguration<Long, String> extraSetup(MutableConfiguration<Long, String> configuration) {
     listener = new MyCacheEntryListener<Long, String>();
-    listenerConfiguration = new MutableCacheEntryListenerConfiguration<Long, String>(FactoryBuilder.factoryOf(listener), null, false, true);
+    listenerConfiguration = new MutableCacheEntryListenerConfiguration<Long, String>(FactoryBuilder.factoryOf(listener), null, true, true);
     return configuration.addCacheEntryListenerConfiguration(listenerConfiguration);
   }
 
@@ -459,9 +459,6 @@ public void testFilteredListener() throws InterruptedException {
 
 
   }
-
-
-
 
   /**
    * Test listener which throws all sorts of Throwables.

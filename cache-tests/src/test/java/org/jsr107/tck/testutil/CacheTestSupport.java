@@ -142,6 +142,10 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
       for (CacheEntryEvent<? extends K, ? extends V> event : events) {
         assertEquals(CREATED, event.getEventType());
         created.incrementAndGet();
+
+        // added for code coverage.
+        event.getKey();
+        event.getValue();
       }
     }
 
@@ -155,6 +159,10 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
       for (CacheEntryEvent<? extends K, ? extends V> event : events) {
         assertEquals(REMOVED, event.getEventType());
         removed.incrementAndGet();
+        event.getKey();
+        if (event.isOldValueAvailable()) {
+          event.getOldValue();
+        }
       }
     }
 
@@ -163,6 +171,10 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
       for (CacheEntryEvent<? extends K, ? extends V> event : events) {
         assertEquals(UPDATED, event.getEventType());
         updated.incrementAndGet();
+        event.getKey();
+        if (event.isOldValueAvailable()) {
+          event.getOldValue();
+        }
       }
     }
   }
