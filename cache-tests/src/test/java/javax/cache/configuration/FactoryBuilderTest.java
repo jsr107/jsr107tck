@@ -1,69 +1,76 @@
 /**
- *  Copyright 2012 Terracotta, Inc.
- *  Copyright 2012 Oracle, Inc.
+ *  Copyright (c) 2011-2013 Terracotta, Inc.
+ *  Copyright (c) 2011-2013 Oracle and/or its affiliates.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  All rights reserved. Use is subject to license terms.
  */
 
 package javax.cache.configuration;
 
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import javax.cache.expiry.Duration;
 
-/**
- * Functional tests for the {@link FactoryBuilder} class.
- *
- * @author Brian Oliver
- */
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
 public class FactoryBuilderTest {
 
-  /**
-   * Ensure that a {@link FactoryBuilder} can create a regular class.
-   */
   @Test
-  public void shouldCreateRegularClass() {
-
-    Factory<AnOuterClass> factory = FactoryBuilder.factoryOf(AnOuterClass.class);
-
-    AnOuterClass anOuterClass = factory.create();
-
-    assertThat(anOuterClass, is(not(nullValue())));
-    assertThat(anOuterClass, is(instanceOf(AnOuterClass.class)));
+  public void testClassFactoryUsingClassName() {
+    Factory<String> factory = FactoryBuilder.factoryOf(String.class.getCanonicalName());
+    assertNotNull(factory.create());
   }
 
-  /**
-   * Ensure that a {@link FactoryBuilder} can create a static inner class.
-   */
   @Test
-  public void shouldBuildStaticInnerClass() {
-
-    Factory<AnInnerClass> factory = FactoryBuilder.factoryOf(AnInnerClass.class);
-
-    AnInnerClass anInnerClass = factory.create();
-
-    assertThat(anInnerClass, is(not(nullValue())));
-    assertThat(anInnerClass, is(instanceOf(AnInnerClass.class)));
+  public void testClassFactoryFailOnCreation() {
+    Factory<FailOnConstructionClass> factory = FactoryBuilder.factoryOf(FailOnConstructionClass.class.getCanonicalName());
+    assertNotNull(factory);
+    try {
+      factory.create();
+      fail("expected failure creating an instance of FailOnConstructionClass");
+    } catch (RuntimeException e) {
+      // expected exception passed.
+      assertTrue(true);
+    }
   }
 
-  /**
-   * A simple inner class for testing purposes.
-   */
-  public static class AnInnerClass {
+  @Test
+  public void testClassFactoryEqualsHashCode() {
+    Factory<String> factory1 = FactoryBuilder.factoryOf(String.class.getCanonicalName());
+    Factory<String> factory2 = FactoryBuilder.factoryOf(String.class.getCanonicalName());
+    Factory<Integer> factory3 = FactoryBuilder.factoryOf(Integer.class.getCanonicalName());
 
+    assertTrue(factory1.equals(factory1));
+    assertTrue(factory1.equals(factory2));
+    assertFalse(factory1.equals(factory3));
+    assertFalse(factory1.equals(null));
+
+    factory1.hashCode();
   }
+
+  @Test
+  public void testSingletonFactoryEqualsHashCode() {
+    Factory<Duration> factory1 = FactoryBuilder.factoryOf(Duration.ETERNAL);
+    Factory<Duration> factory2 = FactoryBuilder.factoryOf(Duration.ETERNAL);
+    Factory<Duration> factory3 = FactoryBuilder.factoryOf(Duration.FIVE_MINUTES);
+    Factory<String> factory4 = FactoryBuilder.factoryOf("stringFactory");
+
+    assertTrue(factory1.equals(factory1));
+    assertTrue(factory1.equals(factory2));
+    assertFalse(factory1.equals(null));
+    assertFalse(factory1.equals(factory3));
+    assertFalse(factory1.equals(factory4));
+
+    // assert different Singleton instances are not equal.
+    assertFalse(FactoryBuilder.factoryOf(new StringBuffer("hello")).equals(FactoryBuilder.factoryOf(new StringBuffer("hello"))));
+
+    assertFalse(factory1.equals(null));
+
+    factory1.hashCode();
+  }
+
+
 }
