@@ -146,6 +146,7 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
         // added for code coverage.
         event.getKey();
         event.getValue();
+        event.getSource();
       }
     }
 

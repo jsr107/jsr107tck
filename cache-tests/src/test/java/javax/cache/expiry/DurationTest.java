@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static junit.framework.Assert.assertNotNull;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -322,6 +323,12 @@ public class DurationTest {
     }
 
     ois.close();
+  }
+
+  @Test
+  public void testDurationConstructor() {
+    assertNotNull(new Duration(Long.MAX_VALUE, 0L));
+    assertNotNull(new Duration(0L, Long.MAX_VALUE));
   }
 
   /**

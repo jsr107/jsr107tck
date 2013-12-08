@@ -11,7 +11,9 @@ import java.util.concurrent.TimeUnit;
 import static javax.cache.expiry.Duration.ETERNAL;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNull;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the policy classes shipped with the API.
@@ -22,7 +24,7 @@ public class ExpiryPolicyTest {
   @Test
   public void testCreatedExpiryPolicy() {
 
-    CreatedExpiryPolicy policy = new CreatedExpiryPolicy(new Duration(TimeUnit.MILLISECONDS, 20));
+    ExpiryPolicy policy = CreatedExpiryPolicy.factoryOf( new Duration(TimeUnit.MILLISECONDS, 20)).create();
     CreatedExpiryPolicy policy2 = new CreatedExpiryPolicy(new Duration(TimeUnit.MILLISECONDS, 20));
     CreatedExpiryPolicy policy3 = new CreatedExpiryPolicy(new Duration(TimeUnit.MILLISECONDS, 10));
     assertEquals(policy, policy2);
@@ -31,7 +33,7 @@ public class ExpiryPolicyTest {
     assertNotEquals(policy.hashCode(), policy3.hashCode());
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
-    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(policy)).setStatisticsEnabled(true);
+    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(policy2)).setStatisticsEnabled(true);
     Cache<Integer, Integer> cache = Caching.getCachingProvider().getCacheManager
         ().createCache("test5", config);
 
@@ -121,4 +123,76 @@ public class ExpiryPolicyTest {
     assertNull(policy.getExpiryForAccess());
     assertNull(policy.getExpiryForUpdate());
   }
+
+  @Test
+  public void testEqualsForCreatedExpiryPolicy() {
+
+    // added for code coverage
+    ExpiryPolicy policy = CreatedExpiryPolicy.factoryOf( new Duration(TimeUnit.MILLISECONDS, 20)).create();
+    assertTrue(policy.equals(policy));
+
+    assertFalse(policy.equals(null));
+
+    assertFalse(policy.equals("noMatchWrongClass"));
+    ExpiryPolicy nullDurationPolicy = CreatedExpiryPolicy.factoryOf(null).create();
+    nullDurationPolicy.hashCode();
+    assertFalse(nullDurationPolicy.equals(policy));
+
+    ExpiryPolicy nullDurationPolicy1 = CreatedExpiryPolicy.factoryOf(null).create();
+    assertTrue(nullDurationPolicy.equals(nullDurationPolicy1));
+  }
+
+  @Test
+  public void testEqualsForAccessedExpiryPolicy() {
+
+    // added for code coverage
+    ExpiryPolicy policy = AccessedExpiryPolicy.factoryOf( new Duration(TimeUnit.MILLISECONDS, 20)).create();
+    assertTrue(policy.equals(policy));
+
+    assertFalse(policy.equals(null));
+
+    assertFalse(policy.equals("noMatchWrongClass"));
+    ExpiryPolicy nullDurationPolicy = AccessedExpiryPolicy.factoryOf(null).create();
+    nullDurationPolicy.hashCode();
+    assertFalse(nullDurationPolicy.equals(policy));
+
+    ExpiryPolicy nullDurationPolicy1 = AccessedExpiryPolicy.factoryOf(null).create();
+    assertTrue(nullDurationPolicy.equals(nullDurationPolicy1));
+  }
+
+  @Test
+  public void testEqualsForModifiedExpiryPolicy() {
+
+    // added for code coverage
+    ExpiryPolicy policy = ModifiedExpiryPolicy.factoryOf( new Duration(TimeUnit.MILLISECONDS, 20)).create();
+    assertTrue(policy.equals(policy));
+
+    assertFalse(policy.equals(null));
+
+    assertFalse(policy.equals("noMatchWrongClass"));
+    ExpiryPolicy nullDurationPolicy = ModifiedExpiryPolicy.factoryOf(null).create();
+    nullDurationPolicy.hashCode();
+    assertFalse(nullDurationPolicy.equals(policy));
+
+    ExpiryPolicy nullDurationPolicy1 = ModifiedExpiryPolicy.factoryOf(null).create();
+    assertTrue(nullDurationPolicy.equals(nullDurationPolicy1));
+  }
+  @Test
+  public void testEqualsForTouchedExpiryPolicy() {
+
+    // added for code coverage
+    ExpiryPolicy policy = TouchedExpiryPolicy.factoryOf( new Duration(TimeUnit.MILLISECONDS, 20)).create();
+    assertTrue(policy.equals(policy));
+
+    assertFalse(policy.equals(null));
+
+    assertFalse(policy.equals("noMatchWrongClass"));
+    ExpiryPolicy nullDurationPolicy = TouchedExpiryPolicy.factoryOf(null).create();
+    nullDurationPolicy.hashCode();
+    assertFalse(nullDurationPolicy.equals(policy));
+
+    ExpiryPolicy nullDurationPolicy1 = TouchedExpiryPolicy.factoryOf(null).create();
+    assertTrue(nullDurationPolicy.equals(nullDurationPolicy1));
+  }
+
 }
