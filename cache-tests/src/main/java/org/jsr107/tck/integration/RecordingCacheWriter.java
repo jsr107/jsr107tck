@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @param <K> the type of the keys
  * @param <V> the type of the values
  */
-public class RecordingCacheWriter<K, V> implements CacheWriter<K, V> {
+public class RecordingCacheWriter<K, V> implements CacheWriter<K, V>, AutoCloseable {
 
     /**
      * A writtenKeys of keys to values that have been written.
@@ -152,4 +152,9 @@ public class RecordingCacheWriter<K, V> implements CacheWriter<K, V> {
         this.writeCount = new AtomicLong();
         this.deleteCount = new AtomicLong();
     }
+
+  @Override
+  public void close() throws Exception {
+    // added for code coverage.
+  }
 }

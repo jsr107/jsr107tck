@@ -30,6 +30,7 @@ import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.integration.CacheLoader;
 import javax.cache.integration.CacheLoaderException;
+import javax.cache.integration.CompletionListener;
 import javax.cache.integration.CompletionListenerFuture;
 import java.io.IOException;
 import java.util.HashMap;
@@ -870,5 +871,23 @@ public class CacheLoaderTest {
     } catch (ExecutionException e) {
       assertThat(e.getCause(), instanceOf(CacheLoaderException.class));
     }
+  }
+
+  /**
+   * Added for code coverage.
+   */
+  @Test
+  public void testLoadAllWithExecptionAndNoCompletionListener() throws Exception {
+    FailingCacheLoader<String, String> cacheLoader = new FailingCacheLoader<>();
+    cacheLoaderServer.setCacheLoader(cacheLoader);
+
+    HashSet<String> keys = new HashSet<>();
+    keys.add("gudday");
+    keys.add("hello");
+    keys.add("howdy");
+    keys.add("bonjour");
+
+    CompletionListener NULL_COMPLETION_LISTENER = null;
+    cache.loadAll(keys, false, NULL_COMPLETION_LISTENER);
   }
 }

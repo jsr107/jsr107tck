@@ -31,14 +31,17 @@ import javax.cache.Caching;
 import javax.cache.annotation.CacheRemoveAll;
 import javax.cache.configuration.Configuration;
 import javax.cache.configuration.MutableConfiguration;
+import javax.cache.integration.CompletionListener;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -176,6 +179,16 @@ public class CacheTest extends CacheTestSupport<Long, String> {
   }
 
   @Test
+  public void load_noLoaderNoCompletionListener() {
+
+    // Added for code coverage.
+    Set<Long> keys = new HashSet<Long>();
+    keys.add(1L);
+    CompletionListener NULL_COMPLETION_LISTENER = null;
+    cache.loadAll(keys, true, NULL_COMPLETION_LISTENER);
+  }
+
+  @Test
   public void iterator_Closed() {
     cache.close();
     try {
@@ -230,6 +243,9 @@ public class CacheTest extends CacheTestSupport<Long, String> {
   @Test
   public void close() {
     cache.close();
+
+    //code coverage.
+    cache.close();  // ensure that this one is ignored since already closed.
 
     try {
       cache.get(1L);

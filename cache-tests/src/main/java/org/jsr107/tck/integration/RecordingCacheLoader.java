@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @param <K> the type of keys (and values)
  * @author Brian Oliver
  */
-public class RecordingCacheLoader<K> implements CacheLoader<K, K> {
+public class RecordingCacheLoader<K> implements CacheLoader<K, K>, AutoCloseable {
 
   /**
    * The keys that have been loaded by this loader.
@@ -97,5 +97,10 @@ public class RecordingCacheLoader<K> implements CacheLoader<K, K> {
    */
   public boolean hasLoaded(K key) {
     return key == null ? false : loaded.containsKey(key);
+  }
+
+  @Override
+  public void close() throws Exception {
+    // added for code coverage.
   }
 }

@@ -581,6 +581,55 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
 
 
   @Test
+  public void testPutIfAbsent() throws Exception
+  {
+    long hitCount = 0;
+    long missCount = 0;
+    long putCount = 0;
+
+    boolean result = cache.putIfAbsent(1L, "succeeded");
+    putCount++;
+    assertTrue(result);
+    assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+    assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+    assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    assertTrue(cache.containsKey(1L));
+
+    result = cache.putIfAbsent(1L, "succeeded");
+    assertFalse(result);
+    assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+    assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+  }
+
+  @Test
+  public void testGetAndRemove() throws Exception
+  {
+    long hitCount = 0;
+    long missCount = 0;
+    long removeCount = 0;
+
+    String result = cache.getAndRemove(1L);
+    missCount++;
+    assertEquals(null, result);
+    assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+    assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+    assertEquals(removeCount, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+    assertFalse(cache.containsKey(1L));
+
+    cache.put(1L, "added");
+    result = cache.getAndRemove(1L);
+    hitCount++;
+    removeCount++;
+    assertEquals("added", result);
+    assertEquals(removeCount, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+    assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+    assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+    assertFalse(cache.containsKey(1L));
+  }
+
+
+  @Test
   public void testExpiryOnCreation() throws Exception {
 
       // close cache since need to configure cache with ExpireOnCreationPolicy

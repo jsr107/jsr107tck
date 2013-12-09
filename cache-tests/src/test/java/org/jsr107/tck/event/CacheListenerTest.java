@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -421,6 +422,14 @@ public void testFilteredListener() throws InterruptedException {
 
     assertEquals(2, cache.getConfiguration(CompleteConfiguration.class).getCacheEntryListenerConfigurations().size());
 
+    List<CacheEntryListenerConfiguration> configs =
+         cache.getConfiguration(CompleteConfiguration.class).getCacheEntryListenerConfigurations();
+    for (CacheEntryListenerConfiguration config : configs) {
+      config.hashCode();
+      config.isOldValueRequired();
+      config.isSynchronous();
+    }
+
     //Can only register the same configuration once
     try {
       cache.registerCacheEntryListener(listenerConfiguration);
@@ -428,8 +437,11 @@ public void testFilteredListener() throws InterruptedException {
     } catch (IllegalArgumentException e) {
       //expected
     }
+  }
 
-
+  @Test(expected = NullPointerException.class)
+  public void testDeregistration_nullParameter() {
+    cache.deregisterCacheEntryListener(null);
   }
 
   @Test
@@ -444,7 +456,6 @@ public void testFilteredListener() throws InterruptedException {
     cache.registerCacheEntryListener(secondListenerConfiguration);
 
     assertEquals(2, cache.getConfiguration(CompleteConfiguration.class).getCacheEntryListenerConfigurations().size());
-
     cache.deregisterCacheEntryListener(secondListenerConfiguration);
 
     assertEquals(1, cache.getConfiguration(CompleteConfiguration.class).getCacheEntryListenerConfigurations().size());
@@ -456,8 +467,6 @@ public void testFilteredListener() throws InterruptedException {
     //Deregister the listener registered at configuration time
     cache.deregisterCacheEntryListener(listenerConfiguration);
     assertEquals(0, cache.getConfiguration(CompleteConfiguration.class).getCacheEntryListenerConfigurations().size());
-
-
   }
 
   /**

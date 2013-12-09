@@ -27,6 +27,9 @@ import javax.cache.configuration.MutableConfiguration;
 import javax.cache.processor.EntryProcessor;
 import javax.cache.processor.EntryProcessorException;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -157,6 +160,18 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
           e.getCause() instanceof IllegalAccessError);
     }
     assertFalse(cache.containsKey(key));
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void invokeAll_keys_null() {
+    cache.invoke(null, null);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void invokeAll_nullProcessor() {
+    Set<Integer> keys = new HashSet<Integer>();
+    keys.add(123);
+    cache.invokeAll(keys, null);
   }
 
   @Test

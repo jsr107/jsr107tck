@@ -113,7 +113,8 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
    */
   public static class MyCacheEntryListener<K, V> implements CacheEntryCreatedListener<K, V>,
       CacheEntryUpdatedListener<K, V>, CacheEntryExpiredListener<K, V>,
-      CacheEntryRemovedListener<K, V>, Serializable {
+      CacheEntryRemovedListener<K, V>, Serializable,
+  AutoCloseable {
 
     AtomicInteger created = new AtomicInteger();
     AtomicInteger updated = new AtomicInteger();
@@ -177,6 +178,11 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
           event.getOldValue();
         }
       }
+    }
+
+    @Override
+    public void close() throws Exception {
+      // added for code coverage
     }
   }
 
