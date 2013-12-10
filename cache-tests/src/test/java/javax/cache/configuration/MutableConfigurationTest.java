@@ -30,7 +30,6 @@ import javax.cache.expiry.Duration;
 import javax.cache.expiry.EternalExpiryPolicy;
 import javax.cache.expiry.ExpiryPolicy;
 import javax.cache.expiry.TouchedExpiryPolicy;
-import javax.cache.integration.CacheLoader;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -254,10 +253,12 @@ public class MutableConfigurationTest extends CacheTestSupport {
 
     differentConfig1 = new MutableConfiguration<>(config1);
     differentConfig1.setReadThrough(! config1.isReadThrough());
+    differentConfig1.hashCode();
     assertFalse(config1.equals(differentConfig1));
 
     differentConfig1 = new MutableConfiguration<>(config1);
     differentConfig1.setWriteThrough(!config1.isWriteThrough());
+    differentConfig1.hashCode();
     assertFalse(config1.equals(differentConfig1));
 
     differentConfig1 = new MutableConfiguration<>(config1);
@@ -270,6 +271,7 @@ public class MutableConfigurationTest extends CacheTestSupport {
     assertFalse(rawConfig1.equals(rawConfig2));
     assertFalse(rawConfig2.equals(rawConfig1));
     rawConfig1.setCacheLoaderFactory(rawConfig2.getCacheLoaderFactory());
+    rawConfig1.hashCode();
     assertEquals(rawConfig1, rawConfig2);
 
     rawConfig2.setCacheLoaderFactory(FactoryBuilder.factoryOf(FailingCacheLoader.class));

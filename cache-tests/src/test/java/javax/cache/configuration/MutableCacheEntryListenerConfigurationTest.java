@@ -83,6 +83,33 @@ public class MutableCacheEntryListenerConfigurationTest {
     config1.hashCode();
   }
 
+  //@Test
+  public void testMultipleCacheEntryListenerFactories_differentOrder_shouldbe_equal() {
+    Factory<? extends CacheEntryListener<String, String>> listenerFactory1 =
+      FactoryBuilder.factoryOf(ACacheEntryListener.class);
+    Factory<? extends CacheEntryListener<String, String>> listenerFactory2 =
+      FactoryBuilder.factoryOf(AnotherCacheEntryListener.class);
+
+    MutableCacheEntryListenerConfiguration<String, String> listenerConfig1 =
+      new MutableCacheEntryListenerConfiguration<String, String>(listenerFactory1, null, false, false);
+    MutableCacheEntryListenerConfiguration<String, String> listenerConfig2 =
+      new MutableCacheEntryListenerConfiguration<>(listenerFactory2, null, false, false);
+
+    MutableConfiguration<String, String> config1 = new MutableConfiguration<>();
+    MutableConfiguration<String, String> config2 = new MutableConfiguration<>();
+    config1.addCacheEntryListenerConfiguration(listenerConfig1);
+    config2.addCacheEntryListenerConfiguration(listenerConfig2);
+    assertFalse(config1.equals(config2));
+
+    // same listeners just added in different order.
+    // if listeners kept in set, they would compare correctly.
+    // currently, listeners are kept in ArrayList and listeners must be in same order to be equal.
+    config1.addCacheEntryListenerConfiguration(listenerConfig2);
+    config2.addCacheEntryListenerConfiguration(listenerConfig1);
+    System.out.println("config1.hashCode=" + config1.hashCode() + " config2.hashcode()=" + config2.hashCode() + "equals()=" + config1.equals(config2));
+    assertTrue(config1.equals(config2));
+  }
+
   public static class ACacheEntryListener implements CacheEntryListener<String, String> {
 
   }

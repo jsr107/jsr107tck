@@ -184,6 +184,29 @@ public class CacheManagerTest extends TestSupport {
     assertNotSame(cacheManager, otherCacheManager);
   }
 
+  @Test
+  public void testReuseCacheManagerGetCache() throws Exception {
+    CachingProvider provider = Caching.getCachingProvider();
+    URI uri = provider.getDefaultURI();
+
+    CacheManager cacheManager = provider.getCacheManager(uri, provider.getDefaultClassLoader());
+    assertFalse(cacheManager.isClosed());
+    cacheManager.close();
+    assertTrue(cacheManager.isClosed());
+
+    try {
+      cacheManager.getCache("nonExistent", null, null);
+      fail();
+    } catch (IllegalStateException e) {
+      //expected
+    }
+
+    CacheManager otherCacheManager = provider.getCacheManager(uri, provider.getDefaultClassLoader());
+    assertFalse(otherCacheManager.isClosed());
+
+    assertNotSame(cacheManager, otherCacheManager);
+  }
+
 
   @Test
   public void getOrCreateCache_NameOK() {
@@ -393,6 +416,45 @@ public class CacheManagerTest extends TestSupport {
     }
   }
 
+  @Test(expected = IllegalStateException.class)
+  public void enableStatistics_managerStopped() {
+    CacheManager cacheManager = getCacheManager();
+    cacheManager.close();
+    cacheManager.enableStatistics("notThere", true);
+    fail();
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void enableManagement_managerStopped() {
+    CacheManager cacheManager = getCacheManager();
+    cacheManager.close();
+    cacheManager.enableManagement("notThere", true);
+    fail();
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void enableStatistics_nullCacheName() {
+    CacheManager cacheManager = getCacheManager();
+    final String NULL_CACHE_NAME = null;
+    cacheManager.enableStatistics(NULL_CACHE_NAME, true);
+    fail();
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void enableManagement_nullCacheName() {
+    CacheManager cacheManager = getCacheManager();
+    final String NULL_CACHE_NAME = null;
+    cacheManager.enableManagement(NULL_CACHE_NAME, true);
+    fail();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void unwrapThrowsInvalidArgument() {
+    final Class ALWAYS_INVALID_UNWRAP_CLASS = Exception.class;
+    getCacheManager().unwrap(Exception.class);
+    fail();
+  }
+
   @Test
   public void getCache_There_Stopped() {
     String name = this.toString();
@@ -522,6 +584,17 @@ public class CacheManagerTest extends TestSupport {
     cacheManager.createCache("typed-cache", config);
 
     Cache<Long, String> cache = cacheManager.getCache("typed-cache", Long.class, String.class);
+  }
+
+  @Test(expected = ClassCastException.class)
+  public void getIncorrectCacheValueType() {
+    CacheManager cacheManager = getCacheManager();
+
+    MutableConfiguration<String, Long> config = new MutableConfiguration<String, Long>().setTypes(String.class, Long.class);
+
+    cacheManager.createCache("typed-cache", config);
+
+    Cache<String, String> cache = cacheManager.getCache("typed-cache", String.class, String.class);
   }
 
   @Test(expected = IllegalArgumentException.class)

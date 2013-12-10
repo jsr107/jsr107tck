@@ -26,10 +26,13 @@ import javax.cache.CacheException;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.processor.EntryProcessor;
 import javax.cache.processor.EntryProcessorException;
+import javax.cache.processor.EntryProcessorResult;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -79,6 +82,58 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
     } catch (NullPointerException e) {
       //
     }
+  }
+
+  @Test
+  public void nullGetValue() {
+    String result = cache.invoke(123, new GetEntryProcessor<Integer, String>());
+    assertNull(result);
+  }
+
+  @Test( expected = EntryProcessorException.class)
+  public void setValueToNull() {
+    cache.invoke(123, new SetEntryProcessor<Integer, String>(null));
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void invokeAllNullKeys() {
+    cache.invokeAll(null, new NoOpEntryProcessor<Integer, String>());
+  }
+
+  @Test(expected = EntryProcessorException.class)
+  public void invokeAllEntryProcessorException() {
+    Set<Integer> keys = new HashSet<Integer>();
+    keys.add(123);
+    Map<Integer, EntryProcessorResult<Object>> resultMap =
+      cache.invokeAll(keys, new ThrowExceptionEntryProcessor<Integer, String, Object>(IllegalStateException.class));
+    resultMap.get(123).get();
+  }
+
+  /**
+   * Added for RI code coverage.
+   */
+  @Test
+  public void invokeAllEntryProcessorReturnsNullResult() {
+    Set<Integer> keys = new HashSet<Integer>();
+    keys.add(123);
+    Map<Integer, EntryProcessorResult<Object>> resultMap =
+      cache.invokeAll(keys,
+        new SetValueCreateEntryReturnDifferentTypeEntryProcessor<Integer, String, Object>(null, "newValue"));
+    assertTrue(resultMap != null && resultMap.size() == 0);
+  }
+
+  /**
+   * Added for RI code coverage.
+   */
+  @Test
+  public void invokeAllgetResultFromMap() {
+    Set<Integer> keys = new HashSet<Integer>();
+    keys.add(123);
+    Map<Integer, EntryProcessorResult<String>> resultMap =
+      cache.invokeAll(keys,
+        new SetEntryProcessor<Integer, String>("aValue"));
+    assertTrue(resultMap != null && resultMap.size() == 1);
+    assertEquals("aValue", resultMap.get(123).get());
   }
 
   @Test

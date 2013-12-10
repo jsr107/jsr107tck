@@ -191,6 +191,7 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
     config.setExpiryPolicyFactory(expiryPolicyFactory);
     config = extraSetup(config);
+    config.setStatisticsEnabled(true);
 
     Cache<Integer, Integer> cache = getCacheManager().createCache(getTestCacheName(), config);
 
@@ -233,6 +234,9 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
     assertEquals(0, listener.getCreated());
 
     assertFalse(cache.iterator().hasNext());
+
+    cache.getAndPut(1, 1);
+    assertEquals(0, listener.getCreated());
   }
 
   @Test

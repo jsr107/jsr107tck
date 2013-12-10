@@ -28,11 +28,13 @@ import javax.cache.configuration.MutableConfiguration;
 import javax.cache.configuration.OptionalFeature;
 import javax.cache.spi.CachingProvider;
 import java.net.URI;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
 /**
@@ -71,6 +73,7 @@ public class CachingTest {
     CachingProvider provider = Caching.getCachingProvider();
 
     CacheManager manager = provider.getCacheManager();
+    manager.getProperties();
     assertNotNull(manager);
     assertSame(manager, provider.getCacheManager());
   }
@@ -84,6 +87,18 @@ public class CachingTest {
 
     CacheManager manager = provider.getCacheManager();
     assertEquals(provider.getDefaultURI(), manager.getURI());
+  }
+
+  @Test
+  public void getCacheManager_nonNullProperties() {
+    CachingProvider provider = Caching.getCachingProvider();
+    Properties properties = new Properties();
+
+    assertSame(provider.getCacheManager(),
+      provider.getCacheManager(provider.getDefaultURI(), provider.getDefaultClassLoader(), new Properties()));
+
+    CacheManager manager = provider.getCacheManager();
+    assertEquals(properties, manager.getProperties());
   }
 
   /**
@@ -104,6 +119,28 @@ public class CachingTest {
   }
 
   @Test
+  public void getCacheManager_nullUriParameter() {
+    CachingProvider provider = Caching.getCachingProvider();
+    final URI NULL_URI = null;
+    CacheManager manager = provider.getCacheManager(NULL_URI, provider.getDefaultClassLoader(), null);
+    assertNotNull(manager);
+    assertEquals(provider.getDefaultURI(), manager.getURI());
+  }
+
+  @Test
+  public void getCacheManager_nullClassLoader() {
+    CachingProvider provider = Caching.getCachingProvider();
+    final ClassLoader NULL_CLASSLOADER = null;
+
+    // null classloader is treated as provider.getDefaultClassLoader().
+    CacheManager manager = provider.getCacheManager(provider.getDefaultURI(), NULL_CLASSLOADER, null);
+    assertNotNull(manager);
+    CacheManager sameManager = provider.getCacheManager(provider.getDefaultURI(), provider.getDefaultClassLoader(), null);
+    assertEquals(sameManager, manager);
+    assertEquals(sameManager.getClassLoader(), manager.getClassLoader());
+  }
+
+  @Test
   public void isSupported() {
     CachingProvider provider = Caching.getCachingProvider();
 
@@ -121,6 +158,26 @@ public class CachingTest {
     Caching.getCachingProvider().getCacheManager().createCache(name, new MutableConfiguration().setTypes(Long.class, String.class));
     Cache cache = Caching.getCache(name, Long.class, String.class);
     assertEquals(name, cache.getName());
+    Caching.getCachingProvider().getCacheManager().destroyCache(name);
+  }
+
+  @Test
+  public void cachingProviderGetNonExistentCache() {
+    String name = "nonExistentCache";
+    Cache cache = Caching.getCache(name, Long.class, String.class);
+    assertNull(null, cache);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void getCacheNullValueClass() {
+    String name = "c1";
+    CacheManager manager = Caching.getCachingProvider().getCacheManager();
+    manager.createCache(name, new MutableConfiguration().setTypes(Long.class, String.class));
+    try {
+      Caching.getCache(name, Long.class, null);
+    } finally {
+      manager.destroyCache(name);
+    }
   }
 
   /**

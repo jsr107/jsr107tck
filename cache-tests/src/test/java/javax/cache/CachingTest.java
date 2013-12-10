@@ -69,7 +69,8 @@ public class CachingTest {
     Caching.setDefaultClassLoader(uniqueClassLoader);
     try {
       CachingProvider defaultProvider = Caching.getCachingProvider();
-      CachingProvider alternativeProvider = Caching.getCachingProvider("javax.cache.CachingTest$AlternativeCachingProviderImpl");
+      CachingProvider alternativeProvider =
+        Caching.getCachingProvider("javax.cache.CachingTest$AlternativeCachingProviderImpl", null);
       assertNotEquals(defaultProvider, alternativeProvider);
       assertEquals(AlternativeCachingProviderImpl.class, alternativeProvider.getClass());
     } finally {
