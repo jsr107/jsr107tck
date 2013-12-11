@@ -19,8 +19,8 @@
 
 package org.jsr107.tck.processor;
 
-import javax.cache.CacheException;
 import javax.cache.processor.EntryProcessor;
+import javax.cache.processor.EntryProcessorException;
 import javax.cache.processor.MutableEntry;
 import java.io.Serializable;
 
@@ -45,7 +45,13 @@ public class ThrowExceptionEntryProcessor<K, V, T> implements EntryProcessor<K,
         try {
             throw clazz.newInstance();
         } catch (Throwable t) {
-            throw new CacheException(t);
+          if (t instanceof RuntimeException) {
+            throw (RuntimeException)t;
+          } else {
+
+            // only wrapper checked exceptions.
+            throw new EntryProcessorException(t);
+          }
         }
     }
 }
