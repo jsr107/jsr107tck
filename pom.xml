@@ -134,6 +134,8 @@
                 <configuration>
                     <cloverDatabase>${java.io.tmpdir}/clover/clover.db</cloverDatabase>
                     <singleCloverDatabase>true</singleCloverDatabase>
+                    <instrumentation>method</instrumentation>
+                    <includesTestSourceRoots>false</includesTestSourceRoots>
                 </configuration>
             </plugin>
 
