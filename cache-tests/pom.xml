@@ -17,7 +17,7 @@
     <name>Cache Tests</name>
     <url>https://github.com/jsr107/jsr107tck</url>
     <description>Tests, which form part of the Technology Compatibility Kit for
-        JSR107. You should be able to test an inplementation by:
+        JSR107. You should be able to test an implementation by:
         1. Adding the dependency
         2. Configuring the JUnit test fixtures
     </description>

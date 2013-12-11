@@ -21,25 +21,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <domain-lib-dir>${project.build.directory}/domainlib</domain-lib-dir>
-        <domain-jar>domain.jar</domain-jar>
-
-        <!--Change the following properties on the command line to override with the coordinates for your implementation-->
-        <!--e.g. mvn clean test -Dimplementation-groupId=org.jsr107.ri
-                                -Dimplementation-artifactId=cache-ri
-                                -Dimplementation-version=0.2-->
-        <implementation-groupId>org.jsr107.ri</implementation-groupId>
-        <implementation-artifactId>cache-ri-impl</implementation-artifactId>
-        <implementation-version>${project.parent.version}</implementation-version>
-
         <annotation-harness-groupId>javax.cache</annotation-harness-groupId>
         <annotation-harness-artifactId>spring-annotations-test-harness</annotation-harness-artifactId>
         <annotation-harness-version>${project.parent.version}</annotation-harness-version>
 
-        <!-- Used by the unwrap tests, leave blank and the tests will be ignored -->
-        <CacheManagerImpl>org.jsr107.ri.RICacheManager</CacheManagerImpl>
-        <CacheImpl>org.jsr107.ri.RICache</CacheImpl>
-        <CacheInvocationContextImpl> javax.cache.annotation.impl.cdi.CdiCacheKeyInvocationContextImpl</CacheInvocationContextImpl>
     </properties>
 
     <dependencies>
