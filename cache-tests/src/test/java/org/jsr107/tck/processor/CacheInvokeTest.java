@@ -150,7 +150,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
   @Test
   public void testProcessorExceptionIsWrapped() {
     try {
-      cache.invoke(123, new FailingEntryProcessor<Integer, String, Void>(UnsupportedOperationException.class));
+      cache.invoke(123, new ThrowExceptionEntryProcessor<Integer, String, Void>(UnsupportedOperationException.class));
       fail();
     } catch (EntryProcessorException e) {
       assertTrue(e.getCause() instanceof RuntimeException);
@@ -161,7 +161,7 @@ public class CacheInvokeTest extends CacheTestSupport<Integer, String> {
   @Test
   public void testProcessorEmptyExceptionIsWrapped() {
     try {
-      cache.invoke(123, new FailingEntryProcessor<Integer, String, Void>(UnsupportedOperationException.class));
+      cache.invoke(123, new ThrowExceptionEntryProcessor<Integer, String, Void>(UnsupportedOperationException.class));
       fail();
     } catch (EntryProcessorException e) {
       assertTrue(e.getCause() instanceof RuntimeException);
