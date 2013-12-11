@@ -93,11 +93,8 @@
             </plugin>
 
 
-
         </plugins>
     </build>
-
-
 
 
     <repositories>
@@ -142,12 +139,9 @@
 
             <dependencies>
                 <dependency>
-                    <groupId>org.jsr107.ri</groupId>
-                    <artifactId>cache-ri-impl</artifactId>
-                    <version>${project.parent.version}</version>
-                    <!--<groupId>oracle</groupId>-->
-                    <!--<artifactId>coherence.jsr107</artifactId>-->
-                    <!--<version>0.1-SNAPSHOT</version>-->
+                    <groupId>${implementation-groupId}</groupId>
+                    <artifactId>${implementation-artifactId}</artifactId>
+                    <version>${implementation-version}</version>
                 </dependency>
                 <dependency>
                     <groupId>javax.cache</groupId>
