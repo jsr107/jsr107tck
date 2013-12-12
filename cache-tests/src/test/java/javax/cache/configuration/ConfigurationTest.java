@@ -24,7 +24,6 @@ import javax.cache.Cache;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.EternalExpiryPolicy;
 import javax.cache.expiry.ExpiryPolicy;
-import java.util.List;
 
 import static junit.framework.Assert.assertNull;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -58,9 +57,7 @@ public class ConfigurationTest extends CacheTestSupport {
     assertTrue(config.isStoreByValue());
     assertFalse(config.isStatisticsEnabled());
     assertFalse(config.isManagementEnabled());
-    List<? extends CacheEntryListenerConfiguration<?, ?>> cacheEntryListenerConfigurations = config.getCacheEntryListenerConfigurations();
-    assertTrue(cacheEntryListenerConfigurations == null ||
-        cacheEntryListenerConfigurations.size() == 0);
+    assertTrue(getConfigurationCacheEntryListenerConfigurationSize(config) == 0);
     assertNull(config.getCacheLoaderFactory());
     assertNull(config.getCacheWriterFactory());
 
@@ -213,5 +210,12 @@ public class ConfigurationTest extends CacheTestSupport {
 
   }
 
+  private int getConfigurationCacheEntryListenerConfigurationSize(CompleteConfiguration config) {
+    int i = 0;
+    for (Object listenerConfig : config.getCacheEntryListenerConfigurations()) {
+      i++;
+    }
+    return i;
+  }
 
 }

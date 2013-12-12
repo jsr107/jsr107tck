@@ -48,7 +48,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -412,7 +411,7 @@ public void testFilteredListener() throws InterruptedException {
   @Test
   public void  testDynamicRegistration() {
 
-    assertEquals(1, cache.getConfiguration(CompleteConfiguration.class).getCacheEntryListenerConfigurations().size());
+    assertEquals(1, getConfigurationCacheEntryListenerConfigurationSize(cache));
 
     MyCacheEntryListener secondListener = new MyCacheEntryListener<Long, String>();
     MutableCacheEntryListenerConfiguration<Long,
@@ -420,11 +419,10 @@ public void testFilteredListener() throws InterruptedException {
         MutableCacheEntryListenerConfiguration(FactoryBuilder.factoryOf(secondListener), null, false, true);
     cache.registerCacheEntryListener(listenerConfiguration);
 
-    assertEquals(2, cache.getConfiguration(CompleteConfiguration.class).getCacheEntryListenerConfigurations().size());
+    assertEquals(2,getConfigurationCacheEntryListenerConfigurationSize(cache));
 
-    List<CacheEntryListenerConfiguration> configs =
-         cache.getConfiguration(CompleteConfiguration.class).getCacheEntryListenerConfigurations();
-    for (CacheEntryListenerConfiguration config : configs) {
+    CompleteConfiguration<Long, String> cacheConfig = (CompleteConfiguration)cache.getConfiguration(CompleteConfiguration.class);
+    for (CacheEntryListenerConfiguration<Long, String> config : cacheConfig.getCacheEntryListenerConfigurations()) {
       config.hashCode();
       config.isOldValueRequired();
       config.isSynchronous();
@@ -444,10 +442,19 @@ public void testFilteredListener() throws InterruptedException {
     cache.deregisterCacheEntryListener(null);
   }
 
+  private int getConfigurationCacheEntryListenerConfigurationSize(Cache cache) {
+    int i = 0;
+    CompleteConfiguration<Long, String> cacheConfig = (CompleteConfiguration)cache.getConfiguration(CompleteConfiguration.class);
+    for (CacheEntryListenerConfiguration<Long, String> listenerConfig : cacheConfig.getCacheEntryListenerConfigurations()) {
+      i++;
+    }
+    return i;
+  }
+
   @Test
   public void  testDeregistration() {
 
-    assertEquals(1, cache.getConfiguration(CompleteConfiguration.class).getCacheEntryListenerConfigurations().size());
+    assertEquals(1, getConfigurationCacheEntryListenerConfigurationSize(cache));
 
     MyCacheEntryListener secondListener = new MyCacheEntryListener<Long, String>();
     MutableCacheEntryListenerConfiguration<Long,
@@ -455,18 +462,18 @@ public void testFilteredListener() throws InterruptedException {
         MutableCacheEntryListenerConfiguration(FactoryBuilder.factoryOf(secondListener), null, false, true);
     cache.registerCacheEntryListener(secondListenerConfiguration);
 
-    assertEquals(2, cache.getConfiguration(CompleteConfiguration.class).getCacheEntryListenerConfigurations().size());
+    assertEquals(2, getConfigurationCacheEntryListenerConfigurationSize(cache));
     cache.deregisterCacheEntryListener(secondListenerConfiguration);
 
-    assertEquals(1, cache.getConfiguration(CompleteConfiguration.class).getCacheEntryListenerConfigurations().size());
+    assertEquals(1, getConfigurationCacheEntryListenerConfigurationSize(cache));
 
     //no effect if called after it has been removed
     cache.deregisterCacheEntryListener(secondListenerConfiguration);
-    assertEquals(1, cache.getConfiguration(CompleteConfiguration.class).getCacheEntryListenerConfigurations().size());
+    assertEquals(1, getConfigurationCacheEntryListenerConfigurationSize(cache));
 
     //Deregister the listener registered at configuration time
     cache.deregisterCacheEntryListener(listenerConfiguration);
-    assertEquals(0, cache.getConfiguration(CompleteConfiguration.class).getCacheEntryListenerConfigurations().size());
+    assertEquals(0, getConfigurationCacheEntryListenerConfigurationSize(cache));
   }
 
   /**
