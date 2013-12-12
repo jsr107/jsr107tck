@@ -32,10 +32,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <!-- Used by the unwrap tests, leave blank and the tests will be ignored -->
-        <CacheManagerImpl>org.jsr107.ri.RICacheManager</CacheManagerImpl>
-        <CacheImpl>org.jsr107.ri.RICache</CacheImpl>
-
         <CacheInvocationContextImpl> javax.cache.annotation.impl.cdi.CdiCacheKeyInvocationContextImpl</CacheInvocationContextImpl>
 
         <domain-lib-dir>${project.build.directory}/domainlib</domain-lib-dir>
@@ -48,13 +44,15 @@
         <implementation-artifactId>cache-ri-impl</implementation-artifactId>
         <implementation-version>${project.parent.version}</implementation-version>
 
-        <!--Change the following properties to resolve your MBeanServerBuilder-->
-        <javax.management.builder.initial>=org.jsr107.ri.management.RITCKMBeanServerBuilder</javax.management.builder.initial>
+        <!-- Change the following properties to your CacheManager and Cache implementation. Used by the unwrap tests. -->
+        <CacheManagerImpl>org.jsr107.ri.RICacheManager</CacheManagerImpl>
+        <CacheImpl>org.jsr107.ri.RICache</CacheImpl>
+
+        <!--Change the following to point to your MBeanServer, so that the TCK can resolve it. -->
+        <javax.management.builder.initial>org.jsr107.ri.management.RITCKMBeanServerBuilder</javax.management.builder.initial>
         <org.jsr107.tck.management.agentId>RIMBeanServer</org.jsr107.tck.management.agentId>
 
         <!--################################################################################################################-->
-
-
     </properties>
 
 

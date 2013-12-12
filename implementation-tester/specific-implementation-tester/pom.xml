@@ -119,6 +119,8 @@
                 <configuration>
                     <systemPropertyVariables>
                         <domainJar>${domain-lib-dir}/${domain-jar}</domainJar>
+                        <javax.management.builder.initial>${javax.management.builder.initial}</javax.management.builder.initial>
+                        <org.jsr107.tck.management.agentId>${org.jsr107.tck.management.agentId}</org.jsr107.tck.management.agentId>
                     </systemPropertyVariables>
                     <excludes>
                         <exclude>**/annotation/*Test.java</exclude>

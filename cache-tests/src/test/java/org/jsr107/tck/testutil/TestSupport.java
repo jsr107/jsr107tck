@@ -96,6 +96,17 @@ public class TestSupport {
    * -Dorg.jsr107.tck.management.agentId=RIMBeanServer
    */
   public static MBeanServer resolveMBeanServer() {
+
+    if (System.getProperty("javax.management.builder.initial") == null) {
+      throw new RuntimeException("You must set the 'javax.management.builder" +
+          ".initial' property so that the TCK can find your MBeanServer'");
+    }
+    if (System.getProperty("org.jsr107.tck.management.agentId") == null) {
+      throw new RuntimeException("You must set the 'org.jsr107.tck.management.agentId'" +
+          "system property so that the TCK can find your MBeanServer agent by " +
+          "its ID.'");
+    }
+
     String agentId = System.getProperty("org.jsr107.tck.management.agentId");
     ArrayList<MBeanServer> mBeanServers = MBeanServerFactory.findMBeanServer(agentId);
     if (mBeanServers.size() < 1) {
