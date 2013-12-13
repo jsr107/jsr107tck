@@ -255,14 +255,29 @@ public class CacheTest extends CacheTestSupport<Long, String> {
     }
   }
 
+  /**
+   * Will fail unless CacheImpl specified in pom.xml
+   */
   @Test
-  public void testUnwrap() {
-    //Assumes rule will exclude this test when no unwrapClass is specified
+  public void testCacheUnwrap() {
     final Class<?> unwrapClass = getUnwrapClass(Cache.class);
     final Object unwrappedCache = cache.unwrap(unwrapClass);
 
     assertTrue(unwrapClass.isAssignableFrom(unwrappedCache.getClass()));
   }
+
+  /**
+   * Will fail unless CacheEntryImpl specified in pom.xml
+   */
+  @Test
+  public void testCacheEntryUnwrap() {
+    final Class<?> unwrapClass = getUnwrapClass(Cache.Entry.class);
+    cache.put(1l, "Tonto");
+    Cache.Entry entry = cache.iterator().next();
+    final Object unwrappedCacheEntry = entry.unwrap(unwrapClass);
+    assertTrue(unwrapClass.isAssignableFrom(unwrappedCacheEntry.getClass()));
+  }
+
 
   @Test
   public void testGetCacheManager() throws Exception {

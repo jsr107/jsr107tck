@@ -49,6 +49,7 @@
         <!-- Change the following properties to your CacheManager and Cache implementation. Used by the unwrap tests. -->
         <CacheManagerImpl>org.jsr107.ri.RICacheManager</CacheManagerImpl>
         <CacheImpl>org.jsr107.ri.RICache</CacheImpl>
+        <CacheEntryImpl>org.jsr107.ri.RIEntry</CacheEntryImpl>
 
         <!--Change the following to point to your MBeanServer, so that the TCK can resolve it. -->
         <javax.management.builder.initial>

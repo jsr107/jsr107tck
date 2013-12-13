@@ -126,13 +126,15 @@ public class TestSupport {
   }
 
   protected Class<?> getUnwrapClass(Class<?> unwrappableClass) {
+
+
     //contains check since null values are allowed
     if (this.unwrapClasses.containsKey(unwrappableClass)) {
       return this.unwrapClasses.get(unwrappableClass);
     }
 
-    final Properties unwrapProperties = getUnwrapProperties();
-    final String unwrapClassName = unwrapProperties.getProperty(unwrappableClass.getName());
+    //cannot specify $ in Maven so replace with '.'
+    final String unwrapClassName = System.getProperty(unwrappableClass.getName().replace('$', '.'));
     if (unwrapClassName == null || unwrapClassName.trim().length() == 0) {
       this.unwrapClasses.put(unwrappableClass, null);
       return null;

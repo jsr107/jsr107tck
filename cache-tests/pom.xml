@@ -160,10 +160,14 @@
                         <version>2.9</version>
                         <configuration>
                             <systemPropertyVariables>
-                                <domainJar>${domain-lib-dir}/${domain-jar}
-                                </domainJar>
+                                <domainJar>${domain-lib-dir}/${domain-jar}</domainJar>
                                 <javax.management.builder.initial> ${javax.management.builder.initial}</javax.management.builder.initial>
-                                <org.jsr107.tck.management.agentId> ${org.jsr107.tck.management.agentId}</org.jsr107.tck.management.agentId>
+                                <org.jsr107.tck.management.agentId>${org.jsr107.tck.management.agentId}</org.jsr107.tck.management.agentId>
+                                <javax.cache.CacheManager>${CacheManagerImpl}</javax.cache.CacheManager>
+                                <javax.cache.Cache>${CacheImpl}</javax.cache.Cache>
+                                <javax.cache.Cache.Entry>${CacheEntryImpl}</javax.cache.Cache.Entry>
+                                <javax.cache.annotation.CacheInvocationContext>$
+                            {CacheInvocationContextImpl}</javax.cache.annotation.CacheInvocationContext>
                             </systemPropertyVariables>
                             <excludes>
                                 <exclude>**/annotation/*Test.java</exclude>
