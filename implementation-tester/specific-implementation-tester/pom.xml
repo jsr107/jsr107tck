@@ -82,7 +82,6 @@
                             </outputDirectory>
                             <includeArtifactIds>cache-tests</includeArtifactIds>
                             <includeScope>test</includeScope>
-                            <excludes>**/unwrap.properties</excludes>
                         </configuration>
                     </execution>
                     <execution>

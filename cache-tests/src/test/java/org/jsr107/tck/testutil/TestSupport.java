@@ -24,7 +24,6 @@ import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -150,22 +149,6 @@ public class TestSupport {
       return null;
     }
 
-  }
-
-  private Properties getUnwrapProperties() {
-    if (this.unwrapProperties != null) {
-      return this.unwrapProperties;
-    }
-
-    final Properties unwrapProperties = new Properties();
-    try {
-      unwrapProperties.load(getClass().getResourceAsStream("/unwrap.properties"));
-    } catch (IOException e) {
-      LOG.warning("Failed to load unwrap.properties from classpath");
-    }
-
-    this.unwrapProperties = unwrapProperties;
-    return unwrapProperties;
   }
 
   public static enum MBeanType {
