@@ -17,6 +17,8 @@
 
 package org.jsr107.tck.expiry;
 
+import org.jsr107.tck.event.CacheEntryListenerClient;
+import org.jsr107.tck.event.CacheEntryListenerServer;
 import org.jsr107.tck.integration.CacheLoaderClient;
 import org.jsr107.tck.integration.CacheLoaderServer;
 import org.jsr107.tck.integration.RecordingCacheLoader;
@@ -96,6 +98,10 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
     expiryPolicyClient =
         new ExpiryPolicyClient(expiryPolicyServer.getInetAddress(), expiryPolicyServer.getPort());
 
+    cacheEntryListenerServer = new CacheEntryListenerServer<Integer, Integer>(10011, Integer.class, Integer.class);
+    cacheEntryListenerServer.open();
+    cacheEntryListerClient =
+      new CacheEntryListenerClient<>(cacheEntryListenerServer.getInetAddress(), cacheEntryListenerServer.getPort());
   }
 
   @Override
@@ -106,18 +112,28 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
   @Override
   protected MutableConfiguration<Integer, Integer> extraSetup(MutableConfiguration<Integer, Integer> configuration) {
     listener = new CacheTestSupport.MyCacheEntryListener<Integer, Integer>();
-    listenerConfiguration = new MutableCacheEntryListenerConfiguration<Integer, Integer>(FactoryBuilder.factoryOf(listener), null, false, true);
+
+    //establish a CacheEntryListenerClient that a Cache can use for CacheEntryListening
+    //(via the CacheEntryListenerServer)
+
+    listenerConfiguration =
+      new MutableCacheEntryListenerConfiguration<>(FactoryBuilder.factoryOf(cacheEntryListerClient), null, true, true);
+    cacheEntryListenerServer.addCacheEventListener(listener);
     return configuration.addCacheEntryListenerConfiguration(listenerConfiguration);
   }
 
 
   @After
-  public void cleanupAfterEachTest() {
+  public void cleanupAfterEachTest() throws InterruptedException {
     for (String cacheName : getCacheManager().getCacheNames()) {
       getCacheManager().destroyCache(cacheName);
     }
     expiryPolicyServer.close();
     expiryPolicyServer = null;
+
+    //close the server
+    cacheEntryListenerServer.close();
+    cacheEntryListenerServer = null;
   }
 
 
@@ -189,6 +205,7 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
    */
   private void expire_whenCreated(Factory<? extends ExpiryPolicy> expiryPolicyFactory) {
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
+    config.setTypes(Integer.class, Integer.class);
     config.setExpiryPolicyFactory(expiryPolicyFactory);
     config = extraSetup(config);
     config.setStatisticsEnabled(true);
@@ -1446,4 +1463,7 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
       return updatedExpiryDuration;
     }
   }
+
+  private CacheEntryListenerServer<Integer, Integer> cacheEntryListenerServer;
+  private CacheEntryListenerClient<Integer, Integer> cacheEntryListerClient;
 }

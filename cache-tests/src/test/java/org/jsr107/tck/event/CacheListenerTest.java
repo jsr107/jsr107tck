@@ -22,6 +22,7 @@ import org.jsr107.tck.processor.RemoveEntryProcessor;
 import org.jsr107.tck.processor.SetEntryProcessor;
 import org.jsr107.tck.testutil.CacheTestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,6 +44,7 @@ import javax.cache.event.CacheEntryRemovedListener;
 import javax.cache.event.CacheEntryUpdatedListener;
 import javax.cache.processor.EntryProcessor;
 import java.io.IOError;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -101,9 +103,40 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
 
   @Override
   protected MutableConfiguration<Long, String> extraSetup(MutableConfiguration<Long, String> configuration) {
+    cacheEntryListenerServer = new CacheEntryListenerServer<Long, String>(10011, Long.class, String.class);
+    try {
+      cacheEntryListenerServer.open();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    //establish and open a CacheEntryListenerServer to handle cache
+    //cache entry events from a CacheEntryListenerClient
     listener = new MyCacheEntryListener<Long, String>();
-    listenerConfiguration = new MutableCacheEntryListenerConfiguration<Long, String>(FactoryBuilder.factoryOf(listener), null, true, true);
+    cacheEntryListenerServer.addCacheEventListener(listener);
+
+    //establish a CacheEntryListenerClient that a Cache can use for CacheEntryListening
+    //(via the CacheEntryListenerServer)
+    CacheEntryListenerClient<Long, String> clientListener =
+      new CacheEntryListenerClient<>(cacheEntryListenerServer.getInetAddress(), cacheEntryListenerServer.getPort());
+    listenerConfiguration = new MutableCacheEntryListenerConfiguration<Long, String>(FactoryBuilder.factoryOf(clientListener), null, true, true);
     return configuration.addCacheEntryListenerConfiguration(listenerConfiguration);
+  }
+
+  /**
+   * Clean up the {@link CacheManager} and {@link Cache} after a test.
+   */
+  @After
+  public void onAfterEachTest() {
+    //destroy the cache
+    String cacheName = cache.getName();
+    cache.getCacheManager().destroyCache(cacheName);
+
+    //close the server
+    cacheEntryListenerServer.close();
+    cacheEntryListenerServer = null;
+
+    cache = null;
   }
 
   /**
@@ -195,11 +228,17 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
   @Test
   public void testBrokenCacheEntryListener() {
 
+    // remove standard listener.
+    cacheEntryListenerServer.removeCacheEventListener(this.listener);
+    cache.deregisterCacheEntryListener(this.listenerConfiguration);
+
     //setup
-    MyBrokenCacheEntryListener<Long, String> listener = new MyBrokenCacheEntryListener<Long, String>();
-    MutableCacheEntryListenerConfiguration<Long,String> listenerConfiguration
-     = new MutableCacheEntryListenerConfiguration<Long, String>(FactoryBuilder.factoryOf(listener), null, false, true);
+    MyBrokenCacheEntryListener<Long, String> brokenListener = new MyBrokenCacheEntryListener<Long, String>();
+    CacheEntryListenerClient<Long, String> clientListener =
+      new CacheEntryListenerClient<>(cacheEntryListenerServer.getInetAddress(), cacheEntryListenerServer.getPort());
+    listenerConfiguration = new MutableCacheEntryListenerConfiguration<Long, String>(FactoryBuilder.factoryOf(clientListener), null, true, true);
     cache.registerCacheEntryListener(listenerConfiguration);
+    cacheEntryListenerServer.addCacheEventListener(brokenListener);
 
     try {
       cache.put(1l, "Sooty");
@@ -316,96 +355,104 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
  */
 @Test
 public void testFilteredListener() throws InterruptedException {
-  MyCacheEntryListener<Long, String> listener = new MyCacheEntryListener<>();
+  // remove standard listener.
+  cacheEntryListenerServer.removeCacheEventListener(this.listener);
+  cache.deregisterCacheEntryListener(this.listenerConfiguration);
+
+  CacheEntryListenerClient<Long, String> clientListener =
+    new CacheEntryListenerClient<>(cacheEntryListenerServer.getInetAddress(), cacheEntryListenerServer.getPort());
+
+  MyCacheEntryListener<Long, String> filteredListener = new MyCacheEntryListener<>();
   CacheEntryListenerConfiguration<Long, String> listenerConfiguration =
       new MutableCacheEntryListenerConfiguration<Long, String>(
-          FactoryBuilder.factoryOf(listener),
+          FactoryBuilder.factoryOf(clientListener),
           FactoryBuilder.factoryOf(new MyCacheEntryEventFilter()),
           true, true);
   cache.registerCacheEntryListener(listenerConfiguration);
+  cacheEntryListenerServer.addCacheEventListener(filteredListener);
 
-  assertEquals(0, listener.getCreated());
-  assertEquals(0, listener.getUpdated());
-  assertEquals(0, listener.getRemoved());
+  assertEquals(0, filteredListener.getCreated());
+  assertEquals(0, filteredListener.getUpdated());
+  assertEquals(0, filteredListener.getRemoved());
 
   cache.put(1l, "Sooty");
-  assertEquals(1, listener.getCreated());
-  assertEquals(0, listener.getUpdated());
-  assertEquals(0, listener.getRemoved());
+  assertEquals(1, filteredListener.getCreated());
+  assertEquals(0, filteredListener.getUpdated());
+  assertEquals(0, filteredListener.getRemoved());
 
   Map<Long, String> entries = new HashMap<Long, String>();
   entries.put(2l, "Lucky");
   entries.put(3l, "Bryn");
   cache.putAll(entries);
-  assertEquals(2, listener.getCreated());
-  assertEquals(0, listener.getUpdated());
-  assertEquals(0, listener.getRemoved());
+  assertEquals(2, filteredListener.getCreated());
+  assertEquals(0, filteredListener.getUpdated());
+  assertEquals(0, filteredListener.getRemoved());
 
   cache.put(1l, "Zyn");
-  assertEquals(2, listener.getCreated());
-  assertEquals(0, listener.getUpdated());
-  assertEquals(0, listener.getRemoved());
+  assertEquals(2, filteredListener.getCreated());
+  assertEquals(0, filteredListener.getUpdated());
+  assertEquals(0, filteredListener.getRemoved());
 
   cache.remove(2l);
-  assertEquals(2, listener.getCreated());
-  assertEquals(0, listener.getUpdated());
-  assertEquals(1, listener.getRemoved());
+  assertEquals(2, filteredListener.getCreated());
+  assertEquals(0, filteredListener.getUpdated());
+  assertEquals(1, filteredListener.getRemoved());
 
   cache.replace(1l, "Fred");
-  assertEquals(2, listener.getCreated());
-  assertEquals(1, listener.getUpdated());
-  assertEquals(1, listener.getRemoved());
+  assertEquals(2, filteredListener.getCreated());
+  assertEquals(1, filteredListener.getUpdated());
+  assertEquals(1, filteredListener.getRemoved());
 
   cache.replace(3l, "Bryn", "Sooty");
-  assertEquals(2, listener.getCreated());
-  assertEquals(2, listener.getUpdated());
-  assertEquals(1, listener.getRemoved());
+  assertEquals(2, filteredListener.getCreated());
+  assertEquals(2, filteredListener.getUpdated());
+  assertEquals(1, filteredListener.getRemoved());
 
   cache.get(1L);
-  assertEquals(2, listener.getCreated());
-  assertEquals(2, listener.getUpdated());
-  assertEquals(1, listener.getRemoved());
+  assertEquals(2, filteredListener.getCreated());
+  assertEquals(2, filteredListener.getUpdated());
+  assertEquals(1, filteredListener.getRemoved());
 
-  //containsKey is not a read for listener purposes.
+  //containsKey is not a read for filteredListener purposes.
   cache.containsKey(1L);
-  assertEquals(2, listener.getCreated());
-  assertEquals(2, listener.getUpdated());
-  assertEquals(1, listener.getRemoved());
+  assertEquals(2, filteredListener.getCreated());
+  assertEquals(2, filteredListener.getUpdated());
+  assertEquals(1, filteredListener.getRemoved());
 
   //iterating should cause read events on non-expired entries
   for (Cache.Entry<Long, String> entry : cache) {
     String value = entry.getValue();
     System.out.println(value);
   }
-  assertEquals(2, listener.getCreated());
-  assertEquals(2, listener.getUpdated());
-  assertEquals(1, listener.getRemoved());
+  assertEquals(2, filteredListener.getCreated());
+  assertEquals(2, filteredListener.getUpdated());
+  assertEquals(1, filteredListener.getRemoved());
 
   cache.getAndPut(1l, "Pistachio");
-  assertEquals(2, listener.getCreated());
-  assertEquals(3, listener.getUpdated());
-  assertEquals(1, listener.getRemoved());
+  assertEquals(2, filteredListener.getCreated());
+  assertEquals(3, filteredListener.getUpdated());
+  assertEquals(1, filteredListener.getRemoved());
 
   Set<Long> keys = new HashSet<Long>();
   keys.add(1L);
   cache.getAll(keys);
-  assertEquals(2, listener.getCreated());
-  assertEquals(3, listener.getUpdated());
-  assertEquals(1, listener.getRemoved());
+  assertEquals(2, filteredListener.getCreated());
+  assertEquals(3, filteredListener.getUpdated());
+  assertEquals(1, filteredListener.getRemoved());
 
   cache.getAndReplace(1l, "Prince");
-  assertEquals(2, listener.getCreated());
-  assertEquals(4, listener.getUpdated());
-  assertEquals(1, listener.getRemoved());
+  assertEquals(2, filteredListener.getCreated());
+  assertEquals(4, filteredListener.getUpdated());
+  assertEquals(1, filteredListener.getRemoved());
 
   cache.getAndRemove(1l);
-  assertEquals(2, listener.getCreated());
-  assertEquals(4, listener.getUpdated());
-  assertEquals(2, listener.getRemoved());
+  assertEquals(2, filteredListener.getCreated());
+  assertEquals(4, filteredListener.getUpdated());
+  assertEquals(2, filteredListener.getRemoved());
 
-  assertEquals(2, listener.getCreated());
-  assertEquals(4, listener.getUpdated());
-  assertEquals(2, listener.getRemoved());
+  assertEquals(2, filteredListener.getCreated());
+  assertEquals(4, filteredListener.getUpdated());
+  assertEquals(2, filteredListener.getRemoved());
 }
 
   @Test
@@ -538,5 +585,7 @@ public void testFilteredListener() throws InterruptedException {
       }
     }
   }
+
+  private CacheEntryListenerServer cacheEntryListenerServer;
 
 }
