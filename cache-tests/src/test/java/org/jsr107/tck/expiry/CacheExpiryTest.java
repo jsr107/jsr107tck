@@ -201,7 +201,7 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
   /**
    * Ensure that a cache using a {@link javax.cache.expiry.ExpiryPolicy} configured to
    * return a {@link Duration#ZERO} for newly created entries will immediately
-   * expire said entries.
+   * expire the entries.
    */
   private void expire_whenCreated(Factory<? extends ExpiryPolicy> expiryPolicyFactory) {
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<Integer, Integer>();
@@ -290,7 +290,7 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
   /**
    * Ensure that a cache using a {@link javax.cache.expiry.ExpiryPolicy} configured to
    * return a {@link Duration#ZERO} after accessing entries will immediately
-   * expire said entries.
+   * expire the entries.
    */
   @Test
   public void expire_whenAccessed() {
@@ -374,7 +374,7 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
   /**
    * Ensure that a cache using a {@link javax.cache.expiry.ExpiryPolicy} configured to
    * return a {@link Duration#ZERO} after modifying entries will immediately
-   * expire said entries.
+   * expire the entries.
    */
   @Test
   public void expire_whenModified() {
