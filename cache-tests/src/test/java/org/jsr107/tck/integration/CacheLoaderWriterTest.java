@@ -32,9 +32,11 @@ import javax.cache.integration.CompletionListenerFuture;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -315,6 +317,38 @@ public class CacheLoaderWriterTest {
     //ensure nothing has been written
     assertThat(recordingCacheWriter.getWriteCount(), is(0L));
     assertThat(recordingCacheWriter.getDeleteCount(), is(0L));
+  }
+
+  @Test
+  public void shouldNotWriteThroughUsingLoadAll() throws Exception {
+    final int NUMBER_OF_KEYS = 10;
+    assertEquals(0, recordingCacheWriter.getWriteCount());
+    assertEquals(0, recordingCacheWriter.getDeleteCount());
+    assertEquals(0, recordingCacheLoader.getLoadCount());
+
+
+    Set<String> keys = new HashSet<>();
+    for (int key = 1; key <= NUMBER_OF_KEYS; key++) {
+      keys.add(Integer.toString(key));
+    }
+
+    assertEquals(0, recordingCacheWriter.getWriteCount());
+    assertEquals(0, recordingCacheWriter.getDeleteCount());
+    CompletionListenerFuture future = new CompletionListenerFuture();
+
+    cache.loadAll(keys, true, future);
+
+    // wait for the load to complete
+    future.get();
+
+    assertThat(recordingCacheLoader.getLoadCount(), is(keys.size()));
+    for (String key : keys) {
+      assertThat(recordingCacheLoader.hasLoaded(key), is(true));
+      assertThat(cache.containsKey(key), is(true));
+    }
+
+    assertEquals(0, recordingCacheWriter.getWriteCount());
+    assertEquals(0, recordingCacheWriter.getDeleteCount());
   }
 
   /**

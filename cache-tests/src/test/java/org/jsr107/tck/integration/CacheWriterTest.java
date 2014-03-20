@@ -550,30 +550,6 @@ public class CacheWriterTest extends TestSupport {
     assertEquals(0, cacheWriter.getDeleteCount());
   }
 
-  @Test
-  public void shouldNotWriteThroughUsingLoadAll() throws Exception {
-    final int NUMBER_OF_KEYS = 10;
-    assertEquals(0, cacheWriter.getWriteCount());
-    assertEquals(0, cacheWriter.getDeleteCount());
-
-    Set<Integer> keys = new HashSet<>();
-    for (int key = 1; key <= NUMBER_OF_KEYS; key++) {
-      keys.add(key);
-    }
-
-    assertEquals(0, cacheWriter.getWriteCount());
-    assertEquals(0, cacheWriter.getDeleteCount());
-    CompletionListenerFuture future = new CompletionListenerFuture();
-
-    cache.loadAll(keys, true, future);
-
-    // wait for the load to complete
-    future.get();
-
-    assertEquals(0, cacheWriter.getWriteCount());
-    assertEquals(0, cacheWriter.getDeleteCount());
-  }
-
   /**
    * Test constraint that cache is not mutated when CacheWriterException is thrown by
    * {@link javax.cache.integration.CacheWriter#write(javax.cache.Cache.Entry)}
