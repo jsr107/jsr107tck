@@ -220,31 +220,6 @@ public class CachingProviderClassLoaderTest {
     assertSame(manager3, provider.getCacheManager(uri, loader3));
   }
 
-
-  /**
-   * Application Isolation via ClassLoader.
-   */
-  @Test
-  public void applicationIsolation() throws Exception {
-    ApplicationDomain domain1 = new ApplicationDomain();
-    Class class1 = domain1.getClassForDomainClass();
-    Object storedInstance = class1.newInstance();
-    Cache<Integer, Object> cache1 = domain1.getCache();
-    cache1.put(1, storedInstance);
-    Object o1_1 = cache1.get(1);
-    assertSame(storedInstance.getClass(), o1_1.getClass());
-    assertSame(class1, o1_1.getClass());
-
-    ApplicationDomain domain2 = new ApplicationDomain();
-    Class class2 = domain2.getClassForDomainClass();
-    Cache<Integer, Object> cache2 = domain2.getCache();
-    cache2.put(1, storedInstance);
-    Object o2_1 = cache2.get(1);
-    assertNotSame(storedInstance.getClass(), o2_1.getClass());
-    assertSame(class2, o2_1.getClass());
-  }
-
-
   /**
    * Wrapper round domain program.
    */
