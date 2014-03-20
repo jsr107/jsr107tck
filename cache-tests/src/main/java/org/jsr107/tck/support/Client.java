@@ -76,7 +76,11 @@ public class Client implements AutoCloseable {
    */
   public Client(InetAddress address, int port) throws IOException {
     this.port = port;
-    this.socket = new Socket(address, port);
+    try {
+        this.socket = new Socket(address, port);
+    } catch (IOException ioe) {
+        throw new IOException("Client failed to connect to server at " + address + ":" + port, ioe);
+    }
     this.oos = new ObjectOutputStream(socket.getOutputStream());
     this.ois = new ObjectInputStream(socket.getInputStream());
   }

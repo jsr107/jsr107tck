@@ -59,7 +59,7 @@ public class CacheClient implements AutoCloseable, Serializable {
             try {
                 client = new Client(address, port);
             } catch (Exception e) {
-                throw new RuntimeException("Failed to acquire Client", e);
+                throw new RuntimeException("Failed to acquire Client address:" + address + ":" + port, e);
             }
         }
 

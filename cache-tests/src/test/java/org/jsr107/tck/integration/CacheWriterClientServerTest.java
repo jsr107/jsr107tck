@@ -33,7 +33,7 @@ public class CacheWriterClientServerTest {
             serverCacheWriter.open();
 
             CacheWriterClient<String, String> clientCacheWriter =
-                new CacheWriterClient<>(serverCacheWriter.getInetAddress(), 10000);
+                new CacheWriterClient<>(serverCacheWriter.getInetAddress(), serverCacheWriter.getPort());
             Cache.Entry<String, String> entry = new Entry<>("hello", "gudday");
             clientCacheWriter.write(entry);
             String writtenValue = recordingCacheWriter.get("hello");
@@ -62,7 +62,7 @@ public class CacheWriterClientServerTest {
             serverCacheWriter.open();
 
             CacheWriterClient<String, String> clientCacheWriter =
-                new CacheWriterClient<>(serverCacheWriter.getInetAddress(), 10000);
+                new CacheWriterClient<>(serverCacheWriter.getInetAddress(), serverCacheWriter.getPort());
 
             Cache.Entry<String, String> entry = new Entry<>("hello", "gudday");
 
@@ -93,7 +93,7 @@ public class CacheWriterClientServerTest {
      *       serverCacheWriter.open();
      *
      *       CacheWriterClient<String, String> clientCacheWriter =
-     *       new CacheWriterClient<>(serverCacheWriter.getInetAddress(), 10000);
+     *       new CacheWriterClient<>(serverCacheWriter.getInetAddress(), serverCacheWriter.getPort());
      *
      *       Cache.Entry<String, String> entry = new Entry<String,String>("hello", "gudday");
      *

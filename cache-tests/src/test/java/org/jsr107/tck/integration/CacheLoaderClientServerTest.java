@@ -31,7 +31,7 @@ public class CacheLoaderClientServerTest {
     try {
       serverCacheLoader.open();
 
-      CacheLoaderClient<String, String> clientCacheLoader = new CacheLoaderClient<>(serverCacheLoader.getInetAddress(), 10000);
+      CacheLoaderClient<String, String> clientCacheLoader = new CacheLoaderClient<>(serverCacheLoader.getInetAddress(), serverCacheLoader.getPort());
 
       String value = clientCacheLoader.load("gudday");
 
@@ -59,7 +59,7 @@ public class CacheLoaderClientServerTest {
     try {
       serverCacheLoader.open();
 
-      CacheLoaderClient<String, String> clientCacheLoader = new CacheLoaderClient<>(serverCacheLoader.getInetAddress(), 10000);
+      CacheLoaderClient<String, String> clientCacheLoader = new CacheLoaderClient<>(serverCacheLoader.getInetAddress(), serverCacheLoader.getPort());
 
       String value = clientCacheLoader.load("gudday");
 
@@ -85,7 +85,7 @@ public class CacheLoaderClientServerTest {
     try {
       serverCacheLoader.open();
 
-      CacheLoaderClient<String, String> clientCacheLoader = new CacheLoaderClient<>(serverCacheLoader.getInetAddress(), 10000);
+      CacheLoaderClient<String, String> clientCacheLoader = new CacheLoaderClient<>(serverCacheLoader.getInetAddress(), serverCacheLoader.getPort());
 
       String value = clientCacheLoader.load("gudday");
 

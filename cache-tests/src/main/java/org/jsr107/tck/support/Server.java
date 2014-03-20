@@ -19,11 +19,19 @@ package org.jsr107.tck.support;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A rudimentary multi-threaded {@link Socket}-based {@link Server} that can
@@ -107,8 +115,7 @@ public class Server implements AutoCloseable {
    */
   public synchronized InetAddress open() throws IOException {
     if (serverSocket == null) {
-      serverSocket = new ServerSocket(port);
-
+      serverSocket = createServerSocket();
       serverThread = new Thread(new Runnable() {
         @Override
         public void run() {
@@ -133,7 +140,7 @@ public class Server implements AutoCloseable {
       serverThread.start();
     }
 
-    return serverSocket.getInetAddress();
+    return getInetAddress();
   }
 
   /**
@@ -143,11 +150,17 @@ public class Server implements AutoCloseable {
    */
   public synchronized InetAddress getInetAddress() {
     if (serverSocket != null) {
-      return serverSocket.getInetAddress();
+      try {
+        return getServerInetAddress();
+      } catch (SocketException e) {
+        return serverSocket.getInetAddress();
+      } catch (UnknownHostException e) {
+        return serverSocket.getInetAddress();
+      }
     } else {
       throw new IllegalStateException("Server is not open");
     }
-  }
+ }
 
   /**
    * Obtains the port on which the {@link Server} is listening.
@@ -282,5 +295,83 @@ public class Server implements AutoCloseable {
         socket = null;
       }
     }
+  }
+
+  private static InetAddress serverSocketAddress = null;
+
+  private ServerSocket createServerSocket() throws IOException {
+    Logger logger = Logger.getLogger(this.getClass().getName());
+
+    final int ephemeralPort = 0;
+    ServerSocket result = null;
+    try {
+      result = new ServerSocket(port);
+    } catch(IOException e) {
+
+      // requested port may still be in use due to linger on close on some OSs,
+      // use ephemeral port for server socket
+      result = new ServerSocket(ephemeralPort);
+      logger.warning("createServerSocket: unable to use requested port " + port +
+                     "; using ephemeral port " + result.getLocalPort());
+      this.port = result.getLocalPort();
+    }
+    logger.log(Level.FINE, "Starting " + this.getClass().getCanonicalName() +
+        " server at address:" + getServerInetAddress() + " port:" + port);
+    return result;
+  }
+
+  /**
+   * to support distributed testing, return a non-loopback address if available
+   * @return remote addressable inet address
+   * @throws SocketException
+   * @throws UnknownHostException
+   */
+  private InetAddress getServerInetAddress() throws SocketException, UnknownHostException {
+    if (serverSocketAddress == null) {
+      boolean preferIPV4Stack = Boolean.getBoolean("java.net.preferIPv4Stack");
+      boolean preferIPV6Addresses = Boolean.getBoolean("java.net.preferIPv6Addresses") && !preferIPV4Stack;
+      try {
+        serverSocketAddress = getFirstNonLoopbackAddress(preferIPV4Stack, preferIPV6Addresses);
+      } catch (SocketException e) {
+        e.printStackTrace();
+      }
+      if (serverSocketAddress == null) {
+        Logger.getLogger("Server").warning("no remote ip address available so only possible to test using loopback address.");
+        serverSocketAddress = InetAddress.getLocalHost();
+      }
+    }
+    return serverSocketAddress;
+  }
+
+  /**
+   * Get non-loopback address.  InetAddress.getLocalHost() does not work on machines without static ip address.
+   * @param preferIPv4 true iff require IPv4 addresses only
+   * @param preferIPv6 true iff prefer IPv6 addresses
+   * @return nonLoopback {@link InetAddress}
+   * @throws SocketException
+   */
+  private static InetAddress getFirstNonLoopbackAddress(boolean preferIPv4, boolean preferIPv6) throws SocketException {
+      Enumeration en = NetworkInterface.getNetworkInterfaces();
+      while (en.hasMoreElements()) {
+        NetworkInterface i = (NetworkInterface) en.nextElement();
+        for (Enumeration en2 = i.getInetAddresses(); en2.hasMoreElements();) {
+          InetAddress addr = (InetAddress) en2.nextElement();
+          if (!addr.isLoopbackAddress()) {
+            if (addr instanceof Inet4Address) {
+              if (preferIPv6) {
+                continue;
+              }
+              return addr;
+            }
+            if (addr instanceof Inet6Address) {
+              if (preferIPv4) {
+                continue;
+              }
+              return addr;
+            }
+          }
+        }
+      }
+    return null;
   }
 }
