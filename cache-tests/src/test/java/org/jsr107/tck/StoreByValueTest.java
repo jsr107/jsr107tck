@@ -51,15 +51,6 @@ public class StoreByValueTest extends CacheTestSupport<Date, Date> {
     cache = getCacheManager().getCache(getTestCacheName(), Date.class, Date.class);
   }
 
-  @After
-  public void teardown() {
-    try {
-      getCacheManager().close();
-    } catch (Exception e) {
-      //expected
-    }
-  }
-
   @Override
   protected MutableConfiguration<Date, Date> newMutableConfiguration() {
     return new MutableConfiguration<Date, Date>().setTypes(Date.class, Date.class);

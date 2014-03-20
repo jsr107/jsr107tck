@@ -57,8 +57,7 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
 
   @Before
   public void setUp() throws IOException  {
-    getCacheManager().createCache(getTestCacheName(), extraSetup(newMutableConfiguration()));
-
+    cache = getCacheManager().createCache(getTestCacheName(), extraSetup(newMutableConfiguration()));
   }
 
   @After

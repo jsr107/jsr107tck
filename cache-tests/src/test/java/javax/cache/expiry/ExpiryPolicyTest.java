@@ -1,8 +1,12 @@
 package javax.cache.expiry;
 
+import org.jsr107.tck.testutil.TestSupport;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.cache.Cache;
+import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableConfiguration;
@@ -19,7 +23,7 @@ import static org.junit.Assert.assertTrue;
  * Tests the policy classes shipped with the API.
  * @author Greg Luck
  */
-public class ExpiryPolicyTest {
+public class ExpiryPolicyTest extends TestSupport {
 
   @Test
   public void testCreatedExpiryPolicy() {
@@ -34,12 +38,26 @@ public class ExpiryPolicyTest {
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(policy2)).setStatisticsEnabled(true);
-    Cache<Integer, Integer> cache = Caching.getCachingProvider().getCacheManager
-        ().createCache("test5", config);
+    Cache<Integer, Integer> cache = cacheManager.createCache(getTestCacheName(), config);
 
     assertEquals(20, policy.getExpiryForCreation().getDurationAmount());
     assertNull(policy.getExpiryForAccess());
     assertNull(policy.getExpiryForUpdate());
+  }
+
+  @Before
+  public void setup()
+      {
+      cacheManager = Caching.getCachingProvider().getCacheManager();
+      }
+
+  @After
+  public void cleanupAfterEachTest() throws InterruptedException {
+    for (String cacheName : cacheManager.getCacheNames()) {
+      cacheManager.destroyCache(cacheName);
+    }
+    cacheManager.close();
+    cacheManager = null;
   }
 
   @Test
@@ -55,8 +73,7 @@ public class ExpiryPolicyTest {
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(policy)).setStatisticsEnabled(true);
-    Cache<Integer, Integer> cache = Caching.getCachingProvider().getCacheManager
-        ().createCache("test1", config);
+    Cache<Integer, Integer> cache = cacheManager.createCache(getTestCacheName(), config);
 
     assertEquals(20, policy.getExpiryForCreation().getDurationAmount());
     assertNull(policy.getExpiryForAccess());
@@ -76,8 +93,7 @@ public class ExpiryPolicyTest {
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(policy)).setStatisticsEnabled(true);
-    Cache<Integer, Integer> cache = Caching.getCachingProvider().getCacheManager
-        ().createCache("test2", config);
+    Cache<Integer, Integer> cache = cacheManager.createCache(getTestCacheName(), config);
 
     assertEquals(20, policy.getExpiryForCreation().getDurationAmount());
     assertEquals(20, policy.getExpiryForAccess().getDurationAmount());
@@ -97,8 +113,7 @@ public class ExpiryPolicyTest {
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(policy)).setStatisticsEnabled(true);
-    Cache<Integer, Integer> cache = Caching.getCachingProvider().getCacheManager
-        ().createCache("test3", config);
+    Cache<Integer, Integer> cache = cacheManager.createCache(getTestCacheName(), config);
 
     //any operation adds the duration onto the expiry
     assertEquals(20, policy.getExpiryForCreation().getDurationAmount());
@@ -116,8 +131,7 @@ public class ExpiryPolicyTest {
 
     MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
     config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(policy)).setStatisticsEnabled(true);
-    Cache<Integer, Integer> cache = Caching.getCachingProvider().getCacheManager
-        ().createCache("test4", config);
+    Cache<Integer, Integer> cache = cacheManager.createCache(getTestCacheName(), config);
 
     assertEquals(ETERNAL, policy.getExpiryForCreation());
     assertNull(policy.getExpiryForAccess());
@@ -195,4 +209,5 @@ public class ExpiryPolicyTest {
     assertTrue(nullDurationPolicy.equals(nullDurationPolicy1));
   }
 
+  private CacheManager cacheManager;
 }
