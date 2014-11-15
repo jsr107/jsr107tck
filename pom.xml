@@ -27,7 +27,6 @@
         <module>cdi-weld-annotations-test-harness</module>
     </modules>
 
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -57,6 +56,107 @@
 
         <!--################################################################################################################-->
     </properties>
+
+    <!--Hazelcast Embedded-->
+    <!--<properties>-->
+    <!--<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>-->
+    <!--<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>-->
+
+    <!--<CacheInvocationContextImpl>-->
+    <!--javax.cache.annotation.impl.cdi.CdiCacheKeyInvocationContextImpl-->
+    <!--</CacheInvocationContextImpl>-->
+
+    <!--<domain-lib-dir>${project.build.directory}/domainlib</domain-lib-dir>-->
+    <!--<domain-jar>domain.jar</domain-jar>-->
+
+
+    <!--&lt;!&ndash;################################################################################################################&ndash;&gt;-->
+    <!--&lt;!&ndash;Change the following properties on the command line to override with the coordinates for your implementation&ndash;&gt;-->
+    <!--<implementation-groupId>com.hazelcast</implementation-groupId>-->
+    <!--<implementation-artifactId>hazelcast</implementation-artifactId>-->
+    <!--<implementation-version>3.4-EA</implementation-version>-->
+
+    <!--&lt;!&ndash; Change the following properties to your CacheManager and Cache implementation. Used by the unwrap tests. &ndash;&gt;-->
+    <!--<CacheManagerImpl>com.hazelcast.cache.impl.HazelcastCacheManager</CacheManagerImpl>-->
+    <!--<CacheImpl>com.hazelcast.cache.ICache</CacheImpl>-->
+    <!--<CacheEntryImpl>com.hazelcast.cache.impl.CacheEntry</CacheEntryImpl>-->
+
+    <!--&lt;!&ndash;Change the following to point to your MBeanServer, so that the TCK can resolve it. &ndash;&gt;-->
+    <!--<javax.management.builder.initial>com.hazelcast.cache.impl.TCKMBeanServerBuilder</javax.management.builder.initial>-->
+    <!--<org.jsr107.tck.management.agentId>TCKMbeanServer</org.jsr107.tck.management.agentId>-->
+    <!--<jsr107.api.version>1.0.0</jsr107.api.version>-->
+
+    <!--&lt;!&ndash;Select a specific provider out of client and server for Hazelcast&ndash;&gt;-->
+    <!--&lt;!&ndash;<javax.cache.spi.cachingprovider>com.hazelcast.client.cache.impl.HazelcastClientCachingProvider</javax.cache.spi.cachingprovider>&ndash;&gt;-->
+
+    <!--&lt;!&ndash;################################################################################################################&ndash;&gt;-->
+    <!--</properties>-->
+
+
+    <!--Infinispan Embedded-->
+    <!--<properties>-->
+        <!--<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>-->
+        <!--<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>-->
+
+        <!--<CacheInvocationContextImpl>-->
+            <!--javax.cache.annotation.impl.cdi.CdiCacheKeyInvocationContextImpl-->
+        <!--</CacheInvocationContextImpl>-->
+
+        <!--<domain-lib-dir>${project.build.directory}/domainlib</domain-lib-dir>-->
+        <!--<domain-jar>domain.jar</domain-jar>-->
+
+
+        <!--&lt;!&ndash;################################################################################################################&ndash;&gt;-->
+        <!--&lt;!&ndash;Change the following properties on the command line to override with the coordinates for your implementation&ndash;&gt;-->
+        <!--<implementation-groupId>org.infinispan</implementation-groupId>-->
+        <!--<implementation-artifactId>infinispan-jcache</implementation-artifactId>-->
+        <!--<implementation-version>7.0.0.Final</implementation-version>-->
+
+        <!--&lt;!&ndash; Change the following properties to your CacheManager and Cache implementation. Used by the unwrap tests. &ndash;&gt;-->
+        <!--<CacheManagerImpl>org.infinispan.jcache.JCacheManager</CacheManagerImpl>-->
+        <!--<CacheImpl>org.infinispan.jcache.JCache</CacheImpl>-->
+        <!--<CacheEntryImpl>org.infinispan.jcache.JCacheEntry</CacheEntryImpl>-->
+
+
+        <!--&lt;!&ndash;Change the following to point to your MBeanServer, so that the TCK can resolve it. &ndash;&gt;-->
+        <!--&lt;!&ndash;<javax.management.builder.initial>com.hazelcast.cache.impl.TCKMBeanServerBuilder&ndash;&gt;-->
+        <!--&lt;!&ndash;</javax.management.builder.initial>&ndash;&gt;-->
+        <!--&lt;!&ndash;<org.jsr107.tck.management.agentId>TCKMbeanServer</org.jsr107.tck.management.agentId>&ndash;&gt;-->
+        <!--&lt;!&ndash;<jsr107.api.version>1.0.0</jsr107.api.version>&ndash;&gt;-->
+
+        <!--&lt;!&ndash;Select a specific provider out of client and server for Hazelcast&ndash;&gt;-->
+        <!--&lt;!&ndash;<javax.cache.spi.cachingprovider>com.hazelcast.client.cache.impl.HazelcastClientCachingProvider</javax.cache.spi.cachingprovider>&ndash;&gt;-->
+
+        <!--&lt;!&ndash;################################################################################################################&ndash;&gt;-->
+    <!--</properties>-->
+
+
+    <!--Hazelcast Client - ensure you have a cluster running which the client can connect to-->
+    <!--<properties>-->
+    <!--<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>-->
+    <!--<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>-->
+    <!--<CacheInvocationContextImpl>-->
+    <!--javax.cache.annotation.impl.cdi.CdiCacheKeyInvocationContextImpl-->
+    <!--</CacheInvocationContextImpl>-->
+    <!--<domain-lib-dir>${project.build.directory}/domainlib</domain-lib-dir>-->
+    <!--<domain-jar>domain.jar</domain-jar>-->
+
+    <!--################################################################################################################-->
+    <!--Change the following properties on the command line to override with the coordinates for your implementation-->
+    <!--<implementation-groupId>com.hazelcast</implementation-groupId>-->
+    <!--<implementation-artifactId>hazelcast</implementation-artifactId>-->
+    <!--<implementation-artifactId>hazelcast-all</implementation-artifactId>-->
+    <!--<implementation-version>3.4-SNAPSHOT</implementation-version>-->
+    <!-- Change the following properties to your CacheManager and Cache implementation. Used by the unwrap tests. -->
+    <!--<CacheManagerImpl>com.hazelcast.cache.impl.HazelcastCacheManager</CacheManagerImpl>-->
+    <!--<CacheImpl>com.hazelcast.cache.ICache</CacheImpl>-->
+    <!--<CacheEntryImpl>com.hazelcast.cache.impl.CacheEntry</CacheEntryImpl>-->
+    <!--Change the following to point to your MBeanServer, so that the TCK can resolve it. -->
+    <!--<javax.management.builder.initial>com.hazelcast.cache.impl.TCKMBeanServerBuilder</javax.management.builder.initial>-->
+    <!--<org.jsr107.tck.management.agentId>TCKMbeanServer</org.jsr107.tck.management.agentId>-->
+    <!--<jsr107.api.version>1.0.0</jsr107.api.version>-->
+    <!--################################################################################################################-->
+    <!--</properties>-->
 
 
     <build>
