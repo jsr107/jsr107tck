@@ -65,17 +65,17 @@ public class CachingProviderClassLoaderTest {
    */
   @Test
   public void getCacheManagerSingleton() {
-    ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
+    CachingProvider provider = Caching.getCachingProvider();
 
-    CachingProvider provider = Caching.getCachingProvider(contextLoader);
-
+    ClassLoader classLoader = provider.getDefaultClassLoader();
+    
     CacheManager manager = provider.getCacheManager();
     assertNotNull(manager);
     assertSame(manager, provider.getCacheManager());
-    assertSame(manager, provider.getCacheManager(provider.getDefaultURI(), contextLoader));
+    assertSame(manager, provider.getCacheManager(provider.getDefaultURI(), classLoader));
 
     // using a different ClassLoader
-    ClassLoader otherLoader = new MyClassLoader(contextLoader);
+    ClassLoader otherLoader = new MyClassLoader(classLoader);
     CachingProvider otherProvider = Caching.getCachingProvider(otherLoader);
     assertNotSame(provider, otherProvider);
 
@@ -83,7 +83,7 @@ public class CachingProviderClassLoaderTest {
 
     assertNotSame(manager, otherManager);
     assertSame(otherManager, otherProvider.getCacheManager());
-    assertSame(otherManager, otherProvider.getCacheManager(otherProvider.getDefaultURI(), contextLoader));
+    assertSame(otherManager, otherProvider.getCacheManager(otherProvider.getDefaultURI(), classLoader));
   }
 
   /**
