@@ -107,7 +107,9 @@ public class CacheMXBeanTest extends CacheTestSupport<Long, String> {
     assertEquals(storeByValue, lookupManagementAttribute(cache, CacheConfiguration, "StoreByValue"));
     assertEquals(false, lookupManagementAttribute(cache, CacheConfiguration, "StatisticsEnabled"));
     assertEquals(true, lookupManagementAttribute(cache, CacheConfiguration, "ManagementEnabled"));
-    cache.close();
+
+    //this used to just call close() but that does not work if an implementation maintains statistics on the cluster.
+    cache.getCacheManager().destroyCache("customCache");
   }
 
 }
