@@ -44,7 +44,7 @@
         <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
+            <version>${jcache.version}</version>
         </dependency>
 
         <dependency>
@@ -137,6 +137,13 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
 
+            <properties>
+                <implementation-groupId>org.infinispan</implementation-groupId>
+                <implementation-artifactId>infinispan-jcache</implementation-artifactId>
+                <implementation-version>7.0.2.Final</implementation-version>
+            </properties>
+
+
             <dependencies>
                 <dependency>
                     <groupId>${implementation-groupId}</groupId>
@@ -160,14 +167,18 @@
                         <version>2.9</version>
                         <configuration>
                             <systemPropertyVariables>
+                                <java.net.preferIPv4Stack>${java.net.preferIPv4Stack}</java.net.preferIPv4Stack>
                                 <domainJar>${domain-lib-dir}/${domain-jar}</domainJar>
-                                <javax.management.builder.initial> ${javax.management.builder.initial}</javax.management.builder.initial>
-                                <org.jsr107.tck.management.agentId>${org.jsr107.tck.management.agentId}</org.jsr107.tck.management.agentId>
+                                <javax.management.builder.initial>${javax.management.builder.initial}
+                                </javax.management.builder.initial>
+                                <org.jsr107.tck.management.agentId>${org.jsr107.tck.management.agentId}
+                                </org.jsr107.tck.management.agentId>
                                 <javax.cache.CacheManager>${CacheManagerImpl}</javax.cache.CacheManager>
                                 <javax.cache.Cache>${CacheImpl}</javax.cache.Cache>
                                 <javax.cache.Cache.Entry>${CacheEntryImpl}</javax.cache.Cache.Entry>
                                 <javax.cache.annotation.CacheInvocationContext>$
-                            {CacheInvocationContextImpl}</javax.cache.annotation.CacheInvocationContext>
+                                    {CacheInvocationContextImpl}
+                                </javax.cache.annotation.CacheInvocationContext>
                             </systemPropertyVariables>
                             <excludes>
                                 <exclude>**/annotation/*Test.java</exclude>

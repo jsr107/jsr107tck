@@ -117,6 +117,7 @@
                 <version>2.9</version>
                 <configuration>
                     <systemPropertyVariables>
+                        <java.net.preferIPv4Stack>${java.net.preferIPv4Stack}</java.net.preferIPv4Stack>
                         <domainJar>${domain-lib-dir}/${domain-jar}</domainJar>
                         <javax.management.builder.initial>${javax.management.builder.initial}</javax.management.builder.initial>
                         <org.jsr107.tck.management.agentId>${org.jsr107.tck.management.agentId}</org.jsr107.tck.management.agentId>
