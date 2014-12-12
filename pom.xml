@@ -205,7 +205,7 @@
                 <!--Change the following properties on the command line to override with the coordinates for your implementation-->
                 <implementation-groupId>org.jsr107.ri</implementation-groupId>
                 <implementation-artifactId>cache-ri-impl</implementation-artifactId>
-                <implementation-version>${project.parent.version}</implementation-version>
+                <implementation-version>1.0.0</implementation-version>
 
                 <!-- Change the following properties to your CacheManager and Cache implementation. Used by the unwrap tests. -->
                 <CacheManagerImpl>org.jsr107.ri.RICacheManager</CacheManagerImpl>
