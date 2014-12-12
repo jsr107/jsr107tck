@@ -65,25 +65,38 @@ public class CachingProviderClassLoaderTest {
    */
   @Test
   public void getCacheManagerSingleton() {
-    ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
 
-    CachingProvider provider = Caching.getCachingProvider(contextLoader);
+    // obtain the default caching provider
+    CachingProvider provider = Caching.getCachingProvider();
 
+    // obtain the default class loader
+    ClassLoader classLoader = Caching.getDefaultClassLoader();
+
+    // obtain the default cache manager
     CacheManager manager = provider.getCacheManager();
+
+    assertNotNull(provider);
+    assertNotNull(classLoader);
     assertNotNull(manager);
-    assertSame(manager, provider.getCacheManager());
-    assertSame(manager, provider.getCacheManager(provider.getDefaultURI(), contextLoader));
+
+    // ensure the default manager is the same as asking the provider
+    // for a cache manager using the default URI and classloader
+    assertSame(manager, provider.getCacheManager(provider.getDefaultURI(), classLoader));
 
     // using a different ClassLoader
-    ClassLoader otherLoader = new MyClassLoader(contextLoader);
+    ClassLoader otherLoader = new MyClassLoader(classLoader);
     CachingProvider otherProvider = Caching.getCachingProvider(otherLoader);
+
+    // ensure that the providers are different
     assertNotSame(provider, otherProvider);
 
     CacheManager otherManager = otherProvider.getCacheManager();
 
+    // ensure that the managers are different
     assertNotSame(manager, otherManager);
+
     assertSame(otherManager, otherProvider.getCacheManager());
-    assertSame(otherManager, otherProvider.getCacheManager(otherProvider.getDefaultURI(), contextLoader));
+    assertSame(otherManager, otherProvider.getCacheManager(otherProvider.getDefaultURI(), classLoader));
   }
 
   /**
