@@ -80,7 +80,7 @@ public class Client implements AutoCloseable {
     Logger logger = Logger.getLogger(this.getClass().getName());
     this.port = port;
     try {
-        logger.log(Level.FINE, "Starting " + this.getClass().getCanonicalName() +
+        logger.log(Level.INFO, "Starting " + this.getClass().getCanonicalName() +
                 " client connecting to server at address:" + address + " port:" + port);
         this.socket = new Socket(address, port);
     } catch (IOException ioe) {

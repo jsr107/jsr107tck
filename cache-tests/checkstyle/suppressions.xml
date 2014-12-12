@@ -9,6 +9,7 @@
     <suppress checks="StrictDuplicateCode" files=".java" lines="1-15"/>
 
     <suppress checks="NPathComplexity" files="Dog.java"/>
+    <suppress checks="NPathComplexity" files="Server.java"/>
 
 
 
