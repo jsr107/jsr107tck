@@ -354,6 +354,16 @@ public class Server implements AutoCloseable {
       Enumeration en = NetworkInterface.getNetworkInterfaces();
       while (en.hasMoreElements()) {
         NetworkInterface i = (NetworkInterface) en.nextElement();
+
+        // skip virtual interface name
+        if (i.isPointToPoint()) {
+            continue;
+        }
+
+        // skip offline interfaces
+        if (!i.isUp()) {
+            continue;
+        }
         for (Enumeration en2 = i.getInetAddresses(); en2.hasMoreElements();) {
           InetAddress addr = (InetAddress) en2.nextElement();
           if (!addr.isLoopbackAddress()) {
