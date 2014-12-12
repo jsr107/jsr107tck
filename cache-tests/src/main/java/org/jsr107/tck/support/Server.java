@@ -107,11 +107,12 @@ public class Server implements AutoCloseable {
 
   /**
    * Opens and starts the {@link Server}.
-   * <p/>
+   * <p>
    * Does nothing if the {@link Server} is already open.
    *
    * @return the {@link InetAddress} on which the {@link Server}
    *         is accepting requests from {@link Client}s.
+   * @throws IOException if not able to create ServerSocket
    */
   public synchronized InetAddress open() throws IOException {
     if (serverSocket == null) {
@@ -177,7 +178,7 @@ public class Server implements AutoCloseable {
 
   /**
    * Stops the {@link Server}.
-   * <p/>
+   *
    * Does nothing if the {@link Server} is already stopped.
    */
   public synchronized void close() {

@@ -18,7 +18,7 @@
 
 
 /**
- * This package is a central location to contain implementations of {@link javax.cache.Cache.EntryProcessor} to be used
+ * This package is a central location to contain implementations of {@link javax.cache.processor.EntryProcessor} to be used
  * by the TCK. The entry processors are Serializable so they can work in distributed environments.
  *
  * @author Greg Luck

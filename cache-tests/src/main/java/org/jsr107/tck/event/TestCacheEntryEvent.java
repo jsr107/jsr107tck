@@ -23,8 +23,8 @@ import java.io.ObjectInputStream;
 
 /**
  *
- * @param <K>
- * @param <V>
+ * @param <K> key class
+ * @param <V> value class
  */
 public class TestCacheEntryEvent<K, V> extends CacheEntryEvent<K, V> {
   @Override

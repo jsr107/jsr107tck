@@ -32,6 +32,7 @@ public class Identifier2 {
   /**
    * Constructor
    *
+   * @param name name
    */
   public Identifier2(String name) {
     this.name = name;

@@ -17,13 +17,12 @@
 
 /**
  This package contains the reference implementation for JSR107.
- <p/>
- This is meant to act as a proof of concept for the API. It is not thread-safe
- or high performance. It therefore is
- not suitable for use in production. Please use a production implementation of the API.
- <p/>
-
- @author Greg Luck
- @author Brian Oliver
+ * <p>
+ * This is meant to act as a proof of concept for the API. It is not thread-safe
+ * or high performance. It therefore is
+ * not suitable for use in production. Please use a production implementation of the API.
+ *
+ * @author Greg Luck
+ * @author Brian Oliver
  */
 package org.jsr107.tck.support;

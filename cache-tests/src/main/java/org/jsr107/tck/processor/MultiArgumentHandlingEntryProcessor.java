@@ -27,9 +27,9 @@ import java.io.Serializable;
 
 /**
  *
- * @param <K>
- * @param <V>
- * @param <T>
+ * @param <K> key class
+ * @param <V> value class
+ * @param <T> process return type
  */
 public class MultiArgumentHandlingEntryProcessor<K, V, T> implements EntryProcessor<K, V, T>, Serializable {
     private final T ret;

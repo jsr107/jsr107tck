@@ -56,6 +56,8 @@ public class CacheEntryListenerServer<K, V> extends Server {
    * Constructs an CacheLoaderServer.
    *
    * @param port        the port on which to accept {@link org.jsr107.tck.integration.CacheLoaderClient} request.
+   * @param keyClass    the class for entry key
+   * @param valueClass  the class for entry value
    */
   public CacheEntryListenerServer(int port, Class keyClass, Class valueClass) {
     super(port);

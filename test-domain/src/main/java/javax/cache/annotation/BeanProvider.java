@@ -26,6 +26,11 @@ package javax.cache.annotation;
 public interface BeanProvider {
   /**
    * Load the specified bean from the test-domain project configured appropriately for annotation testing
+   *
+   * @param <T>        bean type
+   * @param beanClass  the bean class
+   *
+   * @return instance of Bean Provider
    */
   <T> T getBeanByType(Class<T> beanClass);
 }

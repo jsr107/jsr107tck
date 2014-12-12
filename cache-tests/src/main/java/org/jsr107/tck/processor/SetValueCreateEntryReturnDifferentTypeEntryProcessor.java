@@ -62,8 +62,8 @@ public class SetValueCreateEntryReturnDifferentTypeEntryProcessor<K, V, T> imple
   /**
    * Constructs a {@link SetValueCreateEntryReturnDifferentTypeEntryProcessor}.
    *
-   * @param result
-   * @param newValue
+   * @param result   process result
+   * @param newValue new entry value
    */
   public SetValueCreateEntryReturnDifferentTypeEntryProcessor(T result, V newValue) {
     this.value = newValue;

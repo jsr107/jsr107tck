@@ -43,7 +43,7 @@ public interface Operation<T> {
 
   /**
    * Initiate and invoke an operation returning the result.
-   * <p/>
+   * <p>
    * This method is executed by a {@link Client} in response to a
    * {@link Client#invoke(Operation)} request.  The objective of this method
    * is to send/receive information to/from a {@link Server} using the

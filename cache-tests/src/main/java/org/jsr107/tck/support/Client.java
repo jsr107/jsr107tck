@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 /**
  * A rudimentary {@link Client} that is used to invoke {@link Operation}s, those
  * of which will be handled by a {@link Server}.
- * <p/>
+ * <p>
  * Note: Only a single-thread should access individual {@link Client} instances
  * at any point in time.   Should multiple-threaded access be required,
  * additional {@link Client} instances should be created, one per thread.

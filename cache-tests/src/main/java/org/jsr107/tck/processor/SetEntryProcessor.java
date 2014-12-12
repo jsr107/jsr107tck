@@ -54,7 +54,7 @@ public class SetEntryProcessor<K, V> implements EntryProcessor<K, V, V>, Seriali
   /**
    * Constructs a {@link SetEntryProcessor}.
    *
-   * @param value
+   * @param value entry value
    */
   public SetEntryProcessor(V value) {
     this.value = value;
