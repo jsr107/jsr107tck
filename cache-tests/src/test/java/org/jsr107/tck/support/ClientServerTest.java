@@ -29,7 +29,7 @@ public class ClientServerTest {
     try {
       server.open();
 
-      Client client = new Client(server.getInetAddress(), 10000);
+      Client client = new Client(server.getInetAddress(), server.getPort());
 
       String result = client.invoke(new PingPong());
 
