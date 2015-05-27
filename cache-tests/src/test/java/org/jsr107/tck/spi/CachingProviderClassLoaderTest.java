@@ -75,28 +75,21 @@ public class CachingProviderClassLoaderTest {
     // obtain the default cache manager
     CacheManager manager = provider.getCacheManager();
 
-    assertNotNull(provider);
     assertNotNull(classLoader);
     assertNotNull(manager);
 
     // ensure the default manager is the same as asking the provider
     // for a cache manager using the default URI and classloader
-    assertSame(manager, provider.getCacheManager(provider.getDefaultURI(), classLoader));
+    assertSame(manager, provider.getCacheManager());
+    assertSame(manager, provider.getCacheManager(provider.getDefaultURI(), provider.getDefaultClassLoader()));
 
     // using a different ClassLoader
     ClassLoader otherLoader = new MyClassLoader(classLoader);
     CachingProvider otherProvider = Caching.getCachingProvider(otherLoader);
 
-    // ensure that the providers are different
-    assertNotSame(provider, otherProvider);
-
     CacheManager otherManager = otherProvider.getCacheManager();
-
-    // ensure that the managers are different
-    assertNotSame(manager, otherManager);
-
     assertSame(otherManager, otherProvider.getCacheManager());
-    assertSame(otherManager, otherProvider.getCacheManager(otherProvider.getDefaultURI(), classLoader));
+    assertSame(otherManager, otherProvider.getCacheManager(otherProvider.getDefaultURI(), otherProvider.getDefaultClassLoader()));
   }
 
   /**
