@@ -137,13 +137,6 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
 
-            <properties>
-                <implementation-groupId>org.infinispan</implementation-groupId>
-                <implementation-artifactId>infinispan-jcache</implementation-artifactId>
-                <implementation-version>7.0.2.Final</implementation-version>
-            </properties>
-
-
             <dependencies>
                 <dependency>
                     <groupId>${implementation-groupId}</groupId>

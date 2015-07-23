@@ -589,6 +589,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
 
     boolean result = cache.putIfAbsent(1L, "succeeded");
     putCount++;
+    missCount++;
     assertTrue(result);
     assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
@@ -597,6 +598,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
 
     result = cache.putIfAbsent(1L, "succeeded");
     assertFalse(result);
+    hitCount++;
     assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
     assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
