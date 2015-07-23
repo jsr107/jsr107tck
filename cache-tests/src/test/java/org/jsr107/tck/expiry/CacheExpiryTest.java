@@ -152,7 +152,7 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
       cache.put(i, i+100);
     }
     //should work with all implementations
-    Thread.sleep(50);
+    Thread.sleep(1100);
     cache.removeAll();
 
     assertEquals(100L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
