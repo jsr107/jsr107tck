@@ -311,12 +311,12 @@ public class Server implements AutoCloseable {
         final int ephemeralPort = 0;
         ServerSocket result = null;
         try {
-            result = new ServerSocket(port);
+            result = new ServerSocket(port, 50, getServerInetAddress());
         } catch (IOException e) {
 
             // requested port may still be in use due to linger on close on some OSs,
             // use ephemeral port for server socket
-            result = new ServerSocket(ephemeralPort);
+            result = new ServerSocket(ephemeralPort, 50, getServerInetAddress());
             LOG.warning("createServerSocket: unable to use requested port " + port +
                     "; using ephemeral port " + result.getLocalPort());
             this.port = result.getLocalPort();
@@ -327,8 +327,19 @@ public class Server implements AutoCloseable {
     }
 
     /**
-     * to support distributed testing, return a non-loopback address if available
-     *
+     * To support distributed testing, return a non-loopback address if available.
+     * <p>
+     * By default, on a machine with multiple network interfaces, the appropriate
+     * ip address is selected based on values of java network system properties java.net.preferIPv4Stack
+     * and java.net.preferIPv6Addresses.
+     * <p>
+     * A user can override the automated selection by specifying a network interface with
+     * system property org.jsr107.tck.support.server.networkinterface set to the
+     * display name of the network interface or explicitly setting the server address with
+     * system property org.jsr107.tck.support.server.address.  The address value may be either
+     * ipv4 or ipv6, the value should be consistent with the values of the java network properties                                  q
+     * mentioned above.
+     * <p>
      * @return remote addressable inet address
      * @throws SocketException
      * @throws UnknownHostException
@@ -337,11 +348,42 @@ public class Server implements AutoCloseable {
         if (serverSocketAddress == null) {
             boolean preferIPV4Stack = Boolean.getBoolean("java.net.preferIPv4Stack");
             boolean preferIPV6Addresses = Boolean.getBoolean("java.net.preferIPv6Addresses") && !preferIPV4Stack;
-            try {
-                serverSocketAddress = getFirstNonLoopbackAddress(preferIPV4Stack, preferIPV6Addresses);
-            } catch (SocketException e) {
-                e.printStackTrace();
+
+            String serverAddress = System.getProperty("org.jsr107.tck.support.server.address");
+            if (serverAddress != null) {
+                try {
+                    serverSocketAddress = InetAddress.getByName(serverAddress);
+                } catch (UnknownHostException e) {
+                    // ignore
+                     LOG.log(Level.WARNING,
+                             "ignoring system property org.jsr107.tck.support.server.address due to exception", e);
+                }
             }
+
+            NetworkInterface serverSocketNetworkInterface = null;
+            if (serverSocketAddress == null)  {
+                String niName = System.getProperty("org.jsr107.tck.support.server.networkinterface");
+                try {
+                    serverSocketNetworkInterface = niName == null ? null : NetworkInterface.getByName(niName);
+                    if (serverSocketNetworkInterface != null) {
+                        serverSocketAddress =
+                                getFirstNonLoopbackAddress(serverSocketNetworkInterface, preferIPV4Stack, preferIPV6Addresses);
+                    }
+                    if (serverSocketAddress == null)  {
+                        LOG.log(Level.WARNING,
+                            "ignoring system property org.jsr107.tck.support.server.networkinterface with value:"
+                                + niName);
+                    }
+                } catch (SocketException e) {
+                    LOG.log(Level.WARNING,
+                                "ignoring system property org.jsr107.tck.support.server.networkinterface due to exception", e);
+                }
+            }
+
+            if (serverSocketAddress == null) {
+                serverSocketAddress = getFirstNonLoopbackAddress(preferIPV4Stack, preferIPV6Addresses);
+            }
+
             if (serverSocketAddress == null) {
                 LOG.warning("no remote ip address available so only possible to test using loopback address.");
                 serverSocketAddress = InetAddress.getLocalHost();
@@ -359,45 +401,53 @@ public class Server implements AutoCloseable {
      * @throws SocketException
      */
     private static InetAddress getFirstNonLoopbackAddress(boolean preferIPv4, boolean preferIPv6) throws SocketException {
+        InetAddress result = null;
         Enumeration en = NetworkInterface.getNetworkInterfaces();
-        while (en.hasMoreElements()) {
-            NetworkInterface i = (NetworkInterface) en.nextElement();
+        while (result == null && en.hasMoreElements()) {
+            result = getFirstNonLoopbackAddress((NetworkInterface) en.nextElement(), preferIPv4, preferIPv6);
+        }
+        return result;
+    }
 
-            // skip virtual interface name
-            if (i.isVirtual()) {
-                continue;
-            }
+   /**
+    * Get non-loopback address.  InetAddress.getLocalHost() does not work on machines without static ip address.
+    *
+    * @param ni target network interface
+    * @param preferIPv4 true iff require IPv4 addresses only
+    * @param preferIPv6 true iff prefer IPv6 addresses
+    * @return nonLoopback {@link InetAddress}
+    * @throws SocketException
+    */
+    private static InetAddress getFirstNonLoopbackAddress(NetworkInterface ni,
+                                                          boolean preferIPv4,
+                                                          boolean preferIPv6) throws SocketException {
+        InetAddress result = null;
 
-
-            // skip virtual interface name
-            if (i.isPointToPoint()) {
-                continue;
-            }
-
-            // skip offline interfaces
-            if (!i.isUp()) {
-                continue;
-            }
-
-            LOG.info("Interface name is: " + i.getDisplayName());
-            for (Enumeration en2 = i.getInetAddresses(); en2.hasMoreElements(); ) {
-                InetAddress addr = (InetAddress) en2.nextElement();
-                if (!addr.isLoopbackAddress()) {
-                    if (addr instanceof Inet4Address) {
-                        if (preferIPv6) {
-                            continue;
-                        }
-                        return addr;
+        // skip virtual interface name, PTP and non-running interface.
+        if (ni.isVirtual() || ni.isPointToPoint() || ! ni.isUp()) {
+            return result;
+        }
+        LOG.info("Interface name is: " + ni.getDisplayName());
+        for (Enumeration en2 = ni.getInetAddresses(); en2.hasMoreElements(); ) {
+            InetAddress addr = (InetAddress) en2.nextElement();
+            if (!addr.isLoopbackAddress()) {
+                if (addr instanceof Inet4Address) {
+                    if (preferIPv6) {
+                        continue;
                     }
-                    if (addr instanceof Inet6Address) {
-                        if (preferIPv4) {
-                            continue;
-                        }
-                        return addr;
+                    result = addr;
+                    break;
+                }
+
+                if (addr instanceof Inet6Address) {
+                    if (preferIPv4) {
+                        continue;
                     }
+                    result = addr;
+                    break;
                 }
             }
         }
-        return null;
+        return result;
     }
 }
