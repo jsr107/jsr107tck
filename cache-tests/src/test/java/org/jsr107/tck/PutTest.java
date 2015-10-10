@@ -33,8 +33,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
+ * <p>
  * Unit tests for Cache.
- * <p/>
+ * </p>
  * Testing
  * <pre>
  * void put(K key, V value);
@@ -42,10 +43,10 @@ import static org.junit.Assert.fail;
  * boolean putIfAbsent(K key, V value);
  * void putAll(java.util.Map<? extends K, ? extends V> map);
  * </pre>
- * <p/>
+ * <p>
  * When it matters whether the cache is stored by reference or by value, see {@link StoreByValueTest} and
  * {@link StoreByReferenceTest}.
- *
+ * </p>
  * @author Yannis Cosmadopoulos
  * @since 1.0
  */

@@ -53,10 +53,10 @@ import static org.junit.Assert.fail;
 
 /**
  * Unit tests for Cache.
- * <p/>
+ * <p>
  * When it matters whether the cache is stored by reference or by value,
  * see {@link StoreByValueTest} and {@link StoreByReferenceTest}.
- *
+ * </p>
  * @author Yannis Cosmadopoulos
  * @since 1.0
  */

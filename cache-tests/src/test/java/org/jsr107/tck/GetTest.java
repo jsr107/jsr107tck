@@ -37,14 +37,15 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
+ * <p>
  * Unit tests for Cache.
- * <p/>
+ * </p>
  * Testing
  * <pre>
  * V get(Object key);
  * Map<K, V> getAll(Collection<? extends K> keys);
  * </pre>
- * <p/>
+ * </p>
  * When it matters whether the cache is stored by reference or by value, see
  * {@link
  * StoreByValueTest} and

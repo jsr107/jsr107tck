@@ -33,7 +33,6 @@ import java.util.logging.Logger;
 
 /**
  * Unit test support base class
- * <p/>
  *
  * @author Yannis Cosmadopoulos
  * @author Greg Luck

@@ -44,10 +44,10 @@ import static org.junit.Assert.assertThat;
 
 /**
  * Tests the Cache  using the platform MBeanServer
- * <p/>
+ * <p>
  * To examine a typical cache in JConsole, run the main() method and start JConsole. As we only using OpenMBeans there is
  * no need to add any classpath.
- *
+ * </p>
  * As the specification states that the MBeanServer in which mBeans are
  * registered is implementation dependent, the TCK needs a way to test MBeans.
  *

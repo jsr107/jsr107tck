@@ -39,8 +39,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
+ * <p>
  * Unit test for Cache.
- * <p/>
+ * </p>
  *
  * @author Yannis Cosmadopoulos
  * @since 1.0

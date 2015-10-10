@@ -157,11 +157,11 @@ public class ConfigurationTest extends CacheTestSupport {
      * Sets the expected type of keys and values for a {@link Cache}
      * configured with this {@link Configuration}. Setting both to
      * <code>Object.class</code> means type-safety checks are not required.
-     * <p/>
+     * <p>
      * This is used by {@link javax.cache.CacheManager} to ensure that the key and
      * value types are the same as those configured for the {@link Cache} prior to
      * returning a requested cache from this method.
-     * <p/>
+     * </p>
      * Implementations may further perform type checking on mutative cache
      * operations and throw a {@link ClassCastException} if these checks fail.
      *

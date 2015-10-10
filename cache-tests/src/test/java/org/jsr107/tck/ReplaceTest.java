@@ -33,12 +33,12 @@ import static org.junit.Assert.fail;
 
 /**
  * Unit tests for Cache.
- * <p/>
+ * <p>
  * Testing
  * <pre>
  * V get(Object key);
  * </pre>
- * <p/>
+ * </p>
  * When it matters whether the cache is stored by reference or by value, see {@link StoreByValueTest} and
  * {@link StoreByReferenceTest}.
  *

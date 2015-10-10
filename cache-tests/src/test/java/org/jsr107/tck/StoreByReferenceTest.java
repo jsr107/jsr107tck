@@ -39,9 +39,9 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * Implementations can optionally support storeByReference.
- * <p/>
+ * <p>
  * Tests aspects where storeByReference makes a difference
- * <p/>
+ * </p>
  *
  * @author Yannis Cosmadopoulos
  * @author Greg Luck

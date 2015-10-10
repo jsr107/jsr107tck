@@ -62,9 +62,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 /**
+ * <p>
  * Unit tests for Cache Listeners.
- * <p/>
- *
+ * </p>
  * @author Greg Luck
  * @author Brian Oliver
  * @since 1.0

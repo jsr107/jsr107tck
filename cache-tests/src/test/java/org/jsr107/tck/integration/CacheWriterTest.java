@@ -52,9 +52,9 @@ import static org.junit.Assert.fail;
 
 /**
  * Functional test for {@link javax.cache.integration.CacheWriter}s.
- * <p/>
+ * <p>
  * Cache methods are tested in order listed in Write-Through Caching table in JCache specification.
- *
+ * </p>
  * @author Joe Fialli
  */
 public class CacheWriterTest extends TestSupport {

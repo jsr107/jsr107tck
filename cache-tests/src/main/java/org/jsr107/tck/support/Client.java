@@ -46,22 +46,25 @@ public class Client implements AutoCloseable {
 
   /**
    * The {@link Socket} connecting the {@link Client} to the {@link Server}.
-   * <p/>
+   * <p>
    * When this is <code>null</code> the {@link Client} is not connected.
+   * </p>
    */
   private Socket socket;
 
   /**
    * The {@link ObjectOutputStream} to the {@link Server}.
-   * <p/>
+   * <p>
    * When this is <code>null</code> the {@link Client} is not connected.
+   * </p>
    */
   private ObjectOutputStream oos;
 
   /**
    * The {@link ObjectInputStream} from the {@link Server}.
-   * <p/>
+   * <p>
    * When this is <code>null</code> the {@link Client} is not connected.
+   * </p>
    */
   private ObjectInputStream ois;
 

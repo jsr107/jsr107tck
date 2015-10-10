@@ -42,7 +42,6 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * Unit test support base class
- * <p/>
  *
  * @author Yannis Cosmadopoulos
  * @since 1.0

@@ -37,7 +37,7 @@ import static org.junit.Assert.fail;
 
 /**
  * Unit tests for Cache.
- * <p/>
+ * <p>
  * Testing
  * <pre>
  * boolean remove(Object key);
@@ -46,7 +46,7 @@ import static org.junit.Assert.fail;
  * void removeAll(Collection<? extends K> keys);
  * void removeAll();
  * </pre>
- * <p/>
+ * </p>
  * When it matters whether the cache is stored by reference or by value, see {@link StoreByValueTest} and
  * {@link StoreByReferenceTest}.
  *

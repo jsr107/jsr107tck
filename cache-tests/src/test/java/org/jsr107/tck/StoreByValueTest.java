@@ -32,9 +32,9 @@ import static org.junit.Assert.assertNull;
 
 /**
  * Cache implementations must support storeByValue.
- * <p/>
+ * <p>
  * Tests aspects where storeByValue makes a difference
- *
+ * </p>
  * @author Yannis Cosmadopoulos
  * @author Greg Luck
  * @since 1.0

@@ -47,7 +47,6 @@ import static org.junit.Assert.fail;
 
 /**
  * Unit tests for CacheManager
- * <p/>
  *
  * @author Yannis Cosmadopoulos
  * @since 1.0
