@@ -378,7 +378,7 @@ public class CacheManagerTest extends TestSupport {
     cacheManager.close();
   }
 
-  @Test
+  @Test(expected = IllegalStateException.class)
   public void close_cachesEmpty() {
     CacheManager cacheManager = getCacheManager();
 
@@ -386,7 +386,8 @@ public class CacheManagerTest extends TestSupport {
     cacheManager.createCache("c2", new MutableConfiguration());
 
     cacheManager.close();
-    assertFalse(cacheManager.getCacheNames().iterator().hasNext());
+    cacheManager.getCacheNames();
+    fail();
   }
 
   @Test
