@@ -99,6 +99,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     final float DELTA=1.0f;
 
     cache.put(1l, "Sooty");
+    cache.clear();
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
@@ -114,6 +115,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     entries.put(2l, "Lucky");
     entries.put(3l, "Prince");
     cache.putAll(entries);
+    cache.clear();
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
@@ -128,6 +130,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
 
     //Update. But we count these simply as puts for stats
     cache.put(1l, "Sooty");
+    cache.clear();
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
@@ -140,6 +143,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
 
     cache.putAll(entries);
+    cache.clear();
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
@@ -152,6 +156,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
 
     cache.getAndPut(4l, "Cody");
+    cache.clear();
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
     assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
@@ -163,24 +168,28 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
 
+    cache.put(4l, "Cody");
     cache.getAndPut(4l, "Cody");
+    cache.clear();
     assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
     assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(8L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    assertEquals(9L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
 
+    cache.put(1l, "Sooty");
     String value = cache.get(1l);
+    cache.clear();
     assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(66.0f, (float)lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"), DELTA);
     assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(33.0f, (float)lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"), DELTA);
-    assertEquals(8L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    assertEquals(10L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
@@ -190,11 +199,12 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
 
     //now do a second miss
     value = cache.get(1234324324l);
+    cache.clear();
     assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
     assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(8L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    assertEquals(10L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
@@ -202,13 +212,15 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
 
     //containsKey() should not affect statistics
+    cache.put(1l, "Sooty");
     assertTrue(cache.containsKey(1l));
     assertFalse(cache.containsKey(1234324324l));
+    cache.clear();
     assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
     assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(8L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    assertEquals(11L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
@@ -216,12 +228,14 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
 
 
+    cache.put(1l, "Sooty");
     assertTrue(cache.remove(1L));
+    cache.clear();
     assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
     assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(8L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    assertEquals(12L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
     assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
@@ -230,11 +244,12 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
 
     //no update to cache removals as does not exist
     assertFalse(cache.remove(1L));
+    cache.clear();
     assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
     assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(8L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    assertEquals(12L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
     assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
@@ -244,11 +259,12 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     //should update removals as succeeded
     cache.put(1l, "Sooty");
     assertTrue(cache.remove(1L, "Sooty"));
+    cache.clear();
     assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(60.0f, (float)lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"), DELTA);
     assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(40.0f, (float)lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"), DELTA);
-    assertEquals(9L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    assertEquals(13L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
     assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
@@ -258,11 +274,12 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
 
     //should not update removals as remove failed
     assertFalse(cache.remove(1L, "Sooty"));
+    cache.clear();
     assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
     assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(9L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    assertEquals(13L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
     assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
@@ -275,7 +292,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
     assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(9L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    assertEquals(13L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
     assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
@@ -284,11 +301,12 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
 
 
     cache.removeAll();
+    cache.clear();
     assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
     assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(9L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    assertEquals(13L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
     assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
@@ -298,11 +316,12 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     entries.put(21L, "Trinity");
     cache.putAll(entries);
     cache.removeAll();
+    cache.clear();
     assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
     assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(12L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    assertEquals(16L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
     assertEquals(5L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
@@ -313,11 +332,12 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     cache.putAll(entries);
     entries.remove(21L);
     cache.removeAll(entries.keySet());
+    cache.clear();
     assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
     assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(15L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    assertEquals(19L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
     assertEquals(7L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
@@ -325,11 +345,12 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
 
     cache.removeAll(entries.keySet());
+    cache.clear();
     assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
     assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(15L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    assertEquals(19L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
     assertEquals(7L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
@@ -354,6 +375,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     //non-existent key. cache miss.
     cache.invoke(1000l, new NoOpEntryProcessor<Long, String>());
 
+    cache.clear();
     assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"), greaterThanOrEqualTo(66.65f));
     assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
@@ -382,6 +404,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     //non-existent key. cache miss.
     cache.invoke(1000l, new NoOpEntryProcessor<Long, String>());
 
+    cache.clear(); // flush statistics
     assertEquals(result, "Sooty");
     assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"), greaterThanOrEqualTo(66.65f));
@@ -401,6 +424,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
 
     cache.put(1l, "Sooty");
     String result = cache.invoke(1l, new SetEntryProcessor<Long, String>("Trinity"));
+    cache.clear(); // flush statistics
     assertEquals(result, "Trinity");
     assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(100.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
@@ -419,6 +443,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
 
     cache.put(1l, "Sooty");
     String result = cache.invoke(1l, new RemoveEntryProcessor<Long, String, String>(true));
+    cache.clear(); // flush statistics
     assertEquals(result, "Sooty");
     assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(100.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
@@ -448,6 +473,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
       iterator.remove();
     }
 
+    cache.clear(); // flush statistics
     assertEquals(100L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(100.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
@@ -475,6 +501,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
 
     assertFalse(cache.containsKey(1L));
     assertEquals(null, result);
+    cache.clear();
     assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
@@ -483,6 +510,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     cache.put(1l, "Sooty");
     putCount++;
     assertTrue(cache.containsKey(1L));
+    cache.clear(); // flush statistics
     assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
@@ -490,15 +518,19 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     result = cache.getAndReplace(2L, "InvalidReplace");
     missCount++;
     assertEquals(null, result);
+    cache.clear(); // flush statistics
     assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
     assertFalse(cache.containsKey(2L));
 
+    cache.put(1l, "Sooty");
+    putCount++;
     result = cache.getAndReplace(1L, "Replaced");
     hitCount++;
     putCount++;
     assertEquals("Sooty", result);
+    cache.clear(); // flush statistics
     assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
@@ -516,6 +548,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     boolean result = cache.replace(1L, "MissingNoReplace");
     missCount++;
     assertFalse(result);
+    cache.clear(); // flush statistics
     assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
@@ -523,21 +556,28 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
 
     cache.put(1l, "Sooty");
     putCount++;
+    cache.clear(); // flush statistics
     assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
 
+    cache.put(1l, "Sooty");
+    putCount++;
     assertTrue(cache.containsKey(1L));
     result = cache.replace(2L, "InvalidReplace");
     missCount++;
     assertFalse(result);
+    cache.clear(); // flush statistics
     assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
     assertFalse(cache.containsKey(2L));
 
+    cache.put(1l, "Sooty");
+    putCount++;
     result = cache.replace(1L, "Replaced");
     hitCount++;
     putCount++;
     assertTrue(result);
+    cache.clear(); // flush statistics
     assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
@@ -553,6 +593,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     boolean result = cache.replace(1L, "MissingNoReplace", "NewValue");
     missCount++;
     assertFalse(result);
+    cache.clear();
     assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
@@ -560,20 +601,27 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
 
     cache.put(1l, "Sooty");
     putCount++;
+    cache.clear(); // flush statistics
     assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
 
+    cache.put(1l, "Sooty");
+    putCount++;
     assertTrue(cache.containsKey(1L));
     result = cache.replace(1L, "Sooty", "Replaced");
     hitCount++;
     putCount++;
     assertTrue(result);
+    cache.clear(); // flush statistics
     assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
 
+    cache.put(1l, "Replaced");
+    putCount++;
     result = cache.replace(1L, "Sooty", "InvalidReplace");
     hitCount++;
     assertFalse(result);
+    cache.clear(); // flush statistics
     assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
@@ -590,15 +638,20 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     boolean result = cache.putIfAbsent(1L, "succeeded");
     putCount++;
     missCount++;
+    assertTrue(cache.containsKey(1L));
+    cache.clear(); // flush statistics
     assertTrue(result);
     assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertTrue(cache.containsKey(1L));
 
+    cache.put(1L, "succeeded");
+    putCount++;
+    assertTrue(cache.containsKey(1L));
     result = cache.putIfAbsent(1L, "succeeded");
-    assertFalse(result);
     hitCount++;
+    assertFalse(result);
+    cache.clear(); // flush statistics
     assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
     assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
@@ -614,6 +667,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     String result = cache.getAndRemove(1L);
     missCount++;
     assertEquals(null, result);
+    cache.clear(); // flush statistics
     assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(removeCount, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
@@ -624,6 +678,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     hitCount++;
     removeCount++;
     assertEquals("added", result);
+    cache.clear(); // flush statistics
     assertEquals(removeCount, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
     assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
     assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
@@ -645,12 +700,14 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
 
       cache = mgr.createCache(getTestCacheName(), config);
       cache.put(1L, "hello");
+      cache.clear(); // flush statistics
       assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
 
       Map<Long, String> map = new HashMap<Long, String>();
       map.put(2L, "goodbye");
       map.put(3L, "world");
       cache.putAll(map);
+      cache.clear(); // flush statistics
       assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
   }
 
