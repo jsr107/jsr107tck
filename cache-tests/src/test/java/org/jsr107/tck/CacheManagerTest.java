@@ -34,6 +34,7 @@ import javax.cache.spi.CachingProvider;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
@@ -497,7 +498,9 @@ public class CacheManagerTest extends TestSupport {
     Cache cache1 = cacheManager.getCache("c1");
 
     try {
-      cacheManager.getCacheNames().iterator().remove();
+      Iterator iterator = cacheManager.getCacheNames().iterator();
+      iterator.next();
+      iterator.remove();
       fail();
     } catch (UnsupportedOperationException e) {
       // immutable
