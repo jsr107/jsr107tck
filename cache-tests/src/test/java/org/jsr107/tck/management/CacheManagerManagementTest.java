@@ -123,8 +123,10 @@ public class CacheManagerManagementTest {
   @After
   public void tearDown() throws MalformedObjectNameException {
     //assertEquals(0, mBeanServer.queryNames(new ObjectName("java.cache:*"), null).size());
-    for (String cacheName : cacheManager.getCacheNames()) {
-      cacheManager.destroyCache(cacheName);
+    if (!cacheManager.isClosed()) {
+      for (String cacheName : cacheManager.getCacheNames()) {
+        cacheManager.destroyCache(cacheName);
+      }
     }
     cacheManager.close();
     //All registered object names should be removed during shutdown
