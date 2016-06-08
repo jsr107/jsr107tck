@@ -801,6 +801,8 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
         assertThat(recordingCacheLoader.hasLoaded(key), is(true));
         assertThat(cache.get(key), is(equalTo(key)));
       }
+
+      closeTestCache();
     }
   }
 
@@ -1117,6 +1119,8 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
       assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(1));
       assertThat(expiryPolicy.getAccessCount(), is(0));
       assertThat(expiryPolicy.getUpdatedCount(), is(0));
+
+      closeTestCache();
     }
   }
 
@@ -1208,7 +1212,17 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
       assertThat(expiryPolicy.getAccessCount(), is(0));
       assertThat(expiryPolicy.getUpdatedCount(), is(0));
       expiryPolicy.resetCount();
+
+      closeTestCache();
     }
+  }
+
+  /**
+   * Helper method for all tests that define an extra cache loader. The cache needs to be closed
+   * before the server is close, since the server asserts that all clients have been closed correctly.
+   */
+  private void closeTestCache() {
+    getCacheManager().destroyCache(getTestCacheName());
   }
 
   @Test

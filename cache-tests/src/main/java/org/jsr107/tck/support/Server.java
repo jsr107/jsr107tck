@@ -1,6 +1,7 @@
 /**
  *  Copyright 2011-2013 Terracotta, Inc.
  *  Copyright 2011-2013 Oracle, Inc.
+ *  Copyright 2016 headissue GmbH
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,6 +17,7 @@
  */
 package org.jsr107.tck.support;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -39,6 +41,7 @@ import java.util.logging.Logger;
  * {@link Client}s.
  *
  * @author Brian Oliver
+ * @author Jens Wilke
  * @see Client
  * @see Operation
  * @see OperationHandler
@@ -50,6 +53,35 @@ public class Server implements AutoCloseable {
      */
     public static final  Logger LOG = Logger.getLogger(Server.class.getName());
 
+    /**
+     * Special operation to signal the server that the client has been closed.
+     */
+    public static final Operation<Void> CLOSE_OPERATION = new Operation<Void>() {
+        @Override
+        public String getType() {
+            return "CLOSE";
+        }
+
+      /**
+       * The connections are closed by the server upon receiving the closed operation.
+       * We need to block in the client until the server performed the close, to make
+       * sure the server has removed the client from the client collection map.
+       *
+       * <p>This is executed in the client after the close command is sent.
+       *
+       * @see Client#invoke(Operation)
+       */
+        @Override
+        public Void onInvoke(final ObjectInputStream ois, final ObjectOutputStream oos) throws IOException {
+            try {
+                ois.readByte();
+                throw new IOException("Unexpected data received from the server after close.");
+            } catch (EOFException expected) {
+                // connection successfully closed by the server
+            }
+            return null;
+        }
+    };
 
     /**
      * The port on which the {@link Server} will accept {@link Client} connections.
@@ -192,6 +224,15 @@ public class Server implements AutoCloseable {
             //we're now terminating
             isTerminating.set(true);
 
+            if (clientConnections.size() > 0) {
+                LOG.warning("Open client connections: " + clientConnections);
+                throw new IllegalStateException(
+                  "Excepting no open client connections. " +
+                  "Customizations implementing Closeable need to be closed. " +
+                  "See https://github.com/jsr107/jsr107tck/issues/100"
+                );
+            }
+
             //stop the server socket
             try {
                 serverSocket.close();
@@ -264,6 +305,15 @@ public class Server implements AutoCloseable {
                 while (true) {
                     try {
                         String operation = (String) ois.readObject();
+                        if (CLOSE_OPERATION.getType().equals(operation)) {
+                            // regular close, remove before closing
+                            Server.this.clientConnections.remove(identity);
+                            // connection close means we acknowledge to the client and the client may
+                            // complete the close operation.
+                            socket.close();
+                            socket = null;
+                            break;
+                        }
                         OperationHandler handler = Server.this.operationHandlers.get(operation);
 
                         if (handler != null) {
