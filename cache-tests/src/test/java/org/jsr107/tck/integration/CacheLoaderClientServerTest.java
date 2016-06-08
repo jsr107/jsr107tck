@@ -20,6 +20,7 @@ import static org.junit.Assert.fail;
  * classes.
  *
  * @author Brian Oliver
+ * @author Jens Wilke
  */
 public class CacheLoaderClientServerTest {
 
@@ -28,54 +29,36 @@ public class CacheLoaderClientServerTest {
    * the {@link CacheLoaderServer}.
    */
   @Test
-  public void shouldLoadFromServerWithClient() {
-
+  public void shouldLoadFromServerWithClient() throws Exception {
     RecordingCacheLoader<String> recordingCacheLoader = new RecordingCacheLoader<String>();
-
-
     CacheLoaderServer<String, String> serverCacheLoader = new CacheLoaderServer<String, String>(10000, recordingCacheLoader);
-
-    try {
-      serverCacheLoader.open();
-
-      CacheLoaderClient<String, String> clientCacheLoader = new CacheLoaderClient<>(serverCacheLoader.getInetAddress(), serverCacheLoader.getPort());
-
-      String value = clientCacheLoader.load("gudday");
-
-      Assert.assertThat(value, is(notNullValue()));
-      Assert.assertThat(value, is("gudday"));
-      Assert.assertThat(recordingCacheLoader.hasLoaded("gudday"), is(true));
-    } catch (Exception e) {
-
-    } finally {
-      serverCacheLoader.close();
-    }
+    serverCacheLoader.open();
+    CacheLoaderClient<String, String> clientCacheLoader = new CacheLoaderClient<>(serverCacheLoader.getInetAddress(), serverCacheLoader.getPort());
+    String value = clientCacheLoader.load("gudday");
+    Assert.assertThat(value, is(notNullValue()));
+    Assert.assertThat(value, is("gudday"));
+    Assert.assertThat(recordingCacheLoader.hasLoaded("gudday"), is(true));
+    clientCacheLoader.close();
+    serverCacheLoader.close();
   }
 
   /**
    * Ensure that exceptions thrown by an underlying cache loader are re-thrown.
    */
   @Test
-  public void shouldRethrowExceptions() {
-
+  public void shouldRethrowExceptions() throws Exception {
     FailingCacheLoader<String, String> failingCacheLoader = new FailingCacheLoader<>();
-
-
     CacheLoaderServer<String, String> serverCacheLoader = new CacheLoaderServer<String, String>(10000, failingCacheLoader);
-
+    serverCacheLoader.open();
+    CacheLoaderClient<String, String> clientCacheLoader = new CacheLoaderClient<>(serverCacheLoader.getInetAddress(), serverCacheLoader.getPort());
     try {
-      serverCacheLoader.open();
-
-      CacheLoaderClient<String, String> clientCacheLoader = new CacheLoaderClient<>(serverCacheLoader.getInetAddress(), serverCacheLoader.getPort());
-
       String value = clientCacheLoader.load("gudday");
-
       fail("An UnsupportedOperationException should have been thrown");
-    } catch (Exception e) {
-
-    } finally {
-      serverCacheLoader.close();
+    } catch (UnsupportedOperationException e) {
+     // expected
     }
+    clientCacheLoader.close();
+    serverCacheLoader.close();
   }
 
   /**
@@ -83,24 +66,34 @@ public class CacheLoaderClientServerTest {
    * {@link CacheLoaderServer} back to the {@link CacheLoaderClient}.
    */
   @Test
-  public void shouldLoadNullValuesFromServerWithClient() {
-
+  public void shouldLoadNullValuesFromServerWithClient() throws Exception {
     NullValueCacheLoader<String, String> nullCacheLoader = new NullValueCacheLoader<>();
-
     CacheLoaderServer<String, String> serverCacheLoader = new CacheLoaderServer<String, String>(10000, nullCacheLoader);
+    serverCacheLoader.open();
+    CacheLoaderClient<String, String> clientCacheLoader = new CacheLoaderClient<>(serverCacheLoader.getInetAddress(), serverCacheLoader.getPort());
+    String value = clientCacheLoader.load("gudday");
+    Assert.assertThat(value, is(nullValue()));
+    clientCacheLoader.close();
+    serverCacheLoader.close();
+  }
 
+  /**
+   * Assert that the server checks correctly whether open clients exists when close
+   * is called.
+   *
+   * @see <a href="https://github.com/jsr107/jsr107tck/issues/100">Customizations may implement Closeable</a>
+   */
+  @Test
+  public void clientMustBeClosedBeforeServer() throws Exception {
+    NullValueCacheLoader<String, String> nullCacheLoader = new NullValueCacheLoader<>();
+    CacheLoaderServer<String, String> serverCacheLoader = new CacheLoaderServer<String, String>(10000, nullCacheLoader);
+    serverCacheLoader.open();
+    CacheLoaderClient<String, String> clientCacheLoader = new CacheLoaderClient<>(serverCacheLoader.getInetAddress(), serverCacheLoader.getPort());
+    clientCacheLoader.load("hi");
     try {
-      serverCacheLoader.open();
-
-      CacheLoaderClient<String, String> clientCacheLoader = new CacheLoaderClient<>(serverCacheLoader.getInetAddress(), serverCacheLoader.getPort());
-
-      String value = clientCacheLoader.load("gudday");
-
-      Assert.assertThat(value, is(nullValue()));
-    } catch (Exception e) {
-
-    } finally {
       serverCacheLoader.close();
+    } catch (IllegalStateException e) {
+      // expected
     }
   }
 
