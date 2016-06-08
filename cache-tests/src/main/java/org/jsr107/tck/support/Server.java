@@ -1,6 +1,7 @@
 /**
  *  Copyright (c) 2011-2016 Terracotta, Inc.
  *  Copyright (c) 2011-2016 Oracle and/or its affiliates.
+ *  Copyright (c) 2016 headissue GmbH
  *
  *  All rights reserved. Use is subject to license terms.
  */
@@ -30,6 +31,7 @@ import java.util.logging.Logger;
  * {@link Client}s.
  *
  * @author Brian Oliver
+ * @author Jens Wilke
  * @see Client
  * @see Operation
  * @see OperationHandler
