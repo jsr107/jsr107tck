@@ -172,7 +172,7 @@ public class CacheManagerTest extends TestSupport {
     assertTrue(cacheManager.isClosed());
 
     try {
-      cacheManager.createCache("Dog", null);
+      cacheManager.createCache("Dog", new MutableConfiguration());
       fail();
     } catch (IllegalStateException e) {
       //expected
@@ -195,7 +195,7 @@ public class CacheManagerTest extends TestSupport {
     assertTrue(cacheManager.isClosed());
 
     try {
-      cacheManager.getCache("nonExistent", null, null);
+      cacheManager.getCache("nonExistent", Integer.class, Integer.class);
       fail();
     } catch (IllegalStateException e) {
       //expected
@@ -243,31 +243,7 @@ public class CacheManagerTest extends TestSupport {
   }
 
   @Test
-  public void createCache_StatusOK() {
-    String name = "c1";
-    getCacheManager().createCache(name, new MutableConfiguration());
-    Cache cache = getCacheManager().getCache(name);
-    assertNotNull(cache);
-    assertEquals(name, cache.getName());
-  }
-
-  @Test
   public void getOrCreateCache_Different() {
-    String name1 = "c1";
-    CacheManager cacheManager = getCacheManager();
-    cacheManager.createCache(name1, new MutableConfiguration());
-    Cache cache1 = cacheManager.getCache(name1);
-
-    String name2 = "c2";
-    cacheManager.createCache(name2, new MutableConfiguration());
-    Cache cache2 = cacheManager.getCache(name2);
-
-    assertEquals(cache1, cacheManager.getCache(name1));
-    assertEquals(cache2, cacheManager.getCache(name2));
-  }
-
-  @Test
-  public void createCache_Different() {
     String name1 = "c1";
     CacheManager cacheManager = getCacheManager();
     cacheManager.createCache(name1, new MutableConfiguration());
