@@ -11,6 +11,7 @@ package javax.cache.integration;
 import org.junit.Test;
 
 import java.lang.UnsupportedOperationException;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -118,15 +119,19 @@ public class CompletionListenerFutureTest {
   @Test
   public void testWakeup() throws InterruptedException {
     /* Currently test only with 1 thread to be compatible with 1.0. Can be incremented later. */
-    final int THREAD_COUNT = 1;
+    final int THREAD_COUNT = 2;
     final long TIMEOUT_MILLIS = 1 * 60 * 1000;
     final CompletionListenerFuture future = new CompletionListenerFuture();
+    /* Waits until threads are running. */
+    final CountDownLatch countDown = new CountDownLatch(THREAD_COUNT + 1);
     Thread[] threads = new Thread[THREAD_COUNT];
     for (int i = 0; i < THREAD_COUNT; i++) {
       Thread t = threads[i] = new Thread() {
         @Override
         public void run() {
           try {
+            countDown.countDown();
+            countDown.await();
             future.get();
           } catch (Exception e) {
             e.printStackTrace();
@@ -135,6 +140,9 @@ public class CompletionListenerFutureTest {
       };
       t.start();
     }
+    countDown.countDown();
+    countDown.await();
+    Thread.sleep(42);
     future.onCompletion();
     for (int i = 0; i < THREAD_COUNT; i++) {
       Thread t = threads[i];
