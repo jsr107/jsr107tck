@@ -1,7 +1,6 @@
 /**
  *  Copyright 2011-2013 Terracotta, Inc.
  *  Copyright 2011-2013 Oracle and/or its affiliates.
- *  Copyright 2016 headissue GmbH
  *
  *  All rights reserved. Use is subject to license terms.
  */
