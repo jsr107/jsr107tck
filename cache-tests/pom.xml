@@ -38,7 +38,7 @@
         <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>test-domain</artifactId>
-            <version>${project.parent.version}</version>
+            <version>1.1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>

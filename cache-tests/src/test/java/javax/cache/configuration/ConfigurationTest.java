@@ -81,6 +81,54 @@ public class ConfigurationTest extends CacheTestSupport {
 
   }
 
+  /**
+   * Tests use of default constructor and generics.
+   *
+   * @throws IllegalAccessException
+   * @throws InstantiationException
+   */
+  @Test
+  public void testDefaultConstructor() throws IllegalAccessException, InstantiationException {
+    try {
+      MutableConfiguration<String, String> configuration = new MutableConfiguration<String, String>();
+
+      assertEquals(Object.class, configuration.getKeyType());
+      assertEquals(Object.class, configuration.getValueType());
+
+      Class<String> keyType = configuration.getKeyType();
+      String s = keyType.newInstance();
+    } catch (ClassCastException e) {
+      //expected
+    }
+  }
+
+  /**
+   * Tests use of default constructor and generics, this time setting the desired type
+   *
+   * @throws IllegalAccessException
+   * @throws InstantiationException
+   */
+  @Test
+  public void testDefaultConstructorWithSetTypes() throws IllegalAccessException, InstantiationException {
+      MutableConfiguration<String, String> configuration = new MutableConfiguration<String, String>().setTypes(String.class, String.class);
+      Class<String> keyType = configuration.getKeyType();
+      String s = keyType.newInstance();
+      //no exception. This sets the types.
+  }
+
+  /**
+   * Tests use of default constructor and generics, this time setting the desired type using the constructor
+   *
+   * @throws IllegalAccessException
+   * @throws InstantiationException
+   */
+  @Test
+  public void testDefaultConstructorWithTypeConstructor() throws IllegalAccessException, InstantiationException {
+    MutableConfiguration<String, String> configuration = new MutableConfiguration<String, String>(String.class, String.class);
+    Class<String> keyType = configuration.getKeyType();
+    String s = keyType.newInstance();
+    //no exception. This sets the types.
+  }
 
   /**
    * Ensure a cache's config isn't changed by its configuration object after construction.
