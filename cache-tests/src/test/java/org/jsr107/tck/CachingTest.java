@@ -89,18 +89,6 @@ public class CachingTest {
     assertEquals(provider.getDefaultURI(), manager.getURI());
   }
 
-  @Test
-  public void getCacheManager_nonNullProperties() {
-    CachingProvider provider = Caching.getCachingProvider();
-    Properties properties = new Properties();
-
-    assertSame(provider.getCacheManager(),
-      provider.getCacheManager(provider.getDefaultURI(), provider.getDefaultClassLoader(), new Properties()));
-
-    CacheManager manager = provider.getCacheManager();
-    assertEquals(properties, manager.getProperties());
-  }
-
   /**
    * Multiple invocations of {@link CachingProvider#getCacheManager(java.net.URI, ClassLoader)} with the same name
    * return the same CacheManager instance
