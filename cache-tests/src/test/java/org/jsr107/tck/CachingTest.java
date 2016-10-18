@@ -22,6 +22,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import javax.cache.Cache;
+import javax.cache.CacheException;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.configuration.MutableConfiguration;
@@ -89,14 +90,19 @@ public class CachingTest {
     assertEquals(provider.getDefaultURI(), manager.getURI());
   }
 
+  // https://github.com/jsr107/jsr107tck/issues/102
   @Test
   public void getCacheManager_nonNullProperties() {
+    // make sure existing cache managers are closed and the non empty properties get picked up
+    try {
+      Caching.getCachingProvider().close();
+    } catch (CacheException ignore) {
+      // ignore exception which may happen if the provider is not active
+    }
     CachingProvider provider = Caching.getCachingProvider();
     Properties properties = new Properties();
-
-    assertSame(provider.getCacheManager(),
-      provider.getCacheManager(provider.getDefaultURI(), provider.getDefaultClassLoader(), new Properties()));
-
+    properties.put("dummy.com", "goofy");
+    provider.getCacheManager(provider.getDefaultURI(), provider.getDefaultClassLoader(), properties);
     CacheManager manager = provider.getCacheManager();
     assertEquals(properties, manager.getProperties());
   }
