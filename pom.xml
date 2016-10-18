@@ -232,7 +232,7 @@
     <licenses>
         <license>
             <name>SATCK License</name>
-            <url>http://bit.ly/2e30GFS</url>
+            <url>https://jcp.org/aboutJava/communityprocess/licenses/jsr107/SA-TCK-JSR-107-10_22_12.pdf</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
