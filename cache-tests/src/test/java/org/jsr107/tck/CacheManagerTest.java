@@ -580,7 +580,11 @@ public class CacheManagerTest extends TestSupport {
     Cache<String, String> cache = cacheManager.getCache("typed-cache", String.class, String.class);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  /**
+   * https://github.com/jsr107/jsr107spec/issues/340
+   * in 1.1 we relaxed {@link CacheManager#getCache(String)} to not enforce a check.
+   */
+  @Test
   public void getUnsafeTypedCacheRequest() {
     CacheManager cacheManager = getCacheManager();
 
