@@ -231,8 +231,8 @@
 
     <licenses>
         <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <name>SATCK License</name>
+            <url>http://bit.ly/2e30GFS</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
