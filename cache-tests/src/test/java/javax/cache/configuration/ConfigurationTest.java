@@ -114,7 +114,7 @@ public class ConfigurationTest extends CacheTestSupport {
    */
   @Test
   public void testDefaultConstructorWithTypeConstructor() throws IllegalAccessException, InstantiationException {
-    MutableConfiguration<String, String> configuration = new MutableConfiguration<String, String>(String.class, String.class);
+    MutableConfiguration<String, String> configuration = new MutableConfiguration<String, String>().setTypes(String.class, String.class);
     Class<String> keyType = configuration.getKeyType();
     String s = keyType.newInstance();
     //no exception. This sets the types.
