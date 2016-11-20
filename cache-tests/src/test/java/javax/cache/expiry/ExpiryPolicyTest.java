@@ -15,6 +15,7 @@ import org.junit.Test;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
+import javax.cache.configuration.Factory;
 import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableConfiguration;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +32,23 @@ import static org.junit.Assert.assertTrue;
  * @author Greg Luck
  */
 public class ExpiryPolicyTest extends TestSupport {
+
+  private CacheManager cacheManager;
+
+  @Before
+  public void setup()
+  {
+    cacheManager = Caching.getCachingProvider().getCacheManager();
+  }
+
+  @After
+  public void cleanupAfterEachTest() throws InterruptedException {
+    for (String cacheName : cacheManager.getCacheNames()) {
+      cacheManager.destroyCache(cacheName);
+    }
+    cacheManager.close();
+    cacheManager = null;
+  }
 
   @Test
   public void testCreatedExpiryPolicy() {
@@ -52,20 +70,6 @@ public class ExpiryPolicyTest extends TestSupport {
     assertNull(policy.getExpiryForUpdate());
   }
 
-  @Before
-  public void setup()
-      {
-      cacheManager = Caching.getCachingProvider().getCacheManager();
-      }
-
-  @After
-  public void cleanupAfterEachTest() throws InterruptedException {
-    for (String cacheName : cacheManager.getCacheNames()) {
-      cacheManager.destroyCache(cacheName);
-    }
-    cacheManager.close();
-    cacheManager = null;
-  }
 
   @Test
   public void testModifiedExpiryPolicy() {
@@ -216,5 +220,23 @@ public class ExpiryPolicyTest extends TestSupport {
     assertTrue(nullDurationPolicy.equals(nullDurationPolicy1));
   }
 
-  private CacheManager cacheManager;
+  /**
+   * Some people have asked about setting multiple expiry policies. The spec allows
+   * only one. This test shows that the last applied factory is the applied one.
+   */
+  @Test
+  public void testApplyingMultiplePoliciesToConfiguration() {
+
+    CreatedExpiryPolicy policy = new CreatedExpiryPolicy(new Duration(TimeUnit.MILLISECONDS, 20));
+    CreatedExpiryPolicy policy2 = new CreatedExpiryPolicy(new Duration(TimeUnit.MILLISECONDS, 10));
+    assertNotEquals(policy, policy2);
+
+    MutableConfiguration<Integer, Integer> config = new MutableConfiguration<>();
+    config.setExpiryPolicyFactory(FactoryBuilder.factoryOf(policy)).setStatisticsEnabled(true);
+    Factory<CreatedExpiryPolicy> factory2 = FactoryBuilder.factoryOf(policy2);
+    config.setExpiryPolicyFactory(factory2).setStatisticsEnabled(true);
+
+    assertEquals(factory2, config.getExpiryPolicyFactory());
+  }
+
 }
