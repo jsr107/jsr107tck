@@ -25,10 +25,10 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static javax.cache.event.EventType.CREATED;
-import static javax.cache.event.EventType.REMOVED;
-import static javax.cache.event.EventType.UPDATED;
+import static javax.cache.event.EventType.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test support base class
@@ -94,7 +94,10 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
 
 
   /**
-   * Test listener
+   * Test listener.
+   * This listener is created with {@link MutableCacheEntryListenerConfiguration#isOldValueRequired()}
+   * set to true. To pass the test implementations must provide the old value for update. Note that value
+   * not old value is used by remove and expire. See javadoc for {@link CacheEntryEvent}.
    *
    * @param <K>
    * @param <V>
@@ -130,6 +133,7 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
     public void onCreated(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
       for (CacheEntryEvent<? extends K, ? extends V> event : events) {
         assertEquals(CREATED, event.getEventType());
+        assertFalse(event.isOldValueAvailable());
         created.incrementAndGet();
 
         // added for code coverage.
@@ -141,7 +145,12 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
 
     @Override
     public void onExpired(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
-      //SKIP: we don't count expiry events as they can occur asynchronously
+      //We don't count expiry events as they can occur asynchronously but we can test for some other conditions.
+      for (CacheEntryEvent<? extends K, ? extends V> event : events) {
+        assertEquals(EXPIRED, event.getEventType());
+        assertFalse(event.isOldValueAvailable());
+      }
+
     }
 
     @Override
@@ -150,9 +159,7 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
         assertEquals(REMOVED, event.getEventType());
         removed.incrementAndGet();
         event.getKey();
-        if (event.isOldValueAvailable()) {
-          event.getOldValue();
-        }
+        assertFalse(event.isOldValueAvailable());
       }
     }
 
@@ -162,9 +169,9 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
         assertEquals(UPDATED, event.getEventType());
         updated.incrementAndGet();
         event.getKey();
-        if (event.isOldValueAvailable()) {
-          event.getOldValue();
-        }
+        assertTrue(event.isOldValueAvailable());
+        //should never be null
+        event.getOldValue();
       }
     }
 
