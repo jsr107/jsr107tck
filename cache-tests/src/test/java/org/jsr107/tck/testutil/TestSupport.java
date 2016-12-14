@@ -11,10 +11,9 @@ import javax.cache.CacheException;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import java.util.ArrayList;
+import java.lang.management.ManagementFactory;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -78,31 +77,10 @@ public class TestSupport {
   }
 
   /**
-   * To test your implementation specify system properties per the following RI
-   * examples:
-   * -Djavax.management.builder.initial=org.jsr107.ri.management.RITCKMBeanServerBuilder
-   * -Dorg.jsr107.tck.management.agentId=RIMBeanServer
+   * Expect cache implementation has registered MBeans with the platform MBean server.
    */
   public static MBeanServer resolveMBeanServer() {
-
-    if (System.getProperty("javax.management.builder.initial") == null) {
-      throw new RuntimeException("You must set the 'javax.management.builder" +
-          ".initial' property so that the TCK can find your MBeanServer'");
-    }
-    if (System.getProperty("org.jsr107.tck.management.agentId") == null) {
-      throw new RuntimeException("You must set the 'org.jsr107.tck.management.agentId'" +
-          "system property so that the TCK can find your MBeanServer agent by " +
-          "its ID.'");
-    }
-
-    String agentId = System.getProperty("org.jsr107.tck.management.agentId");
-    ArrayList<MBeanServer> mBeanServers = MBeanServerFactory.findMBeanServer(agentId);
-    if (mBeanServers.size() < 1) {
-      throw new CacheException("The specification requires registration of " +
-          "MBeans in an implementation specific MBeanServer. A search for an " +
-          "MBeanServer did not find any.");
-    }
-    return mBeanServers.get(0);
+    return ManagementFactory.getPlatformMBeanServer();
   }
 
   protected CacheManager getCacheManager() {

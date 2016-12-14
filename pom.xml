@@ -213,11 +213,6 @@
                 <CacheImpl>org.jsr107.ri.RICache</CacheImpl>
                 <CacheEntryImpl>org.jsr107.ri.RIEntry</CacheEntryImpl>
 
-                <!--Change the following to point to your MBeanServer, so that the TCK can resolve it. -->
-                <javax.management.builder.initial>org.jsr107.ri.management.RITCKMBeanServerBuilder
-                </javax.management.builder.initial>
-                <org.jsr107.tck.management.agentId>RIMBeanServer</org.jsr107.tck.management.agentId>
-
                 <!--################################################################################################################-->
             </properties>
 
