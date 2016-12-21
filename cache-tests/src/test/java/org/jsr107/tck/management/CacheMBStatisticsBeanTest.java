@@ -13,6 +13,7 @@ import org.jsr107.tck.processor.RemoveEntryProcessor;
 import org.jsr107.tck.processor.SetEntryProcessor;
 import org.jsr107.tck.testutil.CacheTestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
+import org.jsr107.tck.testutil.TestSupport;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,6 +25,8 @@ import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.Duration;
 import javax.cache.expiry.ExpiryPolicy;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -659,6 +662,29 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
       map.put(3L, "world");
       cache.putAll(map);
       assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+  }
+
+  @Test
+  public void testClear() throws Exception {
+    // increment statistics
+    cache.get(1L);
+    cache.put(1L, "Sooty");
+    cache.get(1L);
+    cache.remove(1L);
+
+    // invoke clear
+    MBeanServer mBeanServer = TestSupport.resolveMBeanServer();
+    ObjectName objectName = calculateObjectName(cache, CacheStatistics);
+    mBeanServer.invoke(objectName, "clear", null, null);
+
+    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheGets"));
+    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"));
+    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"));
+    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"));
   }
 
     /**
