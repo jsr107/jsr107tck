@@ -228,33 +228,6 @@ public class CacheLoaderWriterTest {
   }
 
   /**
-   * Ensure that a {@link javax.cache.integration.CacheLoader} that returns <code>null</code> entries
-   * aren't placed in the cache and nothing is written.
-   */
-  @Test
-  public void shouldNotLoadNullEntries() {
-    NullValueCacheLoader<String, String> nullCacheLoader = new NullValueCacheLoader<>();
-    cacheLoaderServer.setCacheLoader(nullCacheLoader);
-
-    //construct a set of keys
-    HashSet<String> keys = new HashSet<String>();
-    keys.add("gudday");
-    keys.add("hello");
-    keys.add("howdy");
-    keys.add("bonjour");
-
-    //attempt to get the keys
-    Map<String, String> map = cache.getAll(keys);
-
-    //nothing should have been loaded
-    assertThat(map.size(), is(0));
-
-    //ensure nothing has been written
-    assertThat(recordingCacheWriter.getWriteCount(), is(0L));
-    assertThat(recordingCacheWriter.getDeleteCount(), is(0L));
-  }
-
-  /**
    * Ensure that a {@link javax.cache.integration.CacheLoader} that returns <code>null</code> values
    * aren't placed in the cache or written
    */

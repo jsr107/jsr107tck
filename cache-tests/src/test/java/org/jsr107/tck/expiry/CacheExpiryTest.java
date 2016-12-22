@@ -978,8 +978,8 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
         };
     Object[] result = (Object[]) cache.invoke(key, new CombineEntryProcessor(processors));
 
-    assertEquals(result[1], setValue);
-    assertEquals(result[2], setValue);
+    assertEquals(setValue, result[1]);
+    assertEquals(setValue, result[2]);
 
     // expiry called should be for create, not for the get or modify.
     // Operations get combined in entry processor and only net result should be expiryPolicy method called.
@@ -1022,9 +1022,9 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
         };
     Object[] result = (Object[]) cache.invoke(key, new CombineEntryProcessor(processors));
 
-    assertEquals(result[1], 111);
-    assertEquals(result[2], setValue);
-    assertEquals(result[3], setValue);
+    assertEquals(111, result[1]);
+    assertEquals(setValue, result[2]);
+    assertEquals(setValue, result[3]);
 
     // expiry called should be for create, not for the get or modify.
     // Operations get combined in entry processor and only net result should be expiryPolicy method called.
@@ -1056,7 +1056,7 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
     // verify access to existing entry.
     resultValue = cache.invoke(key, new SetEntryProcessor<Integer, Integer>(setValue));
 
-    assertEquals(resultValue, setValue);
+    assertEquals(setValue, resultValue);
     assertThat(expiryPolicy.getCreationCount(), greaterThanOrEqualTo(1));
     assertThat(expiryPolicy.getAccessCount(), is(0));
     assertThat(expiryPolicy.getUpdatedCount(), is(0));

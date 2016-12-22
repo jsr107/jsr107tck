@@ -503,8 +503,8 @@ public class CacheWriterTest extends TestSupport {
         };
     Object[] result = cache.invoke(1, new CombineEntryProcessor<Integer, String>(processors));
 
-    assertEquals(result[1], "Gudday World");
-    assertEquals(result[1], cache.get(1));
+    assertEquals("Gudday World", result[1]);
+    assertEquals(cache.get(1), result[1]);
     assertEquals(cache.get(1), cacheWriter.get(1));
     assertEquals(1, cacheWriter.getWriteCount());
     assertEquals(0, cacheWriter.getDeleteCount());

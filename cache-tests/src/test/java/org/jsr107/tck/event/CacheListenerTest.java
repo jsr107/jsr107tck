@@ -43,6 +43,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Logger;
 
 import static javax.cache.event.EventType.CREATED;
 import static javax.cache.event.EventType.REMOVED;
@@ -60,6 +61,8 @@ import static org.junit.Assert.fail;
  * @since 1.0
  */
 public class CacheListenerTest extends CacheTestSupport<Long, String> {
+
+  private final Logger logger = Logger.getLogger(getClass().getName());
 
   /**
    * Rule used to exclude tests
@@ -412,7 +415,7 @@ public void testFilteredListener() throws InterruptedException {
   //iterating should cause read events on non-expired entries
   for (Cache.Entry<Long, String> entry : cache) {
     String value = entry.getValue();
-    System.out.println(value);
+    logger.info(value);
   }
   assertEquals(2, filteredListener.getCreated());
   assertEquals(2, filteredListener.getUpdated());

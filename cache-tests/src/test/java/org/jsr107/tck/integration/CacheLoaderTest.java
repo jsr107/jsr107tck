@@ -289,29 +289,6 @@ public class CacheLoaderTest {
   }
 
   /**
-   * Ensure that a {@link CacheLoader} that returns <code>null</code> entries
-   * aren't placed in the cache.
-   */
-  @Test
-  public void shouldNotLoadNullEntries() {
-    NullValueCacheLoader<String, String> nullCacheLoader = new NullValueCacheLoader<>();
-    cacheLoaderServer.setCacheLoader(nullCacheLoader);
-
-    //construct a set of keys
-    HashSet<String> keys = new HashSet<String>();
-    keys.add("gudday");
-    keys.add("hello");
-    keys.add("howdy");
-    keys.add("bonjour");
-
-    //attempt to get the keys
-    Map<String, String> map = cache.getAll(keys);
-
-    //nothing should have been loaded
-    assertThat(map.size(), is(0));
-  }
-
-  /**
    * Ensure that a {@link CacheLoader} that returns <code>null</code> values
    * aren't placed in the cache.
    */
@@ -858,6 +835,7 @@ public class CacheLoaderTest {
     //wait for the load to complete
     try{
       future.get();
+      fail();
     } catch (ExecutionException e) {
       assertThat(e.getCause(), instanceOf(CacheLoaderException.class));
     }
