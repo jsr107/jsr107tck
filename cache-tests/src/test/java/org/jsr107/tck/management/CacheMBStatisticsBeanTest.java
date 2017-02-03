@@ -604,6 +604,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     assertTrue(cache.containsKey(1L));
 
     result = cache.putIfAbsent(1L, "succeeded");
+    hitCount++;
     assertFalse(result);
     hitCount++;
     assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
