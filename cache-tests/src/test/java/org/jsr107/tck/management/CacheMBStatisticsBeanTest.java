@@ -389,7 +389,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     //non-existent key. cache miss.
     cache.invoke(1000l, new NoOpEntryProcessor<Long, String>());
 
-    assertEquals(result, "Sooty");
+    assertEquals("Sooty", result);
     assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"), greaterThanOrEqualTo(66.65f));
     assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
@@ -408,7 +408,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
 
     cache.put(1l, "Sooty");
     String result = cache.invoke(1l, new SetEntryProcessor<Long, String>("Trinity"));
-    assertEquals(result, "Trinity");
+    assertEquals("Trinity", result);
     assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(100.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
@@ -426,7 +426,7 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
 
     cache.put(1l, "Sooty");
     String result = cache.invoke(1l, new RemoveEntryProcessor<Long, String, String>(true));
-    assertEquals(result, "Sooty");
+    assertEquals("Sooty", result);
     assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
     assertEquals(100.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
     assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
