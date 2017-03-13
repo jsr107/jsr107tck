@@ -11,6 +11,7 @@ import org.jsr107.tck.processor.GetEntryProcessor;
 import org.jsr107.tck.processor.NoOpEntryProcessor;
 import org.jsr107.tck.processor.RemoveEntryProcessor;
 import org.jsr107.tck.processor.SetEntryProcessor;
+import org.jsr107.tck.testutil.AssertionUtil.AssertionRunnable;
 import org.jsr107.tck.testutil.CacheTestSupport;
 import org.jsr107.tck.testutil.ExcludeListExcluder;
 import org.jsr107.tck.testutil.TestSupport;
@@ -30,15 +31,17 @@ import javax.management.ObjectName;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.jsr107.tck.testutil.AssertionUtil.assertAllTheTime;
+import static org.jsr107.tck.testutil.AssertionUtil.assertEventually;
 import static org.jsr107.tck.testutil.TestSupport.MBeanType.CacheStatistics;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-
 
 /**
  * Tests cache statistics
@@ -47,12 +50,26 @@ import static org.junit.Assert.assertThat;
  */
 public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
 
+  /**
+   * name of system property to obtain statistics update timeout in seconds, if set
+   */
+  public static final String STATISTICS_UPDATE_TIMEOUT_PROPERTY = "org.jsr107.tck.management.statistics.timeout.seconds";
 
+  /**
+   * Default timeout while waiting for statistics to be updated is 0 seconds.
+   * There are tests which verify that statistics are not affected by some actions; in this
+   * case the test will take at least as long as this timeout, to ensure statistics are not changed.
+   */
+  private static final String DEFAULT_STATISTICS_UPDATE_TIMEOUT_SECONDS = "0";
+
+  private int statisticsUpdateTimeoutMillis;
 
   @Before
   public void moreSetUp() {
     cache = getCacheManager().getCache(getTestCacheName(), Long.class, String.class);
     cache.getCacheManager().enableStatistics(cache.getName(), true);
+    statisticsUpdateTimeoutMillis = Integer.valueOf(System.getProperty(STATISTICS_UPDATE_TIMEOUT_PROPERTY,
+            DEFAULT_STATISTICS_UPDATE_TIMEOUT_SECONDS));
   }
 
   @Override
@@ -90,17 +107,21 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
    */
   @Test
   public void testCacheStatisticsAllZero() throws Exception {
-
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"));
-    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"));
-    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"));
+        assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"));
+        assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
   }
 
@@ -109,242 +130,331 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     final float DELTA=1.0f;
 
     cache.put(1l, "Sooty");
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
+        assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
     Map<Long, String> entries = new HashMap<Long, String>();
     entries.put(2l, "Lucky");
     entries.put(3l, "Prince");
     cache.putAll(entries);
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
+        assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
 
     //Update. But we count these simply as puts for stats
     cache.put(1l, "Sooty");
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(4L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
+        assertEquals(4L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
     cache.putAll(entries);
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(6L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
+        assertEquals(6L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
     cache.getAndPut(4l, "Cody");
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
-    assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(100.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(7L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
+        assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(100.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
+        assertEquals(7L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
     cache.getAndPut(4l, "Cody");
-    assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
-    assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(8L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
+        assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
+        assertEquals(8L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
     String value = cache.get(1l);
-    assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(66.0f, (float)lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"), DELTA);
-    assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(33.0f, (float)lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"), DELTA);
-    assertEquals(8L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(66.0f, (float)lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"), DELTA);
+        assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(33.0f, (float)lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"), DELTA);
+        assertEquals(8L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
 
     //now do a second miss
     value = cache.get(1234324324l);
-    assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
-    assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(8L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
+        assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
+        assertEquals(8L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
     //containsKey() should not affect statistics
     assertTrue(cache.containsKey(1l));
     assertFalse(cache.containsKey(1234324324l));
-    assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
-    assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(8L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
-
+    assertAllTheTime(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
+        assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
+        assertEquals(8L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
     assertTrue(cache.remove(1L));
-    assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
-    assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(8L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
+        assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
+        assertEquals(8L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
     //no update to cache removals as does not exist
     assertFalse(cache.remove(1L));
-    assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
-    assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(8L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+    assertAllTheTime(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
+        assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
+        assertEquals(8L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
     //should update removals as succeeded
     cache.put(1l, "Sooty");
     assertTrue(cache.remove(1L, "Sooty"));
-    assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(60.0f, (float)lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"), DELTA);
-    assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(40.0f, (float)lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"), DELTA);
-    assertEquals(9L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
-
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(60.0f, (float)lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"), DELTA);
+        assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(40.0f, (float)lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"), DELTA);
+        assertEquals(9L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
     //should not update removals as remove failed
     assertFalse(cache.remove(1L, "Sooty"));
-    assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
-    assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(9L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+    assertAllTheTime(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
+        assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
+        assertEquals(9L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
 
     cache.clear();
-    assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
-    assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(9L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+    assertAllTheTime(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
+        assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
+        assertEquals(9L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
 
     cache.removeAll();
-    assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
-    assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(9L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+    assertAllTheTime(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
+        assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
+        assertEquals(9L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
     entries.put(21L, "Trinity");
     cache.putAll(entries);
     cache.removeAll();
-    assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
-    assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(12L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(5L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
+        assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
+        assertEquals(12L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(5L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
 
     cache.putAll(entries);
     entries.remove(21L);
     cache.removeAll(entries.keySet());
-    assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
-    assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(15L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(7L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
+        assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
+        assertEquals(15L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(7L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
+
 
     cache.removeAll(entries.keySet());
-    assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
-    assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(15L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(7L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+    assertAllTheTime(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
+        assertEquals(3L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(50.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
+        assertEquals(15L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(7L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
   }
 
 
@@ -364,16 +474,21 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     //non-existent key. cache miss.
     cache.invoke(1000l, new NoOpEntryProcessor<Long, String>());
 
-    assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"), greaterThanOrEqualTo(66.65f));
-    assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"), lessThanOrEqualTo(33.34f));
-    assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"), greaterThanOrEqualTo(66.65f));
+        assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"), lessThanOrEqualTo(33.34f));
+        assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
   }
 
 
@@ -393,16 +508,21 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     cache.invoke(1000l, new NoOpEntryProcessor<Long, String>());
 
     assertEquals("Sooty", result);
-    assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"), greaterThanOrEqualTo(66.65f));
-    assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"), lessThanOrEqualTo(33.34f));
-    assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"), greaterThanOrEqualTo(66.65f));
+        assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"), lessThanOrEqualTo(33.34f));
+        assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
   }
 
 
@@ -412,16 +532,21 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     cache.put(1l, "Sooty");
     String result = cache.invoke(1l, new SetEntryProcessor<Long, String>("Trinity"));
     assertEquals("Trinity", result);
-    assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(100.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(100.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
+        assertEquals(2L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
   }
 
   @Test
@@ -430,16 +555,21 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     cache.put(1l, "Sooty");
     String result = cache.invoke(1l, new RemoveEntryProcessor<Long, String, String>(true));
     assertEquals("Sooty", result);
-    assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(100.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(100.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
+        assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
   }
 
   @Test
@@ -458,19 +588,22 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
       iterator.remove();
     }
 
-    assertEquals(100L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(100.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
-    assertEquals(100L, lookupManagementAttribute(cache, CacheStatistics, "CacheGets"));
-    assertEquals(100L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(100L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
-    assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
-
-
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(100L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(100.0f, lookupManagementAttribute(cache, CacheStatistics, "CacheHitPercentage"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "CacheMissPercentage"));
+        assertEquals(100L, lookupManagementAttribute(cache, CacheStatistics, "CacheGets"));
+        assertEquals(100L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(100L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheEvictions"));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"), greaterThanOrEqualTo(0f));
+        assertThat((Float) lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"), greaterThanOrEqualTo(0f));
+      }
+    }, statisticsUpdateTimeoutMillis);
   }
 
   @Test
@@ -519,124 +652,184 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
   @Test
   public void testReplace() throws Exception
   {
-    long hitCount = 0;
-    long missCount = 0;
-    long putCount = 0;
+    final AtomicLong hitCount = new AtomicLong();
+    final AtomicLong missCount = new AtomicLong();
+    final AtomicLong putCount = new AtomicLong();
 
     boolean result = cache.replace(1L, "MissingNoReplace");
-    missCount++;
+    missCount.incrementAndGet();
     assertFalse(result);
-    assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertFalse(cache.containsKey(1L));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(missCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(hitCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(putCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertFalse(cache.containsKey(1L));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
     cache.put(1l, "Sooty");
-    putCount++;
-    assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    putCount.incrementAndGet();
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
     assertTrue(cache.containsKey(1L));
     result = cache.replace(2L, "InvalidReplace");
-    missCount++;
+    missCount.incrementAndGet();
     assertFalse(result);
-    assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertFalse(cache.containsKey(2L));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(missCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(hitCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(putCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertFalse(cache.containsKey(2L));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
     result = cache.replace(1L, "Replaced");
-    hitCount++;
-    putCount++;
+    hitCount.incrementAndGet();
+    putCount.incrementAndGet();
     assertTrue(result);
-    assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(missCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(hitCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(putCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+      }
+    }, statisticsUpdateTimeoutMillis);
   }
 
   @Test
   public void testConditionalReplace() throws Exception
   {
-    long hitCount = 0;
-    long missCount = 0;
-    long putCount = 0;
+    final AtomicLong hitCount = new AtomicLong();
+    final AtomicLong missCount = new AtomicLong();
+    final AtomicLong putCount = new AtomicLong();
 
     boolean result = cache.replace(1L, "MissingNoReplace", "NewValue");
-    missCount++;
+    missCount.incrementAndGet();
     assertFalse(result);
-    assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertFalse(cache.containsKey(1L));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(missCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(hitCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(putCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertFalse(cache.containsKey(1L));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
     cache.put(1l, "Sooty");
-    putCount++;
-    assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    putCount.incrementAndGet();
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(1L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
     assertTrue(cache.containsKey(1L));
     result = cache.replace(1L, "Sooty", "Replaced");
-    hitCount++;
-    putCount++;
+    hitCount.incrementAndGet();
+    putCount.incrementAndGet();
     assertTrue(result);
-    assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(missCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(hitCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(putCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+      }
+    }, statisticsUpdateTimeoutMillis);
 
     result = cache.replace(1L, "Sooty", "InvalidReplace");
-    hitCount++;
+    hitCount.incrementAndGet();
     assertFalse(result);
-    assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(missCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(hitCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(putCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+      }
+    }, statisticsUpdateTimeoutMillis);
   }
 
 
   @Test
   public void testPutIfAbsent() throws Exception
   {
-    long hitCount = 0;
-    long missCount = 0;
-    long putCount = 0;
+    final AtomicLong hitCount = new AtomicLong();
+    final AtomicLong missCount = new AtomicLong();
+    final AtomicLong putCount = new AtomicLong();
 
     boolean result = cache.putIfAbsent(1L, "succeeded");
-    putCount++;
-    missCount++;
+    putCount.incrementAndGet();
+    missCount.incrementAndGet();
     assertTrue(result);
-    assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertTrue(cache.containsKey(1L));
+    assertEventually(new AssertionRunnable() {
+       @Override
+       public void run() throws Exception {
+         assertEquals(missCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+         assertEquals(hitCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+         assertEquals(putCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+         assertTrue(cache.containsKey(1L));
+       }
+     }, statisticsUpdateTimeoutMillis);
 
     result = cache.putIfAbsent(1L, "succeeded");
     assertFalse(result);
-    hitCount++;
-    assertEquals(putCount, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+    hitCount.incrementAndGet();
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(putCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(missCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(hitCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+      }
+    }, statisticsUpdateTimeoutMillis);
   }
 
   @Test
   public void testGetAndRemove() throws Exception
   {
-    long hitCount = 0;
-    long missCount = 0;
-    long removeCount = 0;
+    final AtomicLong hitCount = new AtomicLong();
+    final AtomicLong missCount = new AtomicLong();
+    final AtomicLong removeCount = new AtomicLong();
 
     String result = cache.getAndRemove(1L);
-    missCount++;
+    missCount.incrementAndGet();
     assertEquals(null, result);
-    assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(removeCount, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertFalse(cache.containsKey(1L));
+    assertEventually(new AssertionRunnable() {
+       @Override
+       public void run() throws Exception {
+         assertEquals(missCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+         assertEquals(hitCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+         assertEquals(removeCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+         assertFalse(cache.containsKey(1L));
+       }
+     }, statisticsUpdateTimeoutMillis);
 
     cache.put(1L, "added");
     result = cache.getAndRemove(1L);
-    hitCount++;
-    removeCount++;
+    hitCount.incrementAndGet();
+    removeCount.incrementAndGet();
     assertEquals("added", result);
-    assertEquals(removeCount, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(missCount, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(hitCount, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+    assertEventually(new AssertionRunnable() {
+       @Override
+       public void run() throws Exception {
+         assertEquals(removeCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+         assertEquals(missCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+         assertEquals(hitCount.get(), lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+       }
+     }, statisticsUpdateTimeoutMillis);
     assertFalse(cache.containsKey(1L));
   }
 
@@ -655,13 +848,23 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
 
       cache = mgr.createCache(getTestCacheName(), config);
       cache.put(1L, "hello");
-      assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+      assertEventually(new AssertionRunnable() {
+         @Override
+         public void run() throws Exception {
+           assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+         }
+      }, statisticsUpdateTimeoutMillis);
 
       Map<Long, String> map = new HashMap<Long, String>();
       map.put(2L, "goodbye");
       map.put(3L, "world");
       cache.putAll(map);
-      assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+      assertEventually(new AssertionRunnable() {
+        @Override
+        public void run() throws Exception {
+          assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        }
+      }, statisticsUpdateTimeoutMillis);
   }
 
   @Test
@@ -677,14 +880,19 @@ public class CacheMBStatisticsBeanTest extends CacheTestSupport<Long, String> {
     ObjectName objectName = calculateObjectName(cache, CacheStatistics);
     mBeanServer.invoke(objectName, "clear", null, null);
 
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheGets"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
-    assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
-    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"));
-    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"));
-    assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"));
+    assertEventually(new AssertionRunnable() {
+      @Override
+      public void run() throws Exception {
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CachePuts"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheHits"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheGets"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheRemovals"));
+        assertEquals(0L, lookupManagementAttribute(cache, CacheStatistics, "CacheMisses"));
+        assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "AverageGetTime"));
+        assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "AveragePutTime"));
+        assertEquals(0f, lookupManagementAttribute(cache, CacheStatistics, "AverageRemoveTime"));
+      }
+    }, statisticsUpdateTimeoutMillis);
   }
 
     /**
