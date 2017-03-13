@@ -255,11 +255,6 @@ public class PutTest extends CacheTestSupport<Long, String> {
     } catch (NullPointerException e) {
       //expected
     }
-    for (Map.Entry<Long, String> entry : data.entrySet()) {
-      if (entry.getKey() != null) {
-        assertNull(cache.get(entry.getKey()));
-      }
-    }
   }
 
   @Test
