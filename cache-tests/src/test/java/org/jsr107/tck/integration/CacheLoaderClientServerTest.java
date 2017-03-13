@@ -83,18 +83,15 @@ public class CacheLoaderClientServerTest {
    *
    * @see <a href="https://github.com/jsr107/jsr107tck/issues/100">Customizations may implement Closeable</a>
    */
-  @Test
+  @Test(expected = IllegalStateException.class)
   public void clientMustBeClosedBeforeServer() throws Exception {
     NullValueCacheLoader<String, String> nullCacheLoader = new NullValueCacheLoader<>();
     CacheLoaderServer<String, String> serverCacheLoader = new CacheLoaderServer<String, String>(10000, nullCacheLoader);
     serverCacheLoader.open();
     CacheLoaderClient<String, String> clientCacheLoader = new CacheLoaderClient<>(serverCacheLoader.getInetAddress(), serverCacheLoader.getPort());
     clientCacheLoader.load("hi");
-    try {
-      serverCacheLoader.close();
-    } catch (IllegalStateException e) {
-      // expected
-    }
+    // server will throw IllegalStateException due to existence of client that was not closed
+    serverCacheLoader.close();
   }
 
 }

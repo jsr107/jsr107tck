@@ -217,7 +217,7 @@ public class Server implements AutoCloseable {
             if (clientConnections.size() > 0) {
                 LOG.warning("Open client connections: " + clientConnections);
                 throw new IllegalStateException(
-                  "Excepting no open client connections. " +
+                  "Expecting no open client connections. " +
                   "Customizations implementing Closeable need to be closed. " +
                   "See https://github.com/jsr107/jsr107tck/issues/100"
                 );
