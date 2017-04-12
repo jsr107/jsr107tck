@@ -6,6 +6,7 @@
  */
 package org.jsr107.tck.support;
 
+import java.io.Closeable;
 import java.io.Serializable;
 import java.net.InetAddress;
 
@@ -15,7 +16,7 @@ import java.net.InetAddress;
  * @author Brian Oliver
  * @author Joe Fialli
  */
-public class CacheClient implements AutoCloseable, Serializable {
+public class CacheClient implements Closeable, Serializable {
     /**
      * The {@link java.net.InetAddress} on which to connect to the {@link org.jsr107.tck.integration.CacheLoaderServer}.
      */
@@ -60,9 +61,10 @@ public class CacheClient implements AutoCloseable, Serializable {
      * {@inheritDoc}
      */
     @Override
-    public synchronized void close() throws Exception {
+    public synchronized void close() {
         if (client != null) {
             try {
+                client.invoke(Server.CLOSE_OPERATION);
                 client.close();
             } finally {
                 client = null;

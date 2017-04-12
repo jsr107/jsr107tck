@@ -16,4 +16,7 @@
     <!--Exclude Clover instrumented sources-->
     <suppress checks="" files="[\\/]src-instrumented[\\/]"/>
 
+    <!-- Exclude files with additional copyright notices -->
+    <suppress checks="Header" files="Server.java" />
+
 </suppressions>
