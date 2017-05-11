@@ -161,7 +161,6 @@
                         <configuration>
                             <systemPropertyVariables>
                                 <java.net.preferIPv4Stack>${java.net.preferIPv4Stack}</java.net.preferIPv4Stack>
-                                <domainJar>${domain-lib-dir}/${domain-jar}</domainJar>
                                 <javax.cache.CacheManager>${CacheManagerImpl}</javax.cache.CacheManager>
                                 <javax.cache.Cache>${CacheImpl}</javax.cache.Cache>
                                 <javax.cache.Cache.Entry>${CacheEntryImpl}</javax.cache.Cache.Entry>
