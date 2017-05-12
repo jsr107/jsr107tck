@@ -6,8 +6,11 @@
  */
 
 /**
- This package results in a jar used for testing class loader issues
+ This package contains a class hierarchy used for testing JSR107.
 
+ It is meant to exercise generic aspects.
+
+ @author Greg Luck
  @author Yannis Cosmadopoulos
  */
 package domain;
