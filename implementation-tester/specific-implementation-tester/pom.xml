@@ -84,24 +84,6 @@
                             <includeScope>test</includeScope>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>copy-domain</id>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>javax.cache</groupId>
-                                    <artifactId>app-domain</artifactId>
-                                    <version>${project.parent.version}</version>
-                                    <outputDirectory>${domain-lib-dir}
-                                    </outputDirectory>
-                                    <destFileName>${domain-jar}</destFileName>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
 
@@ -118,7 +100,6 @@
                 <configuration>
                     <systemPropertyVariables>
                         <java.net.preferIPv4Stack>${java.net.preferIPv4Stack}</java.net.preferIPv4Stack>
-                        <domainJar>${domain-lib-dir}/${domain-jar}</domainJar>
                         <javax.management.builder.initial>${javax.management.builder.initial}</javax.management.builder.initial>
                         <org.jsr107.tck.management.agentId>${org.jsr107.tck.management.agentId}</org.jsr107.tck.management.agentId>
                         <javax.cache.CacheManager>${CacheManagerImpl}</javax.cache.CacheManager>
@@ -152,10 +133,6 @@
                             <excludes>
                                 <include>**/interceptor/*Test.java</include>
                             </excludes>
-                            <systemPropertyVariables>
-                                <domainJar>${domain-lib-dir}/${domain-jar}
-                                </domainJar>
-                            </systemPropertyVariables>
                         </configuration>
                     </plugin>
                 </plugins>

@@ -27,7 +27,7 @@
     <dependencies>
         <dependency>
             <groupId>javax.cache</groupId>
-            <artifactId>test-domain</artifactId>
+            <artifactId>cache-tests</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>

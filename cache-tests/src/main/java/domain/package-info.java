@@ -10,7 +10,7 @@
 
  It is meant to exercise generic aspects.
 
-
  @author Greg Luck
+ @author Yannis Cosmadopoulos
  */
 package domain;

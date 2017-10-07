@@ -37,12 +37,6 @@
 
         <dependency>
             <groupId>javax.cache</groupId>
-            <artifactId>test-domain</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
             <version>${jcache.version}</version>
         </dependency>
@@ -161,7 +155,6 @@
                         <configuration>
                             <systemPropertyVariables>
                                 <java.net.preferIPv4Stack>${java.net.preferIPv4Stack}</java.net.preferIPv4Stack>
-                                <domainJar>${domain-lib-dir}/${domain-jar}</domainJar>
                                 <javax.cache.CacheManager>${CacheManagerImpl}</javax.cache.CacheManager>
                                 <javax.cache.Cache>${CacheImpl}</javax.cache.Cache>
                                 <javax.cache.Cache.Entry>${CacheEntryImpl}</javax.cache.Cache.Entry>
