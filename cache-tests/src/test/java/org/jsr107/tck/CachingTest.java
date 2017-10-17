@@ -80,7 +80,11 @@ public class CachingTest {
     assertEquals(provider.getDefaultURI(), manager.getURI());
   }
 
-  // https://github.com/jsr107/jsr107tck/issues/102
+  /**
+   * Check that when properties are passed into the CachingProvider #getCacheManager method, they pop out in
+   * the constructed CacheManager.
+   * https://github.com/jsr107/jsr107tck/issues/102
+   */
   @Test
   public void getCacheManager_nonNullProperties() {
     // make sure existing cache managers are closed and the non empty properties get picked up
