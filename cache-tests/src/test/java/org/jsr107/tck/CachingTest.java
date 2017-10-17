@@ -91,10 +91,10 @@ public class CachingTest {
     }
     CachingProvider provider = Caching.getCachingProvider();
     Properties properties = new Properties();
-    properties.put("dummy.com", "goofy");
+    properties.setProperty("javax.cache.test.1", "value1");
     provider.getCacheManager(provider.getDefaultURI(), provider.getDefaultClassLoader(), properties);
     CacheManager manager = provider.getCacheManager();
-    assertEquals(properties, manager.getProperties());
+    assertEquals("value1", manager.getProperties().getProperty("javax.cache.test.1"));
   }
 
   /**
