@@ -28,6 +28,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static javax.cache.event.EventType.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -107,11 +109,25 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
       CacheEntryRemovedListener<K, V>, Serializable,
   AutoCloseable {
 
+    // indicates the value of oldValueRequired from this listener's configuration
+    final boolean oldValueRequired;
     AtomicInteger created = new AtomicInteger();
     AtomicInteger updated = new AtomicInteger();
     AtomicInteger removed = new AtomicInteger();
 
     ArrayList<CacheEntryEvent<K, V>> entries = new ArrayList<CacheEntryEvent<K, V>>();
+
+    public MyCacheEntryListener() {
+      this(false);
+    }
+
+    public MyCacheEntryListener(boolean oldValueRequired) {
+      this.oldValueRequired = oldValueRequired;
+    }
+
+    public boolean isOldValueRequired() {
+      return oldValueRequired;
+    }
 
     public int getCreated() {
       return created.get();
@@ -148,7 +164,7 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
       //We don't count expiry events as they can occur asynchronously but we can test for some other conditions.
       for (CacheEntryEvent<? extends K, ? extends V> event : events) {
         assertEquals(EXPIRED, event.getEventType());
-        assertFalse(event.isOldValueAvailable());
+        assertOldValueForExpiredRemovedListener(event);
       }
 
     }
@@ -159,7 +175,7 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
         assertEquals(REMOVED, event.getEventType());
         removed.incrementAndGet();
         event.getKey();
-        assertFalse(event.isOldValueAvailable());
+        assertOldValueForExpiredRemovedListener(event);
       }
     }
 
@@ -169,15 +185,48 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
         assertEquals(UPDATED, event.getEventType());
         updated.incrementAndGet();
         event.getKey();
-        assertTrue(event.isOldValueAvailable());
-        //should never be null
-        event.getOldValue();
+        if (oldValueRequired) {
+          assertTrue("Old value should be available for " + eventAsString(event), event.isOldValueAvailable());
+          //should never be null
+          assertNotNull(event.getOldValue());
+        }
       }
     }
 
     @Override
     public void close() throws Exception {
       // added for code coverage
+    }
+
+    private void assertOldValueForExpiredRemovedListener(CacheEntryEvent<? extends K, ? extends V> event) {
+      if (isOldValueRequired()) {
+        // when listener was configured with oldValueRequired == true, old value must be available
+        assertTrue("Old value should be available for " + eventAsString(event),
+                event.isOldValueAvailable());
+        assertNotNull("Old value should be available for " + eventAsString(event),
+                event.getOldValue());
+        assertNotNull("Old value should be available for " + eventAsString(event),
+                event.getValue());
+      } else {
+        // when listener was configured with oldValueRequired == false, old value may be available or null
+        if (event.isOldValueAvailable()) {
+          assertNotNull("Old value should be available for " + eventAsString(event), event.getOldValue());
+          assertNotNull("Old value should be available for " + eventAsString(event), event.getValue());
+        } else {
+          assertNull("Old value should be null for " + eventAsString(event), event.getOldValue());
+          assertNull("Old value should be null for " + eventAsString(event), event.getValue());
+        }
+      }
+    }
+
+    private String eventAsString(CacheEntryEvent<? extends K, ? extends V> event) {
+      StringBuilder sb = new StringBuilder();
+      sb.append("CacheEntryEvent{eventType = ").append(event.getEventType())
+                   .append(", isOldValueAvailable = ").append(event.isOldValueAvailable())
+                   .append(", value = ").append(event.getValue())
+                   .append(", oldValue = ").append(event.getOldValue())
+                   .append("}");
+      return sb.toString();
     }
   }
 

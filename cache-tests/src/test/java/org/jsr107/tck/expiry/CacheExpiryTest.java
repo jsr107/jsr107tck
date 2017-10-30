@@ -101,7 +101,7 @@ public class CacheExpiryTest extends CacheTestSupport<Integer, Integer> {
 
   @Override
   protected MutableConfiguration<Integer, Integer> extraSetup(MutableConfiguration<Integer, Integer> configuration) {
-    listener = new CacheTestSupport.MyCacheEntryListener<Integer, Integer>();
+    listener = new CacheTestSupport.MyCacheEntryListener<Integer, Integer>(true);
 
     //establish a CacheEntryListenerClient that a Cache can use for CacheEntryListening
     //(via the CacheEntryListenerServer)

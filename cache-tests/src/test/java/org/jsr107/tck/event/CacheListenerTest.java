@@ -17,6 +17,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
@@ -37,6 +41,8 @@ import java.io.IOError;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -60,6 +66,7 @@ import static org.junit.Assert.fail;
  * @author Brian Oliver
  * @since 1.0
  */
+@RunWith(Parameterized.class)
 public class CacheListenerTest extends CacheTestSupport<Long, String> {
 
   private final Logger logger = Logger.getLogger(getClass().getName());
@@ -83,6 +90,16 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     }
   };
 
+  @Parameters(name = "{0}")
+  public static Collection<Object[]> data() {
+    return Arrays.asList(new Object[][] {
+            {Boolean.TRUE}, {Boolean.FALSE}
+    });
+  }
+
+  @Parameter
+  public boolean oldValueRequired;
+
   @Before
   public void moreSetUp() {
     cache = getCacheManager().getCache(getTestCacheName(), Long.class, String.class);
@@ -105,14 +122,15 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
 
     //establish and open a CacheEntryListenerServer to handle cache
     //cache entry events from a CacheEntryListenerClient
-    listener = new MyCacheEntryListener<Long, String>();
+    listener = new MyCacheEntryListener<Long, String>(oldValueRequired);
     cacheEntryListenerServer.addCacheEventListener(listener);
 
     //establish a CacheEntryListenerClient that a Cache can use for CacheEntryListening
     //(via the CacheEntryListenerServer)
     CacheEntryListenerClient<Long, String> clientListener =
       new CacheEntryListenerClient<>(cacheEntryListenerServer.getInetAddress(), cacheEntryListenerServer.getPort());
-    listenerConfiguration = new MutableCacheEntryListenerConfiguration<Long, String>(FactoryBuilder.factoryOf(clientListener), null, true, true);
+    listenerConfiguration = new MutableCacheEntryListenerConfiguration<Long, String>(FactoryBuilder.factoryOf(clientListener), null,
+            oldValueRequired, true);
     return configuration.addCacheEntryListenerConfiguration(listenerConfiguration);
   }
 
@@ -229,7 +247,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     MyBrokenCacheEntryListener<Long, String> brokenListener = new MyBrokenCacheEntryListener<Long, String>();
     CacheEntryListenerClient<Long, String> clientListener =
       new CacheEntryListenerClient<>(cacheEntryListenerServer.getInetAddress(), cacheEntryListenerServer.getPort());
-    listenerConfiguration = new MutableCacheEntryListenerConfiguration<Long, String>(FactoryBuilder.factoryOf(clientListener), null, true, true);
+    listenerConfiguration = new MutableCacheEntryListenerConfiguration<Long, String>(FactoryBuilder.factoryOf(clientListener), null, oldValueRequired, true);
     cache.registerCacheEntryListener(listenerConfiguration);
     cacheEntryListenerServer.addCacheEventListener(brokenListener);
 
@@ -355,12 +373,12 @@ public void testFilteredListener() throws InterruptedException {
   CacheEntryListenerClient<Long, String> clientListener =
     new CacheEntryListenerClient<>(cacheEntryListenerServer.getInetAddress(), cacheEntryListenerServer.getPort());
 
-  MyCacheEntryListener<Long, String> filteredListener = new MyCacheEntryListener<>();
+  MyCacheEntryListener<Long, String> filteredListener = new MyCacheEntryListener<>(oldValueRequired);
   CacheEntryListenerConfiguration<Long, String> listenerConfiguration =
       new MutableCacheEntryListenerConfiguration<Long, String>(
           FactoryBuilder.factoryOf(clientListener),
           FactoryBuilder.factoryOf(new MyCacheEntryEventFilter()),
-          true, true);
+              oldValueRequired, true);
   cache.registerCacheEntryListener(listenerConfiguration);
   cacheEntryListenerServer.addCacheEventListener(filteredListener);
 
@@ -453,10 +471,10 @@ public void testFilteredListener() throws InterruptedException {
 
     assertEquals(1, getConfigurationCacheEntryListenerConfigurationSize(cache));
 
-    MyCacheEntryListener secondListener = new MyCacheEntryListener<Long, String>();
+    MyCacheEntryListener secondListener = new MyCacheEntryListener<Long, String>(oldValueRequired);
     MutableCacheEntryListenerConfiguration<Long,
         String> listenerConfiguration = new
-        MutableCacheEntryListenerConfiguration(FactoryBuilder.factoryOf(secondListener), null, false, true);
+        MutableCacheEntryListenerConfiguration(FactoryBuilder.factoryOf(secondListener), null, oldValueRequired, true);
     cache.registerCacheEntryListener(listenerConfiguration);
 
     assertEquals(2,getConfigurationCacheEntryListenerConfigurationSize(cache));
@@ -496,10 +514,10 @@ public void testFilteredListener() throws InterruptedException {
 
     assertEquals(1, getConfigurationCacheEntryListenerConfigurationSize(cache));
 
-    MyCacheEntryListener secondListener = new MyCacheEntryListener<Long, String>();
+    MyCacheEntryListener secondListener = new MyCacheEntryListener<Long, String>(oldValueRequired);
     MutableCacheEntryListenerConfiguration<Long,
         String> secondListenerConfiguration = new
-        MutableCacheEntryListenerConfiguration(FactoryBuilder.factoryOf(secondListener), null, false, true);
+        MutableCacheEntryListenerConfiguration(FactoryBuilder.factoryOf(secondListener), null, oldValueRequired, true);
     cache.registerCacheEntryListener(secondListenerConfiguration);
 
     assertEquals(2, getConfigurationCacheEntryListenerConfigurationSize(cache));
