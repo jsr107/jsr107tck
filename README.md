@@ -5,6 +5,7 @@
 Please add the following to your settings.xml to enable the CDI RI to be sucked down from JBoss.
 
 
+```
 <profiles>
         <profile>
             <id>jboss-public-repository</id>
@@ -42,6 +43,7 @@ Please add the following to your settings.xml to enable the CDI RI to be sucked 
             </pluginRepositories>
         </profile>
 </profiles>
+```
 
 ## Testing Implementations of JCache
 
