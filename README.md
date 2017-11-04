@@ -1,7 +1,6 @@
 # TCK
 
-Running the TCK
----------------
+## Running the TCK
 
 Please add the following to your settings.xml to enable the CDI RI to be sucked down from JBoss.
 
@@ -44,8 +43,13 @@ Please add the following to your settings.xml to enable the CDI RI to be sucked 
         </profile>
 </profiles>
 
-Testing Implementions of JSR107
--------------------------------
+## Testing Implementations of JCache
 
+### Version 1.0.0
 See the [TCK User Guide](https://docs.google.com/document/d/1w3Ugj_oEqjMlhpCkGQOZkd9iPf955ZWHAVdZzEwYYdU/edit?usp=sharing)
 for instructions on how to use this TCK.
+
+### Version 1.1.0
+See the [TCK User Guide](https://docs.google.com/document/d/1m8d1Z44IFGAd20bXEvT2G--vWXbxaJctk16M2rmbM24/edit#)
+for instructions on how to use this TCK.
+
