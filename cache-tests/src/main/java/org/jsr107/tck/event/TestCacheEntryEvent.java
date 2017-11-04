@@ -76,6 +76,8 @@ public class TestCacheEntryEvent<K, V> extends CacheEntryEvent<K, V> {
     try {
       key = (K) ois.readObject();
       value = (V) ois.readObject();
+      oldValue = (V) ois.readObject();
+      isOldValueAvailable = ois.readBoolean();
 
       // problem dealing with the next 2 fields of CacheEntryEvent.
       // comment out for now.

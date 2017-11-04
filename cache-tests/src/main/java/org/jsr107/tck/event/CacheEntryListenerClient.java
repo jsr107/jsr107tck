@@ -113,29 +113,20 @@ public class CacheEntryListenerClient<K, V> extends CacheClient
         // Serialize rest of CacheEntryEvent
         oos.writeObject(event.getKey());
         oos.writeObject(event.getValue());
-
-        // commented out since there is an issue with working
-        // with these next 2 fields.
-        // be sure to read these in TestCacheEntryEvent.readObject
-        // when trying to reinstate them.
-        /*
+        oos.writeObject(event.getOldValue());
         oos.writeBoolean(event.isOldValueAvailable());
-        if (event.isOldValueAvailable()) {
-          Object oldValue = null;
-          try {
-            oldValue = event.getOldValue();
-          } catch (Throwable t) {
-            t.printStackTrace();
-          }
-          oos.writeObject(oldValue);
-        }
-        */
+        // ensure everything is written to the stream before blocking, waiting for a result
+        oos.flush();
+
         result = ois.readObject();
       } catch (Throwable t) {
         t.printStackTrace();
       }
       if (result instanceof CacheEntryListenerException) {
         throw ((CacheEntryListenerException)result);
+      }
+      if (result instanceof AssertionError) {
+        throw ((AssertionError) result);
       }
 
       // nothing to return.
