@@ -32,7 +32,7 @@
         <dependency>
             <groupId>org.jsr107.ri</groupId>
             <artifactId>cache-annotations-ri-guice</artifactId>
-            <version>${implementation-version}</version>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>cglib</groupId>
