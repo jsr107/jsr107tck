@@ -7,6 +7,7 @@
 package org.jsr107.tck.support;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
 
@@ -61,11 +62,13 @@ public class CacheClient implements Closeable, Serializable {
      * {@inheritDoc}
      */
     @Override
-    public synchronized void close() {
+    public synchronized void close() throws IOException {
         if (client != null) {
             try {
                 client.invoke(Server.CLOSE_OPERATION);
                 client.close();
+            } catch(RuntimeException e) {
+               throw new IOException("Error on close", e);
             } finally {
                 client = null;
             }
