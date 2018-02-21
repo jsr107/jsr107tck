@@ -352,7 +352,8 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
       public boolean evaluate(
           CacheEntryEvent<? extends Long, ? extends String> event)
           throws CacheEntryListenerException {
-          return event.getValue().contains("a") ||
+          return event.getValue() == null ||
+              event.getValue().contains("a") ||
               event.getValue().contains("e") ||
               event.getValue().contains("i") ||
               event.getValue().contains("o") ||
