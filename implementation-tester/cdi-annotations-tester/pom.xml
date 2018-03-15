@@ -6,7 +6,7 @@
     <parent>
         <groupId>javax.cache</groupId>
         <artifactId>implementation-tester</artifactId>
-        <version>1.1.0</version>
+        <version>1.1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>cdi-annotations-tester</artifactId>

@@ -6,7 +6,7 @@
     <parent>
         <groupId>javax.cache</groupId>
         <artifactId>tck-parent</artifactId>
-        <version>1.1.0</version>
+        <version>1.1.1-SNAPSHOT</version>
     </parent>
 
     <groupId>javax.cache</groupId>
@@ -137,13 +137,13 @@
                     <artifactId>${implementation-artifactId}</artifactId>
                     <version>${implementation-version}</version>
                 </dependency>
-                <dependency>
-                    <groupId>javax.cache</groupId>
-                    <!--<artifactId>spring-annotations-test-harness</artifactId>-->
-                    <!--<artifactId>guice-annotations-test-harness</artifactId>-->
-                    <artifactId>cdi-weld-annotations-test-harness</artifactId>
-                    <version>${project.parent.version}</version>
-                </dependency>
+                <!--<dependency>-->
+                    <!--<groupId>javax.cache</groupId>-->
+                    <!--&lt;!&ndash;<artifactId>spring-annotations-test-harness</artifactId>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<artifactId>guice-annotations-test-harness</artifactId>&ndash;&gt;-->
+                    <!--<artifactId>cdi-weld-annotations-test-harness</artifactId>-->
+                    <!--<version>${project.parent.version}</version>-->
+                <!--</dependency>-->
             </dependencies>
 
             <build>
