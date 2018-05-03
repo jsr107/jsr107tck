@@ -29,7 +29,7 @@ public class CacheLoaderServer<K, V> extends Server {
    * The underlying {@link CacheLoader} that will be used to
    * load entries requested by the {@link CacheLoaderClient}s.
    */
-  private CacheLoader<K, V> cacheLoader;
+  private volatile CacheLoader<K, V> cacheLoader;
 
   /**
    * Constructs an {@link CacheLoaderServer} (without a {@link CacheLoader} to

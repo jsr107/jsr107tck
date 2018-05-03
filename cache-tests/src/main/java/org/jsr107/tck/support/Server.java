@@ -107,7 +107,7 @@ public class Server implements AutoCloseable {
     /**
      * Should the running {@link Server} terminate as soon as possible?
      */
-    private AtomicBoolean isTerminating;
+    private final AtomicBoolean isTerminating;
 
     /**
      * Construct a {@link Server} that will accept {@link Client} connections
