@@ -28,12 +28,12 @@ public class RecordingCacheLoader<K> implements CacheLoader<K, K>, AutoCloseable
   /**
    * The keys that have been loaded by this loader.
    */
-  private ConcurrentHashMap<K, K> loaded = new ConcurrentHashMap<K, K>();
+  private final ConcurrentHashMap<K, K> loaded = new ConcurrentHashMap<K, K>();
 
   /**
    * The number of loads that have occurred.
    */
-  private AtomicInteger loadCount = new AtomicInteger(0);
+  private final AtomicInteger loadCount = new AtomicInteger(0);
 
   /**
    * {@inheritDoc}
