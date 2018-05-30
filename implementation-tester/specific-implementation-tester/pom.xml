@@ -129,7 +129,7 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
                             <excludes>
-                                <include>**/interceptor/*Test.java</include>
+                                <exclude>**/interceptor/*Test.java</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
