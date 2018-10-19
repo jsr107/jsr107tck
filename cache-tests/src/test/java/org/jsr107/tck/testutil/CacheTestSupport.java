@@ -23,9 +23,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static javax.cache.event.EventType.*;
+import static javax.cache.event.EventType.CREATED;
+import static javax.cache.event.EventType.EXPIRED;
+import static javax.cache.event.EventType.REMOVED;
+import static javax.cache.event.EventType.UPDATED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -111,6 +116,10 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
 
     // indicates the value of oldValueRequired from this listener's configuration
     final boolean oldValueRequired;
+    // expected KV pairs for assertion of oldValue in UPDATED events
+    // using a ConcurrentMap because expectations are set on test thread and asserted
+    // on listener execution thread
+    final Map<K, V> expectedOldValues = new ConcurrentHashMap<>();
     AtomicInteger created = new AtomicInteger();
     AtomicInteger updated = new AtomicInteger();
     AtomicInteger removed = new AtomicInteger();
@@ -143,6 +152,18 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
 
     public ArrayList<CacheEntryEvent<K, V>> getEntries() {
       return entries;
+    }
+
+    public void expectOldValue(K key, V oldValue) {
+      // tests are executed sequentially, so no need to update expectedOldValues atomically
+      expectedOldValues.clear();
+      expectedOldValues.put(key, oldValue);
+    }
+
+    public void expectOldValues(Map<K, V> entries) {
+      // tests are executed sequentially, so no need to update expectedOldValues atomically
+      expectedOldValues.clear();
+      expectedOldValues.putAll(entries);
     }
 
     @Override
@@ -189,6 +210,7 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
           assertTrue("Old value should be available for " + eventAsString(event), event.isOldValueAvailable());
           //should never be null
           assertNotNull(event.getOldValue());
+          assertEquals(expectedOldValues.get(event.getKey()), event.getOldValue());
         }
       }
     }
