@@ -172,11 +172,13 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     assertEquals(0, listener.getUpdated());
     assertEquals(0, listener.getRemoved());
 
+    listener.expectOldValue(1l, "Sooty");
     cache.put(1l, "Sooty");
     assertEquals(3, listener.getCreated());
     assertEquals(1, listener.getUpdated());
     assertEquals(0, listener.getRemoved());
 
+    listener.expectOldValues(entries);
     cache.putAll(entries);
     assertEquals(3, listener.getCreated());
     assertEquals(3, listener.getUpdated());
@@ -187,6 +189,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     assertEquals(3, listener.getUpdated());
     assertEquals(0, listener.getRemoved());
 
+    listener.expectOldValue(4l, "Cody");
     cache.getAndPut(4l, "Cody");
     assertEquals(4, listener.getCreated());
     assertEquals(4, listener.getUpdated());
@@ -205,6 +208,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     assertEquals(4, listener.getUpdated());
     assertEquals(0, listener.getRemoved());
 
+    listener.expectOldValue(1l, "Sooty");
     result = cache.invoke(1l, new SetEntryProcessor<Long, String>("Zoot"));
     assertEquals("Zoot", result);
     assertEquals(4, listener.getCreated());
@@ -410,11 +414,13 @@ public void testFilteredListener() throws InterruptedException {
   assertEquals(0, filteredListener.getUpdated());
   assertEquals(1, filteredListener.getRemoved());
 
+  filteredListener.expectOldValue(1l, "Zyn");
   cache.replace(1l, "Fred");
   assertEquals(2, filteredListener.getCreated());
   assertEquals(1, filteredListener.getUpdated());
   assertEquals(1, filteredListener.getRemoved());
 
+  filteredListener.expectOldValue(3l,"Bryn");
   cache.replace(3l, "Bryn", "Sooty");
   assertEquals(2, filteredListener.getCreated());
   assertEquals(2, filteredListener.getUpdated());
@@ -440,6 +446,7 @@ public void testFilteredListener() throws InterruptedException {
   assertEquals(2, filteredListener.getUpdated());
   assertEquals(1, filteredListener.getRemoved());
 
+  filteredListener.expectOldValue(1l, "Fred");
   cache.getAndPut(1l, "Pistachio");
   assertEquals(2, filteredListener.getCreated());
   assertEquals(3, filteredListener.getUpdated());
@@ -452,6 +459,7 @@ public void testFilteredListener() throws InterruptedException {
   assertEquals(3, filteredListener.getUpdated());
   assertEquals(1, filteredListener.getRemoved());
 
+  filteredListener.expectOldValue(1l, "Pistachio");
   cache.getAndReplace(1l, "Prince");
   assertEquals(2, filteredListener.getCreated());
   assertEquals(4, filteredListener.getUpdated());
