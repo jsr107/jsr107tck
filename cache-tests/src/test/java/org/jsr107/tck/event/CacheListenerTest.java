@@ -163,6 +163,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     assertEquals(1, listener.getCreated());
     assertEquals(0, listener.getUpdated());
     assertEquals(0, listener.getRemoved());
+    listener.assertNoError();
 
     Map<Long, String> entries = new HashMap<Long, String>();
     entries.put(2l, "Lucky");
@@ -171,35 +172,40 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     assertEquals(3, listener.getCreated());
     assertEquals(0, listener.getUpdated());
     assertEquals(0, listener.getRemoved());
+    listener.assertNoError();
 
     listener.expectOldValue(1l, "Sooty");
     cache.put(1l, "Sooty");
     assertEquals(3, listener.getCreated());
     assertEquals(1, listener.getUpdated());
     assertEquals(0, listener.getRemoved());
+    listener.assertNoError();
 
     listener.expectOldValues(entries);
     cache.putAll(entries);
     assertEquals(3, listener.getCreated());
     assertEquals(3, listener.getUpdated());
     assertEquals(0, listener.getRemoved());
+    listener.assertNoError();
 
     cache.getAndPut(4l, "Cody");
     assertEquals(4, listener.getCreated());
     assertEquals(3, listener.getUpdated());
     assertEquals(0, listener.getRemoved());
+    listener.assertNoError();
 
     listener.expectOldValue(4l, "Cody");
     cache.getAndPut(4l, "Cody");
     assertEquals(4, listener.getCreated());
     assertEquals(4, listener.getUpdated());
     assertEquals(0, listener.getRemoved());
+    listener.assertNoError();
 
     String value = cache.get(1l);
     assertEquals(4, listener.getCreated());
     assertEquals(4, listener.getUpdated());
     assertEquals(0, listener.getRemoved());
-
+    listener.assertNoError();
 
     EntryProcessor<Long, String, String> multiArgEP = new MultiArgumentHandlingEntryProcessor<>(value);
     String result = cache.invoke(1l, multiArgEP, "These", "are", "arguments", 1l);
@@ -207,6 +213,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     assertEquals(4, listener.getCreated());
     assertEquals(4, listener.getUpdated());
     assertEquals(0, listener.getRemoved());
+    listener.assertNoError();
 
     listener.expectOldValue(1l, "Sooty");
     result = cache.invoke(1l, new SetEntryProcessor<Long, String>("Zoot"));
@@ -214,18 +221,21 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     assertEquals(4, listener.getCreated());
     assertEquals(5, listener.getUpdated());
     assertEquals(0, listener.getRemoved());
+    listener.assertNoError();
 
     result = cache.invoke(1l, new RemoveEntryProcessor<Long, String, String>());
     assertNull(result);
     assertEquals(4, listener.getCreated());
     assertEquals(5, listener.getUpdated());
     assertEquals(1, listener.getRemoved());
+    listener.assertNoError();
 
     result = cache.invoke(1l, new SetEntryProcessor<Long, String>("Moose"));
     assertEquals("Moose", result);
     assertEquals(5, listener.getCreated());
     assertEquals(5, listener.getUpdated());
     assertEquals(1, listener.getRemoved());
+    listener.assertNoError();
 
     Iterator<Cache.Entry<Long, String>> iterator = cache.iterator();
     while (iterator.hasNext()) {
@@ -235,6 +245,7 @@ public class CacheListenerTest extends CacheTestSupport<Long, String> {
     assertEquals(5, listener.getCreated());
     assertEquals(5, listener.getUpdated());
     assertEquals(5, listener.getRemoved());
+    listener.assertNoError();
   }
 
   /**
@@ -395,6 +406,7 @@ public void testFilteredListener() throws InterruptedException {
   assertEquals(1, filteredListener.getCreated());
   assertEquals(0, filteredListener.getUpdated());
   assertEquals(0, filteredListener.getRemoved());
+  filteredListener.assertNoError();
 
   Map<Long, String> entries = new HashMap<Long, String>();
   entries.put(2l, "Lucky");
@@ -403,39 +415,46 @@ public void testFilteredListener() throws InterruptedException {
   assertEquals(2, filteredListener.getCreated());
   assertEquals(0, filteredListener.getUpdated());
   assertEquals(0, filteredListener.getRemoved());
+  filteredListener.assertNoError();
 
   cache.put(1l, "Zyn");
   assertEquals(2, filteredListener.getCreated());
   assertEquals(0, filteredListener.getUpdated());
   assertEquals(0, filteredListener.getRemoved());
+  filteredListener.assertNoError();
 
   cache.remove(2l);
   assertEquals(2, filteredListener.getCreated());
   assertEquals(0, filteredListener.getUpdated());
   assertEquals(1, filteredListener.getRemoved());
+  filteredListener.assertNoError();
 
   filteredListener.expectOldValue(1l, "Zyn");
   cache.replace(1l, "Fred");
   assertEquals(2, filteredListener.getCreated());
   assertEquals(1, filteredListener.getUpdated());
   assertEquals(1, filteredListener.getRemoved());
+  filteredListener.assertNoError();
 
   filteredListener.expectOldValue(3l,"Bryn");
   cache.replace(3l, "Bryn", "Sooty");
   assertEquals(2, filteredListener.getCreated());
   assertEquals(2, filteredListener.getUpdated());
   assertEquals(1, filteredListener.getRemoved());
+  filteredListener.assertNoError();
 
   cache.get(1L);
   assertEquals(2, filteredListener.getCreated());
   assertEquals(2, filteredListener.getUpdated());
   assertEquals(1, filteredListener.getRemoved());
+  filteredListener.assertNoError();
 
   //containsKey is not a read for filteredListener purposes.
   cache.containsKey(1L);
   assertEquals(2, filteredListener.getCreated());
   assertEquals(2, filteredListener.getUpdated());
   assertEquals(1, filteredListener.getRemoved());
+  filteredListener.assertNoError();
 
   //iterating should cause read events on non-expired entries
   for (Cache.Entry<Long, String> entry : cache) {
@@ -451,6 +470,7 @@ public void testFilteredListener() throws InterruptedException {
   assertEquals(2, filteredListener.getCreated());
   assertEquals(3, filteredListener.getUpdated());
   assertEquals(1, filteredListener.getRemoved());
+  filteredListener.assertNoError();
 
   Set<Long> keys = new HashSet<Long>();
   keys.add(1L);
@@ -464,11 +484,13 @@ public void testFilteredListener() throws InterruptedException {
   assertEquals(2, filteredListener.getCreated());
   assertEquals(4, filteredListener.getUpdated());
   assertEquals(1, filteredListener.getRemoved());
+  filteredListener.assertNoError();
 
   cache.getAndRemove(1l);
   assertEquals(2, filteredListener.getCreated());
   assertEquals(4, filteredListener.getUpdated());
   assertEquals(2, filteredListener.getRemoved());
+  filteredListener.assertNoError();
 
   assertEquals(2, filteredListener.getCreated());
   assertEquals(4, filteredListener.getUpdated());

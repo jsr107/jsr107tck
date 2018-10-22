@@ -120,6 +120,7 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
     // using a ConcurrentMap because expectations are set on test thread and asserted
     // on listener execution thread
     final Map<K, V> expectedOldValues = new ConcurrentHashMap<>();
+    volatile AssertionError lastError = null;
     AtomicInteger created = new AtomicInteger();
     AtomicInteger updated = new AtomicInteger();
     AtomicInteger removed = new AtomicInteger();
@@ -168,56 +169,87 @@ public abstract class CacheTestSupport<K, V> extends TestSupport {
 
     @Override
     public void onCreated(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
-      for (CacheEntryEvent<? extends K, ? extends V> event : events) {
-        assertEquals(CREATED, event.getEventType());
-        assertFalse(event.isOldValueAvailable());
-        created.incrementAndGet();
+      try {
+        for (CacheEntryEvent<? extends K, ? extends V> event : events) {
+          assertEquals(CREATED, event.getEventType());
+          assertFalse(event.isOldValueAvailable());
+          created.incrementAndGet();
 
-        // added for code coverage.
-        event.getKey();
-        event.getValue();
-        event.getSource();
+          // added for code coverage.
+          event.getKey();
+          event.getValue();
+          event.getSource();
+        }
+      } catch (AssertionError assertionError) {
+        lastError = assertionError;
+        throw assertionError;
       }
     }
 
     @Override
     public void onExpired(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
-      //We don't count expiry events as they can occur asynchronously but we can test for some other conditions.
-      for (CacheEntryEvent<? extends K, ? extends V> event : events) {
-        assertEquals(EXPIRED, event.getEventType());
-        assertOldValueForExpiredRemovedListener(event);
+      try {
+        //We don't count expiry events as they can occur asynchronously but we can test for some other conditions.
+        for (CacheEntryEvent<? extends K, ? extends V> event : events) {
+          assertEquals(EXPIRED, event.getEventType());
+          assertOldValueForExpiredRemovedListener(event);
+        }
+      } catch (AssertionError assertionError) {
+        lastError = assertionError;
+        throw assertionError;
       }
-
     }
 
     @Override
     public void onRemoved(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
-      for (CacheEntryEvent<? extends K, ? extends V> event : events) {
-        assertEquals(REMOVED, event.getEventType());
-        removed.incrementAndGet();
-        event.getKey();
-        assertOldValueForExpiredRemovedListener(event);
+      try {
+        for (CacheEntryEvent<? extends K, ? extends V> event : events) {
+          assertEquals(REMOVED, event.getEventType());
+          removed.incrementAndGet();
+          event.getKey();
+          assertOldValueForExpiredRemovedListener(event);
+        }
+      } catch (AssertionError assertionError) {
+        lastError = assertionError;
+        throw assertionError;
       }
     }
 
     @Override
     public void onUpdated(Iterable<CacheEntryEvent<? extends K, ? extends V>> events) throws CacheEntryListenerException {
-      for (CacheEntryEvent<? extends K, ? extends V> event : events) {
-        assertEquals(UPDATED, event.getEventType());
-        updated.incrementAndGet();
-        event.getKey();
-        if (oldValueRequired) {
-          assertTrue("Old value should be available for " + eventAsString(event), event.isOldValueAvailable());
-          //should never be null
-          assertNotNull(event.getOldValue());
-          assertEquals(expectedOldValues.get(event.getKey()), event.getOldValue());
+      try {
+        for (CacheEntryEvent<? extends K, ? extends V> event : events) {
+          assertEquals(UPDATED, event.getEventType());
+          updated.incrementAndGet();
+          event.getKey();
+          if (oldValueRequired) {
+            assertTrue("Old value should be available for " + eventAsString(event), event.isOldValueAvailable());
+            //should never be null
+            assertNotNull(event.getOldValue());
+            assertEquals(expectedOldValues.get(event.getKey()), event.getOldValue());
+          }
         }
+      } catch (AssertionError assertionError) {
+        lastError = assertionError;
+        throw assertionError;
       }
-    }
+}
 
     @Override
     public void close() throws Exception {
       // added for code coverage
+    }
+
+      /**
+       * Clear the {@code lastError} recorded and throw the last {@code AssertionError},
+       * if one was caught.
+       */
+    public void assertNoError() {
+      AssertionError error = lastError;
+      lastError = null;
+      if (error != null) {
+          throw error;
+      }
     }
 
     private void assertOldValueForExpiredRemovedListener(CacheEntryEvent<? extends K, ? extends V> event) {
