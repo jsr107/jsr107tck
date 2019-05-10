@@ -6,7 +6,7 @@
     <parent>
         <groupId>javax.cache</groupId>
         <artifactId>implementation-tester</artifactId>
-        <version>1.1.1-SNAPSHOT</version>
+        <version>1.1.1</version>
     </parent>
 
     <artifactId>cdi-annotations-tester</artifactId>
@@ -33,7 +33,7 @@
             <version>${implementation-version}</version>
         </dependency>
 
-        <!-- 
+        <!--
             Is there a way to have the cache RI impl check if one of the annotations RIs is available
             before stating it supports annotations?
          -->
